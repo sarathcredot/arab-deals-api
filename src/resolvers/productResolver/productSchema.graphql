@@ -1,0 +1,248 @@
+
+
+# Product Mutations
+
+
+  scalar Upload
+
+  type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
+  type Mutation {
+    uploadProductFile(file: Upload!): File
+    createProduct(input: ProductInput!, images:[Upload]): ProductResponse
+    createVariant(input: VariantInput!, images:[Upload]): VariantResponse
+    updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
+    deleteProduct(input: ProductId!): DeleteProductResponse!
+  }
+
+
+    # Input
+
+    input ProductFileDataInput {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+    }
+
+   input ProductInput {
+    productName: String
+    shortDescription: String
+    skuId: String
+    description: String
+    productInfo: [String]
+    productShortInfo: String
+    color: String
+    size: String
+    material: String,
+    rating: Int
+    tags: String
+    sellingPrice: Float
+    price: Float
+    mrp: Float
+    isBlocked: Boolean
+    productCode: Int
+    stock: Int
+    categoryId: String
+    images: [String]
+}
+
+input VariantInput {
+    productName: String
+    shortDescription: String
+    skuId: String
+    description: String
+    productInfo: [String]
+    productShortInfo: String
+    color: String
+    size: String
+    material: String,
+    rating: Int
+    tags: String
+    sellingPrice: Float
+    price: Float
+    mrp: Float
+    isBlocked: Boolean
+    productCode: Int!
+    stock: Int
+    categoryId: String
+    images: [String]
+}
+
+   input ProductUpdateInput {
+     _id: String!
+    productName: String
+    shortDescription: String
+    skuId: String
+    description: String
+    productInfo: [String]
+    productShortInfo: String
+    color: String
+    size: String
+    material: String,
+    rating: Int
+    tags: String
+    sellingPrice: Float
+    price: Float
+    mrp: Float
+    isBlocked: Boolean
+    productCode: Int
+    stock: Int
+    categoryId: String
+    images: [String]
+}
+
+    input ProductId {
+        _id: String!
+ }
+
+    # Output
+
+
+
+# Auth Queries
+
+type Query {
+    getProductsByAdmin(input:ProductFilters):ProductsResponse!
+    getProductByAdmin(input: ProductId!): ProductResponse!
+    getVariantsByAdmin(input:VariantsInput!) : VariantsResponse!
+    getProducts(input:ProductFilters):ProductsResponse!
+    getProduct(input: ProductId!): ProductResponse!
+    getVariants(input:VariantsInput!) : VariantsResponse!
+    getProductsAutoComplete(input:GetProductsAutoCompleteInput!) : GetProductsAutoCompleteResponse
+    getRelatedProducts(input: RelatedProductsFilters!):RelatedProductsResponse!
+
+}
+
+    # Input
+    input ProductFilters {
+        page: Int
+        size: Int
+        color: [String]
+        productSize: [String]
+        minPrice: Float
+        maxPrice: Float
+        newest: Boolean
+        priceLowToHigh: Boolean
+        priceHighToLow: Boolean
+        query: String
+        categories:[String]
+        parentCategory:String
+    }
+
+    input ProductId {
+        _id: String!
+    }
+
+    input VariantsInput {
+        _id: String!
+    }
+
+    input GetProductsAutoCompleteInput {
+        query: String!
+    }
+
+    type DeleteProductResponse {
+       _id: String!
+       message: String
+    }
+    
+    input RelatedProductsFilters {
+        _id: String!
+        limit: Int
+    }
+
+    # Output
+
+    type ProductFileData {
+        fileType: String
+        fileURL: String
+        mimeType: String
+        originalName: String
+    }
+
+    type Product {
+        _id:String
+        productName: String
+        shortDescription: String
+        skuId: String
+        description: String
+        productInfo: [String]
+        productShortInfo: String
+        size: String
+        color: String
+        material: String
+        images: [ProductFileData]
+        rating: Int
+        sellingPrice: Float
+        price: Float
+        mrp: Float
+        tags: [String]
+        productCode: Int
+        categoryId: String
+        categoryNamePath: String
+        categoryIdPath: String
+        isBlocked: Boolean
+        stock: Int
+    }
+    
+
+    type ProductsResponse {
+        maxRecords: Int!
+        records: [Product!]
+    }
+
+    type ProductResponse {
+        product: Product!
+        sizeChartUrl:String
+        message: String
+    }
+
+    type VariantResponse {
+        product: Product!
+        sizeChartUrl:String
+        message: String
+    }
+
+    type ProductUpdateResponse {
+        _id: String!
+        message: String
+    }
+    
+
+    type Variant {
+       _id: String!
+       color: String!
+       size: String!
+       stock: Int!
+       colorCode: String!
+       isBlocked: Boolean
+    }
+
+    type VariantsResponse {
+       variants: [Variant]
+    }
+
+
+    type ProductSuggestion {
+      productName:String!
+    }
+
+    type GetProductsAutoCompleteResponse {
+       suggestions: [ProductSuggestion]
+    }
+
+    type RelatedProductsResponse {
+        records: [Product!]
+    }
+# Schema
+
+schema {
+    mutation: Mutation
+    query:Query
+}
+

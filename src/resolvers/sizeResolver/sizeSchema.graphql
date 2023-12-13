@@ -1,0 +1,76 @@
+
+
+# Size Mutations
+
+
+  type Mutation {
+    addSize(input: AddSizeInput!): AddSizeResponse!
+  }
+
+
+
+    # Input
+
+    input AddSizeInput {
+        categoryId: String!
+        size: String!
+        isBlocked: Boolean
+    }
+
+    # Output
+
+    type AddSizeResponse {
+        _id: String!
+    }
+
+
+# Size Queries
+
+ type Query {
+  getSizeRecord(input: SizeId!): SizeRecordResponse!
+  getActiveSizes(input: GetActiveSizesInput):ActiveSizesResponse!
+  getAllSizesWithCatgeoryId(input: CategoryIdInput):getAllSizesResponse!
+
+}   
+
+    # Input
+   
+  input SizeId {
+    _id: String!
+  }
+
+  input GetActiveSizesInput {
+    categoryId: String
+  }
+
+  input CategoryIdInput {
+    categoryId: String
+  }
+
+    # Output
+
+  type SizeRecord {
+    size: String
+    isBlocked: Boolean
+    categoryIdPath: String
+  }  
+  
+  type SizeRecordResponse {
+    record: SizeRecord!
+  }
+    
+  type ActiveSizesResponse{
+    records: [SizeRecord]
+  }
+
+  type getAllSizesResponse {
+    records: [SizeRecord]
+  }
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query:Query
+}
+

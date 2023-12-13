@@ -1,0 +1,94 @@
+  scalar Upload
+
+
+# Admin auth Mutations
+
+ type Mutation {
+  # createSuperAdmin(input: AdminSignUpInput!, image:Upload): AddAdminResponse!
+  createSubAdmin(input: SubAdminSignUpInput!, image:Upload): AddAdminResponse!
+  loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
+  updateAdminProfile(input: AdminEditProfileInput!, image:Upload): UpdateAdminResponse!
+}
+
+ type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+  }  
+
+# Admin auth Type
+
+type Admin {
+  _id: String
+  email: String
+  password: String
+  accType: String
+  isBlocked: Boolean
+  fullName: String
+  profilePic: ImageData
+}
+
+
+# Admin auth Input
+
+input AdminSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+}
+
+    
+input SubAdminSignUpInput {
+  email: String!
+  password: String!
+  isBlocked: Boolean!
+  fullName: String!
+}
+
+input AdminLoginInput {
+  email: String!
+  password: String!
+}
+
+input AdminEditProfileInput {
+  fullName: String
+  email: String
+  password: String
+  isBlocked: Boolean
+}
+
+
+# Admin auth Output
+
+type AddAdminResponse {
+  _id: String!
+}
+
+type AdminAuthResponse {
+  _id: String
+  token: String
+}
+
+type UpdateAdminResponse {
+    _id: String
+    message:String
+}
+
+type Query {
+    getAdminRecord: getAdminRecordResponse
+}
+
+type getAdminRecordResponse{
+   record: Admin
+}
+
+
+# Schema
+
+schema {
+mutation: Mutation,
+query: Query
+}
+
+

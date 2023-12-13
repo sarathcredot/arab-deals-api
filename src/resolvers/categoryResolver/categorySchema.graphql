@@ -1,0 +1,145 @@
+  scalar Upload
+
+
+# Cms Mutations
+
+
+  type Mutation {
+    createCategory(input: CreateCategoryInput!, image:Upload): CreateCategoryResponse!
+    updateCategory(input: UpdateCategoryInput!, image:Upload): UpdateCategoryResponse!
+    deleteCategory(input: CategoryId!): DeleteCategoryResponse!
+  }
+
+    # Input
+
+    input CreateCategoryInput {
+        categoryName: String!
+        parentId: String
+        isBlocked: Boolean
+        description: String
+        isLeaf: Boolean
+    }
+
+    input UpdateCategoryInput {
+        _id: String!
+        categoryName: String
+        parentId: String
+        isBlocked: Boolean
+        description: String
+        isLeaf: Boolean
+    }
+
+    input CategoryId {
+        _id: String!
+    }
+
+    # Output
+
+    type CreateCategoryResponse {
+        _id: String!
+    }
+
+    type UpdateCategoryResponse {
+        _id: String!
+        message: String
+    }
+
+    type DeleteCategoryResponse {
+       _id: String!
+       message: String
+    }
+
+
+# Cms Queries
+
+ type Query {
+  getAllChildCategories(input:GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
+  getActiveChildCategories(input:GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
+  getActiveCategoryTree: getActiveCategoryTreeResponse!
+  getCategoriesAutoComplete(input:GetCategoriesAutoCompleteInput!):GetCategoriesAutoCompleteRespons
+  getAllLeafRecords: getAllLeafRecordsResponse!
+  getLevelCategories(input:GetLevelCategoriesInput): GetLevelCategoriesResponse!
+}   
+
+    # Input
+     input GetAllChildLevelCategoriesInput{
+      parent:String
+    }
+
+    input GetActiveChildCategoriesInput{
+      parent:String
+    }
+  
+
+    input GetCategoriesAutoCompleteInput{
+      query:String!
+    }
+
+    input GetLevelCategoriesInput{
+      level: Int
+      limit: Int
+    }
+
+
+    # Output
+
+     type ImageData {
+      fileType: String
+      fileURL: String
+      mimeType: String
+      originalName: String
+    }  
+
+    type Category{
+      categoryName:String
+      _id: String
+      isBlocked: Boolean
+      fullCategoryName: String
+      isLeaf: Boolean
+      description: String
+      sizeChart: ImageData
+    }
+
+    type CategoryNode{
+      categoryName:String
+      _id: String
+      children: [CategoryNode]
+    }
+
+    type GetActiveChildCategoriesResponse{
+      records:[Category]
+    }
+
+    type GetAllChildLevelCategoriesResponse{
+      records:[Category]
+    }
+
+
+    type getActiveCategoryTreeResponse{
+      records:[CategoryNode]
+    }
+
+    type CategorySuggestion {
+      _id:String!
+      description: String!
+    }
+
+    type GetCategoriesAutoCompleteRespons {
+       suggestions: [CategorySuggestion]
+    }
+
+    type getAllLeafRecordsResponse{
+      records:[Category]
+    }
+
+    type GetLevelCategoriesResponse{
+      records:[Category]
+    }
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query:Query
+}
+

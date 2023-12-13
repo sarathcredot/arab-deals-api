@@ -1,0 +1,8 @@
+.env
+node_modules
+
+
+dist
+src/_generated_
+src/scripts/migrationScript.ts
+src/scripts/products.json
