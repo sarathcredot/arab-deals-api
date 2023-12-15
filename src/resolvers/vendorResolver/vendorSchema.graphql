@@ -1,0 +1,95 @@
+scalar Upload
+
+# Vendor auth Mutations
+
+type Mutation {
+  createVendor(input: VendorSignUpInput!, image: Upload): AddVendorResponse!
+  loginVendor(input: VendorLoginInput!): VendorAuthResponse!
+  updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
+}
+
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+# Vendor auth Type
+
+type Vendor {
+  _id: String
+  email: String
+  password: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  profilePic: ImageData
+  # mobileOtp: MobileOtpData
+  isVerified: Boolean
+  isBlocked: Boolean
+  token: String
+}
+
+type MobileOtpData {
+  code: String
+  expiresAt: String
+}
+
+# Vendor auth Input
+
+input VendorSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+  # mobileOtp: String!
+  mobileNumber: String!
+  country: String!
+  brand: String
+}
+
+input VendorLoginInput {
+  email: String!
+  password: String!
+}
+
+input VendorEditProfileInput {
+  fullName: String
+  email: String
+  password: String
+  mobileNumber: String
+  country: String
+  brand: String
+}
+
+# Vendor auth Output
+
+type AddVendorResponse {
+  _id: String!
+}
+
+type VendorAuthResponse {
+  _id: String
+  token: String
+}
+
+type UpdateVendorResponse {
+  _id: String
+  message: String
+}
+
+type Query {
+  getVendorRecord: getVendorRecordResponse
+}
+
+type getVendorRecordResponse {
+  record: Vendor
+}
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}

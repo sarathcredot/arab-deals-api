@@ -3,8 +3,9 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
 const adminSecretKey: string = process.env.ADMIN_JWT_SECRET || "";
+const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
 
-
+// Admin JWT Services
 export const getAuthTokenFromHeaders = (req: Request): string => {
     try {
         const { headers: { authorization } } = req;
@@ -56,4 +57,39 @@ export const verifyAdminJWT = (token: string): JwtPayload => {
         }
     });
 }
+
+
+// Vendor JWT Services
+export const createVendorJWT = (id: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        try {
+            const token = jwt.sign({ id }, vendorSecretKey, { expiresIn: "1hr" });
+            resolve(token);
+        } catch (e) {
+            reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+};
+
+export const verifyVendorJWT = (token: string): JwtPayload => {
+    return new Promise((resolve, reject) => {
+        try {
+            const decoded = jwt.verify(token, vendorSecretKey, { ignoreExpiration: true });
+            resolve(decoded);
+        } catch (e) {
+            reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+}
+
 

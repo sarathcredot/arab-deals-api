@@ -7,6 +7,7 @@ import { colorResolver } from "./colorResolver/colorResolver";
 import { sizeResolver } from "./sizeResolver/sizeResolver";
 import { categoryResolver } from "./categoryResolver/categoryResolver";
 import { adminResolver } from "./adminResolver/adminResolver";
+import { vendorResolver } from "./vendorResolver/vendorResolver";
 
 
 
@@ -19,6 +20,7 @@ export const resolvers: Resolvers = mergeResolvers(
         colorResolver,
         sizeResolver,
         categoryResolver,
-        adminResolver
+        adminResolver,
+        vendorResolver
     ]
 );

@@ -283,6 +283,52 @@ export const adminResolver: Resolvers = {
       }
     },
 
+    adminApprovalForVendor: async (parent, { input }, { req }, info) => {
+      try {
+        await validateInput(validators.AdminApprovalForVendorValidator, req);
+        await verifyAdmin(req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const vendor = await adminService.getVendorWithId(_id);
+        if (!vendor) {
+          throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+            extensions: {
+              code: "",
+              errors: [],
+            },
+          });
+        }
+
+        if(input.isVerified !=null && !input.isVerified){
+          vendor.isVerified = true;
+
+        }
+
+
+
+        // Update Vendor
+        const result = await admin.save();
+
+        if (!result) {
+          throw new GraphQLError("Admin profile updatation failed", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+
+        const response = {
+          _id: result?._id?.toString() || "",
+          message: "Admin profile updated successfully",
+        };
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
   },
 
   Query: {

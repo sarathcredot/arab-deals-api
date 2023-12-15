@@ -5,6 +5,7 @@ import { colorModel } from "./colorModel";
 import { sizeModel } from "./sizeModel";
 import { categoryModel } from "./categoryModel";
 import { adminModel } from "./adminModel";
+import { vendorModel } from "./vendorModel";
 
 
 
@@ -18,4 +19,5 @@ export {
     sizeModel,
     categoryModel,
     adminModel,
+    vendorModel,
 }

@@ -7,8 +7,7 @@ import * as categoryService from "./categoryService";
 import * as adminService from "./adminService";
 import * as jwtService from "./jwtService";
 import * as spaceService from "./spaceService";
-
-
+import  * as vendorService from "./vendorService";
 
 
 
@@ -23,5 +22,6 @@ export {
     categoryService,
     adminService,
     jwtService,
-    spaceService
+    spaceService,
+    vendorService
 }

@@ -26,5 +26,12 @@ export const AdminUpdateValidator = [
   body('variables.input.fullName').optional({ checkFalsy: true }).trim(),
 ];
 
+export const AdminApprovalForVendorValidator = [
+  body('variables.input.email').optional({ checkFalsy: true }).trim().isEmail(),
+  body('variables.input.password').optional({ checkFalsy: true }).isLength({ min: 6 }),
+  body('variables.input.isBlocked').optional({ checkFalsy: true }).isBoolean(),
+  body('variables.input.fullName').optional({ checkFalsy: true }).trim(),
+];
+
 
 
