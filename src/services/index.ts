@@ -11,6 +11,7 @@ import  * as vendorService from "./vendorService";
 import  * as tempVendorAuthService from "./tempVendorAuthService";
 import * as otpService from "./otpService";
 import * as tempVendorJwtService from "./tempVendorJwtService";
+import * as vendorJwtService from "./vendorJwtService";
 
 
 
@@ -30,4 +31,5 @@ export {
     otpService,
     tempVendorAuthService,
     tempVendorJwtService,
+    vendorJwtService,
 }

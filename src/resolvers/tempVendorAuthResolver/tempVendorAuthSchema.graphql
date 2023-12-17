@@ -4,6 +4,7 @@ scalar Upload
 
 type Mutation {
   createTempVendor(input: tempVendorSignUpInput!, image: Upload): AddTempVendorResponse!
+  verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
 }
 
 type ImageData {
@@ -53,6 +54,11 @@ input MobileOtpDataInput {
   expiresAt: String
 }
 
+input VerifyTempVendorInput {
+  temporaryMobileOtp: MobileOtpDataInput
+}
+
+
 # Vendor auth Output
 
 type AddTempVendorResponse {
@@ -60,6 +66,10 @@ type AddTempVendorResponse {
   token: String!
 }
 
+type VerifyTempVendorResponse {
+  _id: String
+  message: String
+}
 
 # Schema
 

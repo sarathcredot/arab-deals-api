@@ -1,10 +1,11 @@
-import { tempVendorAuthService, jwtService, spaceService, otpService } from "../../services";
+import { tempVendorAuthService, jwtService, spaceService, otpService, vendorService, tempVendorJwtService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./tempVendorAuthValidator";
 import { GraphQLError } from "graphql";
-import { validateInput } from "../../middlewares";
+import { validateInput, verifyTempVendor } from "../../middlewares";
 import { filePaths } from "../../configs";
+import { Types } from "mongoose";
 
 export const tempVendorAuthResolver: Resolvers = {
   Upload: GraphQLUpload,
@@ -80,7 +81,7 @@ export const tempVendorAuthResolver: Resolvers = {
         });
       }
 
-      let token = await jwtService.createVendorJWT(result._id!.toString());
+      let token = await tempVendorJwtService.createTempVendorJWT(result._id!.toString());
 
       result.temporaryVendorAuthToken = token;
       await result.save();
@@ -90,6 +91,71 @@ export const tempVendorAuthResolver: Resolvers = {
       };
 
       return response;
+    },
+
+    // Verfiy temp vendor, otp verfiy, creating new vendor, deleting temp vendor
+    verifyTempVendor: async (parent, { input }, { req }, info) => {
+      await validateInput(validators.tempVendorVerificationValidator, req);
+      await verifyTempVendor(req);
+
+      const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      const tempVendor = await tempVendorAuthService.findTempVendorWithFilters({ _id: _id }, {}, {});
+
+      if (!tempVendor) {
+        throw new GraphQLError('Verification failed. Invalid temporary token', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
+
+      let inputOTP = input.temporaryMobileOtp?.code;
+      let options = { _id: _id, code: inputOTP };
+      let otpVerfication = await otpService.verifyOtp(options);
+
+      if (!otpVerfication) {
+        throw new GraphQLError('Verification failed. Invalid OTP.', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
+
+      let newVendorData: tempVendorAuthService.ITempVendor = {};
+
+      if (tempVendor) {
+        newVendorData.email = tempVendor.email
+        newVendorData.fullName = tempVendor.fullName
+        newVendorData.mobileNumber = tempVendor.mobileNumber
+        newVendorData.country = tempVendor.country
+        newVendorData.temporaryMobileOtp = tempVendor.temporaryMobileOtp
+        newVendorData.hash = tempVendor.hash
+      }
+
+      try {
+        newVendorData.isVerified = true;
+        const result = await vendorService.createVendor(newVendorData);
+
+        // Delete from tempVendorAuthCollection
+        await tempVendorAuthService.deleteTempVendor(_id);
+
+        let response = {
+          _id: result?._id?.toString(),
+          message: "Newly created"
+        }
+        return response;
+
+      } catch (error) {
+        throw new GraphQLError('Verification failed. Unable to create the vendor.',{
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
     },
 
 

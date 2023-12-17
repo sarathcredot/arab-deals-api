@@ -2,12 +2,11 @@ import { GraphQLError } from "graphql";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-const adminSecretKey: string = process.env.ADMIN_JWT_SECRET || "";
 const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
 
 // Vendor JWT Services
 
-export const getTempVendorAuthTokenFromHeaders = (req: Request): string => {
+export const getVendorAuthTokenFromHeaders = (req: Request): string => {
     console.log(req)
     try {
         const { headers: { authorization } } = req;
@@ -30,7 +29,7 @@ export const getTempVendorAuthTokenFromHeaders = (req: Request): string => {
     }
 }
 
-export const createTempVendorJWT = (id: string): Promise<string> => {
+export const createVendorJWT = (id: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         try {
             const token = jwt.sign({ id }, vendorSecretKey, { expiresIn: "1hr" });
@@ -46,7 +45,7 @@ export const createTempVendorJWT = (id: string): Promise<string> => {
     });
 };
 
-export const verifyTempVendorJWT = (token: string): JwtPayload => {
+export const verifyVendorJWT = (token: string): JwtPayload => {
     return new Promise((resolve, reject) => {
         try {
             const decoded = jwt.verify(token, vendorSecretKey, { ignoreExpiration: true });
