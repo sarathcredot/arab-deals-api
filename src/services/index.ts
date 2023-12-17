@@ -8,6 +8,9 @@ import * as adminService from "./adminService";
 import * as jwtService from "./jwtService";
 import * as spaceService from "./spaceService";
 import  * as vendorService from "./vendorService";
+import  * as tempVendorAuthService from "./tempVendorAuthService";
+import * as otpService from "./otpService";
+import * as tempVendorJwtService from "./tempVendorJwtService";
 
 
 
@@ -23,5 +26,8 @@ export {
     adminService,
     jwtService,
     spaceService,
-    vendorService
+    vendorService,
+    otpService,
+    tempVendorAuthService,
+    tempVendorJwtService,
 }

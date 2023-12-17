@@ -1,0 +1,69 @@
+scalar Upload
+
+# Vendor auth Mutations
+
+type Mutation {
+  createTempVendor(input: tempVendorSignUpInput!, image: Upload): AddTempVendorResponse!
+}
+
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+# Vendor auth Type
+
+type tempVendor {
+  _id: String
+  email: String
+  password: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  profilePic: ImageData
+  temporaryMobileOtp: MobileOtpData
+  isVerified: Boolean
+  isBlocked: Boolean
+  token: String
+  temporaryVendorAuthToken: String
+}
+
+type MobileOtpData {
+  code: String!
+  expiresAt: String!
+}
+
+# Vendor auth Input
+
+input tempVendorSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+  mobileNumber: String!
+  country: String!
+  brand: String
+}
+
+
+input MobileOtpDataInput {
+  code: String
+  expiresAt: String
+}
+
+# Vendor auth Output
+
+type AddTempVendorResponse {
+  _id: String!
+  token: String!
+}
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}

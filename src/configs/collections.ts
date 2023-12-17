@@ -6,5 +6,6 @@ export const collections = {
     SIZES: "sizes",
     CATEGORIES:"categories",
     ADMINS: "admins",
-    VENDORS: "vendors"
+    VENDORS: "vendors",
+    TEMP_VENDOR: "temp_vendors"
 }

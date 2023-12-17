@@ -6,6 +6,7 @@ import { sizeModel } from "./sizeModel";
 import { categoryModel } from "./categoryModel";
 import { adminModel } from "./adminModel";
 import { vendorModel } from "./vendorModel";
+import { tempVendorAuthModel } from "./tempVendorAuthModel";
 
 
 
@@ -20,4 +21,5 @@ export {
     categoryModel,
     adminModel,
     vendorModel,
+    tempVendorAuthModel,
 }

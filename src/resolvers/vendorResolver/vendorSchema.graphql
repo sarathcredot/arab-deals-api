@@ -3,7 +3,7 @@ scalar Upload
 # Vendor auth Mutations
 
 type Mutation {
-  createVendor(input: VendorSignUpInput!, image: Upload): AddVendorResponse!
+  verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
 }
@@ -26,10 +26,11 @@ type Vendor {
   country: String
   brand: String
   profilePic: ImageData
-  # mobileOtp: MobileOtpData
+  temporaryMobileOtp: MobileOtpData
   isVerified: Boolean
   isBlocked: Boolean
   token: String
+  temporaryVendorAuthToken: String
 }
 
 type MobileOtpData {
@@ -39,14 +40,8 @@ type MobileOtpData {
 
 # Vendor auth Input
 
-input VendorSignUpInput {
-  email: String!
-  password: String!
-  fullName: String!
-  # mobileOtp: String!
-  mobileNumber: String!
-  country: String!
-  brand: String
+input VerifyTempVendorInput {
+  temporaryMobileOtp: MobileOtpDataInput
 }
 
 input VendorLoginInput {
@@ -63,11 +58,12 @@ input VendorEditProfileInput {
   brand: String
 }
 
-# Vendor auth Output
-
-type AddVendorResponse {
-  _id: String!
+input MobileOtpDataInput {
+  code: String
+  expiresAt: String
 }
+
+# Vendor auth Output
 
 type VendorAuthResponse {
   _id: String
@@ -85,6 +81,11 @@ type Query {
 
 type getVendorRecordResponse {
   record: Vendor
+}
+
+type VerifyTempVendorResponse {
+  _id: String
+  message: String
 }
 
 # Schema

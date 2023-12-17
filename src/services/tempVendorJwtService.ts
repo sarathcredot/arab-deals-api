@@ -5,14 +5,17 @@ import { Request, Response, NextFunction } from "express";
 const adminSecretKey: string = process.env.ADMIN_JWT_SECRET || "";
 const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
 
-// Admin JWT Services
-export const getAuthTokenFromHeaders = (req: Request): string => {
+// Vendor JWT Services
+
+export const getTempVendorAuthTokenFromHeaders = (req: Request): string => {
     console.log(req)
     try {
         const { headers: { authorization } } = req;
+        console.log("authorization ", authorization)
 
         if (authorization && authorization.split(" ")[0] === "Bearer") {
             const token = authorization.split(" ")[1];
+            console.log("token ", token)
             return token;
         } else {
             throw new GraphQLError("Unauthorized", {
@@ -27,40 +30,6 @@ export const getAuthTokenFromHeaders = (req: Request): string => {
     }
 }
 
-export const createAdminJWT = (id: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        try {
-            const token = jwt.sign({ id }, adminSecretKey, { expiresIn: "1hr" });
-            resolve(token);
-        } catch (e) {
-            reject(new GraphQLError("JWT error", {
-                extensions: {
-                    code: "INTERNAL_SERVER_ERROR",
-                    errors: []
-                }
-            }));
-        }
-    });
-};
-
-export const verifyAdminJWT = (token: string): JwtPayload => {
-    return new Promise((resolve, reject) => {
-        try {
-            const decoded = jwt.verify(token, adminSecretKey, { ignoreExpiration: true });
-            resolve(decoded);
-        } catch (e) {
-            reject(new GraphQLError("JWT error", {
-                extensions: {
-                    code: "INTERNAL_SERVER_ERROR",
-                    errors: []
-                }
-            }));
-        }
-    });
-}
-
-
-// Vendor JWT Services
 export const createVendorJWT = (id: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         try {
@@ -77,7 +46,7 @@ export const createVendorJWT = (id: string): Promise<string> => {
     });
 };
 
-export const verifyVendorJWT = (token: string): JwtPayload => {
+export const verifyTempVendorJWT = (token: string): JwtPayload => {
     return new Promise((resolve, reject) => {
         try {
             const decoded = jwt.verify(token, vendorSecretKey, { ignoreExpiration: true });
