@@ -77,7 +77,6 @@ const vendorSchema = new Schema(
             type: String,
             required: true,
         },
-        // mobileOtp: mobileOtp,
         isVerified: {
             type: Boolean,
             default: false,
@@ -87,6 +86,49 @@ const vendorSchema = new Schema(
             default: false,
         },
         token: {
+            type: String,
+        },
+        companyName: {
+            type: String,
+        },
+        businessOutletName: {
+            type: String,
+        },
+        crNumber: {
+            type: String,
+        },
+        crLicence: {
+            type: String,
+        },
+        businessLicence: {
+            type: String,
+        },
+        chamberOfCommerceCertificate: {
+            type: String,
+        },
+        companyType: {
+            type: String,
+        },
+        businessAddress: {
+            type: String,
+        },
+        contactPerson: {
+            name: {
+                type: String,
+            },
+            phoneNumber: {
+                type: String,
+            },
+            designation: {
+                type: String,
+            },
+        },
+        exteriorImage: fileSchema,
+        interiorImage: fileSchema,
+        sellingProductDetails: {
+            type: String,
+        },
+        sellingProductBrands: {
             type: String,
         },
     },

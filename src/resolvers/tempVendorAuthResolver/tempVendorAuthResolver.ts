@@ -164,69 +164,69 @@ export const tempVendorAuthResolver: Resolvers = {
 
     // Verfiy temp vendor, otp verfiy, creating new vendor, deleting temp vendor
 
-    verifyTempVendor: async (parent, { input }, { req }, info) => {
-      await validateInput(validators.tempVendorVerificationValidator, req);
-      // await verifyTempVendor(req);
+    // verifyTempVendor: async (parent, { input }, { req }, info) => {
+    //   await validateInput(validators.tempVendorVerificationValidator, req);
+    //   // await verifyTempVendor(req);
 
-      const _id: Types.ObjectId = new Types.ObjectId(input._id);
+    //   const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-      const tempVendor = await tempVendorAuthService.findTempVendorWithFilters({ _id: _id }, {}, {});
+    //   const tempVendor = await tempVendorAuthService.findTempVendorWithFilters({ _id: _id }, {}, {});
 
-      if (!tempVendor) {
-        throw new GraphQLError('Vendor not find in this id', {
-          extensions: {
-            code: "",
-            errors: [],
-          },
-        });
-      }
+    //   if (!tempVendor) {
+    //     throw new GraphQLError('Vendor not find in this id', {
+    //       extensions: {
+    //         code: "",
+    //         errors: [],
+    //       },
+    //     });
+    //   }
 
-      let inputOTP = input.mobileOtp;
-      let options = { _id: _id, code: inputOTP };
-      let otpVerfication = await otpService.verifyOtp(options);
+    //   let inputOTP = input.mobileOtp;
+    //   let options = { _id: _id, code: inputOTP };
+    //   let otpVerfication = await otpService.verifyOtp(options);
 
-      if (!otpVerfication) {
-        throw new GraphQLError('Verification failed. Invalid OTP.', {
-          extensions: {
-            code: "",
-            errors: [],
-          },
-        });
-      }
+    //   if (!otpVerfication) {
+    //     throw new GraphQLError('Verification failed. Invalid OTP.', {
+    //       extensions: {
+    //         code: "",
+    //         errors: [],
+    //       },
+    //     });
+    //   }
 
-      let newVendorData: tempVendorAuthService.ITempVendor = {};
+    //   let newVendorData: tempVendorAuthService.ITempVendor = {};
 
-      if (tempVendor) {
-        newVendorData.email = tempVendor.email
-        newVendorData.fullName = tempVendor.fullName
-        newVendorData.mobileNumber = tempVendor.mobileNumber
-        newVendorData.country = tempVendor.country
-        newVendorData.temporaryMobileOtp = tempVendor.temporaryMobileOtp
-        newVendorData.hash = tempVendor.hash
-      }
+    //   if (tempVendor) {
+    //     newVendorData.email = tempVendor.email
+    //     newVendorData.fullName = tempVendor.fullName
+    //     newVendorData.mobileNumber = tempVendor.mobileNumber
+    //     newVendorData.country = tempVendor.country
+    //     newVendorData.temporaryMobileOtp = tempVendor.temporaryMobileOtp
+    //     newVendorData.hash = tempVendor.hash
+    //   }
 
-      try {
-        newVendorData.isVerified = true;
-        const result = await vendorService.createVendor(newVendorData);
+    //   try {
+    //     newVendorData.isVerified = true;
+    //     const result = await vendorService.createVendor(newVendorData);
 
-        // Delete from tempVendorAuthCollection
-        await tempVendorAuthService.deleteTempVendor(_id);
+    //     // Delete from tempVendorAuthCollection
+    //     await tempVendorAuthService.deleteTempVendor(_id);
 
-        let response = {
-          _id: result?._id?.toString(),
-          message: "Newly created"
-        }
-        return response;
+    //     let response = {
+    //       _id: result?._id?.toString(),
+    //       message: "Newly created"
+    //     }
+    //     return response;
 
-      } catch (error) {
-        throw new GraphQLError('Verification failed. Unable to create the vendor.', {
-          extensions: {
-            code: "",
-            errors: [],
-          },
-        });
-      }
-    },
+    //   } catch (error) {
+    //     throw new GraphQLError('Verification failed. Unable to create the vendor.', {
+    //       extensions: {
+    //         code: "",
+    //         errors: [],
+    //       },
+    //     });
+    //   }
+    // },
 
     // verifyTempVendor: async (parent, { input }, { req }, info) => {
     //   await validateInput(validators.tempVendorVerificationValidator, req);

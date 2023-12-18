@@ -13,6 +13,120 @@ export const vendorResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
 
+    createVendor: async (parent, { input, image }, { req }, info) => {
+      await validateInput(validators.tempVendorCreateValidator, req);
+
+      let email: string = input.email.toLowerCase();
+
+      const existingVendor = await tempVendorAuthService.findTempVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+      if (existingVendor) {
+        throw new GraphQLError('Vendor with this email already exists', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let fullName: string = input.fullName;
+      let password: string = input.password;
+      let mobileNumber: string = input.mobileNumber;
+      let country: string = input.country;
+      let profilePic: tempVendorAuthService.FileData | null = null;
+      let companyName: string = input.companyName;
+      let businessOutletName: string = input.businessOutletName;
+      let crNumber: string = input.crNumber;
+      let crLicence: string = input.crLicence;
+      let businessLicence: string = input.businessLicence;
+      let chamberOfCommerceCertificate: string = input.chamberOfCommerceCertificate;
+      let companyType: string = input.companyType;
+      let businessAddress: string = input.businessAddress;
+      let contactPerson: {
+        name: string;
+        phoneNumber: string;
+        designation: string;
+      } = {
+        name: input.contactPerson.name,
+        phoneNumber: input.contactPerson.phoneNumber,
+        designation: input.contactPerson.designation,
+      };
+      let exteriorImage: tempVendorAuthService.FileData | null = null;
+      let interiorImage: tempVendorAuthService.FileData | null = null;
+      let sellingProductDetails: string = input.sellingProductDetails;
+      let sellingProductBrands: string = input.sellingProductBrands;
+
+      if (image) {
+        const { createReadStream, filename, mimetype, encoding } = await image;
+        const key = spaceService.getFileKey(filePaths.vendorProfile, filename, []);
+        const stream = createReadStream();
+        const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+        profilePic = {
+          fileType: "PUBLIC",
+          fileURL: file.location,
+          mimeType: mimetype,
+          originalName: filename
+        };
+      }
+
+      const temporaryMobileOtp: any = await otpService.generateOtp();
+      if (!temporaryMobileOtp) {
+        throw new GraphQLError('OTP generation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let newVendorData: vendorService.IVendor = {
+        email,
+        fullName,
+        mobileNumber,
+        country,
+        companyName,
+        businessOutletName,
+        crNumber,
+        crLicence,
+        businessLicence,
+        chamberOfCommerceCertificate,
+        companyType,
+        businessAddress,
+        contactPerson: contactPerson,
+        sellingProductDetails,
+        sellingProductBrands
+      };
+
+      if (profilePic) {
+        newVendorData.profilePic = profilePic;
+      }
+      if (exteriorImage) {
+        newVendorData.exteriorImage = exteriorImage;
+      }
+      if (interiorImage) {
+        newVendorData.interiorImage = interiorImage;
+      }
+
+      const result = await vendorService.createVendor(newVendorData, password);
+
+      if (!result) {
+        throw new GraphQLError("Unable to create vendor", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let response = {
+        _id: result._id!.toString(),
+        message: "Vendor created successfully"
+      };
+
+      return response;
+    },
+
+
     loginVendor: async (parent, { input }, { req }, info) => {
 
       await validateInput(validators.vendorLoginValidator, req);
@@ -29,14 +143,14 @@ export const vendorResolver: Resolvers = {
           }
         });
       }
-      else if (!vendor.isVerified) {
-        throw new GraphQLError("Vendor not verified by admin", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: []
-          }
-        });
-      }
+      // else if (!vendor.isVerified) {
+      //   throw new GraphQLError("Vendor not verified by admin", {
+      //     extensions: {
+      //       code: "BAD_REQUEST",
+      //       errors: []
+      //     }
+      //   });
+      // }
       else if (vendor.isBlocked) {
         throw new GraphQLError("Vendor Blocked", {
           extensions: {
@@ -71,57 +185,96 @@ export const vendorResolver: Resolvers = {
     // Fetch all vendors records
     async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
       try {
-          await validateInput(validators.getAllVendorsRecordsValidator, req);
-          // await verifyAdmin(req);
+        await validateInput(validators.getAllVendorsRecordsValidator, req);
+        // await verifyAdmin(req);
 
-          const page: number = input?.page || 0;
-          const size: number = input?.size || 10;
-          let projection: vendorService.IVendorProjection = { _id: 1 };
+        const page: number = input?.page || 0;
+        const size: number = input?.size || 10;
+        let projection: vendorService.IVendorProjection = { _id: 1 };
 
-          const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-          for (const selection of selectedFields) {
-              if (selection.kind === "Field" && selection.name.value == "records") {
+        const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+        for (const selection of selectedFields) {
+          if (selection.kind === "Field" && selection.name.value == "records") {
 
-                  let selectionSet = selection.selectionSet || { selections: [] };
-                  for (let item of selectionSet.selections) {
-                      if (item.kind === "Field") {
-                          const fieldName = item.name.value;
-                          if (["images"].includes(fieldName)) {
-                              let selectionSet = item.selectionSet || { selections: [] };
-                              for (let item2 of selectionSet.selections) {
-                                  if (item2.kind === "Field") {
-                                      const subField = item2.name.value;
-                                      const path = `${fieldName}.${subField}`;
-                                      projection[path as keyof vendorService.IVendorProjection] = 1;
-                                  }
-                              }
-                          }
-                          else {
-                              projection[fieldName as keyof vendorService.IVendorProjection] = 1;
-                          }
-                      }
+            let selectionSet = selection.selectionSet || { selections: [] };
+            for (let item of selectionSet.selections) {
+              if (item.kind === "Field") {
+                const fieldName = item.name.value;
+                if (["images"].includes(fieldName)) {
+                  let selectionSet = item.selectionSet || { selections: [] };
+                  for (let item2 of selectionSet.selections) {
+                    if (item2.kind === "Field") {
+                      const subField = item2.name.value;
+                      const path = `${fieldName}.${subField}`;
+                      projection[path as keyof vendorService.IVendorProjection] = 1;
+                    }
                   }
+                }
+                else {
+                  projection[fieldName as keyof vendorService.IVendorProjection] = 1;
+                }
               }
+            }
+          }
+        }
+
+
+        const options: vendorService.IVendorsRecordsOptions = {
+          page,
+          size,
+          projection,
+        }
+
+        // Fetch all CMS records
+        const result = await vendorService.getVendorsRecordsWithFilters(options);
+        const response = {
+          records: result.records,
+          maxRecords: result.maxRecords,
+          message: "Vendors records fetched successfully",
+        };
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    // Fetch each vendors records
+    async getVendorRecordByAdmin(parent, { input }, { req }, info) {
+
+      try {
+
+          //Validate Input
+          await validateInput(validators.getVendorRecordValidator, req);
+
+          const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+          const result = await vendorService.getvendorRecordWithSectionId(_id);
+
+          if (!result) {
+              throw new GraphQLError("Record not found", {
+                  extensions: {
+                      code: "BAD_REQUEST",
+                      errors: []
+                  }
+              });
           }
 
+          const record: vendorService.IVendorDocument = result;
 
-          const options: vendorService.IVendorsRecordsOptions = {
-              page,
-              size,
-              projection,
-          }
 
-          // Fetch all CMS records
-          const result = await vendorService.getVendorsRecordsWithFilters(options);
           const response = {
-              records: result.records,
-              maxRecords: result.maxRecords,
-              message: "Vendors records fetched successfully",
-          };
+              record: record,
+              message: "Vendor record fetched successfully",
+          }
+
+
+
           return response;
+
       } catch (error) {
           throw error;
       }
+
   },
   },
 };

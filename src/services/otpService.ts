@@ -49,11 +49,13 @@ export const createOtp = async (options: QueryOptions): Promise<Document | null>
 
 export const verifyOtp = async function (options: QueryOptions): Promise<boolean> {
   try {
-    const tempVendor = await tempVendorAuthModel.findOne({
-      _id: options._id,
+    const tempVendor = await authUtilityModel.findOne({
+      userId: options._id,
       'metadata.code': options.code,
     });
     if (tempVendor) {
+      tempVendor.isVerified = true;
+      tempVendor.save();
       return true;
     }
     return false;
@@ -63,6 +65,10 @@ export const verifyOtp = async function (options: QueryOptions): Promise<boolean
   }
 };
 
+
+export const findOtpRecordWithFilters = async (filters: FilterQuery<otpDocument>, projection: ProjectionFields<otpDocument>, options: QueryOptions): Promise<otpDocument | null> => {
+  return await authUtilityModel.findOne(filters, projection, options);
+}
 
 
 

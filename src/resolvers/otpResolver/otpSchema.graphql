@@ -4,6 +4,8 @@ scalar Upload
 
 type Mutation {
   sendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
+  verifyOtp(input: VerifyOtpInput!): VerifyOtpResponse!
+  reSendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
 }
 
 # otp  Type
@@ -24,6 +26,11 @@ input MobileOtpDataInput {
   expiresAt: String
 }
 
+input VerifyOtpInput {
+  _id: String!
+  mobileOtp: String!
+}
+
 # otp Output
 
 type sendMobileOtpResponse {
@@ -40,6 +47,12 @@ type sendMobileOtpResponse {
 
 
 # Schema
+
+# Output
+type VerifyOtpResponse {
+  _id: String
+  message: String
+}
 
 schema {
   mutation: Mutation

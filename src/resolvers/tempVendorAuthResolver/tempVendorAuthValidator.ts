@@ -15,7 +15,3 @@ export const tempVendorCreateValidator = [
 //   body('variables.input.brand').optional({ checkFalsy: true }).trim(),
 // ];
 
-export const tempVendorVerificationValidator = [
-  body('variables.input._id').isMongoId(),
-  body('variables.input.temporaryMobileOtp.code').trim().isNumeric().isLength({ min: 6, max: 6 }),
-];

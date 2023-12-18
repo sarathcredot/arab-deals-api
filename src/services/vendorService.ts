@@ -23,10 +23,6 @@ export interface IVendor {
   country?: string
   brand?: string
   isBlocked?: boolean;
-  // mobileOtp?: {
-  //   code?: string,
-  //   expiresAt?: string
-  // }
   fullName?: string;
   token?: string;
   profilePic?: {
@@ -35,7 +31,33 @@ export interface IVendor {
     mimeType?: string,
     originalName?: string
   };
-  isVerified?: boolean;
+  companyName?: string
+  businessOutletName?: string
+  crNumber?: string
+  crLicence?: string
+  businessLicence?: string
+  chamberOfCommerceCertificate?: string
+  companyType?: string
+  businessAddress?: string
+  contactPerson?:{
+    name?: string,
+    phoneNumber?: string,
+    designation?: string
+  }
+  exteriorImage?: {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
+  interiorImage?: {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
+  sellingProductDetails?: string
+  sellingProductBrands? : string
 }
 
 export interface IVendorDocument extends Document {
@@ -45,10 +67,6 @@ export interface IVendorDocument extends Document {
   mobileNumber?: string;
   country?: string;
   brand?: string;
-  // mobileOtp?: {
-  //   code?: string,
-  //   expiresAt?: string
-  // }
   isBlocked?: boolean;
   fullName?: string;
   token?: string;
@@ -58,7 +76,33 @@ export interface IVendorDocument extends Document {
     mimeType?: string,
     originalName?: string
   };
-  isVerified?: boolean;
+  companyName?: string
+  businessOutletName?: string
+  crNumber?: string
+  crLicence?: string
+  businessLicence?: string
+  chamberOfCommerceCertificate?: string
+  companyType?: string
+  businessAddress?: string
+  contactPerson?:{
+    name?: string,
+    phoneNumber?: string,
+    designation?: string
+  }
+  exteriorImage?: {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
+  interiorImage?: {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
+  sellingProductDetails?: string
+  sellingProductBrands? : string
 
   verifyHash?(password: string): Promise<boolean>;
   setHash?(password: string): Promise<void>;
@@ -104,8 +148,9 @@ export interface IVendorsRecordsResponse {
 
 
 
-export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument | null> => {
+export const createVendor = async (vendorData: IVendor, password: string): Promise<IVendorDocument | null> => {
   let vendor: IVendorDocument = new vendorModel(vendorData);
+  await vendor.setHash!(password);
   return await vendor.save();
 };
 
@@ -184,10 +229,10 @@ export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptio
   return response;
 }
 
-// export const getvendorWithId = async (id: Types.ObjectId, projection: IVendorProjection = {}, options: QueryOptions = {}): Promise<IVendorDocument | null> => {
-//   const result = await vendorModel.findById(id, projection, options);
-//   return result;
-// }
+export const getvendorRecordWithSectionId = async (id: Types.ObjectId, projection: IVendorProjection = {}, options: QueryOptions = {}): Promise<IVendorDocument | null> => {
+  const result = await vendorModel.findById(id, projection, options);
+  return result;
+}
 
 // export const getvendorRecordWithId = async (id: Types.ObjectId, projection: IVendorProjection = {}, options: QueryOptions = {}): Promise<IVendor | null> => {
 //   return await vendorModel.findById(id, projection, options);

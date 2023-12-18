@@ -8,3 +8,9 @@ export const mobileOtpVerification = [
 ];
 
 
+export const otpVerificationValidator = [
+  body('variables.input._id').isMongoId(),
+  body('variables.input.mobileOtp').trim().isNumeric().isLength({ min: 6, max: 6 }),
+];
+
+

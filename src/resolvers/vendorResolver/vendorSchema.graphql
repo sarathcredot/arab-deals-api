@@ -4,6 +4,7 @@ scalar Upload
 
 type Mutation {
   verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
+  createVendor(input: VendorSignUpInput!, , image:Upload): CreateVendorResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
 }
@@ -26,11 +27,22 @@ type Vendor {
   country: String
   brand: String
   profilePic: ImageData
-  temporaryMobileOtp: MobileOtpData
-  isVerified: Boolean
   isBlocked: Boolean
-  token: String
-  temporaryVendorAuthToken: String
+  companyName: String 
+  businessOutletName: String 
+  outletName: String   
+  crNumber: String     
+  crLicence: String    
+  businessLicence: String  
+  chamberOfCommerceCertificate: String  
+  companyType: String   
+  businessAddress: String  
+  contactPerson: ContactPersonData  
+  exteriorImage: ImageData  
+  interiorImage: ImageData  
+  sellingProductDetails: String  
+  sellingProductBrands: String   
+  isVerified: Boolean
 }
 
 type MobileOtpData {
@@ -38,11 +50,40 @@ type MobileOtpData {
   expiresAt: String
 }
 
+type ContactPersonData {
+  name: String
+  phoneNumber: String
+  designation: String
+}
+
 # Vendor auth Input
 
-input VerifyTempVendorInput {
-  temporaryMobileOtp: MobileOtpDataInput
+input VendorSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+  mobileNumber: String!
+  country: String!
+  brand: String!
+  # profilePic: ImageData
+  companyName: String!
+  businessOutletName: String!
+  outletName: String!   
+  crNumber: String!     
+  crLicence: String!    
+  businessLicence: String!  
+  chamberOfCommerceCertificate: String!  
+  companyType: String!   
+  businessAddress: String!  
+  contactPerson: ContactPersonInput!  
+  # exteriorImage: ImageData  
+  # interiorImage: ImageData  
+  sellingProductDetails: String!  
+  sellingProductBrands: String!   
+  isVerified: Boolean!
+  isBlocked: Boolean  
 }
+
 
 input VendorLoginInput {
   email: String!
@@ -63,6 +104,12 @@ input MobileOtpDataInput {
   expiresAt: String
 }
 
+input ContactPersonInput {
+  name: String!
+  phoneNumber: String!
+  designation: String!
+}
+
 # Vendor auth Output
 
 type VendorAuthResponse {
@@ -77,7 +124,7 @@ type UpdateVendorResponse {
 
 type Query {
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
-  getVendorRecord: getVendorRecordResponse
+  getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
 }
 
 type getVendorRecordResponse {
@@ -89,6 +136,11 @@ type VerifyTempVendorResponse {
   message: String
 }
 
+type CreateVendorResponse{
+    id: String
+    message: String
+}
+
 # Input 
 
  input VendorsRecordsByAdminFilter {
@@ -97,9 +149,8 @@ type VerifyTempVendorResponse {
   }
 
 
- input VendorsRecordsByAdminFilter {
-    page: Int
-    size: Int
+ input VendorRecordByAdminFilter {
+    _id: String!
   }
 
   type VendorsRecordsResponse {
@@ -107,6 +158,11 @@ type VerifyTempVendorResponse {
     records: [Vendor!]
     message: String
   }   
+
+  type VendorRecordResponse {
+    records: [Vendor!]
+    message: String
+  }
 
 
 # Schema
