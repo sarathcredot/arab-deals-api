@@ -68,7 +68,61 @@ export const vendorResolver: Resolvers = {
   },
 
   Query: {
- 
+    // Fetch all vendors records
+    async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
+      try {
+          await validateInput(validators.getAllVendorsRecordsValidator, req);
+          // await verifyAdmin(req);
+
+          const page: number = input?.page || 0;
+          const size: number = input?.size || 10;
+          let projection: vendorService.IVendorProjection = { _id: 1 };
+
+          const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+          for (const selection of selectedFields) {
+              if (selection.kind === "Field" && selection.name.value == "records") {
+
+                  let selectionSet = selection.selectionSet || { selections: [] };
+                  for (let item of selectionSet.selections) {
+                      if (item.kind === "Field") {
+                          const fieldName = item.name.value;
+                          if (["images"].includes(fieldName)) {
+                              let selectionSet = item.selectionSet || { selections: [] };
+                              for (let item2 of selectionSet.selections) {
+                                  if (item2.kind === "Field") {
+                                      const subField = item2.name.value;
+                                      const path = `${fieldName}.${subField}`;
+                                      projection[path as keyof vendorService.IVendorProjection] = 1;
+                                  }
+                              }
+                          }
+                          else {
+                              projection[fieldName as keyof vendorService.IVendorProjection] = 1;
+                          }
+                      }
+                  }
+              }
+          }
+
+
+          const options: vendorService.IVendorsRecordsOptions = {
+              page,
+              size,
+              projection,
+          }
+
+          // Fetch all CMS records
+          const result = await vendorService.getVendorsRecordsWithFilters(options);
+          const response = {
+              records: result.records,
+              maxRecords: result.maxRecords,
+              message: "Vendors records fetched successfully",
+          };
+          return response;
+      } catch (error) {
+          throw error;
+      }
+  },
   },
 };
 

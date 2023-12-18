@@ -76,6 +76,7 @@ type UpdateVendorResponse {
 }
 
 type Query {
+  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
   getVendorRecord: getVendorRecordResponse
 }
 
@@ -87,6 +88,26 @@ type VerifyTempVendorResponse {
   _id: String
   message: String
 }
+
+# Input 
+
+ input VendorsRecordsByAdminFilter {
+    page: Int
+    size: Int
+  }
+
+
+ input VendorsRecordsByAdminFilter {
+    page: Int
+    size: Int
+  }
+
+  type VendorsRecordsResponse {
+    maxRecords: Int!
+    records: [Vendor!]
+    message: String
+  }   
+
 
 # Schema
 

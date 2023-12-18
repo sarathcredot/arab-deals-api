@@ -1,9 +1,16 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { adminModel, vendorModel, tempVendorAuthModel } from '../models';
+import { adminModel, vendorModel, tempVendorAuthModel, authUtilityModel } from '../models';
 
 export interface IOtpFile {
   code?: string,
   expiresAt?: string
+}
+
+export interface otpDocument extends Document {
+  name: string,
+  userId: Types.ObjectId,
+  metadata: IOtpFile,
+  isVerified: boolean
 }
 
 export const generateOtp = async function (): Promise<IOtpFile | null> {
@@ -23,6 +30,7 @@ export const generateOtp = async function (): Promise<IOtpFile | null> {
       code: otp.toString(),
       expiresAt: expirationTime.toISOString(),
     };
+
     return response;
 
   } catch (error) {
@@ -32,13 +40,19 @@ export const generateOtp = async function (): Promise<IOtpFile | null> {
   }
 };
 
+
+export const createOtp = async (options: QueryOptions): Promise<Document | null> => {
+  let otpData = new authUtilityModel(options);
+  return await otpData.save();
+};
+
+
 export const verifyOtp = async function (options: QueryOptions): Promise<boolean> {
   try {
     const tempVendor = await tempVendorAuthModel.findOne({
       _id: options._id,
-      'temporaryMobileOtp.code': options.code,
+      'metadata.code': options.code,
     });
-    console.log("tempVendor: ", tempVendor)
     if (tempVendor) {
       return true;
     }
@@ -48,9 +62,6 @@ export const verifyOtp = async function (options: QueryOptions): Promise<boolean
     throw error;
   }
 };
-
-
-
 
 
 

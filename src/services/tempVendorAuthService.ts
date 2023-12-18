@@ -91,9 +91,8 @@ export interface ITempVendorAuthProjection {
 
 
 
-export const createTempVendor = async (vendorData: ITempVendor, password: string): Promise<ITempVendorAuthDocument | null> => {
+export const createTempVendor = async (vendorData: ITempVendor): Promise<ITempVendorAuthDocument | null> => {
   let vendor: ITempVendorAuthDocument = new tempVendorAuthModel(vendorData);
-  await vendor.setHash!(password);
   return await vendor.save();
 };
 

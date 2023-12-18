@@ -3,7 +3,7 @@ scalar Upload
 # Vendor auth Mutations
 
 type Mutation {
-  createTempVendor(input: tempVendorSignUpInput!, image: Upload): AddTempVendorResponse!
+  createTempVendor(input: tempVendorSignUpInput!): AddTempVendorResponse!
   verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
 }
 
@@ -40,12 +40,8 @@ type MobileOtpData {
 # Vendor auth Input
 
 input tempVendorSignUpInput {
-  email: String!
-  password: String!
   fullName: String!
   mobileNumber: String!
-  country: String!
-  brand: String
 }
 
 
@@ -55,7 +51,8 @@ input MobileOtpDataInput {
 }
 
 input VerifyTempVendorInput {
-  temporaryMobileOtp: MobileOtpDataInput
+  _id: String!
+  mobileOtp: String!
 }
 
 
@@ -63,7 +60,6 @@ input VerifyTempVendorInput {
 
 type AddTempVendorResponse {
   _id: String!
-  token: String!
 }
 
 type VerifyTempVendorResponse {

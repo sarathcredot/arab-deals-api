@@ -7,5 +7,6 @@ export const collections = {
     CATEGORIES:"categories",
     ADMINS: "admins",
     VENDORS: "vendors",
-    TEMP_VENDOR: "temp_vendors"
+    TEMP_VENDOR: "temp_vendors",
+    AUTH_UTILITies: "auth_utilities"
 }

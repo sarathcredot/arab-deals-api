@@ -3,15 +3,17 @@
 scalar Upload
 
 type Mutation {
-  createVendor(input: VendorSignUpInput!, image: Upload): AddVendorResponse!
+  verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
+  createTempVendor(input: tempVendorSignUpInput!): AddTempVendorResponse!
   addSize(input: AddSizeInput!): AddSizeResponse!
   uploadProductFile(file: Upload!): File
   createProduct(input: ProductInput!, images: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
+  sendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
   addColor(input: AddColorInput!): AddColorResponse!
   updateColor(input: updateColorInput!): updateColorResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
@@ -45,23 +47,22 @@ type Vendor {
   country: String
   brand: String
   profilePic: ImageData
+  temporaryMobileOtp: MobileOtpData
   isVerified: Boolean
   isBlocked: Boolean
   token: String
+  temporaryVendorAuthToken: String
 }
 
 type MobileOtpData {
-  code: String
-  expiresAt: String
+  code: String!
+  expiresAt: String!
 }
 
-input VendorSignUpInput {
-  email: String!
-  password: String!
-  fullName: String!
-  mobileNumber: String!
-  country: String!
-  brand: String
+input VerifyTempVendorInput {
+  temporaryMobileOtp: MobileOtpDataInput
+  _id: String!
+  mobileOtp: String!
 }
 
 input VendorLoginInput {
@@ -78,8 +79,9 @@ input VendorEditProfileInput {
   brand: String
 }
 
-type AddVendorResponse {
-  _id: String!
+input MobileOtpDataInput {
+  code: String
+  expiresAt: String
 }
 
 type VendorAuthResponse {
@@ -93,6 +95,7 @@ type UpdateVendorResponse {
 }
 
 type Query {
+  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
   getVendorRecord: getVendorRecordResponse
   getSizeRecord(input: SizeId!): SizeRecordResponse!
   getActiveSizes(input: GetActiveSizesInput): ActiveSizesResponse!
@@ -129,9 +132,50 @@ type getVendorRecordResponse {
   record: Vendor
 }
 
+type VerifyTempVendorResponse {
+  _id: String
+  message: String
+}
+
+input VendorsRecordsByAdminFilter {
+  page: Int
+  size: Int
+}
+
+type VendorsRecordsResponse {
+  maxRecords: Int!
+  records: [Vendor!]
+  message: String
+}
+
 schema {
   query: Query
   mutation: Mutation
+}
+
+type tempVendor {
+  _id: String
+  email: String
+  password: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  profilePic: ImageData
+  temporaryMobileOtp: MobileOtpData
+  isVerified: Boolean
+  isBlocked: Boolean
+  token: String
+  temporaryVendorAuthToken: String
+}
+
+input tempVendorSignUpInput {
+  fullName: String!
+  mobileNumber: String!
+}
+
+type AddTempVendorResponse {
+  _id: String!
 }
 
 input AddSizeInput {
@@ -368,6 +412,15 @@ type GetProductsAutoCompleteResponse {
 
 type RelatedProductsResponse {
   records: [Product!]
+}
+
+input sendMobileOtpInput {
+  _id: String!
+}
+
+type sendMobileOtpResponse {
+  _id: String
+  message: String
 }
 
 input AddColorInput {

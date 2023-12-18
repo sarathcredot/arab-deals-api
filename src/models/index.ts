@@ -7,6 +7,7 @@ import { categoryModel } from "./categoryModel";
 import { adminModel } from "./adminModel";
 import { vendorModel } from "./vendorModel";
 import { tempVendorAuthModel } from "./tempVendorAuthModel";
+import { authUtilityModel } from "./authUtilityModel";
 
 
 
@@ -22,4 +23,5 @@ export {
     adminModel,
     vendorModel,
     tempVendorAuthModel,
+    authUtilityModel,
 }

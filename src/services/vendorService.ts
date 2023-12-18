@@ -1,4 +1,4 @@
-import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
+import {PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
 import { vendorModel, tempVendorAuthModel } from '../models';
 
 export interface FileData {
@@ -91,6 +91,16 @@ export interface IVendorProjection {
   isVerified?: 1,
 }
 
+export interface IVendorsRecordsOptions {
+  page: number,
+  size: number,
+  projection: IVendorProjection
+}
+
+export interface IVendorsRecordsResponse {
+  records: Array<IVendor>,
+  maxRecords: number
+}
 
 
 
@@ -116,6 +126,63 @@ export const loginVendor = (vendor: IVendorDocument): IVendorLoginResponse => {
   }
 }
 
+export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorsRecordsResponse> => {
+
+
+  let pipeline: PipelineStage[] = [];
+
+  pipeline.push(
+      {
+          $match: {
+              isBlocked: false
+          }
+      },
+      {
+          $sort: { _id: -1 }
+      },
+      {
+          $facet: {
+              metadata: [
+                  {
+                      $group: {
+                          _id: null,
+                          total: { $sum: 1 }
+                      }
+                  }
+              ],
+              data: [
+                  {
+                      $skip: options.page * options.size
+                  },
+                  {
+                      $limit: options.size
+                  },
+                  {
+                      $project: options.projection
+                  }
+              ]
+          }
+      },
+      {
+          $project: {
+              maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+              data: 1
+          }
+      }
+  );
+
+  const result = await vendorModel.aggregate(pipeline);
+  let response = {
+      records: [],
+      maxRecords: 0
+  };
+  if (result.length) {
+      response.records = result[0].data || [];
+      response.maxRecords = result[0].maxRecords || 0;
+  }
+
+  return response;
+}
 
 // export const getvendorWithId = async (id: Types.ObjectId, projection: IVendorProjection = {}, options: QueryOptions = {}): Promise<IVendorDocument | null> => {
 //   const result = await vendorModel.findById(id, projection, options);
