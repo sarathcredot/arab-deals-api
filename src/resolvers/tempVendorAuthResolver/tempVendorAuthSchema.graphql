@@ -18,18 +18,8 @@ type ImageData {
 
 type tempVendor {
   _id: String
-  email: String
-  password: String
   fullName: String
   mobileNumber: String
-  country: String
-  brand: String
-  profilePic: ImageData
-  temporaryMobileOtp: MobileOtpData
-  isVerified: Boolean
-  isBlocked: Boolean
-  token: String
-  temporaryVendorAuthToken: String
 }
 
 type MobileOtpData {
@@ -60,6 +50,7 @@ input VerifyTempVendorInput {
 
 type AddTempVendorResponse {
   _id: String!
+  mobileNumber: String!
 }
 
 type VerifyTempVendorResponse {

@@ -16,7 +16,7 @@ export const getAllVendorsRecordsValidator = [
   body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
 ];
 
-export const tempVendorCreateValidator = [
+export const VendorCreateValidator = [
   body('variables.input.fullName').trim().notEmpty(),
   body('variables.input.email').trim().isEmail(),
   body('variables.input.mobileNumber').trim().notEmpty(),

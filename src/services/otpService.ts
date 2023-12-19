@@ -3,7 +3,8 @@ import { adminModel, vendorModel, tempVendorAuthModel, authUtilityModel } from '
 
 export interface IOtpFile {
   code?: string,
-  expiresAt?: string
+  expiresAt?: string,
+  mobileNumber?: string
 }
 
 export interface otpDocument extends Document {

@@ -14,7 +14,7 @@ export const vendorResolver: Resolvers = {
   Mutation: {
 
     createVendor: async (parent, { input, image }, { req }, info) => {
-      await validateInput(validators.tempVendorCreateValidator, req);
+      await validateInput(validators.VendorCreateValidator, req);
 
       let email: string = input.email.toLowerCase();
 
@@ -54,6 +54,16 @@ export const vendorResolver: Resolvers = {
       let interiorImage: tempVendorAuthService.FileData | null = null;
       let sellingProductDetails: string = input.sellingProductDetails;
       let sellingProductBrands: string = input.sellingProductBrands;
+
+      const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+      if (isEmailExists) {
+        throw new GraphQLError('This email already exists', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
 
       if (image) {
         const { createReadStream, filename, mimetype, encoding } = await image;
@@ -225,7 +235,7 @@ export const vendorResolver: Resolvers = {
           projection,
         }
 
-        // Fetch all CMS records
+        // Fetch all vendors records
         const result = await vendorService.getVendorsRecordsWithFilters(options);
         const response = {
           records: result.records,
@@ -243,39 +253,37 @@ export const vendorResolver: Resolvers = {
 
       try {
 
-          //Validate Input
-          await validateInput(validators.getVendorRecordValidator, req);
+        //Validate Input
+        await validateInput(validators.getVendorRecordValidator, req);
 
-          const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-          const result = await vendorService.getvendorRecordWithSectionId(_id);
+        const result = await vendorService.getvendorRecordWithId(_id);
 
-          if (!result) {
-              throw new GraphQLError("Record not found", {
-                  extensions: {
-                      code: "BAD_REQUEST",
-                      errors: []
-                  }
-              });
-          }
-
-          const record: vendorService.IVendorDocument = result;
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
 
 
-          const response = {
-              record: record,
-              message: "Vendor record fetched successfully",
-          }
+        const response = {
+          record: result,
+          message: "Vendor record fetched successfully",
+        }
 
 
 
-          return response;
+        return response;
 
       } catch (error) {
-          throw error;
+        throw error;
       }
 
-  },
+    },
   },
 };
 

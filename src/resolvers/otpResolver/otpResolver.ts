@@ -36,6 +36,8 @@ export const otpResolver: Resolvers = {
         isVerified: false
       };
 
+      options.metadata.mobileNumber = input.mobileNumber;
+
       const result = await otpService.createOtp(options);
       if (!result) {
         throw new GraphQLError('OTP Db creation failed', {
@@ -47,7 +49,7 @@ export const otpResolver: Resolvers = {
       }
 
       let response = {
-        _id: result?._id.toString(),
+        _id: _id.toString(),
         message: " OTP send successfully"
       }
 
@@ -95,7 +97,8 @@ export const otpResolver: Resolvers = {
       }
 
       let response = {
-        _id: otpRecord?._id?.toString(),
+        _id: _id?.toString(),
+        mobileNumber: otpRecord?.metadata?.mobileNumber?.toString(),
         message: "OTP verified successfully"
       }
       return response;

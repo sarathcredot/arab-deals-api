@@ -13,18 +13,20 @@ type Mutation {
 type MobileOtpData {
   code: String
   expiresAt: String
+  mobileNumber: String
 }
 
 # otp Input
 
 input sendMobileOtpInput {
   _id: String!
+  mobileNumber: String!
 }
 
-input MobileOtpDataInput {
-  code: String
-  expiresAt: String
-}
+# input MobileOtpDataInput {
+#   code: String
+#   expiresAt: String
+# }
 
 input VerifyOtpInput {
   _id: String!
@@ -51,6 +53,7 @@ type sendMobileOtpResponse {
 # Output
 type VerifyOtpResponse {
   _id: String
+  mobileNumber: String
   message: String
 }
 

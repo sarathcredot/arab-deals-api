@@ -115,25 +115,49 @@ export interface IVendorLoginResponse {
 }
 
 export interface IVendorProjection {
-  _id?: 1,
-  email?: 1,
-  hash?: 1,
-  isBlocked?: 1,
-  fullName?: 1,
-  token?: 1,
-  mobileNumber?: 1,
-  country?: 1,
-  brand?: 1,
-  // "mobileOtp.code": 1,
-  // "mobileOtp.expiresAt": 1,
-  "image._id"?: 1,
-  "image.fileType"?: 1,
-  "image.fileURL"?: 1,
-  "image.mimeType"?: 1,
-  "image.originalName"?: 1,
-  "image.createdAt"?: 1,
-  isVerified?: 1,
+  _id?: 1;
+  email?: 1;
+  hash?: 1;
+  isBlocked?: 1;
+  fullName?: 1;
+  token?: 1;
+  mobileNumber?: 1;
+  country?: 1;
+  brand?: 1;
+  companyName?: 1;
+  businessOutletName?: 1;
+  crNumber?: 1;
+  crLicence?: 1;
+  businessLicence?: 1;
+  chamberOfCommerceCertificate?: 1;
+  companyType?: 1;
+  businessAddress?: 1;
+  "contactPerson.name"?: 1;
+  "contactPerson.phoneNumber"?: 1;
+  "contactPerson.designation"?: 1;
+  "profilePic.fileType"?: 1;
+  "profilePic.fileURL"?: 1;
+  "profilePic.mimeType"?: 1;
+  "profilePic.originalName"?: 1;
+  "exteriorImage.fileType"?: 1;
+  "exteriorImage.fileURL"?: 1;
+  "exteriorImage.mimeType"?: 1;
+  "exteriorImage.originalName"?: 1;
+  "interiorImage.fileType"?: 1;
+  "interiorImage.fileURL"?: 1;
+  "interiorImage.mimeType"?: 1;
+  "interiorImage.originalName"?: 1;
+  sellingProductDetails?: 1;
+  sellingProductBrands?: 1;
+  "image._id"?: 1;
+  "image.fileType"?: 1;
+  "image.fileURL"?: 1;
+  "image.mimeType"?: 1;
+  "image.originalName"?: 1;
+  "image.createdAt"?: 1;
+  isVerified?: 1;
 }
+
 
 export interface IVendorsRecordsOptions {
   page: number,
@@ -173,7 +197,7 @@ export const loginVendor = (vendor: IVendorDocument): IVendorLoginResponse => {
 
 export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorsRecordsResponse> => {
 
-
+console.log("options: ", options)
   let pipeline: PipelineStage[] = [];
 
   pipeline.push(
@@ -217,6 +241,7 @@ export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptio
   );
 
   const result = await vendorModel.aggregate(pipeline);
+  console.log(result)
   let response = {
       records: [],
       maxRecords: 0
@@ -229,15 +254,10 @@ export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptio
   return response;
 }
 
-export const getvendorRecordWithSectionId = async (id: Types.ObjectId, projection: IVendorProjection = {}, options: QueryOptions = {}): Promise<IVendorDocument | null> => {
-  const result = await vendorModel.findById(id, projection, options);
+export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<Document | null> => {
+  const result = await vendorModel.findById(id);
   return result;
 }
-
-// export const getvendorRecordWithId = async (id: Types.ObjectId, projection: IVendorProjection = {}, options: QueryOptions = {}): Promise<IVendor | null> => {
-//   return await vendorModel.findById(id, projection, options);
-// }
-
 
 
 
