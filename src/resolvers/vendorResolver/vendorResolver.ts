@@ -196,7 +196,7 @@ export const vendorResolver: Resolvers = {
     async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
       try {
         await validateInput(validators.getAllVendorsRecordsValidator, req);
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
@@ -250,6 +250,7 @@ export const vendorResolver: Resolvers = {
 
     // Fetch each vendors records
     async getVendorRecordByAdmin(parent, { input }, { req }, info) {
+      await verifyAdmin(req);
 
       try {
 
