@@ -43,3 +43,8 @@ export const VendorCreateValidator = [
 export const getVendorRecordValidator = [
   body('variables.input._id').isMongoId(),
 ];
+
+export const vendorProfileApprovalValidator = [
+  body('variables.input._id').isMongoId(),
+  body('variables.input.approvalStatus').optional({ checkFalsy: true }).isBoolean(),
+];

@@ -58,6 +58,7 @@ export interface IVendor {
   };
   sellingProductDetails?: string
   sellingProductBrands? : string
+  isApproved?: boolean
 }
 
 export interface IVendorDocument extends Document {
@@ -103,6 +104,7 @@ export interface IVendorDocument extends Document {
   };
   sellingProductDetails?: string
   sellingProductBrands? : string
+  isApproved?: boolean;
 
   verifyHash?(password: string): Promise<boolean>;
   setHash?(password: string): Promise<void>;
@@ -156,6 +158,7 @@ export interface IVendorProjection {
   "image.originalName"?: 1;
   "image.createdAt"?: 1;
   isVerified?: 1;
+  isApproved?: 1;
 }
 
 

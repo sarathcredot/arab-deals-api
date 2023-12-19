@@ -189,6 +189,37 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
+    vendorAccountApproval: async (parent, { input }, { req }, info) => {
+      // await verifyAdmin(req);
+      await validateInput(validators.vendorProfileApprovalValidator, req);
+
+      const _id: Types.ObjectId = new Types.ObjectId(input._id);
+      const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
+      const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
+
+      if (!vendor) {
+        throw new GraphQLError("Record not found", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+
+      if (approvalStatus !== undefined) {
+        vendor.isApproved = approvalStatus;
+      }
+    
+      await vendor.save();
+
+      const response = {
+        _id: vendor._id?.toString(),
+        message: "Vendor profile approved successfully"
+      }
+
+      return response;
+    },
+
   },
 
   Query: {
@@ -275,8 +306,6 @@ export const vendorResolver: Resolvers = {
           record: result,
           message: "Vendor record fetched successfully",
         }
-
-
 
         return response;
 

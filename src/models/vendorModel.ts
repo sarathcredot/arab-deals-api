@@ -131,6 +131,10 @@ const vendorSchema = new Schema(
         sellingProductBrands: {
             type: String,
         },
+        isApproved: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,
