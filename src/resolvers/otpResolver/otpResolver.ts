@@ -1,23 +1,21 @@
-import { vendorService, jwtService, spaceService, otpService, tempVendorAuthService } from "../../services";
+import { otpService, tempVendorAuthService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./otpValidator";
-import path from "path";
-import { createWriteStream } from 'fs';
 import { GraphQLError } from "graphql";
-import { validateInput, verifySuperAdmin, verifyAdmin, verifyTempVendor } from "../../middlewares";
-import { filePaths } from "../../configs";
+import { validateInput } from "../../middlewares";
 import { Types } from "mongoose";
 
 export const otpResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
-
+    // Send OTP to mobile number
     sendMobileOtp: async (parent, { input }, { req }, info) => {
 
       await validateInput(validators.mobileOtpVerification, req);
 
       const _id: Types.ObjectId = new Types.ObjectId(input._id);
+      const otpType: String = input.otpType;
 
       const mobileOtp = await otpService.generateOtp();
       if (!mobileOtp) {
@@ -30,7 +28,7 @@ export const otpResolver: Resolvers = {
       }
 
       let options = {
-        name: "SIGNUP",
+        name: otpType,
         userId: _id,
         metadata: mobileOtp,
         isVerified: false
@@ -56,9 +54,9 @@ export const otpResolver: Resolvers = {
       return response;
     },
 
+    // Verify the OTP 
     verifyOtp: async (parent, { input }, { req }, info) => {
       await validateInput(validators.otpVerificationValidator, req);
-      // await verifyTempVendor(req);
 
       const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -85,7 +83,7 @@ export const otpResolver: Resolvers = {
         });
       }
 
-      // Delete from tempVendorAuthCollection
+      // TODO:  we can use this verifyOTP api commonly for all type of otp verification if we can remove this deletion part
       const result = await tempVendorAuthService.deleteTempVendor(_id);
       if (!result) {
         throw new GraphQLError('Temp record deletion failed.', {
@@ -105,11 +103,14 @@ export const otpResolver: Resolvers = {
 
     },
 
+
+    // Resend the OTP
     reSendMobileOtp: async (parent, { input }, { req }, info) => {
 
-      await validateInput(validators.mobileOtpVerification, req);
+      await validateInput(validators.reSendMobileOtpVerification, req);
 
       const _id: Types.ObjectId = new Types.ObjectId(input._id);
+      const otpType: String = input.otpType;
 
       const mobileOtp = await otpService.generateOtp();
       if (!mobileOtp) {
@@ -122,7 +123,7 @@ export const otpResolver: Resolvers = {
       }
 
       let options = {
-        name: "SIGNUP",
+        name: otpType,
         userId: _id,
         metadata: mobileOtp,
         isVerified: false

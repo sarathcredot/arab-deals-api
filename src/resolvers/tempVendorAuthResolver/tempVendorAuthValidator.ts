@@ -3,15 +3,6 @@ import { body } from 'express-validator';
 
 export const tempVendorCreateValidator = [
   body('variables.input.fullName').trim().notEmpty(),
-  // body('variables.input.email').trim().isEmail(),
+  // body('variables.input.email').trim().isEmail(),  // TODO:  remove if emailis not include in temp vendor creation
   body('variables.input.mobileNumber').trim().notEmpty(),
 ];
-// export const tempVendorCreateValidator = [
-//   body('variables.input.fullName').trim().notEmpty(),
-//   body('variables.input.email').trim().isEmail(),
-//   body('variables.input.mobileNumber').trim().notEmpty(),
-//   body('variables.input.password').isLength({ min: 6 }),
-//   body('variables.input.country').trim().notEmpty(),
-//   body('variables.input.brand').optional({ checkFalsy: true }).trim(),
-// ];
-

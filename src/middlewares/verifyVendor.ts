@@ -19,7 +19,6 @@ export const verifyVendor = async (req: CustomRequest) => {
         if (!decoded || !decoded.id) {
             throw new Error("Invalid token");
         }
-        console.log("decoded: ", decoded.id)
 
         let tempVendor = await vendorService.findVendorWithFilters(
             { _id: decoded.id, token: token, isBlocked: false },

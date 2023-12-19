@@ -17,7 +17,6 @@ export interface otpDocument extends Document {
 
 export const generateOtp = async function (): Promise<IOtpFile | null> {
   try {
-    // Generate a random 6-digit OTP
     const otpLength = 6;
     const minOtpValue = Math.pow(10, otpLength - 1);
     const maxOtpValue = Math.pow(10, otpLength) - 1;
@@ -27,7 +26,6 @@ export const generateOtp = async function (): Promise<IOtpFile | null> {
     const currentTime = new Date();
     const expirationTime = new Date(currentTime.getTime() + 5 * 60 * 1000); // 5 minutes
 
-    // Return OTP and expiration time
     let response = {
       code: otp.toString(),
       expiresAt: expirationTime.toISOString(),
@@ -49,22 +47,22 @@ export const createOtp = async (options: QueryOptions): Promise<Document | null>
 
 export const verifyOtp = async function (options: QueryOptions): Promise<boolean> {
   try {
-    const tempVendor = await authUtilityModel.findOne({
+    const otpData = await authUtilityModel.findOne({
       userId: options._id,
       'metadata.code': options.code,
     });
 
-    if (tempVendor) {
+    if (otpData) {
 
-      let checkOtpExpired = await isOtpExpired(tempVendor.metadata.expiresAt)
+      let checkOtpExpired = await isOtpExpired(otpData.metadata.expiresAt)
 
       if (checkOtpExpired) {
         throw new Error("Expired OTP");
         return false;
       }
 
-      tempVendor.isVerified = true;
-      tempVendor.save();
+      otpData.isVerified = true;
+      otpData.save();
       return true;
     }
 

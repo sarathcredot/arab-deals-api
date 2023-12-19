@@ -4,7 +4,7 @@ export const filePaths = {
     adminProfile: "public/admin/profile",
     categorySizeChart: "public/category/sizechart",
     categoryImages: "public/category/image",
-    vendorProfile: "public/vendor/profile",
+    vendorImages: "public/vendor/images",
 
 
 }

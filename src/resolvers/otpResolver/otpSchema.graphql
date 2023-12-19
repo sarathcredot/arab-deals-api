@@ -21,12 +21,9 @@ type MobileOtpData {
 input sendMobileOtpInput {
   _id: String!
   mobileNumber: String!
+  otpType: String!
 }
 
-# input MobileOtpDataInput {
-#   code: String
-#   expiresAt: String
-# }
 
 input VerifyOtpInput {
   _id: String!
@@ -40,6 +37,12 @@ type sendMobileOtpResponse {
   message: String
 }
 
+type VerifyOtpResponse {
+  _id: String
+  mobileNumber: String
+  message: String
+}
+
 # type Query {
 
 # }
@@ -48,14 +51,7 @@ type sendMobileOtpResponse {
 # Input 
 
 
-# Schema
-
 # Output
-type VerifyOtpResponse {
-  _id: String
-  mobileNumber: String
-  message: String
-}
 
 schema {
   mutation: Mutation

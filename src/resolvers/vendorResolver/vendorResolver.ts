@@ -5,7 +5,7 @@ import * as validators from "./vendorValidator";
 import path from "path";
 import { createWriteStream } from 'fs';
 import { GraphQLError } from "graphql";
-import { validateInput, verifySuperAdmin, verifyAdmin, verifyTempVendor } from "../../middlewares";
+import { validateInput, verifyAdmin } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 
@@ -13,9 +13,10 @@ export const vendorResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
 
-    createVendor: async (parent, { input, image }, { req }, info) => {
+    // Vendor full form registartion
+    createVendor: async (parent, { input, images, fileMap }, { req }, info) => {
+      await verifyAdmin(req);
       await validateInput(validators.VendorCreateValidator, req);
-
       let email: string = input.email.toLowerCase();
 
       const existingVendor = await tempVendorAuthService.findTempVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
@@ -32,7 +33,6 @@ export const vendorResolver: Resolvers = {
       let password: string = input.password;
       let mobileNumber: string = input.mobileNumber;
       let country: string = input.country;
-      let profilePic: tempVendorAuthService.FileData | null = null;
       let companyName: string = input.companyName;
       let businessOutletName: string = input.businessOutletName;
       let crNumber: string = input.crNumber;
@@ -50,8 +50,6 @@ export const vendorResolver: Resolvers = {
         phoneNumber: input.contactPerson.phoneNumber,
         designation: input.contactPerson.designation,
       };
-      let exteriorImage: tempVendorAuthService.FileData | null = null;
-      let interiorImage: tempVendorAuthService.FileData | null = null;
       let sellingProductDetails: string = input.sellingProductDetails;
       let sellingProductBrands: string = input.sellingProductBrands;
 
@@ -65,29 +63,51 @@ export const vendorResolver: Resolvers = {
         });
       }
 
-      if (image) {
+      images = images || [];
+
+      let vendorImages: vendorService.FileData[] = [];
+
+      for (let image of images) {
         const { createReadStream, filename, mimetype, encoding } = await image;
-        const key = spaceService.getFileKey(filePaths.vendorProfile, filename, []);
+
+        const key = spaceService.getFileKey(filePaths.vendorImages, filename, []);
+
         const stream = createReadStream();
+
         const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-        profilePic = {
+        vendorImages.push({
           fileType: "PUBLIC",
           fileURL: file.location,
           mimeType: mimetype,
           originalName: filename
-        };
-      }
-
-      const temporaryMobileOtp: any = await otpService.generateOtp();
-      if (!temporaryMobileOtp) {
-        throw new GraphQLError('OTP generation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
         });
       }
+
+      // TODO: Need to remove this , only for testing with dummy data
+      // vendorImages = [{
+      //   fileType: "PUBLIC",
+      //   fileURL: "https://credot-dev-space.blr1.digitaloceanspaces.com/collins/sandbox2/…",
+      //   mimeType: "application/octet-stream",
+      //   originalName: "WIN_20231023_20_38_57_Pro.jpg"
+      // },
+      // {
+      //   fileType: "PUBLIC",
+      //   fileURL: "https://credot-dev-space.blr1.digitaloceanspaces.com/collins/sandbox2/…",
+      //   mimeType: "application/octet-stream",
+      //   originalName: "WIN_20231023_20_38_56_Pro.jpg"
+      // },
+      // {
+      //   fileType: "PUBLIC",
+      //   fileURL: "https://credot-dev-space.blr1.digitaloceanspaces.com/collins/sandbox2/…",
+      //   mimeType: "application/octet-stream",
+      //   originalName: "WIN_20231023_20_38_53_Pro.jpg"
+      // }]
+
+      fileMap = fileMap || {};
+      console.log(fileMap)
+
+
 
       let newVendorData: vendorService.IVendor = {
         email,
@@ -107,15 +127,29 @@ export const vendorResolver: Resolvers = {
         sellingProductBrands
       };
 
-      if (profilePic) {
-        newVendorData.profilePic = profilePic;
-      }
-      if (exteriorImage) {
-        newVendorData.exteriorImage = exteriorImage;
-      }
-      if (interiorImage) {
-        newVendorData.interiorImage = interiorImage;
-      }
+
+      let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
+      vendorImagesName.forEach((imageName) => {
+        if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
+          switch (imageName) {
+            case "profilePic":
+              newVendorData.profilePic = vendorImages[fileMap[imageName]];
+              break;
+
+            case "exteriorImage":
+              newVendorData.exteriorImage = vendorImages[fileMap[imageName]];
+              break;
+
+            case "interiorImage":
+              newVendorData.interiorImage = vendorImages[fileMap[imageName]];
+              break;
+
+            default:
+          }
+        }
+      });
+
+      console.log(newVendorData);
 
       const result = await vendorService.createVendor(newVendorData, password);
 
@@ -136,11 +170,41 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
+    vendorAccountApproval: async (parent, { input }, { req }, info) => {
+      await verifyAdmin(req);
+      await validateInput(validators.vendorProfileApprovalValidator, req);
 
+      const _id: Types.ObjectId = new Types.ObjectId(input._id);
+      const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
+      const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
+
+      if (!vendor) {
+        throw new GraphQLError("Record not found", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+
+      if (approvalStatus !== undefined) {
+        vendor.isApproved = approvalStatus;
+      }
+
+      await vendor.save();
+
+      const response = {
+        _id: vendor._id?.toString(),
+        message: "Vendor profile approved successfully"
+      }
+
+      return response;
+    },
+
+     // Vendor login 
     loginVendor: async (parent, { input }, { req }, info) => {
 
       await validateInput(validators.vendorLoginValidator, req);
-
       const email: string = input.email.toLowerCase();
       const password: string = input.password;
 
@@ -153,6 +217,7 @@ export const vendorResolver: Resolvers = {
           }
         });
       }
+      // TODO: Need to remove after confirm isVerifies feild is not adding in vendor db
       // else if (!vendor.isVerified) {
       //   throw new GraphQLError("Vendor not verified by admin", {
       //     extensions: {
@@ -189,36 +254,107 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-    vendorAccountApproval: async (parent, { input }, { req }, info) => {
-      // await verifyAdmin(req);
-      await validateInput(validators.vendorProfileApprovalValidator, req);
+    // editVendor: async (parent, { input, images, fileMap }, { req }, info) => {
+    //   try {
+    //     // Validate input and check admin permissions
+    //     await validateInput(validators.VendorUpdateValidator, req);
+    //     await verifyAdmin(req);
 
-      const _id: Types.ObjectId = new Types.ObjectId(input._id);
-      const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
-      const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
+    //     const vendorId = new Types.ObjectId(input._id);
 
-      if (!vendor) {
-        throw new GraphQLError("Record not found", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: []
-          }
-        });
-      }
+    //     const existingVendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, { lean: true });
+    //     if (!existingVendor) {
+    //       throw new GraphQLError('Vendor not found', {
+    //         extensions: {
+    //           code: 'BAD_REQUEST',
+    //           errors: [],
+    //         },
+    //       });
+    //     }
 
-      if (approvalStatus !== undefined) {
-        vendor.isApproved = approvalStatus;
-      }
-    
-      await vendor.save();
+    //     // Update vendor properties
+    //     if (input.email) {
+    //       // You can add additional checks or validation for email if needed
+    //       existingVendor.email = input.email.toLowerCase();
+    //     }
 
-      const response = {
-        _id: vendor._id?.toString(),
-        message: "Vendor profile approved successfully"
-      }
+    //     // Update other properties as needed...
+    //     existingVendor.fullName = input.fullName;
+    //     existingVendor.mobileNumber = input.mobileNumber;
+    //     existingVendor.country = input.country;
+    //     existingVendor.companyName = input.companyName;
+    //     existingVendor.businessOutletName = input.businessOutletName;
+    //     existingVendor.crNumber = input.crNumber;
+    //     existingVendor.crLicence = input.crLicence;
+    //     existingVendor.businessLicence = input.businessLicence;
+    //     existingVendor.chamberOfCommerceCertificate = input.chamberOfCommerceCertificate;
+    //     existingVendor.companyType = input.companyType;
+    //     existingVendor.businessAddress = input.businessAddress;
+    //     existingVendor.contactPerson = {
+    //       name: input.contactPerson.name,
+    //       phoneNumber: input.contactPerson.phoneNumber,
+    //       designation: input.contactPerson.designation,
+    //     };
+    //     existingVendor.sellingProductDetails = input.sellingProductDetails;
+    //     existingVendor.sellingProductBrands = input.sellingProductBrands;
 
-      return response;
-    },
+    //     // Update vendor images
+    //     images = images || [];
+
+    //     let vendorImages: tempVendorAuthService.FileData[] = [];
+
+    //     for (let image of images) {
+    //       const { createReadStream, filename, mimetype } = await image;
+
+    //       const key = spaceService.getFileKey(filePaths.vendorImages, filename, []);
+
+    //       const stream = createReadStream();
+
+    //       const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+    //       vendorImages.push({
+    //         fileType: 'PUBLIC',
+    //         fileURL: file.location,
+    //         mimeType: mimetype,
+    //         originalName: filename,
+    //       });
+    //     }
+
+    //     fileMap = fileMap || {};
+    //     console.log(fileMap)
+
+
+    //     let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
+    //     vendorImagesName.forEach((imageName) => {
+    //       if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
+    //         switch (imageName) {
+    //           case "profilePic":
+    //             existingVendor.profilePic = vendorImages[fileMap[imageName]];
+    //             break;
+
+    //           case "exteriorImage":
+    //             existingVendor.exteriorImage = vendorImages[fileMap[imageName]];
+    //             break;
+
+    //           case "interiorImage":
+    //             existingVendor.interiorImage = vendorImages[fileMap[imageName]];
+    //             break;
+
+    //           default:
+    //         }
+    //       }
+    //     });
+    //     // Save the updated vendor data
+    //     await existingVendor.save();
+
+    //     const response = {
+    //       _id: existingVendor?._id?.toString(),
+    //       message: 'Vendor successfully updated',
+    //     };
+
+    //     return response;
+    //   } 
+    // },
 
   },
 
@@ -284,8 +420,6 @@ export const vendorResolver: Resolvers = {
       await verifyAdmin(req);
 
       try {
-
-        //Validate Input
         await validateInput(validators.getVendorRecordValidator, req);
 
         const _id: Types.ObjectId = new Types.ObjectId(input._id);
@@ -300,7 +434,6 @@ export const vendorResolver: Resolvers = {
             }
           });
         }
-
 
         const response = {
           record: result,

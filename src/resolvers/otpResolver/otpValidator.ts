@@ -7,6 +7,10 @@ export const mobileOtpVerification = [
   body('variables.input._id').isMongoId(),
 ];
 
+export const reSendMobileOtpVerification = [
+  body('variables.input._id').isMongoId(),
+];
+
 
 export const otpVerificationValidator = [
   body('variables.input._id').isMongoId(),

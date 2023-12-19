@@ -1,14 +1,17 @@
 scalar Upload
+scalar JSONObject
 
-# Vendor auth Mutations
+# Vendor  Mutations
 
 type Mutation {
-  verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
-  createVendor(input: VendorSignUpInput!, , image:Upload): CreateVendorResponse!
+  createVendor(input: VendorSignUpInput!, images:[Upload], fileMap: JSONObject): CreateVendorResponse!
   vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
 }
+
+# Vendor  Type
+
 
 type ImageData {
   fileType: String
@@ -16,8 +19,6 @@ type ImageData {
   mimeType: String
   originalName: String
 }
-
-# Vendor auth Type
 
 type Vendor {
   _id: String
@@ -58,7 +59,7 @@ type ContactPersonData {
   designation: String
 }
 
-# Vendor auth Input
+# Vendor  Input
 
 input VendorSignUpInput {
   email: String!
@@ -67,7 +68,6 @@ input VendorSignUpInput {
   mobileNumber: String!
   country: String!
   brand: String!
-  # profilePic: ImageData
   companyName: String!
   businessOutletName: String!
   outletName: String!   
@@ -77,9 +77,7 @@ input VendorSignUpInput {
   chamberOfCommerceCertificate: String!  
   companyType: String!   
   businessAddress: String!  
-  contactPerson: ContactPersonInput!  
-  # exteriorImage: ImageData  
-  # interiorImage: ImageData  
+  contactPerson: ContactPersonInput!   
   sellingProductDetails: String!  
   sellingProductBrands: String!   
 }
@@ -115,7 +113,7 @@ input VendorAccountApprovalInput {
   approvalStatus: Boolean!
 }
 
-# Vendor auth Output
+# Vendor  Output
 
 type VendorAuthResponse {
   _id: String
@@ -137,13 +135,10 @@ type Query {
   getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
 }
 
+# Vendor  type
+
 type getVendorRecordResponse {
   record: Vendor
-}
-
-type VerifyTempVendorResponse {
-  _id: String
-  message: String
 }
 
 type CreateVendorResponse{
@@ -151,7 +146,7 @@ type CreateVendorResponse{
     message: String
 }
 
-# Input 
+# Vendor  input
 
  input VendorsRecordsByAdminFilter {
     page: Int

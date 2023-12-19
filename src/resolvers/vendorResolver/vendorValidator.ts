@@ -34,8 +34,6 @@ export const VendorCreateValidator = [
   body('variables.input.contactPersonName').optional({ checkFalsy: true }).trim(),
   body('variables.input.contactPersonPhoneNumber').optional({ checkFalsy: true }).trim(),
   body('variables.input.contactPersonDesignation').optional({ checkFalsy: true }).trim(),
-  body('variables.input.exteriorImage').optional({ checkFalsy: true }).trim(),
-  body('variables.input.interiorImage').optional({ checkFalsy: true }).trim(),
   body('variables.input.sellingProductDetails').optional({ checkFalsy: true }).trim(),
   body('variables.input.sellingProductBrands').optional({ checkFalsy: true }).trim(),
 ];

@@ -1,21 +1,20 @@
-import { tempVendorAuthService, jwtService, spaceService, otpService, vendorService, tempVendorJwtService } from "../../services";
+import { tempVendorAuthService, vendorService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./tempVendorAuthValidator";
 import { GraphQLError } from "graphql";
-import { validateInput, verifyTempVendor } from "../../middlewares";
-import { filePaths } from "../../configs";
-import { Types } from "mongoose";
+import { validateInput } from "../../middlewares";
 
 export const tempVendorAuthResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
 
-    // Vendor registration
+    // Vendor temp registration
 
     createTempVendor: async (parent, { input }, { req }, info) => {
       await validateInput(validators.tempVendorCreateValidator, req);
 
+      // TODO:  remove if emailis not include in temp vendor creation
       // let email: string = input.email.toLowerCase();
 
       // const existingVendor = await tempVendorAuthService.findTempVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
@@ -43,7 +42,7 @@ export const tempVendorAuthResolver: Resolvers = {
       let fullName: string = input.fullName;
 
       let newVendorData: tempVendorAuthService.ITempVendor = {
-        // email,
+        // email,  // TODO:  remove if emailis not include in temp vendor creation
         mobileNumber,
         fullName,
       }
