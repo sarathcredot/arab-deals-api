@@ -25,7 +25,7 @@ const fileSchema = new Schema(
     {
         fileType: {
             type: String,
-            enum: ["PRIVATE", "PUBLIC"],
+            enum: ["PRIVATE"],
             default: "PUBLIC",
             required: true
         },
