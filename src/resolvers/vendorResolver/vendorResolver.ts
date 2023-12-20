@@ -40,7 +40,7 @@ export const vendorResolver: Resolvers = {
 
       if (image) {
         const { createReadStream, filename, mimetype, encoding } = await image;
-        const key = spaceService.getFileKey(filePaths.vendorImage, filename, []);
+        const key = spaceService.getFileKey(filePaths.vendorProfilePic, filename, []);
         const stream = createReadStream();
         const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
