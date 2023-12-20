@@ -10,11 +10,7 @@ import * as spaceService from "./spaceService";
 import  * as vendorService from "./vendorService";
 import  * as tempVendorAuthService from "./tempVendorAuthService";
 import * as otpService from "./otpService";
-import * as tempVendorJwtService from "./tempVendorJwtService";
 import * as vendorJwtService from "./vendorJwtService";
-
-
-
 
 
 export {
@@ -30,6 +26,5 @@ export {
     vendorService,
     otpService,
     tempVendorAuthService,
-    tempVendorJwtService,
     vendorJwtService,
 }

@@ -19,9 +19,9 @@ export const vendorResolver: Resolvers = {
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input.email.toLowerCase();
 
-      const existingVendor = await tempVendorAuthService.findTempVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
-      if (existingVendor) {
-        throw new GraphQLError('Vendor with this email already exists', {
+      const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+      if (isEmailExists) {
+        throw new GraphQLError('This email already exists', {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: []
@@ -53,15 +53,6 @@ export const vendorResolver: Resolvers = {
       let sellingProductDetails: string = input.sellingProductDetails;
       let sellingProductBrands: string = input.sellingProductBrands;
 
-      const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
-      if (isEmailExists) {
-        throw new GraphQLError('This email already exists', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
 
       images = images || [];
 
@@ -128,8 +119,8 @@ export const vendorResolver: Resolvers = {
       };
 
 
-      let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
-      vendorImagesName.forEach((imageName) => {
+      let vendorImageKeys = Object.keys(fileMap);
+      vendorImageKeys.forEach((imageName) => {
         if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
           switch (imageName) {
             case "profilePic":
@@ -201,7 +192,7 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-     // Vendor login 
+    // Vendor login 
     loginVendor: async (parent, { input }, { req }, info) => {
 
       await validateInput(validators.vendorLoginValidator, req);
@@ -254,107 +245,108 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-    // editVendor: async (parent, { input, images, fileMap }, { req }, info) => {
-    //   try {
-    //     // Validate input and check admin permissions
-    //     await validateInput(validators.VendorUpdateValidator, req);
-    //     await verifyAdmin(req);
+    updateVendorProfile: async (parent, { input, images, fileMap }, { req }, info) => {
+      try {
+        // Validate input and check admin permissions
+        await validateInput(validators.VendorUpdateValidator, req);
+        // await verifyAdmin(req);
 
-    //     const vendorId = new Types.ObjectId(input._id);
+        const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
 
-    //     const existingVendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, { lean: true });
-    //     if (!existingVendor) {
-    //       throw new GraphQLError('Vendor not found', {
-    //         extensions: {
-    //           code: 'BAD_REQUEST',
-    //           errors: [],
-    //         },
-    //       });
-    //     }
+        const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+        if (!vendor) {
+          throw new GraphQLError('Vendor not found', {
+            extensions: {
+              code: 'BAD_REQUEST',
+              errors: [],
+            },
+          });
+        }
 
-    //     // Update vendor properties
-    //     if (input.email) {
-    //       // You can add additional checks or validation for email if needed
-    //       existingVendor.email = input.email.toLowerCase();
-    //     }
+        if (input.email) {
+          vendor.email = input.email.toLowerCase();
+        }
 
-    //     // Update other properties as needed...
-    //     existingVendor.fullName = input.fullName;
-    //     existingVendor.mobileNumber = input.mobileNumber;
-    //     existingVendor.country = input.country;
-    //     existingVendor.companyName = input.companyName;
-    //     existingVendor.businessOutletName = input.businessOutletName;
-    //     existingVendor.crNumber = input.crNumber;
-    //     existingVendor.crLicence = input.crLicence;
-    //     existingVendor.businessLicence = input.businessLicence;
-    //     existingVendor.chamberOfCommerceCertificate = input.chamberOfCommerceCertificate;
-    //     existingVendor.companyType = input.companyType;
-    //     existingVendor.businessAddress = input.businessAddress;
-    //     existingVendor.contactPerson = {
-    //       name: input.contactPerson.name,
-    //       phoneNumber: input.contactPerson.phoneNumber,
-    //       designation: input.contactPerson.designation,
-    //     };
-    //     existingVendor.sellingProductDetails = input.sellingProductDetails;
-    //     existingVendor.sellingProductBrands = input.sellingProductBrands;
+        vendor.fullName = input.fullName;
+        vendor.mobileNumber = input.mobileNumber;
+        vendor.country = input.country;
+        vendor.brand = input.brand;
+        vendor.companyName = input.companyName;
+        vendor.businessOutletName = input.businessOutletName;
+        vendor.crNumber = input.crNumber;
+        vendor.crLicence = input.crLicence;
+        vendor.businessLicence = input.businessLicence;
+        vendor.chamberOfCommerceCertificate = input.chamberOfCommerceCertificate;
+        vendor.companyType = input.companyType;
+        vendor.businessAddress = input.businessAddress;
+        vendor.contactPerson = {
+          name: input.contactPerson.name,
+          phoneNumber: input.contactPerson.phoneNumber,
+          designation: input.contactPerson.designation,
+        };
+        vendor.sellingProductDetails = input.sellingProductDetails;
+        vendor.sellingProductBrands = input.sellingProductBrands;
 
-    //     // Update vendor images
-    //     images = images || [];
+        // Update vendor images
+        images = images || [];
 
-    //     let vendorImages: tempVendorAuthService.FileData[] = [];
+        let vendorImages: tempVendorAuthService.FileData[] = [];
 
-    //     for (let image of images) {
-    //       const { createReadStream, filename, mimetype } = await image;
+        for (let image of images) {
+          const { createReadStream, filename, mimetype } = await image;
 
-    //       const key = spaceService.getFileKey(filePaths.vendorImages, filename, []);
+          const key = spaceService.getFileKey(filePaths.vendorImages, filename, []);
 
-    //       const stream = createReadStream();
+          const stream = createReadStream();
 
-    //       const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-    //       vendorImages.push({
-    //         fileType: 'PUBLIC',
-    //         fileURL: file.location,
-    //         mimeType: mimetype,
-    //         originalName: filename,
-    //       });
-    //     }
+          vendorImages.push({
+            fileType: 'PUBLIC',
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename,
+          });
+        }
 
-    //     fileMap = fileMap || {};
-    //     console.log(fileMap)
+        fileMap = fileMap || {};
+        console.log(fileMap)
 
 
-    //     let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
-    //     vendorImagesName.forEach((imageName) => {
-    //       if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
-    //         switch (imageName) {
-    //           case "profilePic":
-    //             existingVendor.profilePic = vendorImages[fileMap[imageName]];
-    //             break;
+        let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
+        vendorImagesName.forEach((imageName) => {
+          if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
+            switch (imageName) {
+              case "profilePic":
+                vendor.profilePic = vendorImages[fileMap[imageName]];
+                break;
 
-    //           case "exteriorImage":
-    //             existingVendor.exteriorImage = vendorImages[fileMap[imageName]];
-    //             break;
+              case "exteriorImage":
+                vendor.exteriorImage = vendorImages[fileMap[imageName]];
+                break;
 
-    //           case "interiorImage":
-    //             existingVendor.interiorImage = vendorImages[fileMap[imageName]];
-    //             break;
+              case "interiorImage":
+                vendor.interiorImage = vendorImages[fileMap[imageName]];
+                break;
 
-    //           default:
-    //         }
-    //       }
-    //     });
-    //     // Save the updated vendor data
-    //     await existingVendor.save();
+              default:
+            }
+          }
+        });
 
-    //     const response = {
-    //       _id: existingVendor?._id?.toString(),
-    //       message: 'Vendor successfully updated',
-    //     };
+        await vendor.save();
 
-    //     return response;
-    //   } 
-    // },
+        const response = {
+          _id: vendor?._id?.toString(),
+          message: 'Vendor successfully updated',
+        };
+
+        return response;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
 
   },
 
