@@ -14,7 +14,7 @@ export const vendorResolver: Resolvers = {
   Mutation: {
 
     // Vendor full form registartion
-    createVendor: async (parent, { input, images, fileMap }, { req }, info) => {
+    createVendor: async (parent, { input, image }, { req }, info) => {
       await verifyAdmin(req);
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input.email.toLowerCase();
@@ -34,45 +34,22 @@ export const vendorResolver: Resolvers = {
       let mobileNumber: string = input.mobileNumber;
       let country: string = input.country;
       let companyName: string = input.companyName;
-      let businessOutletName: string = input.businessOutletName;
-      let crNumber: string = input.crNumber;
-      let crLicence: string = input.crLicence;
-      let businessLicence: string = input.businessLicence;
-      let chamberOfCommerceCertificate: string = input.chamberOfCommerceCertificate;
-      let companyType: string = input.companyType;
-      let businessAddress: string = input.businessAddress;
-      let contactPerson: {
-        name: string;
-        phoneNumber: string;
-        designation: string;
-      } = {
-        name: input.contactPerson.name,
-        phoneNumber: input.contactPerson.phoneNumber,
-        designation: input.contactPerson.designation,
-      };
-      let sellingProductDetails: string = input.sellingProductDetails;
-      let sellingProductBrands: string = input.sellingProductBrands;
 
 
-      images = images || [];
+      let profilePic: vendorService.FileData | null = null;
 
-      let vendorImages: vendorService.FileData[] = [];
-
-      for (let image of images) {
+      if (image) {
         const { createReadStream, filename, mimetype, encoding } = await image;
-
-        const key = spaceService.getFileKey(filePaths.vendorImages, filename, []);
-
+        const key = spaceService.getFileKey(filePaths.vendorImage, filename, []);
         const stream = createReadStream();
-
         const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-        vendorImages.push({
+        profilePic = {
           fileType: "PUBLIC",
           fileURL: file.location,
           mimeType: mimetype,
           originalName: filename
-        });
+        }
       }
 
       // TODO: Need to remove this , only for testing with dummy data
@@ -95,52 +72,15 @@ export const vendorResolver: Resolvers = {
       //   originalName: "WIN_20231023_20_38_53_Pro.jpg"
       // }]
 
-      fileMap = fileMap || {};
-      console.log(fileMap)
-
 
 
       let newVendorData: vendorService.IVendor = {
         email,
         fullName,
         mobileNumber,
-        country,
         companyName,
-        businessOutletName,
-        crNumber,
-        crLicence,
-        businessLicence,
-        chamberOfCommerceCertificate,
-        companyType,
-        businessAddress,
-        contactPerson: contactPerson,
-        sellingProductDetails,
-        sellingProductBrands
       };
 
-
-      let vendorImageKeys = Object.keys(fileMap);
-      vendorImageKeys.forEach((imageName) => {
-        if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
-          switch (imageName) {
-            case "profilePic":
-              newVendorData.profilePic = vendorImages[fileMap[imageName]];
-              break;
-
-            case "exteriorImage":
-              newVendorData.exteriorImage = vendorImages[fileMap[imageName]];
-              break;
-
-            case "interiorImage":
-              newVendorData.interiorImage = vendorImages[fileMap[imageName]];
-              break;
-
-            default:
-          }
-        }
-      });
-
-      console.log(newVendorData);
 
       const result = await vendorService.createVendor(newVendorData, password);
 
@@ -245,108 +185,108 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-    updateVendorProfile: async (parent, { input, images, fileMap }, { req }, info) => {
-      try {
-        // Validate input and check admin permissions
-        await validateInput(validators.VendorUpdateValidator, req);
-        // await verifyAdmin(req);
+    // updateVendorProfile: async (parent, { input, images, fileMap }, { req }, info) => {
+    //   try {
+    //     // Validate input and check admin permissions
+    //     await validateInput(validators.VendorUpdateValidator, req);
+    //     // await verifyAdmin(req);
 
-        const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
+    //     const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
 
-        const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
-        if (!vendor) {
-          throw new GraphQLError('Vendor not found', {
-            extensions: {
-              code: 'BAD_REQUEST',
-              errors: [],
-            },
-          });
-        }
+    //     const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+    //     if (!vendor) {
+    //       throw new GraphQLError('Vendor not found', {
+    //         extensions: {
+    //           code: 'BAD_REQUEST',
+    //           errors: [],
+    //         },
+    //       });
+    //     }
 
-        if (input.email) {
-          vendor.email = input.email.toLowerCase();
-        }
+    //     if (input.email) {
+    //       vendor.email = input.email.toLowerCase();
+    //     }
 
-        vendor.fullName = input.fullName;
-        vendor.mobileNumber = input.mobileNumber;
-        vendor.country = input.country;
-        vendor.brand = input.brand;
-        vendor.companyName = input.companyName;
-        vendor.businessOutletName = input.businessOutletName;
-        vendor.crNumber = input.crNumber;
-        vendor.crLicence = input.crLicence;
-        vendor.businessLicence = input.businessLicence;
-        vendor.chamberOfCommerceCertificate = input.chamberOfCommerceCertificate;
-        vendor.companyType = input.companyType;
-        vendor.businessAddress = input.businessAddress;
-        vendor.contactPerson = {
-          name: input.contactPerson.name,
-          phoneNumber: input.contactPerson.phoneNumber,
-          designation: input.contactPerson.designation,
-        };
-        vendor.sellingProductDetails = input.sellingProductDetails;
-        vendor.sellingProductBrands = input.sellingProductBrands;
+    //     vendor.fullName = input.fullName;
+    //     vendor.mobileNumber = input.mobileNumber;
+    //     vendor.country = input.country;
+    //     vendor.brand = input.brand;
+    //     vendor.companyName = input.companyName;
+    //     vendor.businessOutletName = input.businessOutletName;
+    //     vendor.crNumber = input.crNumber;
+    //     vendor.crLicence = input.crLicence;
+    //     vendor.businessLicence = input.businessLicence;
+    //     vendor.chamberOfCommerceCertificate = input.chamberOfCommerceCertificate;
+    //     vendor.companyType = input.companyType;
+    //     vendor.businessAddress = input.businessAddress;
+    //     vendor.contactPerson = {
+    //       name: input.contactPerson.name,
+    //       phoneNumber: input.contactPerson.phoneNumber,
+    //       designation: input.contactPerson.designation,
+    //     };
+    //     vendor.sellingProductDetails = input.sellingProductDetails;
+    //     vendor.sellingProductBrands = input.sellingProductBrands;
 
-        // Update vendor images
-        images = images || [];
+    //     // Update vendor images
+    //     images = images || [];
 
-        let vendorImages: tempVendorAuthService.FileData[] = [];
+    //     let vendorImages: tempVendorAuthService.FileData[] = [];
 
-        for (let image of images) {
-          const { createReadStream, filename, mimetype } = await image;
+    //     for (let image of images) {
+    //       const { createReadStream, filename, mimetype } = await image;
 
-          const key = spaceService.getFileKey(filePaths.vendorImages, filename, []);
+    //       const key = spaceService.getFileKey(filePaths.vendorImage, filename, []);
 
-          const stream = createReadStream();
+    //       const stream = createReadStream();
 
-          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+    //       const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-          vendorImages.push({
-            fileType: 'PUBLIC',
-            fileURL: file.location,
-            mimeType: mimetype,
-            originalName: filename,
-          });
-        }
+    //       vendorImages.push({
+    //         fileType: 'PUBLIC',
+    //         fileURL: file.location,
+    //         mimeType: mimetype,
+    //         originalName: filename,
+    //       });
+    //     }
 
-        fileMap = fileMap || {};
-        console.log(fileMap)
+    //     fileMap = fileMap || {};
+    //     console.log(fileMap)
 
 
-        let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
-        vendorImagesName.forEach((imageName) => {
-          if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
-            switch (imageName) {
-              case "profilePic":
-                vendor.profilePic = vendorImages[fileMap[imageName]];
-                break;
+    //     let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
+    //     vendorImagesName.forEach((imageName) => {
+    //       if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
+    //         switch (imageName) {
+    //           case "profilePic":
+    //             vendor.profilePic = vendorImages[fileMap[imageName]];
+    //             break;
 
-              case "exteriorImage":
-                vendor.exteriorImage = vendorImages[fileMap[imageName]];
-                break;
+    //           case "exteriorImage":
+    //             vendor.exteriorImage = vendorImages[fileMap[imageName]];
+    //             break;
 
-              case "interiorImage":
-                vendor.interiorImage = vendorImages[fileMap[imageName]];
-                break;
+    //           case "interiorImage":
+    //             vendor.interiorImage = vendorImages[fileMap[imageName]];
+    //             break;
 
-              default:
-            }
-          }
-        });
+    //           default:
+    //         }
+    //       }
+    //     });
 
-        await vendor.save();
+    //     await vendor.save();
 
-        const response = {
-          _id: vendor?._id?.toString(),
-          message: 'Vendor successfully updated',
-        };
+    //     const response = {
+    //       _id: vendor?._id?.toString(),
+    //       message: 'Vendor successfully updated',
+    //     };
 
-        return response;
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
-    },
+    //     return response;
+    //   } catch (error) {
+    //     console.error(error);
+    //     throw error;
+    //   }
+    // },
 
   },
 

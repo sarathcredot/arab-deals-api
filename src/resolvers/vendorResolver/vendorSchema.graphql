@@ -4,7 +4,7 @@ scalar JSONObject
 # Vendor  Mutations
 
 type Mutation {
-  createVendor(input: VendorSignUpInput!, images:[Upload], fileMap: JSONObject): CreateVendorResponse!
+  createVendor(input: VendorSignUpInput!, image:Upload): CreateVendorResponse!
   vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!,images:[Upload], fileMap: JSONObject): UpdateVendorResponse!
@@ -67,19 +67,19 @@ input VendorSignUpInput {
   fullName: String!
   mobileNumber: String!
   country: String!
-  brand: String!
+  # brand: String!
   companyName: String!
-  businessOutletName: String!
-  outletName: String!   
-  crNumber: String!     
-  crLicence: String!    
-  businessLicence: String!  
-  chamberOfCommerceCertificate: String!  
-  companyType: String!   
-  businessAddress: String!  
-  contactPerson: ContactPersonInput!   
-  sellingProductDetails: String!  
-  sellingProductBrands: String!   
+  # businessOutletName: String!
+  # outletName: String!   
+  # crNumber: String!     
+  # crLicence: String!    
+  # businessLicence: String!  
+  # chamberOfCommerceCertificate: String!  
+  # companyType: String!   
+  # businessAddress: String!  
+  # contactPerson: ContactPersonInput!   
+  # sellingProductDetails: String!  
+  # sellingProductBrands: String!   
 }
 
 

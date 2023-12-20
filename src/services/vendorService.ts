@@ -18,46 +18,12 @@ export interface MobileOtpData {
 export interface IVendor {
   _id?: string;
   email?: string;
+  companyName?: string
   hash?: string,
   mobileNumber?: string;
-  country?: string
-  brand?: string
   isBlocked?: boolean;
   fullName?: string;
   token?: string;
-  profilePic?: {
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string
-  };
-  companyName?: string
-  businessOutletName?: string
-  crNumber?: string
-  crLicence?: string
-  businessLicence?: string
-  chamberOfCommerceCertificate?: string
-  companyType?: string
-  businessAddress?: string
-  contactPerson?:{
-    name?: string,
-    phoneNumber?: string,
-    designation?: string
-  }
-  exteriorImage?: {
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string
-  };
-  interiorImage?: {
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string
-  };
-  sellingProductDetails?: string
-  sellingProductBrands? : string
   isApproved?: boolean
 }
 
@@ -66,44 +32,10 @@ export interface IVendorDocument extends Document {
   email?: string;
   hash?: string,
   mobileNumber?: string;
-  country?: string;
-  brand?: string;
   isBlocked?: boolean;
   fullName?: string;
   token?: string;
-  profilePic?: {
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string
-  };
-  companyName?: string
-  businessOutletName?: string
-  crNumber?: string
-  crLicence?: string
-  businessLicence?: string
-  chamberOfCommerceCertificate?: string
-  companyType?: string
-  businessAddress?: string
-  contactPerson?:{
-    name?: string,
-    phoneNumber?: string,
-    designation?: string
-  }
-  exteriorImage?: {
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string
-  };
-  interiorImage?: {
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string
-  };
-  sellingProductDetails?: string
-  sellingProductBrands? : string
+  companyName?: string;
   isApproved?: boolean;
 
   verifyHash?(password: string): Promise<boolean>;
@@ -124,33 +56,7 @@ export interface IVendorProjection {
   fullName?: 1;
   token?: 1;
   mobileNumber?: 1;
-  country?: 1;
-  brand?: 1;
   companyName?: 1;
-  businessOutletName?: 1;
-  crNumber?: 1;
-  crLicence?: 1;
-  businessLicence?: 1;
-  chamberOfCommerceCertificate?: 1;
-  companyType?: 1;
-  businessAddress?: 1;
-  "contactPerson.name"?: 1;
-  "contactPerson.phoneNumber"?: 1;
-  "contactPerson.designation"?: 1;
-  "profilePic.fileType"?: 1;
-  "profilePic.fileURL"?: 1;
-  "profilePic.mimeType"?: 1;
-  "profilePic.originalName"?: 1;
-  "exteriorImage.fileType"?: 1;
-  "exteriorImage.fileURL"?: 1;
-  "exteriorImage.mimeType"?: 1;
-  "exteriorImage.originalName"?: 1;
-  "interiorImage.fileType"?: 1;
-  "interiorImage.fileURL"?: 1;
-  "interiorImage.mimeType"?: 1;
-  "interiorImage.originalName"?: 1;
-  sellingProductDetails?: 1;
-  sellingProductBrands?: 1;
   "image._id"?: 1;
   "image.fileType"?: 1;
   "image.fileURL"?: 1;
