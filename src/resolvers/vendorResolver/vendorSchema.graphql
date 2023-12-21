@@ -157,6 +157,7 @@ type getVendorRecordResponse {
 type CreateVendorResponse{
     _id: String
     message: String
+    token: String
 }
 
 # Vendor  input

@@ -139,7 +139,7 @@ const sellingProductSchema = new Schema(
 
 const KYCSchema = new Schema(
   {
-    categoryId: {
+    vendorId: {
       type: Schema.Types.ObjectId,
       ref: collections.VENDORS,
       index: true
@@ -148,6 +148,7 @@ const KYCSchema = new Schema(
     businessOutlet: businessOutletSchema,
     sellingProduct: sellingProductSchema
   },
+  
   {
     _id: true,
     timestamps: true

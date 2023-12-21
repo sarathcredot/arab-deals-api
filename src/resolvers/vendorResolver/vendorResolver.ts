@@ -1,4 +1,4 @@
-import { vendorService, jwtService, spaceService, otpService, tempVendorAuthService } from "../../services";
+import { vendorService, jwtService, spaceService, otpService, tempVendorAuthService, vendorJwtService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./vendorValidator";
@@ -15,7 +15,7 @@ export const vendorResolver: Resolvers = {
 
     // Vendor full form registartion
     createVendor: async (parent, { input, image }, { req }, info) => {
-      await verifyAdmin(req);
+      // await verifyAdmin(req);
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input.email.toLowerCase();
 
@@ -93,9 +93,16 @@ export const vendorResolver: Resolvers = {
         });
       }
 
+      let token = await vendorJwtService.createVendorJWT(result._id!.toString());
+
+      result.token = token;
+
+      await result.save();
+
       let response = {
         _id: result._id!.toString(),
-        message: "Vendor created successfully"
+        message: "Vendor created successfully and logined",
+        token: result.token
       };
 
       return response;
