@@ -50,7 +50,7 @@ const companySchema = new Schema(
       type: String,
       required: true
     },
-    companyProofStatus: {
+    status: {
       type: String,
       required: true,
       index: true,
@@ -85,7 +85,7 @@ const businessOutletSchema = new Schema(
     },
     interiorImage: fileSchema,
     exteriorImage: fileSchema,
-    businessOutletProofStatus: {
+    status: {
       type: String,
       required: true,
       index: true,
@@ -117,7 +117,7 @@ const sellingProductSchema = new Schema(
       type: String,
       required: true
     },
-    sellingProductProofStatus: {
+    status: {
       type: String,
       required: true,
       index: true,
@@ -143,12 +143,18 @@ const KYCSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: collections.VENDORS,
       index: true
-  },
+    },
     companyDetails: companySchema,
     businessOutlet: businessOutletSchema,
-    sellingProduct: sellingProductSchema
+    sellingProduct: sellingProductSchema,
+    isKycCompleted: {
+      type: Boolean,
+      required: true,
+      default: false
+    }
   },
-  
+
+
   {
     _id: true,
     timestamps: true
@@ -156,6 +162,6 @@ const KYCSchema = new Schema(
 )
 
 
-const KYCModel = model(collections.ADMINS, KYCSchema);
+const KYCModel = model(collections.KYC, KYCSchema);
 
 export { KYCModel };

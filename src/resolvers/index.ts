@@ -10,6 +10,7 @@ import { adminResolver } from "./adminResolver/adminResolver";
 import { vendorResolver } from "./vendorResolver/vendorResolver";
 import { tempVendorAuthResolver } from "./tempVendorAuthResolver/tempVendorAuthResolver";
 import { otpResolver } from "./otpResolver/otpResolver";
+import { kycResolver } from "./kycResolver/kycResolver ";
 
 
 
@@ -26,5 +27,6 @@ export const resolvers: Resolvers = mergeResolvers(
         vendorResolver,
         tempVendorAuthResolver,
         otpResolver,
+        kycResolver,
     ]
 );

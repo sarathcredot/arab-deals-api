@@ -11,6 +11,7 @@ import  * as vendorService from "./vendorService";
 import  * as tempVendorAuthService from "./tempVendorAuthService";
 import * as otpService from "./otpService";
 import * as vendorJwtService from "./vendorJwtService";
+import * as kycService from "./kycService";
 
 
 export {
@@ -27,4 +28,5 @@ export {
     otpService,
     tempVendorAuthService,
     vendorJwtService,
+    kycService,
 }

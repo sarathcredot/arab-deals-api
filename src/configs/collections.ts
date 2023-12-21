@@ -8,6 +8,6 @@ export const collections = {
     ADMINS: "admins",
     VENDORS: "vendors",
     TEMP_VENDOR: "temp_vendors",
-    AUTH_UTILITies: "auth_utilities",
-    KYC_MODEL: "kyc_utilities"
+    AUTH_UTILITIES: "auth_utilities",
+    KYC: "kyc"
 }

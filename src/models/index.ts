@@ -8,6 +8,7 @@ import { adminModel } from "./adminModel";
 import { vendorModel } from "./vendorModel";
 import { tempVendorAuthModel } from "./tempVendorAuthModel";
 import { authUtilityModel } from "./authUtilityModel";
+import { KYCModel } from "./KYCModel";
 
 
 
@@ -24,4 +25,5 @@ export {
     vendorModel,
     tempVendorAuthModel,
     authUtilityModel,
+    KYCModel
 }

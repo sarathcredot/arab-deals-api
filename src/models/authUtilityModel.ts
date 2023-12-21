@@ -31,6 +31,6 @@ const authUtilitySchema = new Schema(
 
 
 
-const authUtilityModel = model(collections.AUTH_UTILITies, authUtilitySchema);
+const authUtilityModel = model(collections.AUTH_UTILITIES, authUtilitySchema);
 
 export { authUtilityModel };

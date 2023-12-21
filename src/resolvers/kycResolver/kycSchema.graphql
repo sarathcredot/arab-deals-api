@@ -1,0 +1,146 @@
+scalar Upload
+scalar JSONObject
+
+# KYC  Mutations
+
+type Mutation {
+  submitKYC(input: kycDataInput!, images:[Upload]): SubmitKYCResponse!
+  # vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
+}
+
+#   KYC  Type
+
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type CompanyDetailsData {
+  _id: String
+  sectionName: String
+  name: String
+  type: String
+  crNumber: String
+  crLicence: String
+  status: String
+  remarks: [String]
+  companyLicenceImage: ImageData
+}
+
+type sellingProductData {
+   _id: String
+  sectionName: String
+  discribtion: String
+  brand: String
+  status: String
+  remarks: [String]
+  sellingProductImage: String
+}
+
+type businessOutletData {
+   _id: String
+  sectionName: String
+  name: String
+  address: String
+  interiorImage: ImageData
+  exteriorImage: ImageData
+  status: String
+  remarks: [String]
+}
+
+type kycData {
+  _id: String
+  vendorId: String
+  companyDetails: CompanyDetailsData
+  businessOutlet: businessOutletData
+  sellingProduct: sellingProductData  
+  isKycCompleted: Boolean
+}
+
+# KYC  Input
+
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input kycDataInput {
+  vendorId: String!
+  companyDetails: CompanyDetailsInput!,
+  businessOutlet: businessOutletInput!,
+  sellingProduct: sellingProductInput!  
+  isKycCompleted: Boolean!
+}
+
+input CompanyDetailsInput {
+  sectionName: String!
+  name: String!
+  type: String!
+  crNumber: String!
+  crLicence: String!
+  status: String!
+  remarks: [String]
+  # companyLicenceImage: ImageDataInput
+}
+
+input sellingProductInput {
+  sectionName: String!
+  discribtion: String!
+  brand: String!
+  status: String!
+  remarks: [String]
+  # sellingProductImage: ImageDataInput
+}
+
+input businessOutletInput {
+  sectionName: String!
+  name: String!
+  address: String!
+  # interiorImage: ImageDataInput
+  # exteriorImage: ImageDataInput
+  status: String
+  remarks: [String]
+}
+
+# KYC  Output
+
+type SubmitKYCResponse {
+  _id: String
+  message: String
+}
+
+
+type Query {
+    getKYCStatus(input: getKycStatusInput!): KYCStatusResponse!
+}
+
+# KYC type
+
+
+# KYC  input
+
+ input getKycStatusInput {
+    vendorId: String!
+  }
+
+#  KYC output
+ type KYCStatusResponse{
+  _id: String
+  companyDetailsStatus: String
+  businessOutletStatus: String
+  sellingProductStatus: String
+  isKycCompleted: Boolean
+  message: String
+ }
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}
