@@ -8,6 +8,7 @@ type Mutation {
   submitKycCompanyDetails(input: KycCompanyDetailsInput!, image: Upload): SubmitKycCompanyDetailsResponse!
   submitKycBusinessOutletDetails(input: KycBusinessOutletDetailsInput!, images: [Upload], fileMap: JSONObject): SubmitKycBusinessOutletDetailsResponse!
   submitKycSellingProductDetails(input: KycSellingProductDetailsInput!, images: [Upload]): KycSellingProductDetailsResponse!
+  updateIsKycCompleted: UpdateIsKycCompletedResponse
 }
 
 #   KYC  Type
@@ -38,7 +39,7 @@ type sellingProductData {
   brand: String
   status: String
   remarks: [String]
-  sellingProductImage: String
+  sellingProductImage: [ImageData]
 }
 
 type businessOutletData {
@@ -52,7 +53,7 @@ type businessOutletData {
   remarks: [String]
 }
 
-type kycData {
+type KYCRecord {
   _id: String
   vendorId: String
   companyDetails: CompanyDetailsData
@@ -73,6 +74,10 @@ type SubmitKycBusinessOutletDetailsResponse {
 
 type KycSellingProductDetailsResponse {
   _id: String
+  message: String
+}
+
+type UpdateIsKycCompletedResponse {
   message: String
 }
 
@@ -150,6 +155,8 @@ type SubmitKYCResponse {
 type Query {
     getKYCStatus(input: getKycStatusInput!): KYCStatusResponse!
     listKYCByStatus(input: listKYCByStatusInput!): listKYCByStatusResponse!
+    getAllKycRecordsByAdmin(input: GetAllKycRecordsInput!): GetAllKycRecordsResponse!
+    getKycRecordByAdmin(input: GetKycRecordInput!): GetKycRecordResponse!
 }
 
 # KYC type
@@ -165,6 +172,15 @@ type Query {
   status: String!
  } 
 
+ input GetAllKycRecordsInput {
+    page: Int
+    size: Int
+  }
+
+  input GetKycRecordInput {
+    _id: String!
+  }
+
 #  KYC output
  type KYCStatusResponse{
   _id: String
@@ -179,6 +195,17 @@ type Query {
  type listKYCByStatusResponse {
   message: String
  }
+
+  type GetAllKycRecordsResponse {
+    maxRecords: Int!
+    records: [KYCRecord]
+    message: String
+  }  
+
+  type GetKycRecordResponse {
+    record: KYCRecord
+    message: String
+  } 
 
 # Schema
 

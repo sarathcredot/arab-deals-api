@@ -107,3 +107,12 @@ export const submitKycBusinessOutletValidator = [
   body('variables.input.sellingProduct.brand').optional({ checkFalsy: true }).isString(),
 ]
 
+export const  getAllKycRecordsValidator = [
+  body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
+  body('variables.input.size').optional({ checkFalsy: true }).custom(val => val > 0),
+]
+
+export const kycRecordByAdminQueryValidator = [
+  body('variables.input._id').isMongoId(),
+];
+

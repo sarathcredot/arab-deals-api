@@ -317,43 +317,16 @@ export const vendorResolver: Resolvers = {
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
-        let projection: vendorService.IVendorProjection = { _id: 1 };
+        const status: string = input?.status || "DEFAULT";
 
-        const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-        for (const selection of selectedFields) {
-          if (selection.kind === "Field" && selection.name.value == "records") {
-
-            let selectionSet = selection.selectionSet || { selections: [] };
-            for (let item of selectionSet.selections) {
-              if (item.kind === "Field") {
-                const fieldName = item.name.value;
-                if (["images"].includes(fieldName)) {
-                  let selectionSet = item.selectionSet || { selections: [] };
-                  for (let item2 of selectionSet.selections) {
-                    if (item2.kind === "Field") {
-                      const subField = item2.name.value;
-                      const path = `${fieldName}.${subField}`;
-                      projection[path as keyof vendorService.IVendorProjection] = 1;
-                    }
-                  }
-                }
-                else {
-                  projection[fieldName as keyof vendorService.IVendorProjection] = 1;
-                }
-              }
-            }
-          }
-        }
-
-
-        const options: vendorService.IVendorsRecordsOptions = {
+        const options: vendorService.IVendorsRecordsWithKycOptions = {
           page,
           size,
-          projection,
+          status,
         }
 
         // Fetch all vendors records
-        const result = await vendorService.getVendorsRecordsWithFilters(options);
+        const result = await vendorService.getCategorizedKYCs(options);
         const response = {
           records: result.records,
           maxRecords: result.maxRecords,

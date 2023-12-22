@@ -31,21 +31,23 @@ type Vendor {
   profilePic: ImageData
   isBlocked: Boolean
   companyName: String 
-  businessOutletName: String 
-  outletName: String   
-  crNumber: String     
-  crLicence: String    
-  businessLicence: String  
-  chamberOfCommerceCertificate: String  
-  companyType: String   
-  businessAddress: String  
-  contactPerson: ContactPersonData  
-  exteriorImage: ImageData  
-  interiorImage: ImageData  
-  sellingProductDetails: String  
-  sellingProductBrands: String   
-  isVerified: Boolean
-  isApproved: Boolean
+}
+
+type VendorKYCData {
+  _id: String
+  vendorId: String
+  email: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  # profilePic: ImageData
+  isBlocked: Boolean
+  companyName: String 
+  companyStatus: String
+  businessOutletStatus: String
+  sellingProductStatus: String
+  kycStatus: String
 }
 
 type MobileOtpData {
@@ -165,6 +167,7 @@ type CreateVendorResponse{
  input VendorsRecordsByAdminFilter {
     page: Int
     size: Int
+    status: String
   }
 
 
@@ -174,7 +177,7 @@ type CreateVendorResponse{
 
   type VendorsRecordsResponse {
     maxRecords: Int!
-    records: [Vendor]
+    records: [VendorKYCData]
     message: String
   }   
 

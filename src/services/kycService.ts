@@ -1,4 +1,4 @@
-import { FilterQuery, QueryOptions, UpdateQuery, Document, Types, PipelineStage } from 'mongoose';
+import { UpdateWriteOpResult, FilterQuery, QueryOptions, UpdateQuery, Document, Types, PipelineStage } from 'mongoose';
 import { KYCModel } from '../models';
 import { collections } from "../configs";
 
@@ -146,6 +146,16 @@ export interface IKYCProjection {
   isKycCompleted?: 1;
 }
 
+export interface IKycRecordsOptions {
+  page: number,
+  size: number,
+  projection: IKYCProjection
+}
+
+export interface IKycRecordsResponse {
+  records: Array<IKYC>,
+  maxRecords: number
+}
 
 export const createKYC = async (kycDataInput: IKYC): Promise<Document | null> => {
   let kycData = new KYCModel(kycDataInput);
@@ -160,99 +170,82 @@ export const findKYCWithFilters = async (filters: FilterQuery<IKYC>,projection: 
   return await KYCModel.findOne(filters, projection, options);
 };
 
-// export const getKYCListWithStatusFilter = async (filter: QueryOptions): Promise<any> => {
-//   let pipeline: PipelineStage[] = [];
-//    // Use aggregation to get the vendors with the specified status
-//    pipeline.push(
-//     // {
-//     //   $lookup: {
-//     //     from: collections.KYC, 
-//     //     localField: '_id',
-//     //     foreignField: 'vendorId',
-//     //     as: 'kycData',
-//     //   },
-//     // },
-//     {
-//       $match: filter,
-//     },
-//     // {
-//     //   $project: {
-//     //     _id: 1,
-//     //     name: 1,
-//     //     email: 1,
-//     //     kycData: 1,
-//     //   },
-//     // },
-//   );
-//   const result = await KYCModel.aggregate(pipeline);
-//   console.log(result)
+export const getKycRecordWithId = async (id: Types.ObjectId): Promise<Document | null> => {
+  const result = await KYCModel.findById(id);
+  return result;
+}
 
-// }
+export const getAllKycRecordsWithFilters = async (options: IKycRecordsOptions): Promise<IKycRecordsResponse> => {
 
-// export const getKYCRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorsRecordsResponse> => {
 
-//   console.log("options: ", options)
-//     let pipeline: PipelineStage[] = [];
+  let pipeline: PipelineStage[] = [];
+
+  pipeline.push(
+      {
+          $sort: { _id: -1 }
+      },
+      {
+          $facet: {
+              metadata: [
+                  {
+                      $group: {
+                          _id: null,
+                          total: { $sum: 1 }
+                      }
+                  }
+              ],
+              data: [
+                  {
+                      $skip: options.page * options.size
+                  },
+                  {
+                      $limit: options.size
+                  },
+                  {
+                      $project: options.projection
+                  }
+              ]
+          }
+      },
+      {
+          $project: {
+              maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+              data: 1
+          }
+      }
+  );
+
+  const result = await KYCModel.aggregate(pipeline);
+  let response = {
+      records: [],
+      maxRecords: 0
+  };
+  if (result.length) {
+      response.records = result[0].data || [];
+      response.maxRecords = result[0].maxRecords || 0;
+  }
+
+  return response;
+}
   
-//     pipeline.push(
-//         {
-//             $match: {
-//                 isBlocked: false
-//             }
-//         },
-//         {
-//             $sort: { _id: -1 }
-//         },
-//         {
-//             $facet: {
-//                 metadata: [
-//                     {
-//                         $group: {
-//                             _id: null,
-//                             total: { $sum: 1 }
-//                         }
-//                     }
-//                 ],
-//                 data: [
-//                     {
-//                         $skip: options.page * options.size
-//                     },
-//                     {
-//                         $limit: options.size
-//                     },
-//                     {
-//                         $project: options.projection
-//                     }
-//                 ]
-//             }
-//         },
-//         {
-//             $project: {
-//                 maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-//                 data: 1
-//             }
-//         }
-//     );
-  
-//     const result = await KYCModel.aggregate(pipeline);
-//     console.log(result)
-//     let response = {
-//         records: [],
-//         maxRecords: 0
-//     };
-//     if (result.length) {
-//         response.records = result[0].data || [];
-//         response.maxRecords = result[0].maxRecords || 0;
-//     }
-  
-//     return response;
-//   }
-  
-  // export const getKYCRecordWithId = async (id: Types.ObjectId): Promise<Document | null> => {
-  //   const result = await KYCModel.findById(id);
-  //   return result;
-  // }
-  
+export const updateAllRecordsWithIsKycCompleted = async (): Promise<UpdateWriteOpResult> => {
+      const conditions = {
+        $or: [
+          { 'companyDetails.status': 'COMPLETED' },
+          { 'businessOutlet.status': 'COMPLETED' },
+          { 'sellingProduct.status': 'COMPLETED' }
+        ]
+      };
+
+      const result = await KYCModel.updateMany(conditions, {
+        $set: { isKycCompleted: true }
+      });
+
+      console.log(result)
+
+  return result;
+}
+
   
   
   
