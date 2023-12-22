@@ -109,7 +109,7 @@ const sellingProductSchema = new Schema(
       type: String,
       required: true
     },
-    discribtion: {
+    discription: {
       type: String,
       required: true
     },
@@ -128,7 +128,10 @@ const sellingProductSchema = new Schema(
       type: [String],
       default: []
     },
-    sellingProductImage: fileSchema,
+    sellingProductImage: {
+      type: [fileSchema],
+      default: []
+  },
   },
   {
     _id: true,

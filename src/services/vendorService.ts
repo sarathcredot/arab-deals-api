@@ -24,7 +24,13 @@ export interface IVendor {
   isBlocked?: boolean;
   fullName?: string;
   token?: string;
-  isApproved?: boolean
+  isApproved?: boolean;
+  profilePic?:{
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
 }
 
 export interface IVendorDocument extends Document {

@@ -4,8 +4,10 @@ scalar JSONObject
 # KYC  Mutations
 
 type Mutation {
-  submitKYC(input: kycDataInput!, images:[Upload]): SubmitKYCResponse!
-  # vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
+  # submitKYC(input: kycDataInput!, images:[Upload]): SubmitKYCResponse!
+  submitKycCompanyDetails(input: KycCompanyDetailsInput!, image: Upload): SubmitKycCompanyDetailsResponse!
+  submitKycBusinessOutletDetails(input: KycBusinessOutletDetailsInput!, images: [Upload], fileMap: JSONObject): SubmitKycBusinessOutletDetailsResponse!
+  submitKycSellingProductDetails(input: KycSellingProductDetailsInput!, images: [Upload]): KycSellingProductDetailsResponse!
 }
 
 #   KYC  Type
@@ -32,7 +34,7 @@ type CompanyDetailsData {
 type sellingProductData {
    _id: String
   sectionName: String
-  discribtion: String
+  discription: String
   brand: String
   status: String
   remarks: [String]
@@ -59,7 +61,38 @@ type kycData {
   isKycCompleted: Boolean
 }
 
+type SubmitKycCompanyDetailsResponse {
+  _id: String
+  message: String
+}
+
+type SubmitKycBusinessOutletDetailsResponse {
+  _id: String
+  message: String
+}
+
+type KycSellingProductDetailsResponse {
+  _id: String
+  message: String
+}
+
+
 # KYC  Input
+
+input KycCompanyDetailsInput {
+  vendorId: String!
+  companyDetails: CompanyDetailsInput!,
+}
+
+input KycBusinessOutletDetailsInput {
+  vendorId: String!
+  businessOutlet: businessOutletInput!,
+}
+
+input KycSellingProductDetailsInput {
+  vendorId: String!
+  sellingProduct: sellingProductInput!,
+}
 
 input ImageDataInput {
   fileType: String
@@ -70,10 +103,10 @@ input ImageDataInput {
 
 input kycDataInput {
   vendorId: String!
-  companyDetails: CompanyDetailsInput!,
-  businessOutlet: businessOutletInput!,
-  sellingProduct: sellingProductInput!  
-  isKycCompleted: Boolean!
+  companyDetails: CompanyDetailsInput,
+  businessOutlet: businessOutletInput,
+  sellingProduct: sellingProductInput  
+  isKycCompleted: Boolean
 }
 
 input CompanyDetailsInput {
@@ -82,17 +115,17 @@ input CompanyDetailsInput {
   type: String!
   crNumber: String!
   crLicence: String!
-  status: String!
-  remarks: [String]
+  # status: String
+  # remarks: [String]
   # companyLicenceImage: ImageDataInput
 }
 
 input sellingProductInput {
   sectionName: String!
-  discribtion: String!
+  discription: String!
   brand: String!
-  status: String!
-  remarks: [String]
+  # status: String
+  # remarks: [String]
   # sellingProductImage: ImageDataInput
 }
 
@@ -102,8 +135,8 @@ input businessOutletInput {
   address: String!
   # interiorImage: ImageDataInput
   # exteriorImage: ImageDataInput
-  status: String
-  remarks: [String]
+  # status: String
+  # remarks: [String]
 }
 
 # KYC  Output
@@ -116,6 +149,7 @@ type SubmitKYCResponse {
 
 type Query {
     getKYCStatus(input: getKycStatusInput!): KYCStatusResponse!
+    listKYCByStatus(input: listKYCByStatusInput!): listKYCByStatusResponse!
 }
 
 # KYC type
@@ -127,6 +161,10 @@ type Query {
     vendorId: String!
   }
 
+ input listKYCByStatusInput {
+  status: String!
+ } 
+
 #  KYC output
  type KYCStatusResponse{
   _id: String
@@ -137,6 +175,10 @@ type Query {
   message: String
  }
 
+
+ type listKYCByStatusResponse {
+  message: String
+ }
 
 # Schema
 

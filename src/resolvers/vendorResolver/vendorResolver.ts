@@ -1,4 +1,4 @@
-import { vendorService, jwtService, spaceService, otpService, tempVendorAuthService, vendorJwtService } from "../../services";
+import { vendorService, jwtService, spaceService, otpService, tempVendorAuthService, vendorJwtService, kycService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./vendorValidator";
@@ -32,7 +32,7 @@ export const vendorResolver: Resolvers = {
       let fullName: string = input.fullName;
       let password: string = input.password;
       let mobileNumber: string = input.mobileNumber;
-      let country: string = input.country;
+      // let country: string = input.country;
       let companyName: string = input.companyName;
 
 
@@ -45,7 +45,7 @@ export const vendorResolver: Resolvers = {
         const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
         profilePic = {
-          fileType: "PUBLIC",
+          fileType: "PRIVATE",
           fileURL: file.location,
           mimeType: mimetype,
           originalName: filename
@@ -79,7 +79,12 @@ export const vendorResolver: Resolvers = {
         fullName,
         mobileNumber,
         companyName,
+
       };
+
+      if (profilePic) {
+        newVendorData.profilePic = profilePic;
+      }
 
 
       const result = await vendorService.createVendor(newVendorData, password);
@@ -99,10 +104,16 @@ export const vendorResolver: Resolvers = {
 
       await result.save();
 
+      const vendorId = result._id!.toString()
+
+      let newDocument = { vendorId: vendorId }
+
+      await kycService.createKYC(newDocument);
+
       let response = {
         _id: result._id!.toString(),
+        token: result.token,
         message: "Vendor created successfully and logined",
-        token: result.token
       };
 
       return response;

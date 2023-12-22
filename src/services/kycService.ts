@@ -1,7 +1,15 @@
-import { FilterQuery, QueryOptions, UpdateQuery, Document, Types } from 'mongoose';
+import { FilterQuery, QueryOptions, UpdateQuery, Document, Types, PipelineStage } from 'mongoose';
 import { KYCModel } from '../models';
+import { collections } from "../configs";
 
-
+export interface FileData {
+  _id?: string,
+  fileType?: string,
+  fileURL?: string,
+  mimeType?: string,
+  originalName?: string,
+  createdAt?: string
+}
 export interface ICompanyDetails {
   sectionName?: string;
   name?: string;
@@ -10,24 +18,39 @@ export interface ICompanyDetails {
   crLicence?: string;
   status?: string;
   remarks?: string[];
-  companyLicenceImage?: ImageData;
+  companyLicenceImage?: {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
 }
 
 export interface ISellingProduct {
   sectionName?: string;
-  discribtion?: string;
+  discription?: string;
   brand?: string;
   status?: string;
   remarks?: string[];
-  sellingProductImage?: string;
+  sellingProductImage?: FileData[]
 }
 
 export interface IBusinessOutlet {
   sectionName?: string;
   name?: string;
   address?: string;
-  interiorImage?: ImageData;
-  exteriorImage?: ImageData;
+  interiorImage?:  {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
+  exteriorImage?:  {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
   status?: string;
   remarks?: string[];
 }
@@ -43,7 +66,21 @@ export interface IKYC {
 export interface IKYCDocument extends Document{
   _id?: Types.ObjectId;
   vendorId?: Types.ObjectId;
-  companyDetails?: ICompanyDetails;
+  companyDetails?: {
+    sectionName?: string;
+    name?: string;
+    type?: string;
+    crNumber?: string;
+    crLicence?: string;
+    status?: string;
+    remarks?: string[];
+    companyLicenceImage?: {
+      fileType?: string,
+      fileURL?: string,
+      mimeType?: string,
+      originalName?: string
+    };
+  }
   businessOutlet?: IBusinessOutlet;
   sellingProduct?: ISellingProduct;
   isKycCompleted?: boolean;
@@ -122,6 +159,35 @@ export const findOneAndUpdateKYC = async (filters: FilterQuery<IKYC>, update: Up
 export const findKYCWithFilters = async (filters: FilterQuery<IKYC>,projection: IKYCProjection,options: QueryOptions): Promise<IKYCDocument | null> => {
   return await KYCModel.findOne(filters, projection, options);
 };
+
+// export const getKYCListWithStatusFilter = async (filter: QueryOptions): Promise<any> => {
+//   let pipeline: PipelineStage[] = [];
+//    // Use aggregation to get the vendors with the specified status
+//    pipeline.push(
+//     // {
+//     //   $lookup: {
+//     //     from: collections.KYC, 
+//     //     localField: '_id',
+//     //     foreignField: 'vendorId',
+//     //     as: 'kycData',
+//     //   },
+//     // },
+//     {
+//       $match: filter,
+//     },
+//     // {
+//     //   $project: {
+//     //     _id: 1,
+//     //     name: 1,
+//     //     email: 1,
+//     //     kycData: 1,
+//     //   },
+//     // },
+//   );
+//   const result = await KYCModel.aggregate(pipeline);
+//   console.log(result)
+
+// }
 
 // export const getKYCRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorsRecordsResponse> => {
 
