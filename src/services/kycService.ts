@@ -39,13 +39,13 @@ export interface IBusinessOutlet {
   sectionName?: string;
   name?: string;
   address?: string;
-  interiorImage?:  {
+  interiorImage?: {
     fileType?: string,
     fileURL?: string,
     mimeType?: string,
     originalName?: string
   };
-  exteriorImage?:  {
+  exteriorImage?: {
     fileType?: string,
     fileURL?: string,
     mimeType?: string,
@@ -63,7 +63,18 @@ export interface IKYC {
   isKycCompleted?: boolean;
 }
 
-export interface IKYCDocument extends Document{
+export interface IKYCRecordsWithVendorDetails {
+  _id?: string;
+  vendorId?: string;
+  fullName?: string;
+  companyDetails?: ICompanyDetails;
+  businessOutlet?: IBusinessOutlet;
+  sellingProduct?: ISellingProduct;
+  isKycCompleted?: boolean;
+}
+
+
+export interface IKYCDocument extends Document {
   _id?: Types.ObjectId;
   vendorId?: Types.ObjectId;
   companyDetails?: {
@@ -146,14 +157,62 @@ export interface IKYCProjection {
   isKycCompleted?: 1;
 }
 
+export interface IKYCWithVendorProjection {
+  _id?: 1;
+  vendorId?: 1;
+  fullName?: 1,
+  companyDetails?: {
+    sectionName?: 1;
+    name?: 1;
+    type?: 1;
+    crNumber?: 1;
+    crLicence?: 1;
+    status?: 1;
+    remarks?: 1;
+    companyLicenceImage?: {
+      fileType?: 1;
+      fileURL?: 1;
+      mimeType?: 1;
+      originalName?: 1;
+    };
+  };
+  businessOutlet?: {
+    sectionName?: 1;
+    name?: 1;
+    address?: 1;
+    interiorImage?: {
+      fileType?: 1;
+      fileURL?: 1;
+      mimeType?: 1;
+      originalName?: 1;
+    };
+    exteriorImage?: {
+      fileType?: 1;
+      fileURL?: 1;
+      mimeType?: 1;
+      originalName?: 1;
+    };
+    status?: 1;
+    remarks?: 1;
+  };
+  sellingProduct?: {
+    sectionName?: 1;
+    discribtion?: 1;
+    brand?: 1;
+    status?: 1;
+    remarks?: 1;
+    sellingProductImage?: 1;
+  };
+  isKycCompleted?: 1;
+}
+
 export interface IKycRecordsOptions {
   page: number,
   size: number,
-  projection: IKYCProjection
 }
 
 export interface IKycRecordsResponse {
-  records: Array<IKYC>,
+  records: Array<IKYCRecordsWithVendorDetails>,
   maxRecords: number
 }
 
@@ -166,7 +225,7 @@ export const findOneAndUpdateKYC = async (filters: FilterQuery<IKYC>, update: Up
   return await KYCModel.findOneAndUpdate(filters, update, options);
 };
 
-export const findKYCWithFilters = async (filters: FilterQuery<IKYC>,projection: IKYCProjection,options: QueryOptions): Promise<IKYCDocument | null> => {
+export const findKYCWithFilters = async (filters: FilterQuery<IKYC>, projection: IKYCProjection, options: QueryOptions): Promise<IKYCDocument | null> => {
   return await KYCModel.findOne(filters, projection, options);
 };
 
@@ -175,80 +234,150 @@ export const getKycRecordWithId = async (id: Types.ObjectId): Promise<Document |
   return result;
 }
 
+// export const getAllKycRecordsWithFilters = async (options: IKycRecordsOptions): Promise<IKycRecordsResponse> => {
+
+
+//   let pipeline: PipelineStage[] = [];
+
+//   pipeline.push(
+//       {
+//           $sort: { _id: -1 }
+//       },
+//       {
+//           $facet: {
+//               metadata: [
+//                   {
+//                       $group: {
+//                           _id: null,
+//                           total: { $sum: 1 }
+//                       }
+//                   }
+//               ],
+//               data: [
+//                   {
+//                       $skip: options.page * options.size
+//                   },
+//                   {
+//                       $limit: options.size
+//                   },
+//                   {
+//                       $project: options.projection
+//                   }
+//               ]
+//           }
+//       },
+//       {
+//           $project: {
+//               maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+//               data: 1
+//           }
+//       }
+//   );
+
+//   const result = await KYCModel.aggregate(pipeline);
+//   let response = {
+//       records: [],
+//       maxRecords: 0
+//   };
+//   if (result.length) {
+//       response.records = result[0].data || [];
+//       response.maxRecords = result[0].maxRecords || 0;
+//   }
+
+//   return response;
+// }
+
 export const getAllKycRecordsWithFilters = async (options: IKycRecordsOptions): Promise<IKycRecordsResponse> => {
-
-
   let pipeline: PipelineStage[] = [];
 
   pipeline.push(
-      {
-          $sort: { _id: -1 }
-      },
-      {
-          $facet: {
-              metadata: [
-                  {
-                      $group: {
-                          _id: null,
-                          total: { $sum: 1 }
-                      }
-                  }
-              ],
-              data: [
-                  {
-                      $skip: options.page * options.size
-                  },
-                  {
-                      $limit: options.size
-                  },
-                  {
-                      $project: options.projection
-                  }
-              ]
-          }
-      },
-      {
-          $project: {
-              maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-              data: 1
-          }
+    {
+      $sort: { _id: -1 }
+    },
+    {
+      $lookup: {
+        from: collections.VENDORS,
+        localField: 'vendorId',
+        foreignField: '_id',
+        as: 'vendor'
       }
+    },
+    {
+      $unwind: '$vendor'
+    },
+    {
+      $facet: {
+        metadata: [
+          {
+            $group: {
+              _id: null,
+              total: { $sum: 1 }
+            }
+          }
+        ],
+        data: [
+          {
+            $skip: options.page * options.size
+          },
+          {
+            $limit: options.size
+          },
+          {
+            $project: {
+              vendorId: '$vendor._id',
+              fullName: '$vendor.fullName',
+              "companyDetails.status": '$companyDetails.status',
+              "businessOutlet.status": "$businessOutlet.status",
+              "sellingProduct.status": "$sellingProduct.status",
+              isKycCompleted: 1,
+            }
+          }
+        ]
+      }
+    },
+    {
+      $project: {
+        maxRecords: { $ifNull: [{ $arrayElemAt: ['$metadata.total', 0] }, 0] },
+        data: 1
+      }
+    }
   );
 
   const result = await KYCModel.aggregate(pipeline);
+  console.log(result[0].data)
   let response = {
-      records: [],
-      maxRecords: 0
+    records: [],
+    maxRecords: 0
   };
   if (result.length) {
-      response.records = result[0].data || [];
-      response.maxRecords = result[0].maxRecords || 0;
+    response.records = result[0].data || [];
+    response.maxRecords = result[0].maxRecords || 0;
   }
 
   return response;
-}
-  
+};
+
+
 export const updateAllRecordsWithIsKycCompleted = async (): Promise<UpdateWriteOpResult> => {
-      const conditions = {
-        $or: [
-          { 'companyDetails.status': 'COMPLETED' },
-          { 'businessOutlet.status': 'COMPLETED' },
-          { 'sellingProduct.status': 'COMPLETED' }
-        ]
-      };
+  const conditions = {
+    $or: [
+      { 'companyDetails.status': 'COMPLETED' },
+      { 'businessOutlet.status': 'COMPLETED' },
+      { 'sellingProduct.status': 'COMPLETED' }
+    ]
+  };
 
-      const result = await KYCModel.updateMany(conditions, {
-        $set: { isKycCompleted: true }
-      });
+  const result = await KYCModel.updateMany(conditions, {
+    $set: { isKycCompleted: true }
+  });
 
-      console.log(result)
+  console.log(result)
 
   return result;
 }
 
-  
-  
-  
-  
-  
-  
+
+
+
+
+

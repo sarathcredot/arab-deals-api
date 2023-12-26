@@ -252,7 +252,7 @@ export const kycResolver: Resolvers = {
     },
 
     updateIsKycCompleted: async (parent, { }, { req }, info) => {
-      await verifyAdmin(req);
+      // await verifyAdmin(req);
       try {
         const result = await kycService.updateAllRecordsWithIsKycCompleted();
 
@@ -319,39 +319,10 @@ export const kycResolver: Resolvers = {
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
-        let projection: kycService.IKYCProjection = { _id: 1 };
 
-        const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-        for (const selection of selectedFields) {
-          if (selection.kind === "Field" && selection.name.value == "records") {
-
-            let selectionSet = selection.selectionSet || { selections: [] };
-            for (let item of selectionSet.selections) {
-              if (item.kind === "Field") {
-                const fieldName = item.name.value;
-                if (["images"].includes(fieldName)) {
-                  let selectionSet = item.selectionSet || { selections: [] };
-                  for (let item2 of selectionSet.selections) {
-                    if (item2.kind === "Field") {
-                      const subField = item2.name.value;
-                      const path = `${fieldName}.${subField}`;
-                      projection[path as keyof kycService.IKYCProjection] = 1;
-                    }
-                  }
-                }
-                else {
-                  projection[fieldName as keyof kycService.IKYCProjection] = 1;
-                }
-              }
-            }
-          }
-        }
-
-
-        const options: kycService.IKycRecordsOptions = {
+        const options = {
           page,
           size,
-          projection,
         }
 
         const result = await kycService.getAllKycRecordsWithFilters(options);

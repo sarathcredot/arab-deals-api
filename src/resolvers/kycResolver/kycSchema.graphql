@@ -62,6 +62,16 @@ type KYCRecord {
   isKycCompleted: Boolean
 }
 
+type KYCRecordWithVendorDetails {
+  _id: String
+  vendorId: String
+  fullName: String
+  companyDetails: CompanyDetailsData
+  businessOutlet: businessOutletData
+  sellingProduct: sellingProductData  
+  isKycCompleted: Boolean
+}
+
 type SubmitKycCompanyDetailsResponse {
   _id: String
   message: String
@@ -198,7 +208,7 @@ type Query {
 
   type GetAllKycRecordsResponse {
     maxRecords: Int!
-    records: [KYCRecord]
+    records: [KYCRecordWithVendorDetails]
     message: String
   }  
 
