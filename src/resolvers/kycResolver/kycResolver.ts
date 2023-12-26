@@ -251,25 +251,25 @@ export const kycResolver: Resolvers = {
       }
     },
 
-    updateIsKycCompleted: async (parent, { }, { req }, info) => {
-      // await verifyAdmin(req);
-      try {
-        const result = await kycService.updateAllRecordsWithIsKycCompleted();
+    // updateIsKycCompleted: async (parent, { }, { req }, info) => {
+    //   // await verifyAdmin(req);
+    //   try {
+    //     const result = await kycService.updateAllRecordsWithIsKycCompleted();
 
-        const response = {
-          message: `${result.modifiedCount} documents updated.`
-        }
+    //     const response = {
+    //       message: `${result.modifiedCount} documents updated.`
+    //     }
 
-        return response;
-      } catch (error) {
-        throw error;
-      }
-    },
+    //     return response;
+    //   } catch (error) {
+    //     throw error;
+    //   }
+    // },
 
     async updateKycApprovalByAdmin(parent, { input }, { req }, info) {
       try {
         await validateInput(validators.kycRecordByAdminQueryValidator, req);
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
 
         const _id: Types.ObjectId = new Types.ObjectId(input._id);
 

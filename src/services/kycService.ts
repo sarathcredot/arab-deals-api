@@ -363,22 +363,22 @@ export const getAllKycRecordsWithFilters = async (options: IKycRecordsOptions): 
 };
 
 
-export const updateAllRecordsWithIsKycCompleted = async (): Promise<UpdateWriteOpResult> => {
-  const conditions = {
-    $or: [
-      { 'companyDetails.status': 'COMPLETED' },
-      { 'businessOutlet.status': 'COMPLETED' },
-      { 'sellingProduct.status': 'COMPLETED' }
-    ]
-  };
+// export const updateAllRecordsWithIsKycCompleted = async (): Promise<UpdateWriteOpResult> => {
+//   const conditions = {
+//     $or: [
+//       { 'companyDetails.status': 'COMPLETED' },
+//       { 'businessOutlet.status': 'COMPLETED' },
+//       { 'sellingProduct.status': 'COMPLETED' }
+//     ]
+//   };
 
-  const result = await KYCModel.updateMany(conditions, {
-    $set: { isKycCompleted: true }
-  });
+//   const result = await KYCModel.updateMany(conditions, {
+//     $set: { isKycCompleted: true }
+//   });
 
 
-  return result;
-}
+//   return result;
+// }
 
 export const updateRecordWithIsKycCompleted = async (_id: Types.ObjectId): Promise<UpdateWriteOpResult> => {
   const conditions = {
