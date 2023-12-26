@@ -8,6 +8,7 @@
   createSubAdmin(input: SubAdminSignUpInput!, image:Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image:Upload): UpdateAdminResponse!
+  adminApprovalForVendor(input: adminApprovalForVendorInput!): adminApprovalForVendorResponse!
 }
 
  type ImageData {
@@ -58,6 +59,11 @@ input AdminEditProfileInput {
   isBlocked: Boolean
 }
 
+input adminApprovalForVendorInput {
+  _id: String!
+  isVerified: Boolean
+}
+
 
 # Admin auth Output
 
@@ -81,6 +87,11 @@ type Query {
 
 type getAdminRecordResponse{
    record: Admin
+}
+
+type adminApprovalForVendorResponse {
+  _id: String
+  message: String
 }
 
 

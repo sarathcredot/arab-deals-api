@@ -5,6 +5,10 @@ import { colorModel } from "./colorModel";
 import { sizeModel } from "./sizeModel";
 import { categoryModel } from "./categoryModel";
 import { adminModel } from "./adminModel";
+import { vendorModel } from "./vendorModel";
+import { tempVendorAuthModel } from "./tempVendorAuthModel";
+import { authUtilityModel } from "./authUtilityModel";
+import { KYCModel } from "./KYCModel";
 
 
 
@@ -18,4 +22,8 @@ export {
     sizeModel,
     categoryModel,
     adminModel,
+    vendorModel,
+    tempVendorAuthModel,
+    authUtilityModel,
+    KYCModel
 }

@@ -7,11 +7,11 @@ import * as categoryService from "./categoryService";
 import * as adminService from "./adminService";
 import * as jwtService from "./jwtService";
 import * as spaceService from "./spaceService";
-
-
-
-
-
+import  * as vendorService from "./vendorService";
+import  * as tempVendorAuthService from "./tempVendorAuthService";
+import * as otpService from "./otpService";
+import * as vendorJwtService from "./vendorJwtService";
+import * as kycService from "./kycService";
 
 
 export {
@@ -23,5 +23,10 @@ export {
     categoryService,
     adminService,
     jwtService,
-    spaceService
+    spaceService,
+    vendorService,
+    otpService,
+    tempVendorAuthService,
+    vendorJwtService,
+    kycService,
 }

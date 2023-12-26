@@ -1,5 +1,5 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { adminModel } from '../models';
+import { adminModel, vendorModel } from '../models';
 
 export interface FileData {
   _id?: string,
@@ -93,12 +93,17 @@ export const loginAdmin = (admin: IAdminDocument): IAdminLoginResponse => {
 }
 
 export const getAdminWithId = async (id: Types.ObjectId, projection: IAdminProjection = {}, options: QueryOptions = {}): Promise<IAdminDocument | null> => {
-  const result = await adminModel.findById(id, projection, options);
+  const result = await vendorModel.findById(id, projection, options);
   return result;
 }
 
 export const getAdminRecordWithId = async (id: Types.ObjectId, projection: IAdminProjection = {}, options: QueryOptions = {}): Promise<IAdmin | null> => {
   return await adminModel.findById(id, projection, options);
+}
+
+export const getVendorWithId = async (id: Types.ObjectId, projection: IAdminProjection = {}, options: QueryOptions = {}): Promise<IAdminDocument | null> => {
+  const result = await adminModel.findById(id, projection, options);
+  return result;
 }
 
 

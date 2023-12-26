@@ -1,17 +1,24 @@
 # generated Schema - do not edit # 
 
+scalar Upload
+
 type Mutation {
+  verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
+  loginVendor(input: VendorLoginInput!): VendorAuthResponse!
+  updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
+  createTempVendor(input: tempVendorSignUpInput!): AddTempVendorResponse!
   addSize(input: AddSizeInput!): AddSizeResponse!
   uploadProductFile(file: Upload!): File
   createProduct(input: ProductInput!, images: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
+  sendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
+  addColor(input: AddColorInput!): AddColorResponse!
+  updateColor(input: updateColorInput!): updateColorResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   deleteCmsRecord(input: CmsRecordId!): DeleteCmsResponse!
-  addColor(input: AddColorInput!): AddColorResponse!
-  updateColor(input: updateColorInput!): updateColorResponse!
   addCms2Section(input: Cms2AddInput!, images: [Upload]): Cms2AddResponse!
   updateCms2Record(input: UpdateCms2Input!, images: [Upload], fileMap: JSONObject): UpdateCms2Response!
   deleteCms2Record(input: Cms2RecordId!): DeleteCms2Response!
@@ -21,19 +28,75 @@ type Mutation {
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image: Upload): UpdateAdminResponse!
+  adminApprovalForVendor(input: adminApprovalForVendorInput!): adminApprovalForVendorResponse!
 }
 
-input AddSizeInput {
-  categoryId: String!
-  size: String!
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type Vendor {
+  _id: String
+  email: String
+  password: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  profilePic: ImageData
+  temporaryMobileOtp: MobileOtpData
+  isVerified: Boolean
   isBlocked: Boolean
+  token: String
+  temporaryVendorAuthToken: String
 }
 
-type AddSizeResponse {
+type MobileOtpData {
+  code: String!
+  expiresAt: String!
+}
+
+input VerifyTempVendorInput {
+  temporaryMobileOtp: MobileOtpDataInput
   _id: String!
+  mobileOtp: String!
+}
+
+input VendorLoginInput {
+  email: String!
+  password: String!
+}
+
+input VendorEditProfileInput {
+  fullName: String
+  email: String
+  password: String
+  mobileNumber: String
+  country: String
+  brand: String
+}
+
+input MobileOtpDataInput {
+  code: String
+  expiresAt: String
+}
+
+type VendorAuthResponse {
+  _id: String
+  token: String
+}
+
+type UpdateVendorResponse {
+  _id: String
+  message: String
 }
 
 type Query {
+  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
+  getVendorRecord: getVendorRecordResponse
   getSizeRecord(input: SizeId!): SizeRecordResponse!
   getActiveSizes(input: GetActiveSizesInput): ActiveSizesResponse!
   getAllSizesWithCatgeoryId(input: CategoryIdInput): getAllSizesResponse!
@@ -45,13 +108,13 @@ type Query {
   getVariants(input: VariantsInput!): VariantsResponse!
   getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
   getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
+  getColorRecord(input: colorId!): ColorRecordResponse!
+  getActiveColors(input: GetActiveColorsInput): ActiveColorResponse!
+  getAllColorsWithCategoryId(input: CategoryIdInput): getAllColorsWithCategoryIdResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
-  getColorRecord(input: colorId!): ColorRecordResponse!
-  getActiveColors(input: GetActiveColorsInput): ActiveColorResponse!
-  getAllColorsWithCategoryId(input: CategoryIdInput): getAllColorsWithCategoryIdResponse!
   getCms2Record(input: cms2RecordFilter!): Cms2RecordResponse!
   getAllCms2Records(input: Cms2RecordsFilter): Cms2RecordsResponse!
   getAllCms2RecordsByAdmin(input: Cms2RecordsByAdminFilter): Cms2RecordsResponse!
@@ -63,6 +126,66 @@ type Query {
   getAllLeafRecords: getAllLeafRecordsResponse!
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
   getAdminRecord: getAdminRecordResponse
+}
+
+type getVendorRecordResponse {
+  record: Vendor
+}
+
+type VerifyTempVendorResponse {
+  _id: String
+  message: String
+}
+
+input VendorsRecordsByAdminFilter {
+  page: Int
+  size: Int
+}
+
+type VendorsRecordsResponse {
+  maxRecords: Int!
+  records: [Vendor!]
+  message: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type tempVendor {
+  _id: String
+  email: String
+  password: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  profilePic: ImageData
+  temporaryMobileOtp: MobileOtpData
+  isVerified: Boolean
+  isBlocked: Boolean
+  token: String
+  temporaryVendorAuthToken: String
+}
+
+input tempVendorSignUpInput {
+  fullName: String!
+  mobileNumber: String!
+}
+
+type AddTempVendorResponse {
+  _id: String!
+}
+
+input AddSizeInput {
+  categoryId: String!
+  size: String!
+  isBlocked: Boolean
+}
+
+type AddSizeResponse {
+  _id: String!
 }
 
 input SizeId {
@@ -94,13 +217,6 @@ type ActiveSizesResponse {
 type getAllSizesResponse {
   records: [SizeRecord]
 }
-
-schema {
-  query: Query
-  mutation: Mutation
-}
-
-scalar Upload
 
 type File {
   filename: String!
@@ -298,6 +414,65 @@ type RelatedProductsResponse {
   records: [Product!]
 }
 
+input sendMobileOtpInput {
+  _id: String!
+}
+
+type sendMobileOtpResponse {
+  _id: String
+  message: String
+}
+
+input AddColorInput {
+  categoryId: String!
+  colorName: String!
+  colorCode: String!
+  isBlocked: Boolean
+}
+
+input updateColorInput {
+  _id: String!
+  colorName: String
+  colorCode: String
+}
+
+type AddColorResponse {
+  _id: String!
+}
+
+type updateColorResponse {
+  _id: String!
+  message: String
+}
+
+input colorId {
+  _id: String!
+}
+
+input GetActiveColorsInput {
+  categoryId: String
+}
+
+type ColorRecord {
+  _id: String
+  colorName: String
+  colorCode: String
+  isBlocked: Boolean
+  categoryIdPath: String
+}
+
+type ColorRecordResponse {
+  record: ColorRecord!
+}
+
+type ActiveColorResponse {
+  records: [ColorRecord]
+}
+
+type getAllColorsWithCategoryIdResponse {
+  records: [ColorRecord]
+}
+
 input AddCmsInput {
   pageName: String!
   title: String
@@ -408,56 +583,6 @@ type CmsRecordsResponse {
   maxRecords: Int!
   records: [CmsRecord!]
   message: String
-}
-
-input AddColorInput {
-  categoryId: String!
-  colorName: String!
-  colorCode: String!
-  isBlocked: Boolean
-}
-
-input updateColorInput {
-  _id: String!
-  colorName: String
-  colorCode: String
-}
-
-type AddColorResponse {
-  _id: String!
-}
-
-type updateColorResponse {
-  _id: String!
-  message: String
-}
-
-input colorId {
-  _id: String!
-}
-
-input GetActiveColorsInput {
-  categoryId: String
-}
-
-type ColorRecord {
-  _id: String
-  colorName: String
-  colorCode: String
-  isBlocked: Boolean
-  categoryIdPath: String
-}
-
-type ColorRecordResponse {
-  record: ColorRecord!
-}
-
-type ActiveColorResponse {
-  records: [ColorRecord]
-}
-
-type getAllColorsWithCategoryIdResponse {
-  records: [ColorRecord]
 }
 
 scalar JSONObject
@@ -641,13 +766,6 @@ input GetLevelCategoriesInput {
   limit: Int
 }
 
-type ImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
 type Category {
   categoryName: String
   _id: String
@@ -728,6 +846,11 @@ input AdminEditProfileInput {
   isBlocked: Boolean
 }
 
+input adminApprovalForVendorInput {
+  _id: String!
+  isVerified: Boolean
+}
+
 type AddAdminResponse {
   _id: String!
 }
@@ -744,4 +867,9 @@ type UpdateAdminResponse {
 
 type getAdminRecordResponse {
   record: Admin
+}
+
+type adminApprovalForVendorResponse {
+  _id: String
+  message: String
 }

@@ -1,0 +1,59 @@
+scalar Upload
+
+# Vendor auth Mutations
+
+type Mutation {
+  sendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
+  verifyOtp(input: VerifyOtpInput!): VerifyOtpResponse!
+  reSendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
+}
+
+# otp  Type
+
+type MobileOtpData {
+  code: String
+  expiresAt: String
+  mobileNumber: String
+}
+
+# otp Input
+
+input sendMobileOtpInput {
+  _id: String!
+  mobileNumber: String!
+  otpType: String!
+}
+
+
+input VerifyOtpInput {
+  _id: String!
+  mobileOtp: String!
+}
+
+# otp Output
+
+type sendMobileOtpResponse {
+  _id: String
+  message: String
+}
+
+type VerifyOtpResponse {
+  _id: String
+  mobileNumber: String
+  message: String
+}
+
+# type Query {
+
+# }
+
+
+# Input 
+
+
+# Output
+
+schema {
+  mutation: Mutation
+  # query: Query
+}

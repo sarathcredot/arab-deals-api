@@ -5,5 +5,9 @@ export const collections = {
     COLORS: "colors",
     SIZES: "sizes",
     CATEGORIES:"categories",
-    ADMINS: "admins"
+    ADMINS: "admins",
+    VENDORS: "vendors",
+    TEMP_VENDOR: "temp_vendors",
+    AUTH_UTILITIES: "auth_utilities",
+    KYC: "kyc"
 }

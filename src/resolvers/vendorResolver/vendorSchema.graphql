@@ -1,0 +1,195 @@
+scalar Upload
+scalar JSONObject
+
+# Vendor  Mutations
+
+type Mutation {
+  createVendor(input: VendorSignUpInput!, image:Upload): CreateVendorResponse!
+  vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
+  loginVendor(input: VendorLoginInput!): VendorAuthResponse!
+  updateVendorProfile(input: VendorEditProfileInput!,images:[Upload], fileMap: JSONObject): UpdateVendorResponse!
+}
+
+# Vendor  Type
+
+
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type Vendor {
+  _id: String
+  email: String
+  password: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  profilePic: ImageData
+  isBlocked: Boolean
+  companyName: String 
+}
+
+type VendorKYCData {
+  _id: String
+  vendorId: String
+  email: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  # profilePic: ImageData
+  isBlocked: Boolean
+  companyName: String 
+  companyStatus: String
+  businessOutletStatus: String
+  sellingProductStatus: String
+  kycStatus: String
+}
+
+type MobileOtpData {
+  code: String
+  expiresAt: String
+}
+
+type ContactPersonData {
+  name: String
+  phoneNumber: String
+  designation: String
+}
+
+# Vendor  Input
+
+input VendorSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+  mobileNumber: String!
+  country: String!
+  # brand: String!
+  companyName: String!
+  # businessOutletName: String!
+  # outletName: String!   
+  # crNumber: String!     
+  # crLicence: String!    
+  # businessLicence: String!  
+  # chamberOfCommerceCertificate: String!  
+  # companyType: String!   
+  # businessAddress: String!  
+  # contactPerson: ContactPersonInput!   
+  # sellingProductDetails: String!  
+  # sellingProductBrands: String!   
+}
+
+
+input VendorLoginInput {
+  email: String!
+  password: String!
+}
+
+input VendorEditProfileInput {
+  _id: String!
+  email: String!
+  password: String!
+  fullName: String!
+  mobileNumber: String!
+  country: String!
+  brand: String!
+  companyName: String!
+  businessOutletName: String!
+  outletName: String!
+  crNumber: String!     
+  crLicence: String!   
+  businessLicence: String!  
+  chamberOfCommerceCertificate: String!  
+  companyType: String!   
+  businessAddress: String!  
+  contactPerson: ContactPersonInput!   
+  sellingProductDetails: String!  
+  sellingProductBrands: String! 
+}
+
+input MobileOtpDataInput {
+  code: String
+  expiresAt: String
+}
+
+input ContactPersonInput {
+  name: String!
+  phoneNumber: String!
+  designation: String!
+}
+
+input VendorAccountApprovalInput {
+  _id: String!
+  approvalStatus: Boolean!
+}
+
+# Vendor  Output
+
+type VendorAuthResponse {
+  _id: String
+  token: String
+}
+
+type UpdateVendorResponse {
+  _id: String
+  message: String
+}
+
+type VendorAccountApprovalResponse {
+  _id: String,
+  message: String
+}
+
+type Query {
+  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
+  getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
+}
+
+# Vendor  type
+
+type getVendorRecordResponse {
+  record: Vendor
+}
+
+type CreateVendorResponse{
+    _id: String
+    message: String
+    token: String
+}
+
+# Vendor  input
+
+ input VendorsRecordsByAdminFilter {
+    page: Int
+    size: Int
+    status: String
+  }
+
+
+ input VendorRecordByAdminFilter {
+    _id: String!
+  }
+
+  type VendorsRecordsResponse {
+    maxRecords: Int!
+    records: [VendorKYCData]
+    message: String
+  }   
+
+  type VendorRecordResponse {
+    record: Vendor!
+    message: String
+  }
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}

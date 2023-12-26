@@ -1,0 +1,316 @@
+scalar Upload
+scalar JSONObject
+
+# KYC  Mutations
+
+type Mutation {
+  # submitKYC(input: kycDataInput!, images:[Upload]): SubmitKYCResponse!
+  submitKycCompanyDetails(input: KycCompanyDetailsInput!, image: Upload): SubmitKycCompanyDetailsResponse!
+  submitKycBusinessOutletDetails(input: KycBusinessOutletDetailsInput!, images: [Upload], fileMap: JSONObject): SubmitKycBusinessOutletDetailsResponse!
+  submitKycSellingProductDetails(input: KycSellingProductDetailsInput!, images: [Upload]): KycSellingProductDetailsResponse!
+  updateIsKycCompleted: UpdateIsKycCompletedResponse
+  updateKycApprovalByAdmin(input: UpdateKycApprovalInput!): UpdateKycStatusResponse!
+}
+
+#   KYC  Type
+
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type CompanyDetailsData {
+  _id: String
+  sectionName: String
+  name: String
+  type: String
+  crNumber: String
+  crLicence: String
+  status: String
+  remarks: [String]
+  companyLicenceImage: ImageData
+}
+
+type sellingProductData {
+   _id: String
+  sectionName: String
+  discription: String
+  brand: String
+  status: String
+  remarks: [String]
+  sellingProductImage: [ImageData]
+}
+
+type businessOutletData {
+   _id: String
+  sectionName: String
+  name: String
+  address: String
+  interiorImage: ImageData
+  exteriorImage: ImageData
+  status: String
+  remarks: [String]
+}
+
+type KYCRecord {
+  _id: String
+  vendorId: String
+  companyDetails: CompanyDetailsData
+  businessOutlet: businessOutletData
+  sellingProduct: sellingProductData  
+  isKycCompleted: Boolean
+}
+
+type ApprovedKYCRecord {
+  _id: String
+  vendorId: String
+  companyDetails: CompanyDetailsApprovedData
+  businessOutlet: businessOutletApprovedData
+  sellingProduct: sellingProductApprovedData  
+  isKycCompleted: Boolean
+}
+
+type CompanyDetailsApprovedData {
+  _id: String
+  sectionName: String
+  name: String
+  type: String
+  crNumber: String
+  crLicence: String
+  status: String
+  remarks: [String]
+  companyLicenceImage: ImageData
+}
+
+type sellingProductApprovedData {
+   _id: String
+  sectionName: String
+  discription: String
+  brand: String
+  status: String
+  remarks: [String]
+  sellingProductImage: [ImageData]
+}
+
+type businessOutletApprovedData {
+   _id: String
+  sectionName: String
+  name: String
+  address: String
+  interiorImage: ImageData
+  exteriorImage: ImageData
+  status: String
+  remarks: [String]
+}
+
+type sellingProductData {
+   _id: String
+  sectionName: String
+  discription: String
+  brand: String
+  status: String
+  remarks: [String]
+  sellingProductImage: [ImageData]
+}
+
+type businessOutletData {
+   _id: String
+  sectionName: String
+  name: String
+  address: String
+  interiorImage: ImageData
+  exteriorImage: ImageData
+  status: String
+  remarks: [String]
+}
+
+
+
+type KYCRecordWithVendorDetails {
+  _id: String
+  vendorId: String
+  fullName: String
+  companyDetails: CompanyDetailsData
+  businessOutlet: businessOutletData
+  sellingProduct: sellingProductData  
+  isKycCompleted: Boolean
+}
+
+type SubmitKycCompanyDetailsResponse {
+  _id: String
+  message: String
+}
+
+type SubmitKycBusinessOutletDetailsResponse {
+  _id: String
+  message: String
+}
+
+type UpdateKycStatusResponse {
+  record: ApprovedKYCRecord
+  message: String
+}
+
+type UpdateIsKycCompletedResponse {
+  message: String
+}
+
+type KycSellingProductDetailsResponse {
+  _id: String
+  message: String
+}
+
+
+# KYC  Input
+
+input KycCompanyDetailsInput {
+  vendorId: String!
+  companyDetails: CompanyDetailsInput!,
+}
+
+input KycBusinessOutletDetailsInput {
+  vendorId: String!
+  businessOutlet: businessOutletInput!,
+}
+
+input KycSellingProductDetailsInput {
+  vendorId: String!
+  sellingProduct: sellingProductInput!,
+}
+
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input kycDataInput {
+  vendorId: String!
+  companyDetails: CompanyDetailsInput,
+  businessOutlet: businessOutletInput,
+  sellingProduct: sellingProductInput  
+  isKycCompleted: Boolean
+}
+
+input CompanyDetailsInput {
+  sectionName: String!
+  name: String!
+  type: String!
+  crNumber: String!
+  crLicence: String!
+  # status: String
+  # remarks: [String]
+  # companyLicenceImage: ImageDataInput
+}
+
+input sellingProductInput {
+  sectionName: String!
+  discription: String!
+  brand: String!
+  # status: String
+  # remarks: [String]
+  # sellingProductImage: ImageDataInput
+}
+
+input businessOutletInput {
+  sectionName: String!
+  name: String!
+  address: String!
+  # interiorImage: ImageDataInput
+  # exteriorImage: ImageDataInput
+  # status: String
+  # remarks: [String]
+}
+
+input UpdateKycApprovalInput {
+  _id: String!
+  companyDetails: CompanyDetailsApprovalInput
+  businessOutlet:businessOutletStatusApprovalInput
+  sellingProduct: sellingProductStatusApprovalInput
+}
+
+# KYC  Output
+
+type SubmitKYCResponse {
+  _id: String
+  message: String
+}
+
+input CompanyDetailsApprovalInput {
+  status: String
+  remarks: [String]
+}
+input businessOutletStatusApprovalInput {
+  status: String
+  remarks: [String]
+}
+input sellingProductStatusApprovalInput {
+  status: String
+  remarks: [String]
+}
+
+
+type Query {
+    getKYCStatus(input: getKycStatusInput!): KYCStatusResponse!
+    listKYCByStatus(input: listKYCByStatusInput!): listKYCByStatusResponse!
+    getAllKycRecordsByAdmin(input: GetAllKycRecordsInput!): GetAllKycRecordsResponse!
+    getKycRecordByAdmin(input: GetKycRecordInput!): GetKycRecordResponse!
+}
+
+# KYC type
+
+
+# KYC  input
+
+ input getKycStatusInput {
+    vendorId: String!
+  }
+
+ input listKYCByStatusInput {
+  status: String!
+ } 
+
+ input GetAllKycRecordsInput {
+    page: Int
+    size: Int
+  }
+
+  input GetKycRecordInput {
+    _id: String!
+  }
+
+#  KYC output
+ type KYCStatusResponse{
+  _id: String
+  companyDetailsStatus: String
+  businessOutletStatus: String
+  sellingProductStatus: String
+  isKycCompleted: Boolean
+  message: String
+ }
+
+
+ type listKYCByStatusResponse {
+  message: String
+ }
+
+  type GetAllKycRecordsResponse {
+    maxRecords: Int!
+    records: [KYCRecordWithVendorDetails]
+    message: String
+  }  
+
+  type GetKycRecordResponse {
+    record: KYCRecord
+    message: String
+  } 
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}
