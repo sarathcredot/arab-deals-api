@@ -211,6 +211,11 @@ export interface IKycRecordsOptions {
   size: number,
 }
 
+export interface ISaveRecordResponse {
+  acknowledged: boolean,
+  modifiedCount: number,
+}
+
 export interface IKycRecordsResponse {
   records: Array<IKYCRecordsWithVendorDetails>,
   maxRecords: number
@@ -371,10 +376,31 @@ export const updateAllRecordsWithIsKycCompleted = async (): Promise<UpdateWriteO
     $set: { isKycCompleted: true }
   });
 
-  console.log(result)
 
   return result;
 }
+
+export const updateRecordWithIsKycCompleted = async (_id: Types.ObjectId): Promise<UpdateWriteOpResult> => {
+  const conditions = {
+    $and: [
+      { 'companyDetails.status': 'COMPLETED' },
+      { 'businessOutlet.status': 'COMPLETED' },
+      { 'sellingProduct.status': 'COMPLETED' }
+    ],
+    _id: _id
+  };
+
+  const result = await KYCModel.updateOne(conditions, {
+    $set: { isKycCompleted: true }
+  });
+
+  if (result.modifiedCount != null && result.modifiedCount === 0) {
+    await KYCModel.updateOne({ _id: _id }, { $set: { isKycCompleted: false } });
+  }
+
+  return result;
+};
+
 
 
 

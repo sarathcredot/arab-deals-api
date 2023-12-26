@@ -266,6 +266,68 @@ export const kycResolver: Resolvers = {
       }
     },
 
+    async updateKycApprovalByAdmin(parent, { input }, { req }, info) {
+      try {
+        await validateInput(validators.kycRecordByAdminQueryValidator, req);
+        // await verifyAdmin(req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const kycRecord = (await kycService.getKycRecordWithId(_id)) as kycService.IKYCDocument;
+
+        if (!kycRecord) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+
+        if (input.companyDetails?.status !== null && kycRecord.companyDetails) {
+          kycRecord.companyDetails.status = input.companyDetails?.status;
+        }
+
+        if (input.companyDetails?.remarks !== null && kycRecord.companyDetails) {
+          kycRecord.companyDetails.remarks = (input.companyDetails?.remarks || []).filter(Boolean) as [];
+        }
+
+        if (input.businessOutlet?.status !== null && kycRecord.businessOutlet) {
+          kycRecord.businessOutlet.status = input.businessOutlet?.status;
+        }
+
+        if (input.businessOutlet?.remarks !== null && kycRecord.businessOutlet) {
+          kycRecord.businessOutlet.remarks = (input.businessOutlet?.remarks || []).filter(Boolean) as [];
+        }
+
+        if (input.sellingProduct?.status !== null && kycRecord.sellingProduct) {
+          kycRecord.sellingProduct.status = input.sellingProduct?.status;
+        }
+
+        if (input.sellingProduct?.remarks !== null && kycRecord.sellingProduct) {
+          kycRecord.sellingProduct.remarks = (input.sellingProduct?.remarks || []).filter(Boolean) as [];
+        }
+
+        const saveKycRecord = await kycRecord.save();
+
+        if (saveKycRecord) {
+          await kycService.updateRecordWithIsKycCompleted(_id)
+        }
+
+        const result = await kycService.getKycRecordWithId(_id);
+
+        const response = {
+          record: result,
+          message: "KYC record fetched and updated successfully",
+        };
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+
   },
 
   Query: {

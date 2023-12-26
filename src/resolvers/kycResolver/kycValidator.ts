@@ -116,3 +116,12 @@ export const kycRecordByAdminQueryValidator = [
   body('variables.input._id').isMongoId(),
 ];
 
+export const updateKycRecordByAdminQueryValidator = [
+  body('variables.input._id').isMongoId(),
+  body('variables.input.companyDetails.status').optional({ checkFalsy: true }).isString(),
+  body('variables.input.businessOutlet.status').optional({ checkFalsy: true }).isString(),
+  body('variables.input.sellingProduct.status').optional({ checkFalsy: true }).isString(),
+  body('variables.input.companyDetails.remarks').optional().isArray().toArray(),
+  body('variables.input.businessOutlet.remarks').optional().isArray().toArray(),
+  body('variables.input.sellingProduct.remarks').optional().isArray().toArray(),
+];
