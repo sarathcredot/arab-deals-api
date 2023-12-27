@@ -14,6 +14,7 @@ type Mutation {
   updateKycSellingProductApprovalByAdmin(input: UpdateKycSellingProductApprovalInput!): UpdateKycStatusResponse!
   updateKycCompanyDetails(input: UpdateKycCompanyDetailsInput!, image: Upload): UpdateKycCompanyDetailsResponse!
   updateKycBusinessOutlet(input: UpdateKycBusinessOutletInput!, images: [Upload], fileMap: JSONObject): UpdateKycBusinessOutletResponse!
+  updateKycSellingProduct(input: UpdateKycSellingProductInput!, images: [Upload]): UpdateKycSellingProducttResponse!
 }
 
 #   KYC  Type
@@ -176,6 +177,11 @@ type UpdateKycBusinessOutletResponse {
   message: String
 }
 
+type UpdateKycSellingProducttResponse {
+  _id: String
+  message: String
+}
+
 # KYC  Input
 
 input KycCompanyDetailsInput {
@@ -258,13 +264,24 @@ input UpdateCompanyDetailsInput {
 
 input UpdateKycBusinessOutletInput {
   vendorId: String!
-  businessOutlet: UpdatebusinessOutletInput,
+  businessOutlet: UpdateBusinessOutletInput,
 }
 
-input UpdatebusinessOutletInput {
+input UpdateBusinessOutletInput {
   sectionName: String
   name: String
   address: String
+}
+
+input UpdateKycSellingProductInput {
+  vendorId: String!
+  sellingProduct: UpdateSellingProductInput,
+}
+
+input UpdateSellingProductInput {
+  sectionName: String
+  discription: String
+  brand: String
 }
 
 # KYC  Output

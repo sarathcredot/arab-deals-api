@@ -337,7 +337,7 @@ export const kycResolver: Resolvers = {
           kycRecord.businessOutlet.remarks = (input.businessOutlet?.remarks || []).filter(Boolean) as [];
         }
 
-  
+
 
         const saveKycRecord = await kycRecord.save();
 
@@ -405,7 +405,7 @@ export const kycResolver: Resolvers = {
 
     updateKycCompanyDetails: async (parent, { input, image }, { req }, info) => {
       try {
-        
+
         await validateInput(validators.updateKYCCompanyDetailsValidator, req);
         await verifyAdmin(req);
 
@@ -452,7 +452,7 @@ export const kycResolver: Resolvers = {
         }
         if (kycData.companyDetails) {
           const inputCompanyDetails = input?.companyDetails;
-    
+
           if (inputCompanyDetails) {
             kycData.companyDetails.sectionName = inputCompanyDetails.sectionName ?? kycData.companyDetails.sectionName;
             kycData.companyDetails.name = inputCompanyDetails.name ?? kycData.companyDetails.name;
@@ -460,7 +460,7 @@ export const kycResolver: Resolvers = {
             kycData.companyDetails.crNumber = inputCompanyDetails.crNumber ?? kycData.companyDetails.crNumber;
             kycData.companyDetails.crLicence = inputCompanyDetails.crLicence ?? kycData.companyDetails.crLicence;
           }
-    
+
           if (licenceImage) {
             kycData.companyDetails.companyLicenceImage = licenceImage;
           }
@@ -481,7 +481,7 @@ export const kycResolver: Resolvers = {
 
     updateKycBusinessOutlet: async (parent, { input, images, fileMap }, { req }, info) => {
       try {
-        
+
         await validateInput(validators.updateKycBusinessOutletValidator, req);
         // await verifyAdmin(req);
 
@@ -554,13 +554,93 @@ export const kycResolver: Resolvers = {
 
         if (kycData.businessOutlet) {
           const inputbusinessOutlet = input?.businessOutlet;
-    
+
           if (inputbusinessOutlet) {
             // Update only the provided fields
             kycData.businessOutlet.sectionName = inputbusinessOutlet.sectionName ?? kycData.businessOutlet.sectionName;
             kycData.businessOutlet.name = inputbusinessOutlet.name ?? kycData.businessOutlet.name;
             kycData.businessOutlet.address = inputbusinessOutlet.address ?? kycData.businessOutlet.address;
 
+          }
+        }
+
+        const result = await kycData.save();
+
+        const response = {
+          _id: result?._id?.toString(),
+          message: "Vendor company details for KYC verification updated successfully",
+        };
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    updateKycSellingProduct: async (parent, { input, images }, { req }, info) => {
+      try {
+
+        await validateInput(validators.updateKycBusinessOutletValidator, req);
+        // await verifyAdmin(req);
+
+        // Find the vendor and KYC data
+        const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
+        const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+
+        if (!vendor) {
+          throw new GraphQLError("Vendor not found with this id", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const kycData = await kycService.findKYCWithFilters({ vendorId: vendor._id }, {}, {});
+
+        if (!kycData) {
+          throw new GraphQLError("KYC data not found for this vendor", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+      
+        images = images || [];
+
+        let sellingProductImages: kycService.FileData[] = [];
+
+        for (let image of images) {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+
+          const key = spaceService.getFileKey(filePaths.kyc, filename, []);
+
+          const stream = createReadStream();
+
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+          sellingProductImages.push({
+            fileType: "PRIVATE",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          });
+        }
+
+        if (kycData.sellingProduct) {
+          const inputsellingProduct = input?.sellingProduct;
+
+          if (inputsellingProduct) {
+            kycData.sellingProduct.sectionName = inputsellingProduct.sectionName ?? kycData.sellingProduct.sectionName;
+            kycData.sellingProduct.discription = inputsellingProduct.discription ?? kycData.sellingProduct.discription;
+            kycData.sellingProduct.brand = inputsellingProduct.brand ?? kycData.sellingProduct.brand;
+          }
+
+          if (sellingProductImages.length > 0) {
+            kycData.sellingProduct.sellingProductImage = sellingProductImages;
           }
         }
 
