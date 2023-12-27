@@ -266,10 +266,10 @@ export const kycResolver: Resolvers = {
     //   }
     // },
 
-    async updateKycApprovalByAdmin(parent, { input }, { req }, info) {
+    async updateKycCompanyDetailsApprovalByAdmin(parent, { input }, { req }, info) {
       try {
-        await validateInput(validators.kycRecordByAdminQueryValidator, req);
-        await verifyAdmin(req);
+        await validateInput(validators.kycCompanyDetailsApprovalByAdminQueryValidator, req);
+        // await verifyAdmin(req);
 
         const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -292,12 +292,88 @@ export const kycResolver: Resolvers = {
           kycRecord.companyDetails.remarks = (input.companyDetails?.remarks || []).filter(Boolean) as [];
         }
 
+        const saveKycRecord = await kycRecord.save();
+
+        if (saveKycRecord) {
+          await kycService.updateRecordWithIsKycCompleted(_id)
+        }
+
+        const result = await kycService.getKycRecordWithId(_id);
+
+        const response = {
+          record: result,
+          message: "KYC record fetched and updated successfully",
+        };
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async updateKycBusinessOutletApprovalByAdmin(parent, { input }, { req }, info) {
+      try {
+        await validateInput(validators.kycBusinessOutletApprovalByAdminQueryValidator, req);
+        // await verifyAdmin(req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const kycRecord = (await kycService.getKycRecordWithId(_id)) as kycService.IKYCDocument;
+
+        if (!kycRecord) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+
         if (input.businessOutlet?.status !== null && kycRecord.businessOutlet) {
           kycRecord.businessOutlet.status = input.businessOutlet?.status;
         }
 
         if (input.businessOutlet?.remarks !== null && kycRecord.businessOutlet) {
           kycRecord.businessOutlet.remarks = (input.businessOutlet?.remarks || []).filter(Boolean) as [];
+        }
+
+  
+
+        const saveKycRecord = await kycRecord.save();
+
+        if (saveKycRecord) {
+          await kycService.updateRecordWithIsKycCompleted(_id)
+        }
+
+        const result = await kycService.getKycRecordWithId(_id);
+
+        const response = {
+          record: result,
+          message: "KYC record fetched and updated successfully",
+        };
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async updateKycSellingProductApprovalByAdmin(parent, { input }, { req }, info) {
+      try {
+        await validateInput(validators.kycSellingProductApprovalByAdminQueryValidator, req);
+        // await verifyAdmin(req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const kycRecord = (await kycService.getKycRecordWithId(_id)) as kycService.IKYCDocument;
+
+        if (!kycRecord) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
         }
 
         if (input.sellingProduct?.status !== null && kycRecord.sellingProduct) {
@@ -325,8 +401,181 @@ export const kycResolver: Resolvers = {
       } catch (error) {
         throw error;
       }
-    }
+    },
 
+    updateKycCompanyDetails: async (parent, { input, image }, { req }, info) => {
+      try {
+        
+        await validateInput(validators.updateKYCCompanyDetailsValidator, req);
+        await verifyAdmin(req);
+
+        // Find the vendor and KYC data
+        const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
+        const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+
+        if (!vendor) {
+          throw new GraphQLError("Vendor not found with this id", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+        // const kycData = await kycService.findKYCWithFilters({ vendorId: vendorId }, {}, {});
+
+        const kycData = await kycService.findKYCWithFilters({ vendorId: vendor._id }, {}, {});
+
+        if (!kycData) {
+          throw new GraphQLError("KYC data not found for this vendor", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+        let licenceImage: kycService.FileData | null = null;
+
+        if (image) {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.kyc, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+          licenceImage = {
+            fileType: "PRIVATE",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          }
+        }
+        if (kycData.companyDetails) {
+          const inputCompanyDetails = input?.companyDetails;
+    
+          if (inputCompanyDetails) {
+            kycData.companyDetails.sectionName = inputCompanyDetails.sectionName ?? kycData.companyDetails.sectionName;
+            kycData.companyDetails.name = inputCompanyDetails.name ?? kycData.companyDetails.name;
+            kycData.companyDetails.type = inputCompanyDetails.type ?? kycData.companyDetails.type;
+            kycData.companyDetails.crNumber = inputCompanyDetails.crNumber ?? kycData.companyDetails.crNumber;
+            kycData.companyDetails.crLicence = inputCompanyDetails.crLicence ?? kycData.companyDetails.crLicence;
+          }
+    
+          if (licenceImage) {
+            kycData.companyDetails.companyLicenceImage = licenceImage;
+          }
+        }
+
+        const result = await kycData.save();
+
+        const response = {
+          _id: result?._id?.toString(),
+          message: "Vendor company details for KYC verification updated successfully",
+        };
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    updateKycBusinessOutlet: async (parent, { input, images, fileMap }, { req }, info) => {
+      try {
+        
+        await validateInput(validators.updateKycBusinessOutletValidator, req);
+        // await verifyAdmin(req);
+
+        // Find the vendor and KYC data
+        const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
+        const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+
+        if (!vendor) {
+          throw new GraphQLError("Vendor not found with this id", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const kycData = await kycService.findKYCWithFilters({ vendorId: vendor._id }, {}, {});
+
+        if (!kycData) {
+          throw new GraphQLError("KYC data not found for this vendor", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+        images = images || [];
+
+        let outletImages: kycService.FileData[] = [];
+
+        for (let image of images) {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+
+          const key = spaceService.getFileKey(filePaths.kyc, filename, []);
+
+          const stream = createReadStream();
+
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+          outletImages.push({
+            fileType: "PRIVATE",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          });
+        }
+
+        fileMap = fileMap || {};
+        console.log(fileMap)
+
+
+        let outletImageKeys = Object.keys(fileMap);
+        outletImageKeys.forEach((imageName) => {
+          if (kycData.businessOutlet && fileMap[imageName] != null && fileMap[imageName] >= 0) {
+            switch (imageName) {
+              case "interiorImage":
+                kycData.businessOutlet.interiorImage = outletImages[fileMap[imageName]];
+                break;
+
+              case "exteriorImage":
+                kycData.businessOutlet.exteriorImage = outletImages[fileMap[imageName]];
+                break;
+
+              default:
+            }
+          }
+        });
+
+        if (kycData.businessOutlet) {
+          const inputbusinessOutlet = input?.businessOutlet;
+    
+          if (inputbusinessOutlet) {
+            // Update only the provided fields
+            kycData.businessOutlet.sectionName = inputbusinessOutlet.sectionName ?? kycData.businessOutlet.sectionName;
+            kycData.businessOutlet.name = inputbusinessOutlet.name ?? kycData.businessOutlet.name;
+            kycData.businessOutlet.address = inputbusinessOutlet.address ?? kycData.businessOutlet.address;
+
+          }
+        }
+
+        const result = await kycData.save();
+
+        const response = {
+          _id: result?._id?.toString(),
+          message: "Vendor company details for KYC verification updated successfully",
+        };
+
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
 
   },
 
