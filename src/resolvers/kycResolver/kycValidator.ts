@@ -125,3 +125,37 @@ export const updateKycRecordByAdminQueryValidator = [
   body('variables.input.businessOutlet.remarks').optional().isArray().toArray(),
   body('variables.input.sellingProduct.remarks').optional().isArray().toArray(),
 ];
+
+
+export const updateKYCCompanyDetailsValidator = [
+  body('variables.input.vendorId').isMongoId(),
+  body('variables.input.companyDetails.sectionName').optional({ checkFalsy: true }).isString(),
+  body('variables.input.companyDetails.name').optional({ checkFalsy: true }).isString(),
+  body('variables.input.companyDetails.type').optional({ checkFalsy: true }).isString(),
+  body('variables.input.companyDetails.crNumber').optional({ checkFalsy: true }).isString(),
+  body('variables.input.companyDetails.crLicence').optional({ checkFalsy: true }).isString(),
+]
+
+export const updateKycBusinessOutletValidator = [
+  body('variables.input.businessOutlet.sectionName').optional({ checkFalsy: true }).isString(),
+  body('variables.input.businessOutlet.name').optional({ checkFalsy: true }).isString(),
+  body('variables.input.businessOutlet.address').optional({ checkFalsy: true }).isString(),
+]
+
+export const kycCompanyDetailsApprovalByAdminQueryValidator = [
+  body('variables.input._id').isMongoId(),
+  body('variables.input.companyDetails.status').optional({ checkFalsy: true }).isString(),
+  body('variables.input.companyDetails.remarks').optional().isArray().toArray(),
+];
+
+export const kycBusinessOutletApprovalByAdminQueryValidator = [
+  body('variables.input._id').isMongoId(),
+  body('variables.input.businessOutlet.status').optional({ checkFalsy: true }).isString(),
+  body('variables.input.businessOutlet.remarks').optional().isArray().toArray(),
+];
+
+export const kycSellingProductApprovalByAdminQueryValidator = [
+  body('variables.input._id').isMongoId(),
+  body('variables.input.sellingProduct.status').optional({ checkFalsy: true }).isString(),
+  body('variables.input.sellingProduct.remarks').optional().isArray().toArray(),
+];

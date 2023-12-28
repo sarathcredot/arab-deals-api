@@ -9,7 +9,12 @@ type Mutation {
   submitKycBusinessOutletDetails(input: KycBusinessOutletDetailsInput!, images: [Upload], fileMap: JSONObject): SubmitKycBusinessOutletDetailsResponse!
   submitKycSellingProductDetails(input: KycSellingProductDetailsInput!, images: [Upload]): KycSellingProductDetailsResponse!
   updateIsKycCompleted: UpdateIsKycCompletedResponse
-  updateKycApprovalByAdmin(input: UpdateKycApprovalInput!): UpdateKycStatusResponse!
+  updateKycCompanyDetailsApprovalByAdmin(input: UpdateKycCompanyDetailsApprovalInput!): UpdateKycStatusResponse!
+  updateKycBusinessOutletApprovalByAdmin(input: UpdateKycBusinessOutletApprovalInput!): UpdateKycStatusResponse!
+  updateKycSellingProductApprovalByAdmin(input: UpdateKycSellingProductApprovalInput!): UpdateKycStatusResponse!
+  updateKycCompanyDetails(input: UpdateKycCompanyDetailsInput!, image: Upload): UpdateKycCompanyDetailsResponse!
+  updateKycBusinessOutlet(input: UpdateKycBusinessOutletInput!, images: [Upload], fileMap: JSONObject): UpdateKycBusinessOutletResponse!
+  updateKycSellingProduct(input: UpdateKycSellingProductInput!, images: [Upload]): UpdateKycSellingProducttResponse!
 }
 
 #   KYC  Type
@@ -162,6 +167,20 @@ type KycSellingProductDetailsResponse {
   message: String
 }
 
+type UpdateKycCompanyDetailsResponse {
+  _id: String
+  message: String
+}
+
+type UpdateKycBusinessOutletResponse {
+  _id: String
+  message: String
+}
+
+type UpdateKycSellingProducttResponse {
+  _id: String
+  message: String
+}
 
 # KYC  Input
 
@@ -201,35 +220,68 @@ input CompanyDetailsInput {
   type: String!
   crNumber: String!
   crLicence: String!
-  # status: String
-  # remarks: [String]
-  # companyLicenceImage: ImageDataInput
 }
 
 input sellingProductInput {
   sectionName: String!
   discription: String!
   brand: String!
-  # status: String
-  # remarks: [String]
-  # sellingProductImage: ImageDataInput
 }
 
 input businessOutletInput {
   sectionName: String!
   name: String!
   address: String!
-  # interiorImage: ImageDataInput
-  # exteriorImage: ImageDataInput
-  # status: String
-  # remarks: [String]
 }
 
-input UpdateKycApprovalInput {
+input UpdateKycCompanyDetailsApprovalInput {
   _id: String!
   companyDetails: CompanyDetailsApprovalInput
+}
+
+input UpdateKycBusinessOutletApprovalInput {
+  _id: String!
   businessOutlet:businessOutletStatusApprovalInput
+}
+
+input UpdateKycSellingProductApprovalInput {
+  _id: String!
   sellingProduct: sellingProductStatusApprovalInput
+}
+
+input UpdateKycCompanyDetailsInput {
+  vendorId: String!
+  companyDetails: UpdateCompanyDetailsInput,
+}
+
+input UpdateCompanyDetailsInput {
+  sectionName: String
+  name: String
+  type: String
+  crNumber: String
+  crLicence: String
+}
+
+input UpdateKycBusinessOutletInput {
+  vendorId: String!
+  businessOutlet: UpdateBusinessOutletInput,
+}
+
+input UpdateBusinessOutletInput {
+  sectionName: String
+  name: String
+  address: String
+}
+
+input UpdateKycSellingProductInput {
+  vendorId: String!
+  sellingProduct: UpdateSellingProductInput,
+}
+
+input UpdateSellingProductInput {
+  sectionName: String
+  discription: String
+  brand: String
 }
 
 # KYC  Output
