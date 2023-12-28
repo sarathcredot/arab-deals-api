@@ -2,10 +2,13 @@
 
 scalar Upload
 
+scalar JSONObject
+
 type Mutation {
-  verifyTempVendor(input: VerifyTempVendorInput!): VerifyTempVendorResponse!
+  createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
+  vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
-  updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
+  updateVendorProfile(input: VendorEditProfileInput!, images: [Upload], fileMap: JSONObject): UpdateVendorResponse!
   createTempVendor(input: tempVendorSignUpInput!): AddTempVendorResponse!
   addSize(input: AddSizeInput!): AddSizeResponse!
   uploadProductFile(file: Upload!): File
@@ -14,6 +17,18 @@ type Mutation {
   updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
   sendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
+  verifyOtp(input: VerifyOtpInput!): VerifyOtpResponse!
+  reSendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
+  submitKycCompanyDetails(input: KycCompanyDetailsInput!, image: Upload): SubmitKycCompanyDetailsResponse!
+  submitKycBusinessOutletDetails(input: KycBusinessOutletDetailsInput!, images: [Upload], fileMap: JSONObject): SubmitKycBusinessOutletDetailsResponse!
+  submitKycSellingProductDetails(input: KycSellingProductDetailsInput!, images: [Upload]): KycSellingProductDetailsResponse!
+  updateIsKycCompleted: UpdateIsKycCompletedResponse
+  updateKycCompanyDetailsApprovalByAdmin(input: UpdateKycCompanyDetailsApprovalInput!): UpdateKycStatusResponse!
+  updateKycBusinessOutletApprovalByAdmin(input: UpdateKycBusinessOutletApprovalInput!): UpdateKycStatusResponse!
+  updateKycSellingProductApprovalByAdmin(input: UpdateKycSellingProductApprovalInput!): UpdateKycStatusResponse!
+  updateKycCompanyDetails(input: UpdateKycCompanyDetailsInput!, image: Upload): UpdateKycCompanyDetailsResponse!
+  updateKycBusinessOutlet(input: UpdateKycBusinessOutletInput!, images: [Upload], fileMap: JSONObject): UpdateKycBusinessOutletResponse!
+  updateKycSellingProduct(input: UpdateKycSellingProductInput!, images: [Upload]): UpdateKycSellingProducttResponse!
   addColor(input: AddColorInput!): AddColorResponse!
   updateColor(input: updateColorInput!): updateColorResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
@@ -47,22 +62,45 @@ type Vendor {
   country: String
   brand: String
   profilePic: ImageData
-  temporaryMobileOtp: MobileOtpData
-  isVerified: Boolean
   isBlocked: Boolean
-  token: String
-  temporaryVendorAuthToken: String
+  companyName: String
+}
+
+type VendorKYCData {
+  _id: String
+  vendorId: String
+  email: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  isBlocked: Boolean
+  companyName: String
+  companyStatus: String
+  businessOutletStatus: String
+  sellingProductStatus: String
+  kycStatus: String
 }
 
 type MobileOtpData {
-  code: String!
-  expiresAt: String!
+  code: String
+  expiresAt: String
+  mobileNumber: String
 }
 
-input VerifyTempVendorInput {
-  temporaryMobileOtp: MobileOtpDataInput
-  _id: String!
-  mobileOtp: String!
+type ContactPersonData {
+  name: String
+  phoneNumber: String
+  designation: String
+}
+
+input VendorSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+  mobileNumber: String!
+  country: String!
+  companyName: String!
 }
 
 input VendorLoginInput {
@@ -71,17 +109,41 @@ input VendorLoginInput {
 }
 
 input VendorEditProfileInput {
-  fullName: String
-  email: String
-  password: String
-  mobileNumber: String
-  country: String
-  brand: String
+  _id: String!
+  email: String!
+  password: String!
+  fullName: String!
+  mobileNumber: String!
+  country: String!
+  brand: String!
+  companyName: String!
+  businessOutletName: String!
+  outletName: String!
+  crNumber: String!
+  crLicence: String!
+  businessLicence: String!
+  chamberOfCommerceCertificate: String!
+  companyType: String!
+  businessAddress: String!
+  contactPerson: ContactPersonInput!
+  sellingProductDetails: String!
+  sellingProductBrands: String!
 }
 
 input MobileOtpDataInput {
   code: String
   expiresAt: String
+}
+
+input ContactPersonInput {
+  name: String!
+  phoneNumber: String!
+  designation: String!
+}
+
+input VendorAccountApprovalInput {
+  _id: String!
+  approvalStatus: Boolean!
 }
 
 type VendorAuthResponse {
@@ -94,9 +156,14 @@ type UpdateVendorResponse {
   message: String
 }
 
+type VendorAccountApprovalResponse {
+  _id: String
+  message: String
+}
+
 type Query {
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
-  getVendorRecord: getVendorRecordResponse
+  getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
   getSizeRecord(input: SizeId!): SizeRecordResponse!
   getActiveSizes(input: GetActiveSizesInput): ActiveSizesResponse!
   getAllSizesWithCatgeoryId(input: CategoryIdInput): getAllSizesResponse!
@@ -108,6 +175,10 @@ type Query {
   getVariants(input: VariantsInput!): VariantsResponse!
   getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
   getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
+  getKYCStatus(input: getKycStatusInput!): KYCStatusResponse!
+  listKYCByStatus(input: listKYCByStatusInput!): listKYCByStatusResponse!
+  getAllKycRecordsByAdmin(input: GetAllKycRecordsInput!): GetAllKycRecordsResponse!
+  getKycRecordByAdmin(input: GetKycRecordInput!): GetKycRecordResponse!
   getColorRecord(input: colorId!): ColorRecordResponse!
   getActiveColors(input: GetActiveColorsInput): ActiveColorResponse!
   getAllColorsWithCategoryId(input: CategoryIdInput): getAllColorsWithCategoryIdResponse!
@@ -132,19 +203,30 @@ type getVendorRecordResponse {
   record: Vendor
 }
 
-type VerifyTempVendorResponse {
+type CreateVendorResponse {
   _id: String
   message: String
+  token: String
 }
 
 input VendorsRecordsByAdminFilter {
   page: Int
   size: Int
+  status: String
+}
+
+input VendorRecordByAdminFilter {
+  _id: String!
 }
 
 type VendorsRecordsResponse {
   maxRecords: Int!
-  records: [Vendor!]
+  records: [VendorKYCData]
+  message: String
+}
+
+type VendorRecordResponse {
+  record: Vendor!
   message: String
 }
 
@@ -155,18 +237,8 @@ schema {
 
 type tempVendor {
   _id: String
-  email: String
-  password: String
   fullName: String
   mobileNumber: String
-  country: String
-  brand: String
-  profilePic: ImageData
-  temporaryMobileOtp: MobileOtpData
-  isVerified: Boolean
-  isBlocked: Boolean
-  token: String
-  temporaryVendorAuthToken: String
 }
 
 input tempVendorSignUpInput {
@@ -176,6 +248,7 @@ input tempVendorSignUpInput {
 
 type AddTempVendorResponse {
   _id: String!
+  mobileNumber: String!
 }
 
 input AddSizeInput {
@@ -416,10 +489,317 @@ type RelatedProductsResponse {
 
 input sendMobileOtpInput {
   _id: String!
+  mobileNumber: String!
+  otpType: String!
+}
+
+input VerifyOtpInput {
+  _id: String!
+  mobileOtp: String!
 }
 
 type sendMobileOtpResponse {
   _id: String
+  message: String
+}
+
+type VerifyOtpResponse {
+  _id: String
+  mobileNumber: String
+  message: String
+}
+
+type CompanyDetailsData {
+  _id: String
+  sectionName: String
+  name: String
+  type: String
+  crNumber: String
+  crLicence: String
+  status: String
+  remarks: [String]
+  companyLicenceImage: ImageData
+}
+
+type sellingProductData {
+  _id: String
+  sectionName: String
+  discription: String
+  brand: String
+  status: String
+  remarks: [String]
+  sellingProductImage: [ImageData]
+}
+
+type businessOutletData {
+  _id: String
+  sectionName: String
+  name: String
+  address: String
+  interiorImage: ImageData
+  exteriorImage: ImageData
+  status: String
+  remarks: [String]
+}
+
+type KYCRecord {
+  _id: String
+  vendorId: String
+  companyDetails: CompanyDetailsData
+  businessOutlet: businessOutletData
+  sellingProduct: sellingProductData
+  isKycCompleted: Boolean
+}
+
+type ApprovedKYCRecord {
+  _id: String
+  vendorId: String
+  companyDetails: CompanyDetailsApprovedData
+  businessOutlet: businessOutletApprovedData
+  sellingProduct: sellingProductApprovedData
+  isKycCompleted: Boolean
+}
+
+type CompanyDetailsApprovedData {
+  _id: String
+  sectionName: String
+  name: String
+  type: String
+  crNumber: String
+  crLicence: String
+  status: String
+  remarks: [String]
+  companyLicenceImage: ImageData
+}
+
+type sellingProductApprovedData {
+  _id: String
+  sectionName: String
+  discription: String
+  brand: String
+  status: String
+  remarks: [String]
+  sellingProductImage: [ImageData]
+}
+
+type businessOutletApprovedData {
+  _id: String
+  sectionName: String
+  name: String
+  address: String
+  interiorImage: ImageData
+  exteriorImage: ImageData
+  status: String
+  remarks: [String]
+}
+
+type KYCRecordWithVendorDetails {
+  _id: String
+  vendorId: String
+  fullName: String
+  companyDetails: CompanyDetailsData
+  businessOutlet: businessOutletData
+  sellingProduct: sellingProductData
+  isKycCompleted: Boolean
+}
+
+type SubmitKycCompanyDetailsResponse {
+  _id: String
+  message: String
+}
+
+type SubmitKycBusinessOutletDetailsResponse {
+  _id: String
+  message: String
+}
+
+type UpdateKycStatusResponse {
+  record: ApprovedKYCRecord
+  message: String
+}
+
+type UpdateIsKycCompletedResponse {
+  message: String
+}
+
+type KycSellingProductDetailsResponse {
+  _id: String
+  message: String
+}
+
+type UpdateKycCompanyDetailsResponse {
+  _id: String
+  message: String
+}
+
+type UpdateKycBusinessOutletResponse {
+  _id: String
+  message: String
+}
+
+type UpdateKycSellingProducttResponse {
+  _id: String
+  message: String
+}
+
+input KycCompanyDetailsInput {
+  vendorId: String!
+  companyDetails: CompanyDetailsInput!
+}
+
+input KycBusinessOutletDetailsInput {
+  vendorId: String!
+  businessOutlet: businessOutletInput!
+}
+
+input KycSellingProductDetailsInput {
+  vendorId: String!
+  sellingProduct: sellingProductInput!
+}
+
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input kycDataInput {
+  vendorId: String!
+  companyDetails: CompanyDetailsInput
+  businessOutlet: businessOutletInput
+  sellingProduct: sellingProductInput
+  isKycCompleted: Boolean
+}
+
+input CompanyDetailsInput {
+  sectionName: String!
+  name: String!
+  type: String!
+  crNumber: String!
+  crLicence: String!
+}
+
+input sellingProductInput {
+  sectionName: String!
+  discription: String!
+  brand: String!
+}
+
+input businessOutletInput {
+  sectionName: String!
+  name: String!
+  address: String!
+}
+
+input UpdateKycCompanyDetailsApprovalInput {
+  _id: String!
+  companyDetails: CompanyDetailsApprovalInput
+}
+
+input UpdateKycBusinessOutletApprovalInput {
+  _id: String!
+  businessOutlet: businessOutletStatusApprovalInput
+}
+
+input UpdateKycSellingProductApprovalInput {
+  _id: String!
+  sellingProduct: sellingProductStatusApprovalInput
+}
+
+input UpdateKycCompanyDetailsInput {
+  vendorId: String!
+  companyDetails: UpdateCompanyDetailsInput
+}
+
+input UpdateCompanyDetailsInput {
+  sectionName: String
+  name: String
+  type: String
+  crNumber: String
+  crLicence: String
+}
+
+input UpdateKycBusinessOutletInput {
+  vendorId: String!
+  businessOutlet: UpdateBusinessOutletInput
+}
+
+input UpdateBusinessOutletInput {
+  sectionName: String
+  name: String
+  address: String
+}
+
+input UpdateKycSellingProductInput {
+  vendorId: String!
+  sellingProduct: UpdateSellingProductInput
+}
+
+input UpdateSellingProductInput {
+  sectionName: String
+  discription: String
+  brand: String
+}
+
+type SubmitKYCResponse {
+  _id: String
+  message: String
+}
+
+input CompanyDetailsApprovalInput {
+  status: String
+  remarks: [String]
+}
+
+input businessOutletStatusApprovalInput {
+  status: String
+  remarks: [String]
+}
+
+input sellingProductStatusApprovalInput {
+  status: String
+  remarks: [String]
+}
+
+input getKycStatusInput {
+  vendorId: String!
+}
+
+input listKYCByStatusInput {
+  status: String!
+}
+
+input GetAllKycRecordsInput {
+  page: Int
+  size: Int
+}
+
+input GetKycRecordInput {
+  _id: String!
+}
+
+type KYCStatusResponse {
+  _id: String
+  companyDetailsStatus: String
+  businessOutletStatus: String
+  sellingProductStatus: String
+  isKycCompleted: Boolean
+  message: String
+}
+
+type listKYCByStatusResponse {
+  message: String
+}
+
+type GetAllKycRecordsResponse {
+  maxRecords: Int!
+  records: [KYCRecordWithVendorDetails]
+  message: String
+}
+
+type GetKycRecordResponse {
+  record: KYCRecord
   message: String
 }
 
@@ -584,8 +964,6 @@ type CmsRecordsResponse {
   records: [CmsRecord!]
   message: String
 }
-
-scalar JSONObject
 
 input Cms2AddInput {
   pageName: String!

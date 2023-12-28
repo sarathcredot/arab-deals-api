@@ -165,6 +165,6 @@ const KYCSchema = new Schema(
 )
 
 
-const KYCModel = model(collections.KYC, KYCSchema);
+const kycModel = model(collections.KYC, KYCSchema);
 
-export { KYCModel };
+export { kycModel };

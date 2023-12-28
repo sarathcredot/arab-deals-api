@@ -1,5 +1,5 @@
 import { UpdateWriteOpResult, FilterQuery, QueryOptions, UpdateQuery, Document, Types, PipelineStage } from 'mongoose';
-import { KYCModel } from '../models';
+import { kycModel } from '../models';
 import { collections } from "../configs";
 
 export interface FileData {
@@ -222,20 +222,20 @@ export interface IKycRecordsResponse {
 }
 
 export const createKYC = async (kycDataInput: IKYC): Promise<Document | null> => {
-  let kycData = new KYCModel(kycDataInput);
+  let kycData = new kycModel(kycDataInput);
   return await kycData.save();
 };
 
 export const findOneAndUpdateKYC = async (filters: FilterQuery<IKYC>, update: UpdateQuery<IKYC>, options: QueryOptions): Promise<Document | null> => {
-  return await KYCModel.findOneAndUpdate(filters, update, options);
+  return await kycModel.findOneAndUpdate(filters, update, options);
 };
 
 export const findKYCWithFilters = async (filters: FilterQuery<IKYC>, projection: IKYCProjection, options: QueryOptions): Promise<IKYCDocument | null> => {
-  return await KYCModel.findOne(filters, projection, options);
+  return await kycModel.findOne(filters, projection, options);
 };
 
 export const getKycRecordWithId = async (id: Types.ObjectId): Promise<Document | null> => {
-  const result = await KYCModel.findById(id);
+  const result = await kycModel.findById(id);
   return result;
 }
 
@@ -279,7 +279,7 @@ export const getKycRecordWithId = async (id: Types.ObjectId): Promise<Document |
 //       }
 //   );
 
-//   const result = await KYCModel.aggregate(pipeline);
+//   const result = await kycModel.aggregate(pipeline);
 //   let response = {
 //       records: [],
 //       maxRecords: 0
@@ -348,7 +348,7 @@ export const getAllKycRecordsWithFilters = async (options: IKycRecordsOptions): 
     }
   );
 
-  const result = await KYCModel.aggregate(pipeline);
+  const result = await kycModel.aggregate(pipeline);
   console.log(result[0].data)
   let response = {
     records: [],
@@ -372,7 +372,7 @@ export const getAllKycRecordsWithFilters = async (options: IKycRecordsOptions): 
 //     ]
 //   };
 
-//   const result = await KYCModel.updateMany(conditions, {
+//   const result = await kycModel.updateMany(conditions, {
 //     $set: { isKycCompleted: true }
 //   });
 
@@ -390,12 +390,12 @@ export const updateRecordWithIsKycCompleted = async (_id: Types.ObjectId): Promi
     _id: _id
   };
 
-  const result = await KYCModel.updateOne(conditions, {
+  const result = await kycModel.updateOne(conditions, {
     $set: { isKycCompleted: true }
   });
 
   if (result.modifiedCount != null && result.modifiedCount === 0) {
-    await KYCModel.updateOne({ _id: _id }, { $set: { isKycCompleted: false } });
+    await kycModel.updateOne({ _id: _id }, { $set: { isKycCompleted: false } });
   }
 
   return result;
