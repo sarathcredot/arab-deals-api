@@ -44,6 +44,14 @@ export interface IVendorDocument extends Document {
   token?: string;
   companyName?: string;
   isApproved?: boolean;
+  brand?: string;
+  country?: string;
+  profilePic?: {
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string
+  };
 
   verifyHash?(password: string): Promise<boolean>;
   setHash?(password: string): Promise<void>;

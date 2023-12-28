@@ -7,7 +7,7 @@ type Mutation {
   createVendor(input: VendorSignUpInput!, image:Upload): CreateVendorResponse!
   vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
-  updateVendorProfile(input: VendorEditProfileInput!,images:[Upload], fileMap: JSONObject): UpdateVendorResponse!
+  updateVendorProfile(input: VendorEditProfileInput!,image: Upload): UpdateVendorResponse!
 }
 
 # Vendor  Type
@@ -92,24 +92,13 @@ input VendorLoginInput {
 
 input VendorEditProfileInput {
   _id: String!
-  email: String!
-  password: String!
-  fullName: String!
-  mobileNumber: String!
-  country: String!
-  brand: String!
-  companyName: String!
-  businessOutletName: String!
-  outletName: String!
-  crNumber: String!     
-  crLicence: String!   
-  businessLicence: String!  
-  chamberOfCommerceCertificate: String!  
-  companyType: String!   
-  businessAddress: String!  
-  contactPerson: ContactPersonInput!   
-  sellingProductDetails: String!  
-  sellingProductBrands: String! 
+  email: String
+  password: String
+  fullName: String
+  mobileNumber: String
+  country: String
+  brand: String
+  companyName: String
 }
 
 input MobileOtpDataInput {
