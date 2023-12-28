@@ -5,7 +5,7 @@ import * as validators from "./kycValidator";
 import path from "path";
 import { createWriteStream } from 'fs';
 import { GraphQLError } from "graphql";
-import { validateInput, verifyAdmin } from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 
@@ -405,9 +405,8 @@ export const kycResolver: Resolvers = {
 
     updateKycCompanyDetails: async (parent, { input, image }, { req }, info) => {
       try {
-
+        await verifyVendor(req);
         await validateInput(validators.updateKYCCompanyDetailsValidator, req);
-        await verifyAdmin(req);
 
         // Find the vendor and KYC data
         const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
@@ -481,9 +480,8 @@ export const kycResolver: Resolvers = {
 
     updateKycBusinessOutlet: async (parent, { input, images, fileMap }, { req }, info) => {
       try {
-
+        await verifyVendor(req);
         await validateInput(validators.updateKycBusinessOutletValidator, req);
-        // await verifyAdmin(req);
 
         // Find the vendor and KYC data
         const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
@@ -579,9 +577,8 @@ export const kycResolver: Resolvers = {
 
     updateKycSellingProduct: async (parent, { input, images }, { req }, info) => {
       try {
-
+        await verifyVendor(req);
         await validateInput(validators.updateKycBusinessOutletValidator, req);
-        // await verifyAdmin(req);
 
         // Find the vendor and KYC data
         const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
