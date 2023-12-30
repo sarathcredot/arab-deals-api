@@ -5,7 +5,7 @@ import * as validators from "./vendorValidator";
 import path from "path";
 import { createWriteStream } from 'fs';
 import { GraphQLError } from "graphql";
-import { validateInput, verifyAdmin } from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 
@@ -203,108 +203,77 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-    // updateVendorProfile: async (parent, { input, images, fileMap }, { req }, info) => {
-    //   try {
-    //     // Validate input and check admin permissions
-    //     await validateInput(validators.VendorUpdateValidator, req);
-    //     // await verifyAdmin(req);
+    updateVendorProfile: async (parent, { input, image }, { req }, info) => {
+      try {
+        // await verifyVendor(req);
+        await validateInput(validators.VendorUpdateValidator, req);
 
-    //     const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
+        const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
 
-    //     const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
-    //     if (!vendor) {
-    //       throw new GraphQLError('Vendor not found', {
-    //         extensions: {
-    //           code: 'BAD_REQUEST',
-    //           errors: [],
-    //         },
-    //       });
-    //     }
+        const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+        if (!vendor) {
+          throw new GraphQLError('Vendor not found', {
+            extensions: {
+              code: 'BAD_REQUEST',
+              errors: [],
+            },
+          });
+        }
 
-    //     if (input.email) {
-    //       vendor.email = input.email.toLowerCase();
-    //     }
+        let profilePic: vendorService.FileData | null = null;
 
-    //     vendor.fullName = input.fullName;
-    //     vendor.mobileNumber = input.mobileNumber;
-    //     vendor.country = input.country;
-    //     vendor.brand = input.brand;
-    //     vendor.companyName = input.companyName;
-    //     vendor.businessOutletName = input.businessOutletName;
-    //     vendor.crNumber = input.crNumber;
-    //     vendor.crLicence = input.crLicence;
-    //     vendor.businessLicence = input.businessLicence;
-    //     vendor.chamberOfCommerceCertificate = input.chamberOfCommerceCertificate;
-    //     vendor.companyType = input.companyType;
-    //     vendor.businessAddress = input.businessAddress;
-    //     vendor.contactPerson = {
-    //       name: input.contactPerson.name,
-    //       phoneNumber: input.contactPerson.phoneNumber,
-    //       designation: input.contactPerson.designation,
-    //     };
-    //     vendor.sellingProductDetails = input.sellingProductDetails;
-    //     vendor.sellingProductBrands = input.sellingProductBrands;
+        if (image) {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.vendorProfilePic, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-    //     // Update vendor images
-    //     images = images || [];
+          profilePic = {
+            fileType: "PRIVATE",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          }
+        }
 
-    //     let vendorImages: tempVendorAuthService.FileData[] = [];
+        if (input.email) {
+          vendor.email = input.email.toLowerCase();
+        }
 
-    //     for (let image of images) {
-    //       const { createReadStream, filename, mimetype } = await image;
+        if (input.fullName) {
+          vendor.fullName = input.fullName;
+        }
 
-    //       const key = spaceService.getFileKey(filePaths.vendorImage, filename, []);
+        if (input.country) {
+          vendor.country = input.country;
+        }
 
-    //       const stream = createReadStream();
+        if (input.companyName) {
+          vendor.companyName = input.companyName;
+        }
 
-    //       const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+        if (input.mobileNumber) {
+          vendor.mobileNumber = input?.mobileNumber ?? '';
+        }
 
-    //       vendorImages.push({
-    //         fileType: 'PUBLIC',
-    //         fileURL: file.location,
-    //         mimeType: mimetype,
-    //         originalName: filename,
-    //       });
-    //     }
-
-    //     fileMap = fileMap || {};
-    //     console.log(fileMap)
+        if (profilePic) {
+          vendor.profilePic = profilePic;
+        }
 
 
-    //     let vendorImagesName = ["profilePic", "exteriorImage", "interiorImage"];
-    //     vendorImagesName.forEach((imageName) => {
-    //       if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
-    //         switch (imageName) {
-    //           case "profilePic":
-    //             vendor.profilePic = vendorImages[fileMap[imageName]];
-    //             break;
+        await vendor.save();
 
-    //           case "exteriorImage":
-    //             vendor.exteriorImage = vendorImages[fileMap[imageName]];
-    //             break;
+        const response = {
+          _id: vendor?._id?.toString(),
+          message: 'Vendor successfully updated',
+        };
 
-    //           case "interiorImage":
-    //             vendor.interiorImage = vendorImages[fileMap[imageName]];
-    //             break;
-
-    //           default:
-    //         }
-    //       }
-    //     });
-
-    //     await vendor.save();
-
-    //     const response = {
-    //       _id: vendor?._id?.toString(),
-    //       message: 'Vendor successfully updated',
-    //     };
-
-    //     return response;
-    //   } catch (error) {
-    //     console.error(error);
-    //     throw error;
-    //   }
-    // },
+        return response;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
 
   },
 
