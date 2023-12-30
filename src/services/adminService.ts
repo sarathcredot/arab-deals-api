@@ -57,7 +57,6 @@ export interface IAdminProjection {
   accType?: 1,
   isBlocked?: 1,
   fullName?: 1,
-  token?: 1,
   "profilePic._id"?: 1,
   "profilePic.fileType"?: 1,
   "profilePic.fileURL"?: 1,
