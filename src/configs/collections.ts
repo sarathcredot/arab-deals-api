@@ -9,5 +9,6 @@ export const collections = {
     VENDORS: "vendors",
     TEMP_VENDOR: "temp_vendors",
     AUTH_UTILITIES: "auth_utilities",
-    KYC: "kyc"
+    KYC: "kyc",
+    BRAND: "brand"
 }

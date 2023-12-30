@@ -9,6 +9,7 @@ import { vendorModel } from "./vendorModel";
 import { tempVendorAuthModel } from "./tempVendorAuthModel";
 import { authUtilityModel } from "./authUtilityModel";
 import { kycModel } from "./kycModel";
+import { brandModel } from "./brandModel";
 
 
 
@@ -25,5 +26,6 @@ export {
     vendorModel,
     tempVendorAuthModel,
     authUtilityModel,
-    kycModel
+    kycModel,
+    brandModel,
 }

@@ -7,7 +7,6 @@ const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
 
 // Admin JWT Services
 export const getAuthTokenFromHeaders = (req: Request): string => {
-    console.log(req)
     try {
         const { headers: { authorization } } = req;
 

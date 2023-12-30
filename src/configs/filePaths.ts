@@ -6,4 +6,5 @@ export const filePaths = {
     categoryImages: "public/category/image",
     vendorProfilePic: "public/vendor/profilePic",
     kyc: "public/kyc/image",
+    brand: "public/kyc/brand",
 }
