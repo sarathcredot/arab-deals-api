@@ -38,6 +38,15 @@ const outletSchema = new Schema(
         outletName: {
             type: String,
         },
+        country: {
+            type: String
+        },
+        district: {
+            type: String
+        },
+        village: {
+            type: String
+        },
         address: {
             type: String,
         },
