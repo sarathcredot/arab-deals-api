@@ -2,34 +2,6 @@ import { Schema, model } from "mongoose";
 import { collections } from "../configs";
 
 
-const fileSchema = new Schema(
-    {
-        fileType: {
-            type: String,
-            enum: ["PRIVATE", "PUBLIC"],
-            default: "PUBLIC",
-            required: true
-        },
-        fileURL: {
-            type: String,
-            required: true
-        },
-        mimeType: {
-            type: String,
-            required: true
-        },
-        originalName: {
-            type: String,
-            required: true
-        }
-    },
-    {
-        _id: true,
-        timestamps: true
-    }
-);
-
-
 const categorySchema = new Schema(
     {
         categoryName: {
@@ -41,21 +13,18 @@ const categorySchema = new Schema(
             required: true,
             index: true
         },
-        sizeChart: {
-            type: fileSchema
-        },
         description: {
             type: String
-        },
-        isBlocked: {
-            type: Boolean,
-            default: false
         },
         isLeaf: {   // Terminal node
             type: Boolean,
             default: false
         },
-        isDefault: {   
+        isDefault: {
+            type: Boolean,
+            default: false
+        },
+        isBlocked: {
             type: Boolean,
             default: false
         },

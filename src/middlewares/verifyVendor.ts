@@ -5,6 +5,7 @@ import { vendorJwtService, vendorService } from "../services";
 interface CustomRequest extends Request {
     authAccount?: {
         _id: string,
+        accType: string
     };
 }
 
@@ -32,6 +33,7 @@ export const verifyVendor = async (req: CustomRequest) => {
 
         req.authAccount = {
             _id: tempVendor._id?.toString() || "",
+            accType: "VENDOR"
         };
 
     } catch (error) {

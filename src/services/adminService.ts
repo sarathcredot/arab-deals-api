@@ -58,12 +58,12 @@ export interface IAdminProjection {
   isBlocked?: 1,
   fullName?: 1,
   token?: 1,
-  "image._id"?: 1,
-  "image.fileType"?: 1,
-  "image.fileURL"?: 1,
-  "image.mimeType"?: 1,
-  "image.originalName"?: 1,
-  "image.createdAt"?: 1,
+  "profilePic._id"?: 1,
+  "profilePic.fileType"?: 1,
+  "profilePic.fileURL"?: 1,
+  "profilePic.mimeType"?: 1,
+  "profilePic.originalName"?: 1,
+  "profilePic.createdAt"?: 1,
 }
 
 
@@ -101,10 +101,6 @@ export const getAdminRecordWithId = async (id: Types.ObjectId, projection: IAdmi
   return await adminModel.findById(id, projection, options);
 }
 
-export const getVendorWithId = async (id: Types.ObjectId, projection: IAdminProjection = {}, options: QueryOptions = {}): Promise<IAdminDocument | null> => {
-  const result = await adminModel.findById(id, projection, options);
-  return result;
-}
 
 
 

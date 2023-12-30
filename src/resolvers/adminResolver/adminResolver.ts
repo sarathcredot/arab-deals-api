@@ -293,7 +293,10 @@ export const adminResolver: Resolvers = {
       try {
         const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-        const admin = await adminService.getAdminRecordWithId(_id);
+        const admin = await adminService.getAdminRecordWithId(_id, {
+          _id: 1, fullName: 1, email: 1, "profilePic._id": 1, "profilePic.fileURL": 1, accType: 1,
+          isBlocked: 1
+        });
         if (!admin) {
           throw new GraphQLError("INTERNAL_SERVER_ERROR", {
             extensions: {

@@ -6,7 +6,7 @@ const fileSchema = new Schema(
     {
         fileType: {
             type: String,
-            enum: ["PRIVATE", "PUBLIC"],
+            enum: ["PUBLIC"],
             default: "PUBLIC",
             required: true
         },
@@ -36,12 +36,16 @@ const brandSchema = new Schema(
             required: true,
             unique: true
         },
-        isBlocked: {
+        logo: {
+            type: fileSchema,
+        },
+        isPopular: {
             type: Boolean,
             default: false
         },
-        logo: {
-            type: fileSchema,
+        isBlocked: {
+            type: Boolean,
+            default: false
         },
     },
     {
@@ -50,7 +54,7 @@ const brandSchema = new Schema(
 );
 
 
-const brandModel = model(collections.BRAND, brandSchema);
+const brandModel = model(collections.BRANDS, brandSchema);
 
 
 export {

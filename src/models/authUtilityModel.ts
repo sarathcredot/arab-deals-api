@@ -9,8 +9,7 @@ const authUtilitySchema = new Schema(
             type: String,
             required: true,
             index: true,
-            default: "OTP",
-            enum: ["OTP", "SIGNUP", "EMAIL", "LOGIN", "RESET_PASSWORD"]
+            enum: ["VENDOR_SIGNUP_MOBILE_OTP", "VENDOR_LOGIN_MOBILE_OTP"]
         },
         userId: {
             type: String,

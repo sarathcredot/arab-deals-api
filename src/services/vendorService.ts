@@ -1,5 +1,5 @@
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { vendorModel, kycModel } from '../models';
+import { vendorModel, vendorKycModel } from '../models';
 import { collections } from "../configs";
 
 export interface FileData {
@@ -302,7 +302,7 @@ export const getCategorizedKYCs = async (options: QueryOptions): Promise<IVendor
     }
   );
 
-  const result = await kycModel.aggregate(pipeline);
+  const result = await vendorKycModel.aggregate(pipeline);
 
   let response = {
     records: [],

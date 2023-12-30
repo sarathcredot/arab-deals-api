@@ -1,15 +1,13 @@
 import { productModel } from "./proudctModel";
-import { cmsModel } from "./cmsModel";
-import { cms2Model } from "./cms2Model";
-import { colorModel } from "./colorModel";
-import { sizeModel } from "./sizeModel";
 import { categoryModel } from "./categoryModel";
 import { adminModel } from "./adminModel";
 import { vendorModel } from "./vendorModel";
-import { tempVendorAuthModel } from "./tempVendorAuthModel";
 import { authUtilityModel } from "./authUtilityModel";
-import { kycModel } from "./kycModel";
+import { vendorCompanyModel } from "./vendorCompanyModel";
+import { vendorOutletModel } from "./vendorOutletSchema";
 import { brandModel } from "./brandModel";
+import { attributeModel } from "./attributeModel";
+
 
 
 
@@ -17,15 +15,12 @@ import { brandModel } from "./brandModel";
 
 export {
     productModel,
-    cmsModel,
-    cms2Model,
-    colorModel,
-    sizeModel,
     categoryModel,
     adminModel,
     vendorModel,
-    tempVendorAuthModel,
     authUtilityModel,
-    kycModel,
+    vendorCompanyModel,
+    vendorOutletModel,
     brandModel,
+    attributeModel
 }

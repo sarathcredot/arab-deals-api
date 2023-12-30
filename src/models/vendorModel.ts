@@ -1,31 +1,13 @@
 import { Schema, model } from "mongoose";
 import argon2 from "argon2";
 import { collections } from "../configs";
-// import axios from "axios";
 
-
-const mobileOtp = new Schema(
-    {
-        code: {
-            type: String,
-            required: true,
-        },
-        expiresAt: {
-            type: String,
-            required: true,
-        },
-    },
-    {
-        _id: true,
-        timestamps: true
-    }
-);
 
 const fileSchema = new Schema(
     {
         fileType: {
             type: String,
-            enum: ["PRIVATE"],
+            enum: ["PUBLIC"],
             default: "PUBLIC",
             required: true
         },
@@ -58,39 +40,42 @@ const vendorSchema = new Schema(
             type: String,
             trim: true,
             unique: true,
-            required: true,
+            sparse: true,
             lowercase: true,
         },
         mobileNumber: {
             type: String,
+            unique: true,
             required: true,
-        },
-        brand: {
-            type: String,
         },
         profilePic: fileSchema,
-        hash: {
+        token: {
             type: String,
-            required: true,
-        },
-        isVerified: {
-            type: Boolean,
-            default: false,
         },
         isBlocked: {
             type: Boolean,
             default: false,
+            required: true
         },
-        token: {
-            type: String,
-        },
-        companyName: {
-            type: String,
-        },
-        isApproved: {
+        isKycCompleted: {
             type: Boolean,
             default: false,
+            required: true
         },
+        brands: {   // Approved brands
+            type: [{
+                type: Schema.Types.ObjectId,
+                ref: collections.BRANDS
+            }]
+        },
+        categories: {   // Approved categories
+            type: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: collections.CATEGORIES
+                }
+            ]
+        }
     },
     {
         timestamps: true,
@@ -112,45 +97,6 @@ vendorSchema.methods.verifyHash = async function (password: string): Promise<boo
         return Promise.reject(error);
     }
 };
-
-
-vendorSchema.methods.setMobileOtp = async function (password: string): Promise<void> {
-    try {
-        this.mobileOtp = await argon2.hash(password);
-    } catch (error) {
-        return Promise.reject(error);
-    }
-}
-
-// vendorSchema.methods.sendMobileOtp = async function (mobileNumber: string, otp: string): Promise<void> {
-
-//     const smsEndpoint = "https://your-sms-service-api/send";
-
-//     try {
-//       // Make an HTTP POST request to the SMS service API
-//       const response = await axios.post(smsEndpoint, {
-//         to: mobileNumber,
-//         message: `Your OTP is: ${otp}`,
-//       });
-
-//       if (response.status === 200) {
-//         console.log(`SMS sent successfully to ${mobileNumber}`);
-//       } else {
-//         console.error(`Failed to send SMS. Status: ${response.status}`);
-//       }
-//     } catch (error) {
-//     //   console.error(`Error sending SMS: ${error.message}`);
-//       throw error;
-//     }
-//   },
-
-vendorSchema.methods.verifyMobileOtp = async function (otp: string): Promise<boolean> {
-    try {
-        return await argon2.verify(this.mobileOtp, otp);
-    } catch (error) {
-        return Promise.reject(error);
-    }
-}
 
 
 const vendorModel = model(collections.VENDORS, vendorSchema);

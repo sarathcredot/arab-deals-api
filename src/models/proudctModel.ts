@@ -29,8 +29,52 @@ const fileSchema = new Schema(
     }
 )
 
+
+const attributeSchema = new Schema(
+    {
+        attributeValueId: {
+            type: Schema.Types.ObjectId,
+            ref: collections.ATTRIBUTE_VALUES
+        },
+        attributeValue: {
+            type: Schema.Types.Mixed
+        }
+    },
+    {
+        _id: true,
+        timestamps: true
+    }
+)
+
 const productSchema = new Schema(
     {
+        vendorId: {
+            type: Schema.Types.ObjectId,
+            ref: collections.VENDORS,
+            required: true
+        },
+        brandId: {
+            type: Schema.Types.ObjectId,
+            ref: collections.BRANDS
+        },
+        brandName: {
+            type: String,
+        },
+        categoryNamePath: {  // Eg: MEN/VESTS/SLEEVELESS 
+            type: String,
+        },
+        categoryIdPath: {  // category ID path including its own ID
+            type: String,
+        },
+        categoryId: {   // Exact ID of the category
+            type: Types.ObjectId,
+            ref: collections.CATEGORIES
+        },
+        productCode: {
+            type: Number,
+            required: true,
+            index: true
+        },
         productName: {
             type: String,
             required: true,
@@ -54,18 +98,14 @@ const productSchema = new Schema(
         productShortInfo: {
             type: String
         },
-        color: {
-            type: String,
-        },
-        size: {
-            type: String,
-        },
-        material: {
-            type: String
-        },
         images: {
             type: [fileSchema],
             default: []
+        },
+        attributes: {
+            type: Map,
+            of: attributeSchema,
+            default: {}
         },
         rating: {
             type: Number,
@@ -73,7 +113,7 @@ const productSchema = new Schema(
             min: 1,
             max: 5,
         },
-        sellingPrice: {  // actual selling price
+        mrp: {
             type: Number,
             min: 0,
             required: true
@@ -83,7 +123,12 @@ const productSchema = new Schema(
             min: 0,
             required: true
         },
-        mrp: {
+        offerPrice: {  // offer selling price
+            type: Number,
+            min: 0,
+            required: true
+        },
+        sellingPrice: {  // actual selling price
             type: Number,
             min: 0,
             required: true
@@ -97,26 +142,11 @@ const productSchema = new Schema(
             type: [String],
             default: []
         },
-        productCode: {
-            type: Number,
-            required: true,
-            index: true
-        },
         stock: {
             type: Number,
             required: true,
             default: 0,
         },
-        categoryNamePath: {  // Eg: MEN/VESTS/SLEEVELESS 
-            type: String,
-        },
-        categoryIdPath: {  // category ID path including its own ID
-            type: String,
-        },
-        categoryId: {   // Exact ID of the category
-            type: Types.ObjectId,
-            ref: collections.CATEGORIES
-        }
     },
     {
         timestamps: true
@@ -125,9 +155,6 @@ const productSchema = new Schema(
 
 productSchema.index(
     {
-        color: "text",
-        size: "text",
-        material: 'text',
         tags: 'text',
         productName: 'text',
         shortDescription: 'text',
@@ -136,9 +163,6 @@ productSchema.index(
     },
     {
         weights: {
-            color: 15,
-            size: 15,
-            material: 10,
             tags: 10,
             productName: 7,
             shortDescription: 5,
