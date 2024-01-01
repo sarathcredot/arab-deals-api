@@ -23,6 +23,10 @@
         isBlocked: Boolean
     }
 
+    input BrandRecordIdInput {
+      _id: String
+    }
+
     # Output
 
     type AddBrandResponse {
@@ -39,6 +43,11 @@
       _id: String!
       message: String
     }
+     
+    type BrandRecordId {
+      _id: String
+    }
+ 
 
 
 # Brand Queries

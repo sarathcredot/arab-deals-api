@@ -1,5 +1,5 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { adminModel, vendorModel, tempVendorAuthModel, authUtilityModel } from '../models';
+import { adminModel, vendorModel, authUtilityModel } from '../models';
 import moment from 'moment';
 
 export interface IOtpFile {

@@ -1,4 +1,4 @@
-import { otpService, tempVendorAuthService } from "../../services";
+import { otpService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./otpValidator";
@@ -84,15 +84,15 @@ export const otpResolver: Resolvers = {
       }
 
       // TODO:  we can use this verifyOTP api commonly for all type of otp verification if we can remove this deletion part
-      const result = await tempVendorAuthService.deleteTempVendor(_id);
-      if (!result) {
-        throw new GraphQLError('Temp record deletion failed.', {
-          extensions: {
-            code: "",
-            errors: [],
-          },
-        });
-      }
+      // const result = await tempVendorAuthService.deleteTempVendor(_id);
+      // if (!result) {
+      //   throw new GraphQLError('Temp record deletion failed.', {
+      //     extensions: {
+      //       code: "",
+      //       errors: [],
+      //     },
+      //   });
+      // }
 
       let response = {
         _id: _id?.toString(),

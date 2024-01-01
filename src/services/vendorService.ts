@@ -1,5 +1,5 @@
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { vendorModel, vendorKycModel } from '../models';
+import { vendorModel } from '../models';
 import { collections } from "../configs";
 
 export interface FileData {
@@ -18,40 +18,38 @@ export interface MobileOtpData {
 
 export interface IVendor {
   _id?: string;
-  email?: string;
-  companyName?: string
-  hash?: string,
-  mobileNumber?: string;
-  isBlocked?: boolean;
   fullName?: string;
-  token?: string;
-  isApproved?: boolean;
+  email?: string;
+  mobileNumber?: string;
   profilePic?: {
     fileType?: string,
     fileURL?: string,
     mimeType?: string,
     originalName?: string
   };
+  isBlocked?: boolean;
+  isKycCompleted?: boolean;
+  brands?: Types.ObjectId[],
+  categories?: Types.ObjectId[],
+  hash?: string,  
 }
 
 export interface IVendorDocument extends Document {
   _id?: Types.ObjectId;
-  email?: string;
-  hash?: string,
-  mobileNumber?: string;
-  isBlocked?: boolean;
   fullName?: string;
-  token?: string;
-  companyName?: string;
-  isApproved?: boolean;
-  brand?: string;
-  country?: string;
+  email?: string;
+  mobileNumber?: string;
   profilePic?: {
     fileType?: string,
     fileURL?: string,
     mimeType?: string,
     originalName?: string
   };
+  isBlocked?: boolean;
+  isKycCompleted?: boolean;
+  brands?: Types.ObjectId[],
+  categories?: Types.ObjectId[],
+  token?: string,
 
   verifyHash?(password: string): Promise<boolean>;
   setHash?(password: string): Promise<void>;
@@ -65,21 +63,19 @@ export interface IVendorLoginResponse {
 
 export interface IVendorProjection {
   _id?: 1;
-  email?: 1;
-  hash?: 1;
-  isBlocked?: 1;
   fullName?: 1;
-  token?: 1;
+  email?: 1;
   mobileNumber?: 1;
-  companyName?: 1;
-  "image._id"?: 1;
-  "image.fileType"?: 1;
-  "image.fileURL"?: 1;
-  "image.mimeType"?: 1;
-  "image.originalName"?: 1;
-  "image.createdAt"?: 1;
-  isVerified?: 1;
-  isApproved?: 1;
+  isBlocked?: boolean;
+  isKycCompleted?: boolean;
+  brands?: Types.ObjectId[],
+  categories?: Types.ObjectId[],
+  "profilePic._id"?: 1;
+  "profilePic.fileType"?: 1;
+  "profilePic.fileURL"?: 1;
+  "profilePic.mimeType"?: 1;
+  "profilePic.originalName"?: 1;
+  "profilePic.createdAt"?: 1;
 }
 
 
@@ -210,111 +206,111 @@ export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<Documen
 }
 
 
-export const getCategorizedKYCs = async (options: QueryOptions): Promise<IVendorsWithKycRecordsResponse> => {
+// export const getCategorizedKYCs = async (options: QueryOptions): Promise<IVendorsWithKycRecordsResponse> => {
 
-  let inputStatus = options.status;
-  let checkStatus = {};
-  if (inputStatus === "DEFAULT") {
-    checkStatus = {}
-  } else if (inputStatus === "COMPLETED") {
-    checkStatus = {
-      $and: [
-        { 'companyDetails.status': inputStatus },
-        { 'businessOutlet.status': inputStatus },
-        { 'sellingProduct.status': inputStatus }
-      ]
-    }
-  } else {
-    checkStatus = {
-      $or: [
-        { 'companyDetails.status': inputStatus },
-        { 'businessOutlet.status': inputStatus },
-        { 'sellingProduct.status': inputStatus }
-      ]
-    }
-  }
+//   let inputStatus = options.status;
+//   let checkStatus = {};
+//   if (inputStatus === "DEFAULT") {
+//     checkStatus = {}
+//   } else if (inputStatus === "COMPLETED") {
+//     checkStatus = {
+//       $and: [
+//         { 'companyDetails.status': inputStatus },
+//         { 'businessOutlet.status': inputStatus },
+//         { 'sellingProduct.status': inputStatus }
+//       ]
+//     }
+//   } else {
+//     checkStatus = {
+//       $or: [
+//         { 'companyDetails.status': inputStatus },
+//         { 'businessOutlet.status': inputStatus },
+//         { 'sellingProduct.status': inputStatus }
+//       ]
+//     }
+//   }
 
-  let pipeline: PipelineStage[] = [];
+//   let pipeline: PipelineStage[] = [];
 
-  pipeline.push(
-    {
-      $match: checkStatus,
-    },
-    {
-      $lookup: {
-        from: collections.VENDORS,
-        localField: 'vendorId',
-        foreignField: '_id',
-        as: 'vendor'
-      }
-    },
-    {
-      $unwind: '$vendor'
-    },
-    {
-      $project: {
-        _id: 1,
-        vendorId: '$vendor._id',
-        email: '$vendor.email',
-        fullName: '$vendor.fullName',
-        mobileNumber: '$vendor.mobileNumber',
-        country: '$vendor.country',
-        brand: '$vendor.brand',
-        isBlocked: '$vendor.isBlocked',
-        companyName: '$vendor.companyName',
-        kycStatus: {
-          $cond: {
-            if: '$isKycCompleted',
-            then: 'COMPLETED',
-            else: 'PENDING'
-          }
-        },
-        companyStatus: '$companyDetails.status',
-        businessOutletStatus: '$businessOutlet.status',
-        sellingProductStatus: '$sellingProduct.status'
-      }
-    },
-    {
-      $facet: {
-        metadata: [
-          {
-            $group: {
-              _id: null,
-              total: { $sum: 1 }
-            }
-          }
-        ],
-        data: [
-          {
-            $skip: options.page * options.size
-          },
-          {
-            $limit: options.size
-          }
-        ]
-      }
-    },
-    {
-      $project: {
-        maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-        data: 1
-      }
-    }
-  );
+//   pipeline.push(
+//     {
+//       $match: checkStatus,
+//     },
+//     {
+//       $lookup: {
+//         from: collections.VENDORS,
+//         localField: 'vendorId',
+//         foreignField: '_id',
+//         as: 'vendor'
+//       }
+//     },
+//     {
+//       $unwind: '$vendor'
+//     },
+//     {
+//       $project: {
+//         _id: 1,
+//         vendorId: '$vendor._id',
+//         email: '$vendor.email',
+//         fullName: '$vendor.fullName',
+//         mobileNumber: '$vendor.mobileNumber',
+//         country: '$vendor.country',
+//         brand: '$vendor.brand',
+//         isBlocked: '$vendor.isBlocked',
+//         companyName: '$vendor.companyName',
+//         kycStatus: {
+//           $cond: {
+//             if: '$isKycCompleted',
+//             then: 'COMPLETED',
+//             else: 'PENDING'
+//           }
+//         },
+//         companyStatus: '$companyDetails.status',
+//         businessOutletStatus: '$businessOutlet.status',
+//         sellingProductStatus: '$sellingProduct.status'
+//       }
+//     },
+//     {
+//       $facet: {
+//         metadata: [
+//           {
+//             $group: {
+//               _id: null,
+//               total: { $sum: 1 }
+//             }
+//           }
+//         ],
+//         data: [
+//           {
+//             $skip: options.page * options.size
+//           },
+//           {
+//             $limit: options.size
+//           }
+//         ]
+//       }
+//     },
+//     {
+//       $project: {
+//         maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+//         data: 1
+//       }
+//     }
+//   );
 
-  const result = await vendorKycModel.aggregate(pipeline);
+//   const result = await vendorKycModel.aggregate(pipeline);
 
-  let response = {
-    records: [],
-    maxRecords: 0
-  };
-  if (result.length) {
-    response.records = result[0].data || [];
-    response.maxRecords = result[0].maxRecords || 0;
-  }
+//   let response = {
+//     records: [],
+//     maxRecords: 0
+//   };
+//   if (result.length) {
+//     response.records = result[0].data || [];
+//     response.maxRecords = result[0].maxRecords || 0;
+//   }
 
-  return response;
-};
+//   return response;
+// };
 
 
 

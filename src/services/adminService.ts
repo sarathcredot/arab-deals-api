@@ -17,7 +17,6 @@ export interface IAdmin {
   accType?: string;
   isBlocked?: boolean;
   fullName?: string;
-  token?: string;
   profilePic?: {
     fileType?: string,
     fileURL?: string,
