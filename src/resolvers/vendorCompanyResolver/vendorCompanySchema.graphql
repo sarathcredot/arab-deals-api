@@ -1,0 +1,105 @@
+  scalar Upload
+
+# Brand Mutations
+
+
+  type Mutation {
+    addBrand(input: AddBrandInput!, image:Upload): AddBrandResponse!
+    updateBrand(input: updateBrandInput!, , image:Upload): updateBrandResponse!
+    deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+  }
+
+
+    # Input
+
+    input AddBrandInput {
+        brandName:String!
+        isBlocked: Boolean
+    }   
+
+    input updateBrandInput {
+         _id: String!
+        brandName: String
+        isBlocked: Boolean
+    }
+
+    input BrandRecordIdInput {
+      _id: String
+    }
+
+    # Output
+
+    type AddBrandResponse {
+        _id: String!
+        message: String
+    }  
+
+    type updateBrandResponse {
+        _id: String!
+        message: String
+    }
+
+    type BrandDeleteRecordResponse {
+      _id: String!
+      message: String
+    }
+     
+    type BrandRecordId {
+      _id: String
+    }
+ 
+
+
+# Brand Queries
+
+  type Query {
+    getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
+    getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+  }   
+
+    # Input
+   
+  input BrandIdInput {
+    _id: String!
+  }
+
+  input BrandRecordsFilter {
+    page: Int
+    size: Int
+  }
+
+    # Output
+
+    type ImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }    
+
+  type BrandRecord {
+    _id: String
+    brandName: String
+    isBlocked: Boolean
+    logo: ImageData
+  }  
+  
+  type BrandRecordResponse {
+    record: BrandRecord!
+  }
+
+  type BrandRecordsResponse {
+    maxRecords: Int!
+    records: [BrandRecord!]
+    message: String
+  }
+    
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query:Query
+}
+
