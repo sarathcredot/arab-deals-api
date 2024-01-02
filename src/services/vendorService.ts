@@ -31,7 +31,6 @@ export interface IVendor {
   isKycCompleted?: boolean;
   brands?: Types.ObjectId[],
   categories?: Types.ObjectId[],
-  hash?: string,  
 }
 
 export interface IVendorDocument extends Document {
@@ -118,9 +117,8 @@ interface IVendorKYCData {
   kycStatus: string;
 }
 
-export const createVendor = async (vendorData: IVendor, password: string): Promise<IVendorDocument | null> => {
+export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument | null> => {
   let vendor: IVendorDocument = new vendorModel(vendorData);
-  await vendor.setHash!(password);
   return await vendor.save();
 };
 

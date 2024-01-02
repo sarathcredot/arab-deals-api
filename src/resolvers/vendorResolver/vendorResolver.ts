@@ -29,7 +29,6 @@ export const vendorResolver: Resolvers = {
       }
 
       let fullName: string = input.fullName;
-      let password: string = input.password;
       let mobileNumber: string = input.mobileNumber;
       let profilePic: vendorService.FileData | null = null;
       let brands: Types.ObjectId[] = (input.brands || []).filter(Boolean) as [];
@@ -65,7 +64,7 @@ export const vendorResolver: Resolvers = {
       }
 
 
-      const result = await vendorService.createVendor(newVendorData, password);
+      const result = await vendorService.createVendor(newVendorData);
 
       if (!result) {
         throw new GraphQLError("Unable to create vendor", {
@@ -114,7 +113,6 @@ export const vendorResolver: Resolvers = {
       }
 
       let fullName: string = input.fullName;
-      let password: string = input.password;
       let mobileNumber: string = input.mobileNumber;
       let profilePic: vendorService.FileData | null = null;
       let isBlocked: boolean = input?.isBlocked || false;
@@ -153,7 +151,7 @@ export const vendorResolver: Resolvers = {
       }
 
 
-      const result = await vendorService.createVendor(newVendorData, password);
+      const result = await vendorService.createVendor(newVendorData);
 
       if (!result) {
         throw new GraphQLError("Unable to create vendor", {
