@@ -7,4 +7,5 @@ export const filePaths = {
     vendorProfilePic: "public/vendor/profilePic",
     brand: "public/brand",
     vendorCompany: "public/kyc/vendorCompany",
+    vendorOutlet: "public/kyc/vendorOutlet",
 }

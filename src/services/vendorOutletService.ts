@@ -1,4 +1,4 @@
-import { vendorCompanyModel } from "../models";
+import { vendorOutletModel } from "../models";
 import { Types, Document, QueryOptions, FilterQuery, ProjectionFields, PipelineStage } from "mongoose";
 
 export interface FileData {
@@ -33,29 +33,40 @@ export interface FileData {
 //     remarks?: string[];
 // }
 
-export interface IVendorCompany {
+export interface IVendorOutlet{
     _id?: string;
     vendorId?: Types.ObjectId;
-    companyName?: string;
-    companyType?: string;
-    crLicense?: {
+    outletName?: string;
+    country?: string;
+    district?: string;
+    village?: string;
+    address?: string;
+    outletLicense?: {
       fileType?: string,
       fileURL?: string,
       mimeType?: string,
       originalName?: string
     };
-    cooCertificate?: {
+    interiorImage?: {
       fileType?: string,
       fileURL?: string,
       mimeType?: string,
       originalName?: string
     };
-    crNumber?: string,
+    exteriorImage?: {
+      fileType?: string,
+      fileURL?: string,
+      mimeType?: string,
+      originalName?: string
+    };
+    contactPersonName?: string,
+    contactPersonDesignation?: string,
+    contactPersonNumber?: string,
     status?: string;
     remarks?: string[];
   }
 
-export interface IVendorCompanyDocument extends Document {
+export interface IVendorOutletDocument extends Document {
     _id?: string,
     vendorId?: Types.ObjectId;
     companyName?: string;
@@ -77,7 +88,7 @@ export interface IVendorCompanyDocument extends Document {
     remarks?: string[];
 }
 
-export interface IVendorCompanyRecordsProjection {
+export interface IVendorOutletRecordsProjection {
     _id?: 1;
     vendorId?: 1;
     companyName?: 1;
@@ -104,30 +115,30 @@ export interface IVendorCompanyRecordsProjection {
 export interface IVendorCompanyOptions {
     page: number,
     size: number,
-    projection: IVendorCompanyRecordsProjection
+    projection: IVendorOutletRecordsProjection
 }
 
 export interface IVendorCompanyRecordResponse {
-    records: Array<IVendorCompany>,
+    records: Array<IVendorOutlet>,
     maxRecords: number
 }
 
-export const createVendorCompanyRecord = async (record: IVendorCompany): Promise<Document | null> => {
-    return await vendorCompanyModel.create(record);
+export const createVendorOutletRecord = async (record: IVendorOutlet): Promise<Document | null> => {
+    return await vendorOutletModel.create(record);
 }
 
 
-export const getVendorCompanyRecordWithId = async (id: Types.ObjectId): Promise<IVendorCompanyDocument | null> => {
-    return await vendorCompanyModel.findById(id);
+export const getVendorOutletRecordWithId = async (id: Types.ObjectId): Promise<IVendorOutletDocument | null> => {
+    return await vendorOutletModel.findById(id);
 }
 
-export const getVendorCompanyRecordWithFilters = async (filters = {}, projection: ProjectionFields<IVendorCompany>, options = {}): Promise<IVendorCompany | null> => {
-    return await vendorCompanyModel.findOne(filters, projection, options);
+export const getVendorOutletRecordWithFilters = async (filters = {}, projection: ProjectionFields<IVendorOutlet>, options = {}): Promise<IVendorOutlet | null> => {
+    return await vendorOutletModel.findOne(filters, projection, options);
 }
 
 
-export const getVendorCompanyRecordWithFilter = async (filters = {}, projection: string = "", options: QueryOptions = {}) => {
-    return await vendorCompanyModel.find(filters, projection, options);
+export const getVendorOutletRecordWithFilter = async (filters = {}, projection: string = "", options: QueryOptions = {}) => {
+    return await vendorOutletModel.find(filters, projection, options);
 }
 
 // export const getVendorCompanyRecordsWithFilters = async (options: IVendorCompanyOptions): Promise<IVendorCompanyOptions> => {
@@ -175,7 +186,7 @@ export const getVendorCompanyRecordWithFilter = async (filters = {}, projection:
 //         }
 //     );
 
-//     const result = await vendorCompanyModel.aggregate(pipeline);
+//     const result = await vendorOutletModel.aggregate(pipeline);
 //     let response = {
 //         records: [],
 //         maxRecords: 0
@@ -189,6 +200,6 @@ export const getVendorCompanyRecordWithFilter = async (filters = {}, projection:
 // }
 
 
-export const deleteBrandRecord = async (filter: FilterQuery<IVendorCompany>): Promise<IVendorCompanyDocument | null> => {
-    return await vendorCompanyModel.findOneAndDelete(filter);
+export const deleteOutletRecord = async (filter: FilterQuery<IVendorOutlet>): Promise<IVendorOutletDocument | null> => {
+    return await vendorOutletModel.findOneAndDelete(filter);
 };

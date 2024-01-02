@@ -1,27 +1,26 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
-import * as validators from "./vendorCompanyValidator";
+import * as validators from "./vendorOutletValidator";
 import { validateInput, verifyAdmin } from "../../middlewares";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
 import { Types } from "mongoose";
 import { filePaths } from "../../configs";
-import { spaceService, brandService, vendorService, vendorCompanyService } from "../../services";
+import { spaceService, brandService, vendorService, vendorCompanyService, vendorOutletService } from "../../services";
 import { createReadStream } from 'fs';
 
-export const vendorCompanyResolver: Resolvers = {
+export const vendorOutletResolver: Resolvers = {
 
     Upload: GraphQLUpload,
 
     Mutation: {
 
-        addVendorCompany: async (parent, { input, images, fileMap }, { req }, info) => {
+        addVendorOutlet: async (parent, { input, images, fileMap }, { req }, info) => {
             try {
                 // Validate Input
-                await validateInput(validators.addVendorCompanyValidator, req);
+                await validateInput(validators.addVendorOutletValidatior, req);
                 // await verifyAdmin(req);
                 let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
                 const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
-                console.log(vendorRecord)
 
                 if (!vendorRecord) {
                     throw new GraphQLError("Vendor record not found", {
@@ -32,25 +31,30 @@ export const vendorCompanyResolver: Resolvers = {
                     });
                 }
 
-                let companyName: string = input?.companyName || "";
-                let companyType: string = input?.companyType || "";
-                let crNumber: string = input?.crNumber || "";
+                let outletName: string = input?.outletName || "";
+                let country: string = input?.country || "";
+                let district: string = input?.district || "";
+                let village: string = input?.village || "";
+                let address: string = input?.address || "";
+                let contactPersonName: string = input?.contactPersonName || "";
+                let contactPersonNumber: string = input?.contactPersonNumber || "";
+                let contactPersonDesignation: string = input?.contactPersonDesignation || "";
                 let status: string = "UNDER_VERIFICATION";
 
                 images = images || [];
-                let vendorCompanyImages: vendorCompanyService.FileData[] = [];
+                let vendorOutetImages: vendorCompanyService.FileData[] = [];
 
 
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
 
-                    const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
+                    const key = spaceService.getFileKey(filePaths.vendorOutlet, filename, []);
 
                     const stream = createReadStream();
 
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-                    vendorCompanyImages.push({
+                    vendorOutetImages.push({
                         fileType: "PRIVATE",
                         fileURL: file.location,
                         mimeType: mimetype,
@@ -59,11 +63,16 @@ export const vendorCompanyResolver: Resolvers = {
                 }
 
                 fileMap = fileMap || {};
-                const vendorCompanyRecord: vendorCompanyService.IVendorCompany = {
+                const vendorOutletRecord: vendorOutletService.IVendorOutlet = {
                     vendorId,
-                    companyName,
-                    companyType,
-                    crNumber,
+                    outletName,
+                    country,
+                    district,
+                    village,
+                    address,
+                    contactPersonName,
+                    contactPersonNumber,
+                    contactPersonDesignation,
                     status,
                 };
 
@@ -71,13 +80,17 @@ export const vendorCompanyResolver: Resolvers = {
                 outletImageKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
-                            case "crLicense":
-                                vendorCompanyRecord.crLicense = vendorCompanyImages[fileMap[imageName]];
+                            case "outletLicense":
+                                vendorOutletRecord.outletLicense = vendorOutetImages[fileMap[imageName]];
                                 break;
 
-                            case "cooCertificate":
-                                vendorCompanyRecord.cooCertificate = vendorCompanyImages[fileMap[imageName]];
-                                break;
+                                case "interiorImage":
+                                    vendorOutletRecord.interiorImage = vendorOutetImages[fileMap[imageName]];
+                                    break;
+
+                                case "exteriorImage":
+                                    vendorOutletRecord.exteriorImage = vendorOutetImages[fileMap[imageName]];
+                                    break;    
 
                             default:
                         }
@@ -85,8 +98,8 @@ export const vendorCompanyResolver: Resolvers = {
                 });
 
 
-                const result = await vendorCompanyService.createVendorCompanyRecord(vendorCompanyRecord);
-                const response = { _id: result?._id.toString() || "", message: "Vendor company record added successfully" };
+                const result = await vendorOutletService.createVendorOutletRecord(vendorOutletRecord);
+                const response = { _id: result?._id.toString() || "", message: "Vendor outlet record added successfully" };
                 return response;
 
             } catch (error) {

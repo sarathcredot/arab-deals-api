@@ -20,7 +20,6 @@ export const VendorCreateValidator = [
   body('variables.input.fullName').trim().notEmpty(),
   body('variables.input.email').trim().isEmail(),
   body('variables.input.mobileNumber').trim().notEmpty(),
-  body('variables.input.password').isLength({ min: 6 }),
   body('variables.input.companyName').optional({ checkFalsy: true }).trim(),
 ];
 

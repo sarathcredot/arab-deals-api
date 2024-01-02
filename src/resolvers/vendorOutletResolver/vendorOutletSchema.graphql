@@ -5,30 +5,41 @@
 
 
   type Mutation {
-    addVendorCompany(input: AddVendorCompanyInput!, images:[Upload], fileMap: JSONObject): AddVendorCompanyResponse!
+    addVendorOutlet(input: AddVendorOutletInput!, images:[Upload], fileMap: JSONObject): AddVendorOutletResponse!
     updateBrand(input: updateBrandInput!, image:Upload): updateBrandResponse!
     deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   }
 
    # Type
 
-   type VendorCompany {
-        vendorId: String!
-        companyName:String
-        companyType: String
-        crNumber: String
-        status: Boolean
+   type VendorOutlet {
+        _id: String
+        vendorId: String
+        outletName:String
+        country:String
+        district: String
+        village: String
+        address: String
+        contactPersonName: String
+        contactPersonNumber: String
+        contactPersonDesignation: String
+        status: String
         remarks: [String]
     }  
 
 
     # Input
 
-    input AddVendorCompanyInput {
+    input AddVendorOutletInput {
         vendorId: String!
-        companyName:String
-        companyType: String
-        crNumber: String
+        outletName:String
+        country:String
+        district: String
+        village: String
+        address: String
+        contactPersonName: String
+        contactPersonNumber: String
+        contactPersonDesignation: String
     }   
 
     input updateBrandInput {
@@ -43,7 +54,7 @@
 
     # Output
 
-    type AddVendorCompanyResponse {
+    type AddVendorOutletResponse {
         _id: String!
         message: String
     }  
