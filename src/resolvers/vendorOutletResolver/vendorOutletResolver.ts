@@ -232,7 +232,7 @@ export const vendorOutletResolver: Resolvers = {
         async getAllVendorOutletRecordsByAdmin(parent, { input }, { req }, info) {
             try {
                 await validateInput(validators.getAllVendorOutletValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;

@@ -49,10 +49,6 @@ export interface IVendorDocument extends Document {
   brands?: Types.ObjectId[],
   categories?: Types.ObjectId[],
   token?: string,
-
-  verifyHash?(password: string): Promise<boolean>;
-  setHash?(password: string): Promise<void>;
-
 }
 
 export interface IVendorLoginResponse {
@@ -77,45 +73,42 @@ export interface IVendorProjection {
   "profilePic.createdAt"?: 1;
 }
 
+export interface IVendorWithKycData {
+  _id?: string;
+  fullName?: string;
+  email?: string;
+  mobileNumber?: string;
+  isBlocked?: string;
+  isKycCompleted?: boolean;
+  outletId?: string;
+  outletName?: string;
+  outletStatus?: string;
+  companyId?: string;
+  companyName?: string;
+  companyStatus?: string
+}
+
+export interface IVendorRecordsResponse {
+  records: Array<IVendorWithKycData>,
+  maxRecords: number
+}
+
 
 export interface IVendorsRecordsOptions {
-  status: string,
   page: number,
   size: number,
-  projection: IVendorProjection
 }
 
-export interface IVendorsRecordsWithKycOptions {
-  status: string,
-  page: number,
-  size: number,
-}
 
 export interface IVendorsRecordsResponse {
   records: Array<IVendor>,
   maxRecords: number
 }
 
-export interface IVendorsWithKycRecordsResponse {
-  records: Array<IVendorKYCData>,
-  maxRecords: number
-}
-
-interface IVendorKYCData {
-  _id: string;
-  vendorId: string;
-  email: string;
-  fullName: string;
-  mobileNumber: string;
-  country: string;
-  brand: string;
-  isBlocked: boolean;
-  companyName: string;
-  companyStatus: string;
-  businessOutletStatus: string;
-  sellingProductStatus: string;
-  kycStatus: string;
-}
+// export interface IVendorsWithKycRecordsResponse {
+//   records: Array<IVendorKYCData>,
+//   maxRecords: number
+// }
 
 export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument | null> => {
   let vendor: IVendorDocument = new vendorModel(vendorData);
@@ -140,19 +133,102 @@ export const loginVendor = (vendor: IVendorDocument): IVendorLoginResponse => {
   }
 }
 
-export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorsRecordsResponse> => {
+// export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorsRecordsResponse> => {
 
-  console.log("options: ", options)
-  let pipeline: PipelineStage[] = [];
+//   console.log("options: ", options)
+//   let pipeline: PipelineStage[] = [];
 
-  pipeline.push(
+//   pipeline.push(
+//     {
+//       $match: {
+//         isBlocked: false
+//       }
+//     },
+//     {
+//       $sort: { _id: -1 }
+//     },
+//     {
+//       $facet: {
+//         metadata: [
+//           {
+//             $group: {
+//               _id: null,
+//               total: { $sum: 1 }
+//             }
+//           }
+//         ],
+//         data: [
+//           {
+//             $skip: options.page * options.size
+//           },
+//           {
+//             $limit: options.size
+//           },
+//           {
+//             $project: options.projection
+//           }
+//         ]
+//       }
+//     },
+//     {
+//       $project: {
+//         maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+//         data: 1
+//       }
+//     }
+//   );
+
+//   const result = await vendorModel.aggregate(pipeline);
+//   console.log(result)
+//   let response = {
+//     records: [],
+//     maxRecords: 0
+//   };
+//   if (result.length) {
+//     response.records = result[0].data || [];
+//     response.maxRecords = result[0].maxRecords || 0;
+//   }
+
+//   return response;
+// }
+
+export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<IVendorDocument | null> => {
+  const result = await vendorModel.findById(id);
+  return result;
+}
+
+export const getVendorRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorRecordsResponse> => {
+  let pipeline: PipelineStage[] = [
     {
-      $match: {
-        isBlocked: false
+      $sort: { _id: -1 }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_OUTLETS,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'outlet'
       }
     },
     {
-      $sort: { _id: -1 }
+      $unwind: {
+        path: '$outlet',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_COMPANIES,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'company'
+      }
+    },
+    {
+      $unwind: {
+        path: '$company',
+        preserveNullAndEmptyArrays: true
+      }
     },
     {
       $facet: {
@@ -172,37 +248,48 @@ export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptio
             $limit: options.size
           },
           {
-            $project: options.projection
+            $project: {
+              _id: 1,
+              fullName: 1,
+              email: 1,
+              mobileNumber: 1,
+              isBlocked: 1,
+              isKycCompleted: 1,
+              companyId: '$company._id',
+              companyName: '$company.companyName',
+              companyStatus: '$company.status',
+              outletId: '$outlet._id',
+              outletName: '$outlet.outletName',
+              outletStatus: '$outlet.status'
+            }
           }
         ]
       }
     },
     {
       $project: {
-        maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+        maxRecords: { $ifNull: [{ $arrayElemAt: ['$metadata.total', 0] }, 0] },
         data: 1
       }
     }
-  );
+  ];
 
   const result = await vendorModel.aggregate(pipeline);
-  console.log(result)
+
   let response = {
     records: [],
     maxRecords: 0
   };
+
   if (result.length) {
     response.records = result[0].data || [];
     response.maxRecords = result[0].maxRecords || 0;
   }
 
   return response;
-}
 
-export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<Document | null> => {
-  const result = await vendorModel.findById(id);
-  return result;
-}
+};
+
 
 
 // export const getCategorizedKYCs = async (options: QueryOptions): Promise<IVendorsWithKycRecordsResponse> => {

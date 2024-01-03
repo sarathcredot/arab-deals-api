@@ -280,14 +280,6 @@ export const vendorResolver: Resolvers = {
           }
         });
       }
-      else if (! await vendor.verifyHash?.(password)) {
-        throw new GraphQLError("Invalid Account", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: []
-          }
-        });
-      }
 
       let token = await jwtService.createVendorJWT(vendor._id!.toString());
 
@@ -373,66 +365,67 @@ export const vendorResolver: Resolvers = {
 
   Query: {
     // Fetch all vendors records
-    // async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
-    //   try {
-    //     await validateInput(validators.getAllVendorsRecordsValidator, req);
-    //     await verifyAdmin(req);
+    async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
+      try {
+        await validateInput(validators.getAllVendorsRecordsValidator, req);
+        // await verifyAdmin(req);
 
-    //     const page: number = input?.page || 0;
-    //     const size: number = input?.size || 10;
-    //     const status: string = input?.status || "DEFAULT";
+        const page: number = input?.page || 0;
+        const size: number = input?.size || 10;
 
-    //     const options: vendorService.IVendorsRecordsWithKycOptions = {
-    //       page,
-    //       size,
-    //       status,
-    //     }
+        const options: vendorService.IVendorsRecordsOptions = {
+          page,
+          size,
+        }
 
-    //     // Fetch all vendors records
-    //     const result = await vendorService.getCategorizedKYCs(options);
-    //     const response = {
-    //       records: result.records,
-    //       maxRecords: result.maxRecords,
-    //       message: "Vendors records fetched successfully",
-    //     };
-    //     return response;
-    //   } catch (error) {
-    //     throw error;
-    //   }
-    // },
+        // Fetch all vendors records
+        const result = await vendorService.getVendorRecordsWithFilters(options);
+        const response = {
+          records: result.records,
+          maxRecords: result.maxRecords,
+          message: "Vendors records fetched successfully",
+        };
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
 
-    // Fetch each vendors records
-    // async getVendorRecordByAdmin(parent, { input }, { req }, info) {
-    //   await verifyAdmin(req);
+    // Fetch each vendor record
+    async getVendorRecordByAdmin(parent, { input }, { req }, info) {
+      // await verifyAdmin(req);
 
-    //   try {
-    //     await validateInput(validators.getVendorRecordValidator, req);
+      try {
+        await validateInput(validators.getVendorRecordValidator, req);
 
-    //     const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-    //     const result = await vendorService.getvendorRecordWithId(_id);
+        const result = await vendorService.getvendorRecordWithId(_id);
 
-    //     if (!result) {
-    //       throw new GraphQLError("Record not found", {
-    //         extensions: {
-    //           code: "BAD_REQUEST",
-    //           errors: []
-    //         }
-    //       });
-    //     }
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
 
-    //     const response = {
-    //       record: result,
-    //       message: "Vendor record fetched successfully",
-    //     }
+        const response = {
+          record: {
+            ...result.toObject(), 
+            vendorId: result?._id?.toString() 
+          },
+          message: "Vendor record fetched successfully",
+        }
 
-    //     return response;
+        return response;
 
-    //   } catch (error) {
-    //     throw error;
-    //   }
+      } catch (error) {
+        throw error;
+      }
 
-    // },
+    },
   },
 };
 

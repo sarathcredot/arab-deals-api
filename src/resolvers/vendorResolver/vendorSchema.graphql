@@ -32,21 +32,19 @@ type Vendor {
   categories: [CategoryRecordId]
 }
 
-type VendorKYCData {
+type VendorWithKycData {
   _id: String
-  vendorId: String
-  email: String
   fullName: String
+  email: String
   mobileNumber: String
-  country: String
-  brand: String
-  # profilePic: ImageData
-  isBlocked: Boolean
-  companyName: String 
+  isBlocked: String
+  isKycCompleted: Boolean
+  outletId: String
+  outletName: String
+  outletStatus: String
+  companyId: String
+  companyName: String
   companyStatus: String
-  businessOutletStatus: String
-  sellingProductStatus: String
-  kycStatus: String
 }
 
 type MobileOtpData {
@@ -134,11 +132,7 @@ type Query {
   getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
 }
 
-# Vendor  type
-
-type getVendorRecordResponse {
-  record: Vendor
-}
+# Vendor type
 
 type CreateVendorResponse{
     _id: String
@@ -157,7 +151,6 @@ type CreateVendorByAdminResponse{
  input VendorsRecordsByAdminFilter {
     page: Int
     size: Int
-    status: String
   }
 
 
@@ -167,7 +160,7 @@ type CreateVendorByAdminResponse{
 
   type VendorsRecordsResponse {
     maxRecords: Int!
-    records: [VendorKYCData]
+    records: [VendorWithKycData]
     message: String
   }   
 
