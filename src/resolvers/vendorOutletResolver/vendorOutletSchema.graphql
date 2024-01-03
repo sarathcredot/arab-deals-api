@@ -1,16 +1,23 @@
   scalar Upload
   scalar JSONObject
 
-# Brand Mutations
+# Outlet Mutations
 
 
   type Mutation {
     addVendorOutlet(input: AddVendorOutletInput!, images:[Upload], fileMap: JSONObject): AddVendorOutletResponse!
-    updateBrand(input: updateBrandInput!, image:Upload): updateBrandResponse!
-    deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+    updateVendorOutlet(input: UpdateVendorOutletInput!, images:[Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+    deleteVendorOutlet(input: DeleteVendorOutletIdInput!): DeleteVendorOutletRecordResponse!
   }
 
    # Type
+
+  type ImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }  
 
    type VendorOutlet {
         _id: String
@@ -25,8 +32,22 @@
         contactPersonDesignation: String
         status: String
         remarks: [String]
+        outletLicense: ImageData
+        interiorImage: ImageData
+        exteriorImage: ImageData
     }  
 
+    type vendorOutletRecordsWithKycData {
+        vendorId: String
+        fullName: String
+        isKycCompleted: String
+        _id: String
+        outletName: String
+        status: String
+        companyId: String
+        companyName: String
+        companyStatus: String
+    }
 
     # Input
 
@@ -42,14 +63,21 @@
         contactPersonDesignation: String
     }   
 
-    input updateBrandInput {
-         _id: String!
-        brandName: String
-        isBlocked: Boolean
+    input UpdateVendorOutletInput {
+        vendorId: String!
+        outletName:String
+        country:String
+        district: String
+        village: String
+        address: String
+        contactPersonName: String
+        contactPersonNumber: String
+        contactPersonDesignation: String
     }
 
-    input BrandRecordIdInput {
-      _id: String
+
+    input DeleteVendorOutletIdInput {
+      _id: String!
     }
 
     # Output
@@ -59,36 +87,32 @@
         message: String
     }  
 
-    type updateBrandResponse {
-        _id: String!
+    type UpdateVendorOutletResponse {
+         _id: String!
         message: String
     }
 
-    type BrandDeleteRecordResponse {
+    type DeleteVendorOutletRecordResponse {
       _id: String!
       message: String
-    }
-     
-    type BrandRecordId {
-      _id: String
     }
  
 
 
-# Brand Queries
+# Outlet Queries
 
   type Query {
-    getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
-    getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+    getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+    getVendorOutletRecordByAdmin(input: VendorOutletIdInput!): VendorOutletRecordResponse!
   }   
 
     # Input
    
-  input BrandIdInput {
+  input VendorOutletIdInput {
     _id: String!
   }
 
-  input BrandRecordsFilter {
+  input VendorOutletRecordsByAdminFilter {
     page: Int
     size: Int
   }
@@ -102,20 +126,14 @@
     originalName: String
   }    
 
-  type BrandRecord {
-    _id: String
-    brandName: String
-    isBlocked: Boolean
-    logo: ImageData
-  }  
-  
-  type BrandRecordResponse {
-    record: BrandRecord!
+  type VendorOutletRecordResponse {
+    record: VendorOutlet!
+    message: String
   }
 
-  type BrandRecordsResponse {
+  type VendorOutletRecordsByAdminResponse {
     maxRecords: Int!
-    records: [BrandRecord!]
+    records: [vendorOutletRecordsWithKycData!]
     message: String
   }
     

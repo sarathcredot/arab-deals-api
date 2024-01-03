@@ -8,23 +8,24 @@ export const addVendorCompanyValidator = [
 ]
 
 
-export const getAllBrandsValidator = [
+export const getAllVendorCompanyValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
     body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
 ]
 
-export const brandQueryValidator = [
+export const vendorCompanyQueryValidator = [
     body('variables.input._id').notEmpty().isMongoId(),
 ]
 
 
-export const brandUpdateValidator = [
-    body('variables.input._id').notEmpty().isMongoId(),
-    body('variables.input.brandName').trim().optional({ checkFalsy: true }),
-    body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+export const editVendorCompanyValidator = [
+    body('variables.input.vendorId').notEmpty().isMongoId(),
+    body('variables.input.companyName').optional({ checkFalsy: true }),
+    body('variables.input.companyType').optional({ checkFalsy: true }),
+    body('variables.input.crNumber').optional({ checkFalsy: true }),
 ]
 
-export const brandDeleteValidator = [
+export const vendorCompanyDeleteValidator = [
     body('variables.input._id').notEmpty().isMongoId(),
 ]
 

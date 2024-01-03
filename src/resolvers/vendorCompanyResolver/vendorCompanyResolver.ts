@@ -5,7 +5,7 @@ import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
 import { Types } from "mongoose";
 import { filePaths } from "../../configs";
-import { spaceService, brandService, vendorService, vendorCompanyService } from "../../services";
+import { spaceService, vendorService, vendorCompanyService } from "../../services";
 import { createReadStream } from 'fs';
 
 export const vendorCompanyResolver: Resolvers = {
@@ -67,8 +67,8 @@ export const vendorCompanyResolver: Resolvers = {
                     status,
                 };
 
-                let outletImageKeys = Object.keys(fileMap);
-                outletImageKeys.forEach((imageName) => {
+                let vendorCompanyImagesKeys = Object.keys(fileMap);
+                vendorCompanyImagesKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
                             case "crLicense":
@@ -94,164 +94,164 @@ export const vendorCompanyResolver: Resolvers = {
             }
         },
 
-        // updateBrand: async (parent, { input, image }, { req }, info) => {
-        //     try {
-        //         // Validate Input
-        //         await validateInput(validators.brandUpdateValidator, req);
-        //         await verifyAdmin(req);
+        updateVendorCompany: async (parent, { input, images, fileMap }, { req }, info) => {
+            try {
+                // Validate Input
+                await validateInput(validators.editVendorCompanyValidator, req);
+                // await verifyAdmin(req);
 
-        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
+                const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
 
-        //         const brandRecord = await brandService.getBrandWithId(_id);
-        //         if (!brandRecord) {
-        //             throw new GraphQLError("Brand record not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: [],
-        //                 },
-        //             });
-        //         }
+                if (!vendor) {
+                    throw new GraphQLError("Vendor not found with this id", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
 
-        //         let brandLogo;
+                let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ vendorId: vendorId }, {}, {});
 
-        //         if (image) {
-        //             const { createReadStream, filename, mimetype } = await image;
+                if (!vendorCompanyRecord) {
+                    throw new GraphQLError("Vendor company record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
-        //             const key = spaceService.getFileKey(filePaths.brand, filename, []);
+                images = images || [];
+                let vendorCompanyImages: vendorCompanyService.FileData[] = [];
 
-        //             const stream = createReadStream();
+                for (let image of images) {
+                    const { createReadStream, filename, mimetype } = await image;
 
-        //             const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+                    const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
 
-        //             brandLogo = {
-        //                 fileType: "PUBLIC",
-        //                 fileURL: file.location,
-        //                 mimeType: mimetype,
-        //                 originalName: filename
-        //             }
-        //         }
+                    const stream = createReadStream();
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
+                    vendorCompanyImages.push({
+                        fileType: "PRIVATE",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
 
-        //         if (input.brandName) {
-        //             brandRecord.brandName = input?.brandName;
-        //         }
+                fileMap = fileMap || {};
 
-        //         if (input.isBlocked) {
-        //             brandRecord.isBlocked = input?.isBlocked;
-        //         }
+                if (input.companyName) {
+                    vendorCompanyRecord.companyName = input?.companyName;
+                }
 
-        //         if (brandLogo) {
-        //             brandRecord.logo = brandLogo;
-        //         }
+                if (input.companyType) {
+                    vendorCompanyRecord.companyType = input?.companyType;
+                }
 
-        //         const result = await brandRecord.save();
+                if (input.crNumber) {
+                    vendorCompanyRecord.crNumber = input?.crNumber;
+                }
+                
+                vendorCompanyRecord.status = "UNDER_VERIFICATION";
 
-        //         const response = {
-        //             _id: result?._id?.toString() || "", message: "Brand updated successfully",
-        //         };
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
-        // },
+                let vendorCompanyImagesKeys = Object.keys(fileMap);
+                vendorCompanyImagesKeys.forEach((imageName) => {
+                    if (vendorCompanyRecord && fileMap[imageName] != null && fileMap[imageName] >= 0) {
+                        switch (imageName) {
+                            case "crLicense":
+                                vendorCompanyRecord.crLicense = vendorCompanyImages[fileMap[imageName]];
+                                break;
 
-        // deleteBrand: async (parent, { input }, { req }, info) => {
-        //     try {
-        //         // Validate Input
-        //         await validateInput(validators.brandDeleteValidator, req);
-        //         await verifyAdmin(req);
+                            case "cooCertificate":
+                                vendorCompanyRecord.cooCertificate = vendorCompanyImages[fileMap[imageName]];
+                                break;
 
-        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
-        //         const result = await brandService.deleteBrandRecord(_id);
+                            default:
+                        }
+                    }
+                });
 
-        //         if (!result) {
-        //             throw new GraphQLError("Brand not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: [],
-        //                 },
-        //             });
-        //         }
+                const result = await vendorCompanyRecord.save(); // Assuming a .save() method on your model
 
-        //         const response = {
-        //             _id: result?._id?.toString() || "", message: "Brand deleted successfully",
-        //         };
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
-        // },
+                const response = { _id: result?._id?.toString() || "", message: "Vendor company record updated successfully" };
+                return response;
+
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        deleteVendorOutlet: async (parent, { input }, { req }, info) => {
+            try {
+                // Validate Input
+                await validateInput(validators.vendorCompanyDeleteValidator, req);
+                // await verifyVendor(req);
+
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const result = await vendorCompanyService.deleteVendorCompanyRecord(_id);
+
+                if (!result) {
+                    throw new GraphQLError("Company record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                const response = {
+                    _id: result?._id?.toString() || "", message: "Company record deleted successfully",
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
     },
 
     Query: {
-        // Fetch all brands
-        // async getAllVendorCompanyRecordsByAdmin(parent, { input }, { req }, info) {
-        //     try {
-        //         // Validate Input
-        //         await validateInput(validators.getAllBrandsValidator, req);
-        //         await verifyAdmin(req);
+        // Fetch all vendor company
+        async getAllVendorCompanyRecordsByAdmin(parent, { input }, { req }, info) {
+            try {
+                await validateInput(validators.getAllVendorCompanyValidator, req);
+                await verifyAdmin(req);
 
-        //         const page: number = input?.page || 0;
-        //         const size: number = input?.size || 10;
-        //         let projection: vendorCompanyService.IVendorCompanyRecordsProjection = { _id: 1 };
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
 
-        //         // const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-        //         // for (const selection of selectedFields) {
-        //         //     if (selection.kind === "Field" && selection.name.value == "records") {
+                const options = {
+                    page,
+                    size,
+                }
 
-        //         //         let selectionSet = selection.selectionSet || { selections: [] };
-        //         //         for (let item of selectionSet.selections) {
-        //         //             if (item.kind === "Field") {
-        //         //                 const fieldName = item.name.value;
-        //         //                 if (["logo"].includes(fieldName)) {
-        //         //                     let selectionSet = item.selectionSet || { selections: [] };
-        //         //                     for (let item2 of selectionSet.selections) {
-        //         //                         if (item2.kind === "Field") {
-        //         //                             const subField = item2.name.value;
-        //         //                             const path = `${fieldName}.${subField}`;
-        //         //                             projection[path as keyof vendorCompanyService.IVendorCompanyRecordsProjection ] = 1;
-        //         //                         }
-        //         //                     }
-        //         //                 }
-        //         //                 else {
-        //         //                     projection[fieldName as keyof vendorCompanyService.IVendorCompanyRecordsProjection ] = 1;
-        //         //                 }
-        //         //             }
-        //         //         }
-        //         //     }
-        //         // }
+                const result = await vendorCompanyService.getVendorCompanyRecordsWithFilters(options);
+                const response = {
+                    records: result.records as vendorCompanyService.IVendorCompanyWithKycData[],
+                    maxRecords: result.maxRecords,
+                    message: "KYC all records fetched successfully"
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
 
-
-        //         const options: brandService.IBrandRecordsOptions = {
-        //             page,
-        //             size,
-        //             projection,
-        //         }
-
-        //         const result = await brandService.getBrandRecordsWithFilters(options);
-        //         const response = {
-        //             records: result.records,
-        //             maxRecords: result.maxRecords,
-        //             message: "Brands fetched successfully",
-        //         };
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
-        // },
-
-        // Fetch brand by id
-        async getBrandRecordByAdmin(parent, { input }, { req }, info) {
+        // Fetch vendor company record by id
+        async getVendorCompanyRecordByAdmin(parent, { input }, { req }, info) {
             try {
                 // Validate Input
-                await validateInput(validators.brandQueryValidator, req);
+                await validateInput(validators.vendorCompanyQueryValidator, req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-                const result = await brandService.getBrandWithId(_id);
+                const result = await vendorCompanyService.getVendorCompanyRecordWithId(_id);
 
                 if (!result) {
-                    throw new GraphQLError("Brand not found", {
+                    throw new GraphQLError("vendor company record not found", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: []
@@ -260,8 +260,11 @@ export const vendorCompanyResolver: Resolvers = {
                 }
 
                 const response = {
-                    record: result,
-                    message: "Brand fetched successfully",
+                    record: {
+                        ...result.toObject(),  // Convert Mongoose document to plain JavaScript object
+                        vendorId: result?.vendorId?.toString()  // Convert ObjectId to string
+                    },
+                    message: "Vendor company record fetched successfully",
                 };
 
                 return response;

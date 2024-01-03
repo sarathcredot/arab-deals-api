@@ -1,11 +1,11 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./vendorOutletValidator";
-import { validateInput, verifyAdmin } from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
 import { Types } from "mongoose";
 import { filePaths } from "../../configs";
-import { spaceService, brandService, vendorService, vendorCompanyService, vendorOutletService } from "../../services";
+import { spaceService, vendorService, vendorCompanyService, vendorOutletService } from "../../services";
 import { createReadStream } from 'fs';
 
 export const vendorOutletResolver: Resolvers = {
@@ -84,13 +84,13 @@ export const vendorOutletResolver: Resolvers = {
                                 vendorOutletRecord.outletLicense = vendorOutetImages[fileMap[imageName]];
                                 break;
 
-                                case "interiorImage":
-                                    vendorOutletRecord.interiorImage = vendorOutetImages[fileMap[imageName]];
-                                    break;
+                            case "interiorImage":
+                                vendorOutletRecord.interiorImage = vendorOutetImages[fileMap[imageName]];
+                                break;
 
-                                case "exteriorImage":
-                                    vendorOutletRecord.exteriorImage = vendorOutetImages[fileMap[imageName]];
-                                    break;    
+                            case "exteriorImage":
+                                vendorOutletRecord.exteriorImage = vendorOutetImages[fileMap[imageName]];
+                                break;
 
                             default:
                         }
@@ -107,164 +107,165 @@ export const vendorOutletResolver: Resolvers = {
             }
         },
 
-        // updateBrand: async (parent, { input, image }, { req }, info) => {
-        //     try {
-        //         // Validate Input
-        //         await validateInput(validators.brandUpdateValidator, req);
-        //         await verifyAdmin(req);
+        updateVendorOutlet: async (parent, { input, images, fileMap }, { req }, info) => {
+            try {
+                // Validate Input
+                await validateInput(validators.updateVendorOutletValidatior, req);
+                // await verifyAdmin(req);
+                let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
+                const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
 
-        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                if (!vendorRecord) {
+                    throw new GraphQLError("Vendor record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
-        //         const brandRecord = await brandService.getBrandWithId(_id);
-        //         if (!brandRecord) {
-        //             throw new GraphQLError("Brand record not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: [],
-        //                 },
-        //             });
-        //         }
+                const outletRecord = await vendorOutletService.getVendorOutletRecordWithFilters({ vendorId: vendorId }, {}, {});
 
-        //         let brandLogo;
+                if (!outletRecord) {
+                    throw new GraphQLError("Outlet record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
-        //         if (image) {
-        //             const { createReadStream, filename, mimetype } = await image;
+                // Update outlet fields
+                outletRecord.outletName = input?.outletName || outletRecord.outletName;
+                outletRecord.country = input?.country || outletRecord.country;
+                outletRecord.district = input?.district || outletRecord.district;
+                outletRecord.village = input?.village || outletRecord.village;
+                outletRecord.address = input?.address || outletRecord.address;
+                outletRecord.contactPersonName = input?.contactPersonName || outletRecord.contactPersonName;
+                outletRecord.contactPersonNumber = input?.contactPersonNumber || outletRecord.contactPersonNumber;
+                outletRecord.contactPersonDesignation = input?.contactPersonDesignation || outletRecord.contactPersonDesignation;
+                outletRecord.status = "UNDER_VERIFICATION";
 
-        //             const key = spaceService.getFileKey(filePaths.brand, filename, []);
+                images = images || [];
+                let outletImages: vendorCompanyService.FileData[] = [];
 
-        //             const stream = createReadStream();
+                for (let image of images) {
+                    const { createReadStream, filename, mimetype } = await image;
 
-        //             const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+                    const key = spaceService.getFileKey(filePaths.vendorOutlet, filename, []);
 
-        //             brandLogo = {
-        //                 fileType: "PUBLIC",
-        //                 fileURL: file.location,
-        //                 mimeType: mimetype,
-        //                 originalName: filename
-        //             }
-        //         }
+                    const stream = createReadStream();
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
+                    outletImages.push({
+                        fileType: "PRIVATE",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
 
-        //         if (input.brandName) {
-        //             brandRecord.brandName = input?.brandName;
-        //         }
+                fileMap = fileMap || {};
+                let outletImageKeys = Object.keys(fileMap);
 
-        //         if (input.isBlocked) {
-        //             brandRecord.isBlocked = input?.isBlocked;
-        //         }
+                outletImageKeys.forEach((imageName) => {
+                    if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
+                        switch (imageName) {
+                            case "outletLicense":
+                                outletRecord.outletLicense = outletImages[fileMap[imageName]];
+                                break;
 
-        //         if (brandLogo) {
-        //             brandRecord.logo = brandLogo;
-        //         }
+                            case "interiorImage":
+                                outletRecord.interiorImage = outletImages[fileMap[imageName]];
+                                break;
 
-        //         const result = await brandRecord.save();
+                            case "exteriorImage":
+                                outletRecord.exteriorImage = outletImages[fileMap[imageName]];
+                                break;
 
-        //         const response = {
-        //             _id: result?._id?.toString() || "", message: "Brand updated successfully",
-        //         };
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
-        // },
+                            default:
+                        }
+                    }
+                });
 
-        // deleteBrand: async (parent, { input }, { req }, info) => {
-        //     try {
-        //         // Validate Input
-        //         await validateInput(validators.brandDeleteValidator, req);
-        //         await verifyAdmin(req);
+                // Save the updated outlet record
+                const result = await outletRecord.save();
 
-        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
-        //         const result = await brandService.deleteBrandRecord(_id);
+                const response = { _id: result?._id?.toString() || "", message: "Vendor outlet record updated successfully" };
+                return response;
 
-        //         if (!result) {
-        //             throw new GraphQLError("Brand not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: [],
-        //                 },
-        //             });
-        //         }
+            } catch (error) {
+                throw error;
+            }
+        },
 
-        //         const response = {
-        //             _id: result?._id?.toString() || "", message: "Brand deleted successfully",
-        //         };
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
-        // },
+        deleteVendorOutlet: async (parent, { input }, { req }, info) => {
+            try {
+                // Validate Input
+                await validateInput(validators.vendorOutletDeleteValidator, req);
+                // await verifyVendor(req);
+
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const result = await vendorOutletService.deleteOutletRecord(_id);
+
+                if (!result) {
+                    throw new GraphQLError("Outlet record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                const response = {
+                    _id: result?._id?.toString() || "", message: "Outlet record deleted successfully",
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
     },
 
     Query: {
-        // Fetch all brands
-        // async getAllVendorCompanyRecordsByAdmin(parent, { input }, { req }, info) {
-        //     try {
-        //         // Validate Input
-        //         await validateInput(validators.getAllBrandsValidator, req);
-        //         await verifyAdmin(req);
+        // Fetch all vendor outlet
+        async getAllVendorOutletRecordsByAdmin(parent, { input }, { req }, info) {
+            try {
+                await validateInput(validators.getAllVendorOutletValidator, req);
+                // await verifyAdmin(req);
 
-        //         const page: number = input?.page || 0;
-        //         const size: number = input?.size || 10;
-        //         let projection: vendorCompanyService.IVendorCompanyRecordsProjection = { _id: 1 };
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
 
-        //         // const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-        //         // for (const selection of selectedFields) {
-        //         //     if (selection.kind === "Field" && selection.name.value == "records") {
+                const options = {
+                    page,
+                    size,
+                }
 
-        //         //         let selectionSet = selection.selectionSet || { selections: [] };
-        //         //         for (let item of selectionSet.selections) {
-        //         //             if (item.kind === "Field") {
-        //         //                 const fieldName = item.name.value;
-        //         //                 if (["logo"].includes(fieldName)) {
-        //         //                     let selectionSet = item.selectionSet || { selections: [] };
-        //         //                     for (let item2 of selectionSet.selections) {
-        //         //                         if (item2.kind === "Field") {
-        //         //                             const subField = item2.name.value;
-        //         //                             const path = `${fieldName}.${subField}`;
-        //         //                             projection[path as keyof vendorCompanyService.IVendorCompanyRecordsProjection ] = 1;
-        //         //                         }
-        //         //                     }
-        //         //                 }
-        //         //                 else {
-        //         //                     projection[fieldName as keyof vendorCompanyService.IVendorCompanyRecordsProjection ] = 1;
-        //         //                 }
-        //         //             }
-        //         //         }
-        //         //     }
-        //         // }
+                const result = await vendorOutletService.getVendorOutletRecordsWithFilters(options);
+                const response = {
+                    records: result.records as vendorOutletService.IVendorOutletWithKycData[],
+                    maxRecords: result.maxRecords,
+                    message: "KYC all records fetched successfully"
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
 
-
-        //         const options: brandService.IBrandRecordsOptions = {
-        //             page,
-        //             size,
-        //             projection,
-        //         }
-
-        //         const result = await brandService.getBrandRecordsWithFilters(options);
-        //         const response = {
-        //             records: result.records,
-        //             maxRecords: result.maxRecords,
-        //             message: "Brands fetched successfully",
-        //         };
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
-        // },
-
-        // Fetch brand by id
-        async getBrandRecordByAdmin(parent, { input }, { req }, info) {
+        // Fetch vendor outlet record by id
+        async getVendorOutletRecordByAdmin(parent, { input }, { req }, info) {
             try {
                 // Validate Input
-                await validateInput(validators.brandQueryValidator, req);
+                await validateInput(validators.vendorOutletQueryValidator, req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-                const result = await brandService.getBrandWithId(_id);
+                const result = await vendorOutletService.getVendorOutletRecordWithId(_id);
 
                 if (!result) {
-                    throw new GraphQLError("Brand not found", {
+                    throw new GraphQLError("vendor company record not found", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: []
@@ -273,8 +274,11 @@ export const vendorOutletResolver: Resolvers = {
                 }
 
                 const response = {
-                    record: result,
-                    message: "Brand fetched successfully",
+                    record: {
+                        ...result.toObject(),  // Convert Mongoose document to plain JavaScript object
+                        vendorId: result?.vendorId?.toString()  // Convert ObjectId to string
+                    },
+                    message: "Vendor company record fetched successfully",
                 };
 
                 return response;

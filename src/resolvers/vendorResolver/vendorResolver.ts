@@ -1,4 +1,4 @@
-import { vendorService, jwtService, spaceService, otpService, vendorJwtService } from "../../services";
+import { vendorService, jwtService, spaceService, vendorCompanyService, vendorOutletService, vendorJwtService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./vendorValidator";
@@ -81,11 +81,28 @@ export const vendorResolver: Resolvers = {
 
       await result.save();
 
-      const vendorId = result._id!.toString()
+      const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
 
-      let newDocument = { vendorId: vendorId }
+      if (!createVendorCompanyRecord) {
+        throw new GraphQLError("Unable to create vendor company record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
 
-      // await kycService.createKYC(newDocument);
+      const createVendorOutletRecord = await vendorOutletService.createVendorOutletRecord({ vendorId: result.id });
+
+      if (!createVendorOutletRecord) {
+        throw new GraphQLError("Unable to create vendor outlet record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
 
       let response = {
         _id: result._id!.toString(),
@@ -168,11 +185,27 @@ export const vendorResolver: Resolvers = {
 
       await result.save();
 
-      const vendorId = result._id!.toString()
+      const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
 
-      let newDocument = { vendorId: vendorId }
+      if (!createVendorCompanyRecord) {
+        throw new GraphQLError("Unable to create vendor company record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
 
-      // await kycService.createKYC(newDocument);
+      const createVendorOutletRecord = await vendorOutletService.createVendorOutletRecord({ vendorId: result.id });
+
+      if (!createVendorOutletRecord) {
+        throw new GraphQLError("Unable to create vendor outlet record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
 
       let response = {
         _id: result._id!.toString(),
@@ -183,36 +216,36 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-    vendorAccountApproval: async (parent, { input }, { req }, info) => {
-      await verifyAdmin(req);
-      await validateInput(validators.vendorProfileApprovalValidator, req);
+    // vendorAccountApproval: async (parent, { input }, { req }, info) => {
+    //   await verifyAdmin(req);
+    //   await validateInput(validators.vendorProfileApprovalValidator, req);
 
-      const _id: Types.ObjectId = new Types.ObjectId(input._id);
-      const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
-      const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
+    //   const _id: Types.ObjectId = new Types.ObjectId(input._id);
+    //   const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
+    //   const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
 
-      if (!vendor) {
-        throw new GraphQLError("Record not found", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: []
-          }
-        });
-      }
+    //   if (!vendor) {
+    //     throw new GraphQLError("Record not found", {
+    //       extensions: {
+    //         code: "BAD_REQUEST",
+    //         errors: []
+    //       }
+    //     });
+    //   }
 
-      // if (approvalStatus !== undefined) {
-      //   vendor.isApproved = approvalStatus;
-      // }
+    //   // if (approvalStatus !== undefined) {
+    //   //   vendor.isApproved = approvalStatus;
+    //   // }
 
-      await vendor.save();
+    //   await vendor.save();
 
-      const response = {
-        _id: vendor._id?.toString(),
-        message: "Vendor profile approved successfully"
-      }
+    //   const response = {
+    //     _id: vendor._id?.toString(),
+    //     message: "Vendor profile approved successfully"
+    //   }
 
-      return response;
-    },
+    //   return response;
+    // },
 
     // Vendor login 
     loginVendor: async (parent, { input }, { req }, info) => {

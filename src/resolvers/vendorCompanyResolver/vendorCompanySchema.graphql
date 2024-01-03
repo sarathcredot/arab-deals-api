@@ -1,25 +1,40 @@
   scalar Upload
   scalar JSONObject
 
-# Brand Mutations
+# Vendor company Mutations
 
 
   type Mutation {
     addVendorCompany(input: AddVendorCompanyInput!, images:[Upload], fileMap: JSONObject): AddVendorCompanyResponse!
-    updateBrand(input: updateBrandInput!, image:Upload): updateBrandResponse!
-    deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+    updateVendorCompany(input: UpdateVendorCompanyInput!, images:[Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
+    deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
   }
 
    # Type
 
    type VendorCompany {
-        vendorId: String!
+        _id: String
+        vendorId: String
         companyName:String
         companyType: String
         crNumber: String
-        status: Boolean
+        status: String
+        crLicense: ImageData
+        cooCertificate: ImageData
         remarks: [String]
     }  
+
+    type vendorCompanyRecordsWithKycData {
+        vendorId: String
+        _id: String
+        fullName: String
+        isKycCompleted: String
+        companyName: String
+        status: String
+        outletId: String
+        outletName: String
+        outletStatus: String
+    }
 
 
     # Input
@@ -31,15 +46,13 @@
         crNumber: String
     }   
 
-    input updateBrandInput {
-         _id: String!
-        brandName: String
-        isBlocked: Boolean
-    }
+    input UpdateVendorCompanyInput {
+        vendorId: String!
+        companyName:String
+        companyType: String
+        crNumber: String
+    }  
 
-    input BrandRecordIdInput {
-      _id: String
-    }
 
     # Output
 
@@ -48,36 +61,31 @@
         message: String
     }  
 
-    type updateBrandResponse {
+    type UpdateVendorCompanyResponse {
         _id: String!
         message: String
-    }
+    }  
 
-    type BrandDeleteRecordResponse {
+    type VendorCompanyDeleteRecordResponse {
       _id: String!
       message: String
     }
-     
-    type BrandRecordId {
-      _id: String
-    }
- 
 
 
-# Brand Queries
+# Vendor company Queries
 
   type Query {
-    getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
-    getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+    getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+    getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   }   
 
     # Input
    
-  input BrandIdInput {
+  input VendorCompanyIdInput {
     _id: String!
   }
 
-  input BrandRecordsFilter {
+  input VendorCompanyRecordsByAdminFilter {
     page: Int
     size: Int
   }
@@ -90,21 +98,15 @@
     mimeType: String
     originalName: String
   }    
-
-  type BrandRecord {
-    _id: String
-    brandName: String
-    isBlocked: Boolean
-    logo: ImageData
-  }  
   
-  type BrandRecordResponse {
-    record: BrandRecord!
+  type VendorCompanyRecordResponse {
+    record: VendorCompany!
+    message: String
   }
 
-  type BrandRecordsResponse {
+  type VendorCompanyRecordsByAdminResponse {
     maxRecords: Int!
-    records: [BrandRecord!]
+    records: [vendorCompanyRecordsWithKycData!]
     message: String
   }
     
