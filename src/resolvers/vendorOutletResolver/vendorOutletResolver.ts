@@ -18,7 +18,8 @@ export const vendorOutletResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.addVendorOutletValidatior, req);
-                // await verifyAdmin(req);
+                await verifyVendor(req);
+
                 let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
                 const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
 
@@ -111,7 +112,8 @@ export const vendorOutletResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.updateVendorOutletValidatior, req);
-                // await verifyAdmin(req);
+                await verifyVendor(req);
+
                 let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
                 const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
 
@@ -203,7 +205,7 @@ export const vendorOutletResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.vendorOutletDeleteValidator, req);
-                // await verifyVendor(req);
+                await verifyVendor(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const result = await vendorOutletService.deleteOutletRecord(_id);
@@ -231,8 +233,8 @@ export const vendorOutletResolver: Resolvers = {
         // Fetch all vendor outlet
         async getAllVendorOutletRecordsByAdmin(parent, { input }, { req }, info) {
             try {
-                await validateInput(validators.getAllVendorOutletValidator, req);
                 await verifyAdmin(req);
+                await validateInput(validators.getAllVendorOutletValidator, req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
@@ -258,6 +260,7 @@ export const vendorOutletResolver: Resolvers = {
         async getVendorOutletRecordByAdmin(parent, { input }, { req }, info) {
             try {
                 // Validate Input
+                await verifyAdmin(req);
                 await validateInput(validators.vendorOutletQueryValidator, req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);

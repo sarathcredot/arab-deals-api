@@ -1,12 +1,11 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./vendorCompanyValidator";
-import { validateInput, verifyAdmin } from "../../middlewares";
+import { validateInput, verifyAdmin , verifyVendor} from "../../middlewares";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
 import { Types } from "mongoose";
 import { filePaths } from "../../configs";
 import { spaceService, vendorService, vendorCompanyService } from "../../services";
-import { createReadStream } from 'fs';
 
 export const vendorCompanyResolver: Resolvers = {
 
@@ -18,7 +17,8 @@ export const vendorCompanyResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.addVendorCompanyValidator, req);
-                // await verifyAdmin(req);
+                await verifyVendor(req);
+
                 let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
                 const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
                 console.log(vendorRecord)
@@ -98,7 +98,7 @@ export const vendorCompanyResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.editVendorCompanyValidator, req);
-                // await verifyAdmin(req);
+                await verifyVendor(req);
 
                 const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
                 const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
@@ -189,7 +189,7 @@ export const vendorCompanyResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.vendorCompanyDeleteValidator, req);
-                // await verifyVendor(req);
+                await verifyVendor(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const result = await vendorCompanyService.deleteVendorCompanyRecord(_id);
@@ -245,6 +245,7 @@ export const vendorCompanyResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.vendorCompanyQueryValidator, req);
+                await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
