@@ -119,6 +119,7 @@ interface IVendorKYCData {
 
 export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument | null> => {
   let vendor: IVendorDocument = new vendorModel(vendorData);
+  // await vendor.setHash!(password);
   return await vendor.save();
 };
 

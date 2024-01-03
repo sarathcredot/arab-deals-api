@@ -7,6 +7,8 @@ import  * as vendorService from "./vendorService";
 import * as otpService from "./otpService";
 import * as vendorJwtService from "./vendorJwtService";
 import * as brandService from "./brandService";
+import * as vendorCompanyService from "./vendorCompanyService";
+import * as vendorOutletService from "./vendorOutletService";
 
 
 export {
@@ -19,4 +21,6 @@ export {
     otpService,
     vendorJwtService,
     brandService,
+    vendorCompanyService,
+    vendorOutletService,
 }

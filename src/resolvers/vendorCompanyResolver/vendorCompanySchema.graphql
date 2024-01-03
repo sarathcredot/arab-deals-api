@@ -1,0 +1,121 @@
+  scalar Upload
+  scalar JSONObject
+
+# Vendor company Mutations
+
+
+  type Mutation {
+    addVendorCompany(input: AddVendorCompanyInput!, images:[Upload], fileMap: JSONObject): AddVendorCompanyResponse!
+    updateVendorCompany(input: UpdateVendorCompanyInput!, images:[Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
+    deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
+  }
+
+   # Type
+
+   type VendorCompany {
+        _id: String
+        vendorId: String
+        companyName:String
+        companyType: String
+        crNumber: String
+        status: String
+        crLicense: ImageData
+        cooCertificate: ImageData
+        remarks: [String]
+    }  
+
+    type vendorCompanyRecordsWithKycData {
+        vendorId: String
+        _id: String
+        fullName: String
+        isKycCompleted: String
+        companyName: String
+        status: String
+        outletId: String
+        outletName: String
+        outletStatus: String
+    }
+
+
+    # Input
+
+    input AddVendorCompanyInput {
+        vendorId: String!
+        companyName:String
+        companyType: String
+        crNumber: String
+    }   
+
+    input UpdateVendorCompanyInput {
+        vendorId: String!
+        companyName:String
+        companyType: String
+        crNumber: String
+    }  
+
+
+    # Output
+
+    type AddVendorCompanyResponse {
+        _id: String!
+        message: String
+    }  
+
+    type UpdateVendorCompanyResponse {
+        _id: String!
+        message: String
+    }  
+
+    type VendorCompanyDeleteRecordResponse {
+      _id: String!
+      message: String
+    }
+
+
+# Vendor company Queries
+
+  type Query {
+    getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+    getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
+  }   
+
+    # Input
+   
+  input VendorCompanyIdInput {
+    _id: String!
+  }
+
+  input VendorCompanyRecordsByAdminFilter {
+    page: Int
+    size: Int
+  }
+
+    # Output
+
+    type ImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }    
+  
+  type VendorCompanyRecordResponse {
+    record: VendorCompany!
+    message: String
+  }
+
+  type VendorCompanyRecordsByAdminResponse {
+    maxRecords: Int!
+    records: [vendorCompanyRecordsWithKycData!]
+    message: String
+  }
+    
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query:Query
+}
+
