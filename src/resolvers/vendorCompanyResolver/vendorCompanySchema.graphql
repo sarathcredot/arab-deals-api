@@ -7,6 +7,7 @@
   type Mutation {
     addVendorCompany(input: AddVendorCompanyInput!, images:[Upload], fileMap: JSONObject): AddVendorCompanyResponse!
     updateVendorCompany(input: UpdateVendorCompanyInput!, images:[Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
+    vendorCompanyStatusUpdation(input: VendorCompanyStatusUpdationInput!): VendorCompanyStatusUpdationResponse!
     deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
   }
 
@@ -51,7 +52,12 @@
         companyName:String
         companyType: String
         crNumber: String
-    }  
+    } 
+
+    input VendorCompanyStatusUpdationInput {
+      _id: String!
+      status: String!
+    } 
 
 
     # Output
@@ -107,6 +113,12 @@
   type VendorCompanyRecordsByAdminResponse {
     maxRecords: Int!
     records: [vendorCompanyRecordsWithKycData!]
+    message: String
+  }
+
+  type VendorCompanyStatusUpdationResponse {
+    _id: String
+    status: String
     message: String
   }
     
