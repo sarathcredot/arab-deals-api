@@ -128,9 +128,14 @@ type VendorAccountApprovalResponse {
   message: String
 }
 
+type VendorsRecordResponse {
+  record: VendorWithKycData
+  message: String
+}
+
 type Query {
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
-  getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
+  getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorsRecordResponse!
 }
 
 # Vendor type

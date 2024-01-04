@@ -400,7 +400,7 @@ export const vendorResolver: Resolvers = {
 
         const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-        const result = await vendorService.getvendorRecordWithId(_id);
+        const result = await vendorService.getVendorRecordById(_id);
 
         if (!result) {
           throw new GraphQLError("Record not found", {
@@ -413,8 +413,8 @@ export const vendorResolver: Resolvers = {
 
         const response = {
           record: {
-            ...result.toObject(), 
-            vendorId: result?._id?.toString() 
+            ...result,
+            vendorId: result?._id?.toString()
           },
           message: "Vendor record fetched successfully",
         }
