@@ -251,7 +251,6 @@ export const getVendorRecordById = async (vendorId: Types.ObjectId): Promise<IVe
   ];
 
   const result = await vendorModel.aggregate(pipeline);
-  console.log("result", result)
   return result[0];
 }; 
 
