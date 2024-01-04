@@ -372,10 +372,12 @@ export const vendorResolver: Resolvers = {
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
+        const isKycCompleted: boolean = input?.isKycCompleted || false;
 
         const options: vendorService.IVendorsRecordsOptions = {
           page,
           size,
+          isKycCompleted,
         }
 
         // Fetch all vendors records
