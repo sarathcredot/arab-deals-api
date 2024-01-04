@@ -29,3 +29,7 @@ export const vendorCompanyDeleteValidator = [
     body('variables.input._id').notEmpty().isMongoId(),
 ]
 
+export const vendorCompanyStatusUpdationValidator = [
+    body('variables.input._id').notEmpty().isMongoId(),
+    body('variables.input.status').optional({ checkFalsy: true }),
+]
