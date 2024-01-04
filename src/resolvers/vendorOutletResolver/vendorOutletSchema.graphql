@@ -7,6 +7,7 @@
   type Mutation {
     addVendorOutlet(input: AddVendorOutletInput!, images:[Upload], fileMap: JSONObject): AddVendorOutletResponse!
     updateVendorOutlet(input: UpdateVendorOutletInput!, images:[Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+    vendorOutletStatusUpdation(input: VendorOutletStatusUpdationInput!): VendorOutletStatusUpdationResponse!
     deleteVendorOutlet(input: DeleteVendorOutletIdInput!): DeleteVendorOutletRecordResponse!
   }
 
@@ -80,6 +81,11 @@
       _id: String!
     }
 
+    input VendorOutletStatusUpdationInput {
+      _id: String!
+      status: String!
+    } 
+
     # Output
 
     type AddVendorOutletResponse {
@@ -136,9 +142,13 @@
     records: [vendorOutletRecordsWithKycData!]
     message: String
   }
+
+  type VendorOutletStatusUpdationResponse {
+    _id: String
+    status: String
+    message: String
+  }
     
-
-
 # Schema
 
 schema {

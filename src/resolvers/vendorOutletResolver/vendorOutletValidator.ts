@@ -40,3 +40,8 @@ export const vendorOutletDeleteValidator = [
     body('variables.input._id').notEmpty().isMongoId(),
 ]
 
+export const vendorOutletStatusUpdationValidator = [
+  body('variables.input._id').notEmpty().isMongoId(),
+  body('variables.input.status').optional({ checkFalsy: true }),
+]
+

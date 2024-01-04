@@ -201,6 +201,40 @@ export const vendorOutletResolver: Resolvers = {
             }
         },
 
+        // Vendor KYC of outlet details status updation
+        vendorOutletStatusUpdation: async (parent, { input }, { req }, info) => {
+            // await verifyAdmin(req);
+            await validateInput(validators.vendorOutletStatusUpdationValidator, req);
+
+            const _id: Types.ObjectId = new Types.ObjectId(input._id);
+            const status: string = input?.status;
+            const vendor = await vendorOutletService.getVendorOutletRecordWithId(_id);
+
+            if (!vendor) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: []
+                    }
+                });
+            }
+
+            if (status !== undefined) {
+                vendor.status = status;
+            }
+
+            await vendor.save();
+
+            const response = {
+                _id: vendor._id?.toString(),
+                status: vendor.status,
+                message: "Vendor kyc of outlet status updated successfully"
+            }
+
+            return response;
+        },
+
+
         deleteVendorOutlet: async (parent, { input }, { req }, info) => {
             try {
                 // Validate Input
