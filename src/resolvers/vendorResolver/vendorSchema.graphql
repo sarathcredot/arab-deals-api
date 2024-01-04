@@ -27,6 +27,7 @@ type Vendor {
   email: String
   mobileNumber: String!
   isBlocked: Boolean
+  profilePic:ImageData
   isKycCompleted: Boolean
   brands: [BrandRecordId]
   categories: [CategoryRecordId]
