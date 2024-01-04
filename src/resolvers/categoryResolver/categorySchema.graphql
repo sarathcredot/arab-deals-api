@@ -33,6 +33,10 @@
         _id: String!
     }
 
+    input CategoryRecordIdInput {
+        _id: String
+    }
+
     # Output
 
     type CreateCategoryResponse {
@@ -47,6 +51,10 @@
     type DeleteCategoryResponse {
        _id: String!
        message: String
+    }
+
+    type CategoryRecordId {
+        _id: String
     }
 
 

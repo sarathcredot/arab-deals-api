@@ -482,64 +482,64 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
 }
 
 
-export const getProductVariants = async (productCode: number): Promise<IVariant[]> => {
-    let pipeline: PipelineStage[] = [];
-    pipeline.push(
-        {
-            $match: {
-                isBlocked: false,
-                productCode: productCode
-            }
-        },
-        {
-            $lookup: {
-                from: collections.COLORS,
-                let: { color: "$color", categoryId: "$categoryId" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    {
-                                        $eq: ["$colorName", "$$color"]
-                                    },
-                                    {
-                                        $eq: ["$categoryId", "$$categoryId"]
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        $limit: 1
-                    },
-                    {
-                        $project: {
-                            _id: 0,
-                            colorCode: 1
-                        }
-                    }
-                ],
-                as: "colorData"
-            }
-        },
-        {
-            $unwind: "$colorData"
-        },
-        {
-            $project: {
-                _id: 1,
-                color: 1,
-                size: 1,
-                colorCode: "$colorData.colorCode",
-                stock: 1,
-                isBlocked: 1,
-            }
-        }
-    );
-    let result: IVariant[] = await productModel.aggregate(pipeline);
-    return result;
-}
+// export const getProductVariants = async (productCode: number): Promise<IVariant[]> => {
+//     let pipeline: PipelineStage[] = [];
+//     pipeline.push(
+//         {
+//             $match: {
+//                 isBlocked: false,
+//                 productCode: productCode
+//             }
+//         },
+//         {
+//             $lookup: {
+//                 from: collections.COLORS,
+//                 let: { color: "$color", categoryId: "$categoryId" },
+//                 pipeline: [
+//                     {
+//                         $match: {
+//                             $expr: {
+//                                 $and: [
+//                                     {
+//                                         $eq: ["$colorName", "$$color"]
+//                                     },
+//                                     {
+//                                         $eq: ["$categoryId", "$$categoryId"]
+//                                     }
+//                                 ]
+//                             }
+//                         }
+//                     },
+//                     {
+//                         $limit: 1
+//                     },
+//                     {
+//                         $project: {
+//                             _id: 0,
+//                             colorCode: 1
+//                         }
+//                     }
+//                 ],
+//                 as: "colorData"
+//             }
+//         },
+//         {
+//             $unwind: "$colorData"
+//         },
+//         {
+//             $project: {
+//                 _id: 1,
+//                 color: 1,
+//                 size: 1,
+//                 colorCode: "$colorData.colorCode",
+//                 stock: 1,
+//                 isBlocked: 1,
+//             }
+//         }
+//     );
+//     let result: IVariant[] = await productModel.aggregate(pipeline);
+//     return result;
+// }
 
 
 export const getProductsAutoComplete = async (query: string): Promise<IProductSuggestion[]> => {
@@ -628,63 +628,63 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
 }
 
 // function for admin to fetch all variants with blocked and unblocked variants
-export const getAllProductVariants = async (productCode: number): Promise<IVariant[]> => {
-    let pipeline: PipelineStage[] = [];
-    pipeline.push(
-        {
-            $match: {
-                productCode: productCode
-            }
-        },
-        {
-            $lookup: {
-                from: collections.COLORS,
-                let: { color: "$color", categoryId: "$categoryId" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    {
-                                        $eq: ["$colorName", "$$color"]
-                                    },
-                                    {
-                                        $eq: ["$categoryId", "$$categoryId"]
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        $limit: 1
-                    },
-                    {
-                        $project: {
-                            _id: 0,
-                            colorCode: 1
-                        }
-                    }
-                ],
-                as: "colorData"
-            }
-        },
-        {
-            $unwind: "$colorData"
-        },
-        {
-            $project: {
-                _id: 1,
-                color: 1,
-                size: 1,
-                colorCode: "$colorData.colorCode",
-                stock: 1,
-                isBlocked: 1,
-            }
-        }
-    );
-    let result: IVariant[] = await productModel.aggregate(pipeline);
-    return result;
-}
+// export const getAllProductVariants = async (productCode: number): Promise<IVariant[]> => {
+//     let pipeline: PipelineStage[] = [];
+//     pipeline.push(
+//         {
+//             $match: {
+//                 productCode: productCode
+//             }
+//         },
+//         {
+//             $lookup: {
+//                 from: collections.COLORS,
+//                 let: { color: "$color", categoryId: "$categoryId" },
+//                 pipeline: [
+//                     {
+//                         $match: {
+//                             $expr: {
+//                                 $and: [
+//                                     {
+//                                         $eq: ["$colorName", "$$color"]
+//                                     },
+//                                     {
+//                                         $eq: ["$categoryId", "$$categoryId"]
+//                                     }
+//                                 ]
+//                             }
+//                         }
+//                     },
+//                     {
+//                         $limit: 1
+//                     },
+//                     {
+//                         $project: {
+//                             _id: 0,
+//                             colorCode: 1
+//                         }
+//                     }
+//                 ],
+//                 as: "colorData"
+//             }
+//         },
+//         {
+//             $unwind: "$colorData"
+//         },
+//         {
+//             $project: {
+//                 _id: 1,
+//                 color: 1,
+//                 size: 1,
+//                 colorCode: "$colorData.colorCode",
+//                 stock: 1,
+//                 isBlocked: 1,
+//             }
+//         }
+//     );
+//     let result: IVariant[] = await productModel.aggregate(pipeline);
+//     return result;
+// }
 
 
 export const getProductVariantsByProductCode = async (productCode: number): Promise<IVariant[]> => {

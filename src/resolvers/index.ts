@@ -5,8 +5,9 @@ import { categoryResolver } from "./categoryResolver/categoryResolver";
 import { adminResolver } from "./adminResolver/adminResolver";
 import { vendorResolver } from "./vendorResolver/vendorResolver";
 import { otpResolver } from "./otpResolver/otpResolver";
-import { kycResolver } from "./kycResolver/kycResolver";
 import { brandResolver } from "./brandResolver/brandResolver";
+import { vendorCompanyResolver } from "./vendorCompanyResolver/vendorCompanyResolver";
+import { vendorOutletResolver } from "./vendorOutletResolver/vendorOutletResolver";
 
 
 
@@ -18,7 +19,8 @@ export const resolvers: Resolvers = mergeResolvers(
         adminResolver,
         vendorResolver,
         otpResolver,
-        kycResolver,
         brandResolver,
+        vendorCompanyResolver,
+        vendorOutletResolver,
     ]
 );

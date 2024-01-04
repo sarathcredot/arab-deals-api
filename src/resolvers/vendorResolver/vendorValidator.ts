@@ -4,7 +4,6 @@ import { body } from 'express-validator';
 
 export const vendorLoginValidator = [
   body('variables.input.email').trim().isEmail(),
-  body('variables.input.password').isLength({ min: 6, max: 20 }),
 ];
 
 export const tempVendorVerificationValidator = [
@@ -20,7 +19,6 @@ export const VendorCreateValidator = [
   body('variables.input.fullName').trim().notEmpty(),
   body('variables.input.email').trim().isEmail(),
   body('variables.input.mobileNumber').trim().notEmpty(),
-  body('variables.input.password').isLength({ min: 6 }),
   body('variables.input.companyName').optional({ checkFalsy: true }).trim(),
 ];
 

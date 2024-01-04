@@ -5,6 +5,7 @@ scalar JSONObject
 
 type Mutation {
   createVendor(input: VendorSignUpInput!, image:Upload): CreateVendorResponse!
+  createVendorByAdmin(input: VendorSignUpByAdminInput!, image:Upload): CreateVendorByAdminResponse!
   vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!,image: Upload): UpdateVendorResponse!
@@ -22,32 +23,28 @@ type ImageData {
 
 type Vendor {
   _id: String
+  fullName: String!
   email: String
-  password: String
-  fullName: String
-  mobileNumber: String
-  country: String
-  brand: String
-  profilePic: ImageData
+  mobileNumber: String!
   isBlocked: Boolean
-  companyName: String 
+  isKycCompleted: Boolean
+  brands: [BrandRecordId]
+  categories: [CategoryRecordId]
 }
 
-type VendorKYCData {
+type VendorWithKycData {
   _id: String
-  vendorId: String
-  email: String
   fullName: String
+  email: String
   mobileNumber: String
-  country: String
-  brand: String
-  # profilePic: ImageData
-  isBlocked: Boolean
-  companyName: String 
+  isBlocked: String
+  isKycCompleted: Boolean
+  outletId: String
+  outletName: String
+  outletStatus: String
+  companyId: String
+  companyName: String
   companyStatus: String
-  businessOutletStatus: String
-  sellingProductStatus: String
-  kycStatus: String
 }
 
 type MobileOtpData {
@@ -64,26 +61,24 @@ type ContactPersonData {
 # Vendor  Input
 
 input VendorSignUpInput {
-  email: String!
-  password: String!
   fullName: String!
+  email: String
   mobileNumber: String!
-  country: String!
-  # brand: String!
-  companyName: String!
-  # businessOutletName: String!
-  # outletName: String!   
-  # crNumber: String!     
-  # crLicence: String!    
-  # businessLicence: String!  
-  # chamberOfCommerceCertificate: String!  
-  # companyType: String!   
-  # businessAddress: String!  
-  # contactPerson: ContactPersonInput!   
-  # sellingProductDetails: String!  
-  # sellingProductBrands: String!   
+  isBlocked: Boolean
+  isKycCompleted: Boolean
+  brands: [BrandRecordIdInput]
+  categories: [CategoryRecordIdInput]
 }
 
+input VendorSignUpByAdminInput {
+  fullName: String!
+  email: String
+  mobileNumber: String!
+  isBlocked: Boolean
+  isKycCompleted: Boolean
+  brands: [BrandRecordIdInput]
+  categories: [CategoryRecordIdInput]
+}
 
 input VendorLoginInput {
   email: String!
@@ -91,14 +86,12 @@ input VendorLoginInput {
 }
 
 input VendorEditProfileInput {
-  _id: String!
-  email: String
-  password: String
+   _id: String!
   fullName: String
+  email: String
   mobileNumber: String
-  country: String
-  brand: String
-  companyName: String
+  isKycCompleted: Boolean
+  password: String
 }
 
 input MobileOtpDataInput {
@@ -139,13 +132,15 @@ type Query {
   getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
 }
 
-# Vendor  type
-
-type getVendorRecordResponse {
-  record: Vendor
-}
+# Vendor type
 
 type CreateVendorResponse{
+    _id: String
+    message: String
+    token: String
+}
+
+type CreateVendorByAdminResponse{
     _id: String
     message: String
     token: String
@@ -156,7 +151,6 @@ type CreateVendorResponse{
  input VendorsRecordsByAdminFilter {
     page: Int
     size: Int
-    status: String
   }
 
 
@@ -166,7 +160,7 @@ type CreateVendorResponse{
 
   type VendorsRecordsResponse {
     maxRecords: Int!
-    records: [VendorKYCData]
+    records: [VendorWithKycData]
     message: String
   }   
 

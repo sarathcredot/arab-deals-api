@@ -1,5 +1,5 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
-import { categoryService, colorService, productService, spaceService } from "../../services";
+import { categoryService, productService, spaceService } from "../../services";
 import * as validators from "./productValidator";
 import { validateInput, verifyAdmin } from "../../middlewares";
 import { createWriteStream } from 'fs';
@@ -561,50 +561,50 @@ export const productResolver: Resolvers = {
 
         },
         // Fetch Variants by admin
-        async getVariantsByAdmin(parent, { input }, { req }, info) {
-            try {
-                //Validate Input
-                await validateInput(validators.variantsQueryValidator, req);
-                await verifyAdmin(req);
+        // async getVariantsByAdmin(parent, { input }, { req }, info) {
+        //     try {
+        //         //Validate Input
+        //         await validateInput(validators.variantsQueryValidator, req);
+        //         await verifyAdmin(req);
 
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-
-
-                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
-                if (!product) {
-                    throw new GraphQLError("product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let result: productService.IProduct = product;
-                if (!result.productCode) {
-                    throw new GraphQLError("variants not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                const variants = await productService.getAllProductVariants(result.productCode);
-
-                variants.sort((a, b) => {
-                    return a.size.localeCompare(b.size)
-                });
+        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
 
-                let response = {
-                    variants: variants
-                }
+        //         const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+        //         if (!product) {
+        //             throw new GraphQLError("product not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
+        //         let result: productService.IProduct = product;
+        //         if (!result.productCode) {
+        //             throw new GraphQLError("variants not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
+        //         const variants = await productService.getAllProductVariants(result.productCode);
 
-                return response;
-            } catch (error) {
-                console.log(error);
-                throw error;
-            }
-        },
+        //         variants.sort((a, b) => {
+        //             return a.size.localeCompare(b.size)
+        //         });
+
+
+        //         let response = {
+        //             variants: variants
+        //         }
+
+        //         return response;
+        //     } catch (error) {
+        //         console.log(error);
+        //         throw error;
+        //     }
+        // },
 
         // Fetch each product by id
         async getProduct(parent, { input }, { req }, info) {
@@ -754,48 +754,48 @@ export const productResolver: Resolvers = {
         },
 
 
-        async getVariants(parent, { input }, { req }, info) {
-            try {
+        // async getVariants(parent, { input }, { req }, info) {
+        //     try {
 
-                //Validate Input
-                await validateInput(validators.variantsQueryValidator, req);
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        //         //Validate Input
+        //         await validateInput(validators.variantsQueryValidator, req);
+        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
 
-                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
-                if (!product) {
-                    throw new GraphQLError("product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let result: productService.IProduct = product;
-                if (!result.productCode) {
-                    throw new GraphQLError("variants not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let variants = await productService.getProductVariants(result.productCode);
+        //         const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+        //         if (!product) {
+        //             throw new GraphQLError("product not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
+        //         let result: productService.IProduct = product;
+        //         if (!result.productCode) {
+        //             throw new GraphQLError("variants not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
+        //         let variants = await productService.getProductVariants(result.productCode);
 
-                variants.sort((a, b) => {
-                    return a.size.localeCompare(b.size)
-                });
+        //         variants.sort((a, b) => {
+        //             return a.size.localeCompare(b.size)
+        //         });
 
-                let response = {
-                    variants: variants
-                }
+        //         let response = {
+        //             variants: variants
+        //         }
 
-                return response;
-            } catch (error) {
-                console.log(error);
-                throw error;
-            }
-        },
+        //         return response;
+        //     } catch (error) {
+        //         console.log(error);
+        //         throw error;
+        //     }
+        // },
 
         async getProductsAutoComplete(parent, { input }, { req }, info) {
             try {

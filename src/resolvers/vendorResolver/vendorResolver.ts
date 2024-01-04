@@ -1,4 +1,4 @@
-import { vendorService, jwtService, spaceService, otpService, tempVendorAuthService, vendorJwtService, kycService } from "../../services";
+import { vendorService, jwtService, spaceService, vendorCompanyService, vendorOutletService, vendorJwtService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./vendorValidator";
@@ -13,11 +13,10 @@ export const vendorResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
 
-    // Vendor full form registartion
+    // Vendor creation from vendor side
     createVendor: async (parent, { input, image }, { req }, info) => {
-      // await verifyAdmin(req);
       await validateInput(validators.VendorCreateValidator, req);
-      let email: string = input.email.toLowerCase();
+      let email: string = input?.email?.toLowerCase() || "";
 
       const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
       if (isEmailExists) {
@@ -30,13 +29,11 @@ export const vendorResolver: Resolvers = {
       }
 
       let fullName: string = input.fullName;
-      let password: string = input.password;
       let mobileNumber: string = input.mobileNumber;
-      // let country: string = input.country;
-      let companyName: string = input.companyName;
-
-
       let profilePic: vendorService.FileData | null = null;
+      let brands: Types.ObjectId[] = (input.brands || []).filter(Boolean) as [];
+      let categories: Types.ObjectId[] = (input.categories || []).filter(Boolean) as [];
+
 
       if (image) {
         const { createReadStream, filename, mimetype, encoding } = await image;
@@ -45,40 +42,20 @@ export const vendorResolver: Resolvers = {
         const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
         profilePic = {
-          fileType: "PRIVATE",
+          fileType: "PUBLIC",
           fileURL: file.location,
           mimeType: mimetype,
           originalName: filename
         }
       }
 
-      // TODO: Need to remove this , only for testing with dummy data
-      // vendorImages = [{
-      //   fileType: "PUBLIC",
-      //   fileURL: "https://credot-dev-space.blr1.digitaloceanspaces.com/collins/sandbox2/…",
-      //   mimeType: "application/octet-stream",
-      //   originalName: "WIN_20231023_20_38_57_Pro.jpg"
-      // },
-      // {
-      //   fileType: "PUBLIC",
-      //   fileURL: "https://credot-dev-space.blr1.digitaloceanspaces.com/collins/sandbox2/…",
-      //   mimeType: "application/octet-stream",
-      //   originalName: "WIN_20231023_20_38_56_Pro.jpg"
-      // },
-      // {
-      //   fileType: "PUBLIC",
-      //   fileURL: "https://credot-dev-space.blr1.digitaloceanspaces.com/collins/sandbox2/…",
-      //   mimeType: "application/octet-stream",
-      //   originalName: "WIN_20231023_20_38_53_Pro.jpg"
-      // }]
-
-
 
       let newVendorData: vendorService.IVendor = {
-        email,
         fullName,
+        email,
         mobileNumber,
-        companyName,
+        brands,
+        categories,
 
       };
 
@@ -87,7 +64,7 @@ export const vendorResolver: Resolvers = {
       }
 
 
-      const result = await vendorService.createVendor(newVendorData, password);
+      const result = await vendorService.createVendor(newVendorData);
 
       if (!result) {
         throw new GraphQLError("Unable to create vendor", {
@@ -104,11 +81,28 @@ export const vendorResolver: Resolvers = {
 
       await result.save();
 
-      const vendorId = result._id!.toString()
+      const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
 
-      let newDocument = { vendorId: vendorId }
+      if (!createVendorCompanyRecord) {
+        throw new GraphQLError("Unable to create vendor company record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
 
-      await kycService.createKYC(newDocument);
+      const createVendorOutletRecord = await vendorOutletService.createVendorOutletRecord({ vendorId: result.id });
+
+      if (!createVendorOutletRecord) {
+        throw new GraphQLError("Unable to create vendor outlet record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
 
       let response = {
         _id: result._id!.toString(),
@@ -119,36 +113,139 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-    vendorAccountApproval: async (parent, { input }, { req }, info) => {
+    // Vendor creation from admin side
+    createVendorByAdmin: async (parent, { input, image }, { req }, info) => {
       await verifyAdmin(req);
-      await validateInput(validators.vendorProfileApprovalValidator, req);
+      await validateInput(validators.VendorCreateValidator, req);
+      let email: string = input?.email?.toLowerCase() || "";
 
-      const _id: Types.ObjectId = new Types.ObjectId(input._id);
-      const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
-      const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
-
-      if (!vendor) {
-        throw new GraphQLError("Record not found", {
+      const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+      if (isEmailExists) {
+        throw new GraphQLError('This email already exists', {
           extensions: {
-            code: "BAD_REQUEST",
+            code: "INTERNAL_SERVER_ERROR",
             errors: []
           }
         });
       }
 
-      if (approvalStatus !== undefined) {
-        vendor.isApproved = approvalStatus;
+      let fullName: string = input.fullName;
+      let mobileNumber: string = input.mobileNumber;
+      let profilePic: vendorService.FileData | null = null;
+      let isBlocked: boolean = input?.isBlocked || false;
+      let isKycCompleted: boolean = input?.isKycCompleted || false;
+      let brands: Types.ObjectId[] = (input.brands || []).filter(Boolean) as [];
+      let categories: Types.ObjectId[] = (input.categories || []).filter(Boolean) as [];
+
+
+      if (image) {
+        const { createReadStream, filename, mimetype, encoding } = await image;
+        const key = spaceService.getFileKey(filePaths.vendorProfilePic, filename, []);
+        const stream = createReadStream();
+        const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+        profilePic = {
+          fileType: "PRIVATE",
+          fileURL: file.location,
+          mimeType: mimetype,
+          originalName: filename
+        }
       }
 
-      await vendor.save();
 
-      const response = {
-        _id: vendor._id?.toString(),
-        message: "Vendor profile approved successfully"
+      let newVendorData: vendorService.IVendor = {
+        fullName,
+        email,
+        mobileNumber,
+        isBlocked,
+        isKycCompleted,
+        brands,
+        categories,
+      };
+
+      if (profilePic) {
+        newVendorData.profilePic = profilePic;
       }
+
+
+      const result = await vendorService.createVendor(newVendorData);
+
+      if (!result) {
+        throw new GraphQLError("Unable to create vendor", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let token = await vendorJwtService.createVendorJWT(result._id!.toString());
+
+      result.token = token;
+
+      await result.save();
+
+      const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
+
+      if (!createVendorCompanyRecord) {
+        throw new GraphQLError("Unable to create vendor company record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      const createVendorOutletRecord = await vendorOutletService.createVendorOutletRecord({ vendorId: result.id });
+
+      if (!createVendorOutletRecord) {
+        throw new GraphQLError("Unable to create vendor outlet record", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let response = {
+        _id: result._id!.toString(),
+        token: result.token,
+        message: "Vendor created successfully and logined",
+      };
 
       return response;
     },
+
+    // vendorAccountApproval: async (parent, { input }, { req }, info) => {
+    //   await verifyAdmin(req);
+    //   await validateInput(validators.vendorProfileApprovalValidator, req);
+
+    //   const _id: Types.ObjectId = new Types.ObjectId(input._id);
+    //   const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
+    //   const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
+
+    //   if (!vendor) {
+    //     throw new GraphQLError("Record not found", {
+    //       extensions: {
+    //         code: "BAD_REQUEST",
+    //         errors: []
+    //       }
+    //     });
+    //   }
+
+    //   // if (approvalStatus !== undefined) {
+    //   //   vendor.isApproved = approvalStatus;
+    //   // }
+
+    //   await vendor.save();
+
+    //   const response = {
+    //     _id: vendor._id?.toString(),
+    //     message: "Vendor profile approved successfully"
+    //   }
+
+    //   return response;
+    // },
 
     // Vendor login 
     loginVendor: async (parent, { input }, { req }, info) => {
@@ -183,14 +280,6 @@ export const vendorResolver: Resolvers = {
           }
         });
       }
-      else if (! await vendor.verifyHash?.(password)) {
-        throw new GraphQLError("Invalid Account", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: []
-          }
-        });
-      }
 
       let token = await jwtService.createVendorJWT(vendor._id!.toString());
 
@@ -203,6 +292,7 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
+    // Edit vendor profile
     updateVendorProfile: async (parent, { input, image }, { req }, info) => {
       try {
         // await verifyVendor(req);
@@ -244,16 +334,12 @@ export const vendorResolver: Resolvers = {
           vendor.fullName = input.fullName;
         }
 
-        if (input.country) {
-          vendor.country = input.country;
-        }
-
-        if (input.companyName) {
-          vendor.companyName = input.companyName;
-        }
-
         if (input.mobileNumber) {
-          vendor.mobileNumber = input?.mobileNumber ?? '';
+          vendor.mobileNumber = input.mobileNumber;
+        }
+
+        if (input.isKycCompleted) {
+          vendor.isKycCompleted = input.isKycCompleted;
         }
 
         if (profilePic) {
@@ -282,20 +368,18 @@ export const vendorResolver: Resolvers = {
     async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
       try {
         await validateInput(validators.getAllVendorsRecordsValidator, req);
-        await verifyAdmin(req);
+        // await verifyAdmin(req);
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
-        const status: string = input?.status || "DEFAULT";
 
-        const options: vendorService.IVendorsRecordsWithKycOptions = {
+        const options: vendorService.IVendorsRecordsOptions = {
           page,
           size,
-          status,
         }
 
         // Fetch all vendors records
-        const result = await vendorService.getCategorizedKYCs(options);
+        const result = await vendorService.getVendorRecordsWithFilters(options);
         const response = {
           records: result.records,
           maxRecords: result.maxRecords,
@@ -307,9 +391,9 @@ export const vendorResolver: Resolvers = {
       }
     },
 
-    // Fetch each vendors records
+    // Fetch each vendor record
     async getVendorRecordByAdmin(parent, { input }, { req }, info) {
-      await verifyAdmin(req);
+      // await verifyAdmin(req);
 
       try {
         await validateInput(validators.getVendorRecordValidator, req);
@@ -328,7 +412,10 @@ export const vendorResolver: Resolvers = {
         }
 
         const response = {
-          record: result,
+          record: {
+            ...result.toObject(), 
+            vendorId: result?._id?.toString() 
+          },
           message: "Vendor record fetched successfully",
         }
 

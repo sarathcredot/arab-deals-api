@@ -6,8 +6,9 @@ import * as spaceService from "./spaceService";
 import  * as vendorService from "./vendorService";
 import * as otpService from "./otpService";
 import * as vendorJwtService from "./vendorJwtService";
-import * as kycService from "./kycService";
 import * as brandService from "./brandService";
+import * as vendorCompanyService from "./vendorCompanyService";
+import * as vendorOutletService from "./vendorOutletService";
 
 
 export {
@@ -19,6 +20,7 @@ export {
     vendorService,
     otpService,
     vendorJwtService,
-    kycService,
     brandService,
+    vendorCompanyService,
+    vendorOutletService,
 }

@@ -1,0 +1,148 @@
+  scalar Upload
+  scalar JSONObject
+
+# Outlet Mutations
+
+
+  type Mutation {
+    addVendorOutlet(input: AddVendorOutletInput!, images:[Upload], fileMap: JSONObject): AddVendorOutletResponse!
+    updateVendorOutlet(input: UpdateVendorOutletInput!, images:[Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+    deleteVendorOutlet(input: DeleteVendorOutletIdInput!): DeleteVendorOutletRecordResponse!
+  }
+
+   # Type
+
+  type ImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }  
+
+   type VendorOutlet {
+        _id: String
+        vendorId: String
+        outletName:String
+        country:String
+        district: String
+        village: String
+        address: String
+        contactPersonName: String
+        contactPersonNumber: String
+        contactPersonDesignation: String
+        status: String
+        remarks: [String]
+        outletLicense: ImageData
+        interiorImage: ImageData
+        exteriorImage: ImageData
+    }  
+
+    type vendorOutletRecordsWithKycData {
+        vendorId: String
+        fullName: String
+        isKycCompleted: String
+        _id: String
+        outletName: String
+        status: String
+        companyId: String
+        companyName: String
+        companyStatus: String
+    }
+
+    # Input
+
+    input AddVendorOutletInput {
+        vendorId: String!
+        outletName:String
+        country:String
+        district: String
+        village: String
+        address: String
+        contactPersonName: String
+        contactPersonNumber: String
+        contactPersonDesignation: String
+    }   
+
+    input UpdateVendorOutletInput {
+        vendorId: String!
+        outletName:String
+        country:String
+        district: String
+        village: String
+        address: String
+        contactPersonName: String
+        contactPersonNumber: String
+        contactPersonDesignation: String
+    }
+
+
+    input DeleteVendorOutletIdInput {
+      _id: String!
+    }
+
+    # Output
+
+    type AddVendorOutletResponse {
+        _id: String!
+        message: String
+    }  
+
+    type UpdateVendorOutletResponse {
+         _id: String!
+        message: String
+    }
+
+    type DeleteVendorOutletRecordResponse {
+      _id: String!
+      message: String
+    }
+ 
+
+
+# Outlet Queries
+
+  type Query {
+    getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+    getVendorOutletRecordByAdmin(input: VendorOutletIdInput!): VendorOutletRecordResponse!
+  }   
+
+    # Input
+   
+  input VendorOutletIdInput {
+    _id: String!
+  }
+
+  input VendorOutletRecordsByAdminFilter {
+    page: Int
+    size: Int
+  }
+
+    # Output
+
+    type ImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }    
+
+  type VendorOutletRecordResponse {
+    record: VendorOutlet!
+    message: String
+  }
+
+  type VendorOutletRecordsByAdminResponse {
+    maxRecords: Int!
+    records: [vendorOutletRecordsWithKycData!]
+    message: String
+  }
+    
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query:Query
+}
+
