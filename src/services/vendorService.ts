@@ -49,6 +49,7 @@ export interface IVendorDocument extends Document {
   brands?: Types.ObjectId[],
   categories?: Types.ObjectId[],
   token?: string,
+
 }
 
 export interface IVendorLoginResponse {
@@ -197,7 +198,7 @@ export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<IVendor
   return result;
 }
 
-export const getVendorRecordById = async (vendorId: Types.ObjectId): Promise<IVendorWithKycData> => {
+export const getVendorRecordByAdminWithId = async (vendorId: Types.ObjectId): Promise<IVendorWithKycData> => {
   let pipeline: PipelineStage[] = [
     {
       $match: {
@@ -245,6 +246,113 @@ export const getVendorRecordById = async (vendorId: Types.ObjectId): Promise<IVe
         companyStatus: '$company.status',
         outletId: '$outlet._id',
         outletName: '$outlet.outletName',
+        outletStatus: '$outlet.status'
+      }
+    }
+  ];
+
+  const result = await vendorModel.aggregate(pipeline);
+  return result[0];
+}; 
+
+export const getVendorRecordByVendorWithId = async (vendorId: Types.ObjectId): Promise<IVendorWithKycData> => {
+  let pipeline: PipelineStage[] = [
+    {
+      $match: {
+        _id: new Types.ObjectId(vendorId)
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_OUTLETS,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'outlet'
+      }
+    },
+    {
+      $unwind: {
+        path: '$outlet',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_COMPANIES,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'company'
+      }
+    },
+    {
+      $unwind: {
+        path: '$company',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        fullName: 1,
+        email: 1,
+        mobileNumber: 1,
+        isBlocked: 1,
+        isKycCompleted: 1,
+        companyId: '$company._id',
+        companyName: '$company.companyName',
+        companyStatus: '$company.status',
+        outletId: '$outlet._id',
+        outletName: '$outlet.outletName',
+        outletStatus: '$outlet.status'
+      }
+    }
+  ];
+
+  const result = await vendorModel.aggregate(pipeline);
+  return result[0];
+}; 
+
+export const getVendorRecordKycStatusById = async (vendorId: Types.ObjectId): Promise<IVendorWithKycData> => {
+  let pipeline: PipelineStage[] = [
+    {
+      $match: {
+        _id: new Types.ObjectId(vendorId)
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_OUTLETS,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'outlet'
+      }
+    },
+    {
+      $unwind: {
+        path: '$outlet',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_COMPANIES,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'company'
+      }
+    },
+    {
+      $unwind: {
+        path: '$company',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        isBlocked: 1,
+        isKycCompleted: 1,
+        companyStatus: '$company.status',
         outletStatus: '$outlet.status'
       }
     }
