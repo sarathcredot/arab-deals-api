@@ -93,6 +93,7 @@
   
   type BrandRecordResponse {
     record: BrandRecord!
+    message: String
   }
 
   type BrandRecordsResponse {

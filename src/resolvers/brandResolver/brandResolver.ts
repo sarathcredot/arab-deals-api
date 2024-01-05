@@ -120,7 +120,7 @@ export const brandResolver: Resolvers = {
                 const result = await brandRecord.save();
 
                 const response = {
-                    _id: result?._id?.toString() || "", message: "Brand updated successfully",
+                    _id: result?._id?.toString() || "", message: "Brand record updated successfully",
                 };
                 return response;
             } catch (error) {
