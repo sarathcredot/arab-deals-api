@@ -15,6 +15,7 @@ export const vendorResolver: Resolvers = {
 
     // Vendor creation from vendor side
     createVendor: async (parent, { input, image }, { req }, info) => {
+      await verifyVendor(req);
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input?.email?.toLowerCase() || "";
 
@@ -82,6 +83,8 @@ export const vendorResolver: Resolvers = {
       await result.save();
 
       const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
+
+      console.log("createVendorCompanyRecord: ", createVendorCompanyRecord)
 
       if (!createVendorCompanyRecord) {
         throw new GraphQLError("Unable to create vendor company record", {
@@ -216,37 +219,6 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
-    // vendorAccountApproval: async (parent, { input }, { req }, info) => {
-    //   await verifyAdmin(req);
-    //   await validateInput(validators.vendorProfileApprovalValidator, req);
-
-    //   const _id: Types.ObjectId = new Types.ObjectId(input._id);
-    //   const approvalStatus: boolean | undefined = input.approvalStatus?.valueOf();
-    //   const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
-
-    //   if (!vendor) {
-    //     throw new GraphQLError("Record not found", {
-    //       extensions: {
-    //         code: "BAD_REQUEST",
-    //         errors: []
-    //       }
-    //     });
-    //   }
-
-    //   // if (approvalStatus !== undefined) {
-    //   //   vendor.isApproved = approvalStatus;
-    //   // }
-
-    //   await vendor.save();
-
-    //   const response = {
-    //     _id: vendor._id?.toString(),
-    //     message: "Vendor profile approved successfully"
-    //   }
-
-    //   return response;
-    // },
-
     // Vendor login 
     loginVendor: async (parent, { input }, { req }, info) => {
 
@@ -361,6 +333,39 @@ export const vendorResolver: Resolvers = {
       }
     },
 
+
+    // Vendor Kyc approval
+    vendorKycApproval: async (parent, { input }, { req }, info) => {
+      // await verifyAdmin(req);
+      await validateInput(validators.vendorKycStatusValidator, req);
+
+      const _id: Types.ObjectId = new Types.ObjectId(input._id);
+      const approvalStatus: boolean = input?.status;
+      const vendor: vendorService.IVendorDocument | null = await vendorService.getvendorRecordWithId(_id);
+
+      if (!vendor) {
+        throw new GraphQLError("Record not found", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+
+      if (approvalStatus !== undefined) {
+        vendor.isKycCompleted = approvalStatus;
+      }
+
+      await vendor.save();
+
+      const response = {
+        _id: vendor._id?.toString(),
+        message: "Vendor kyc status updated successfully"
+      }
+
+      return response;
+    },
+
   },
 
   Query: {
@@ -393,7 +398,7 @@ export const vendorResolver: Resolvers = {
       }
     },
 
-    // Fetch each vendor record
+    // Fetch each vendor record by admin
     async getVendorRecordByAdmin(parent, { input }, { req }, info) {
       // await verifyAdmin(req);
 
@@ -402,7 +407,7 @@ export const vendorResolver: Resolvers = {
 
         const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-        const result = await vendorService.getvendorRecordWithId(_id);
+        const result = await vendorService.getVendorRecordByAdminWithId(_id);
 
         if (!result) {
           throw new GraphQLError("Record not found", {
@@ -415,8 +420,10 @@ export const vendorResolver: Resolvers = {
 
         const response = {
           record: {
-            ...result.toObject(), 
-            vendorId: result?._id?.toString() 
+            ...result,
+            brands: (result?.brands || []).map(brandId => brandId.toString()),
+            categories: (result?.categories || []).map(categoryId => categoryId.toString()),
+            vendorId: result?._id?.toString(),
           },
           message: "Vendor record fetched successfully",
         }
@@ -428,6 +435,81 @@ export const vendorResolver: Resolvers = {
       }
 
     },
+
+     // Fetch each vendor record by vendor
+     async getVendorRecordByVendor(parent, { input }, { req }, info) {
+      // await verifyVendor(req);
+
+      try {
+        await validateInput(validators.getVendorRecordValidator, req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const result = await vendorService.getVendorRecordByVendorWithId(_id);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const response = {
+          record: {
+            ...result,
+            brands: (result?.brands || []).map(brandId => brandId.toString()),
+            categories: (result?.categories || []).map(categoryId => categoryId.toString()),
+            vendorId: result?._id?.toString(),
+          },
+          message: "Vendor record fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
+
+      // Fetch each vendor record KYC status
+      async getKycStatus(parent, { input }, { req }, info) {
+        await verifyVendor(req);
+  
+        try {
+          await validateInput(validators.getVendorRecordValidator, req);
+  
+          const _id: Types.ObjectId = new Types.ObjectId(input._id);
+  
+          const result = await vendorService.getVendorRecordKycStatusById(_id);
+  
+          if (!result) {
+            throw new GraphQLError("Record not found", {
+              extensions: {
+                code: "BAD_REQUEST",
+                errors: []
+              }
+            });
+          }
+  
+          const response = {
+            record: {
+              ...result,
+              vendorId: result?._id?.toString()
+            },
+            message: "Vendor record fetched successfully",
+          }
+  
+          return response;
+  
+        } catch (error) {
+          throw error;
+        }
+  
+      },
   },
 };
 

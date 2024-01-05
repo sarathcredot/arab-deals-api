@@ -6,7 +6,7 @@ scalar JSONObject
 type Mutation {
   createVendor(input: VendorSignUpInput!, image:Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image:Upload): CreateVendorByAdminResponse!
-  vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
+  vendorKycApproval(input: VendorKycStatusInput!): VendorKycStatusResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!,image: Upload): UpdateVendorResponse!
 }
@@ -27,9 +27,10 @@ type Vendor {
   email: String
   mobileNumber: String!
   isBlocked: Boolean
+  profilePic:ImageData
   isKycCompleted: Boolean
-  brands: [BrandRecordId]
-  categories: [CategoryRecordId]
+  brands: [String]
+  categories: [String]
 }
 
 type VendorWithKycData {
@@ -44,6 +45,32 @@ type VendorWithKycData {
   outletStatus: String
   companyId: String
   companyName: String
+  companyStatus: String
+  profilePic:ImageData
+  brands: [String]
+  categories: [String]
+}
+
+type VendorWithAllKycData {
+  _id: String
+  fullName: String
+  email: String
+  mobileNumber: String
+  isBlocked: String
+  isKycCompleted: Boolean
+  outletId: String
+  outletName: String
+  outletStatus: String
+  companyId: String
+  companyName: String
+  companyStatus: String
+}
+
+type VendorWithKycDataStatus {
+  _id: String
+  isBlocked: String
+  isKycCompleted: Boolean
+  outletStatus: String
   companyStatus: String
 }
 
@@ -105,9 +132,9 @@ input ContactPersonInput {
   designation: String!
 }
 
-input VendorAccountApprovalInput {
+input VendorKycStatusInput {
   _id: String!
-  approvalStatus: Boolean!
+  status: Boolean!
 }
 
 # Vendor  Output
@@ -122,14 +149,31 @@ type UpdateVendorResponse {
   message: String
 }
 
-type VendorAccountApprovalResponse {
+type VendorKycStatusResponse {
   _id: String,
+  message: String
+}
+
+type VendorsRecordByAdminResponse {
+  record: VendorWithKycData
+  message: String
+}
+
+type VendorsRecordByVendorResponse {
+  record: VendorWithKycData
+  message: String
+}
+
+type VendorRecordKycStatusResponse {
+  record: VendorWithKycDataStatus
   message: String
 }
 
 type Query {
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
-  getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
+  getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse!
+  getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
+  getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
 }
 
 # Vendor type
@@ -155,7 +199,15 @@ type CreateVendorByAdminResponse{
   }
 
 
- input VendorRecordByAdminFilter {
+ input VendorRecordByAdminInput {
+    _id: String!
+  }
+
+  input VendorRecordByVendorInput {
+    _id: String!
+  } 
+
+   input VendorRecordKycStatusInput {
     _id: String!
   }
 

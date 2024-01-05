@@ -26,9 +26,9 @@ export const getVendorRecordValidator = [
   body('variables.input._id').isMongoId(),
 ];
 
-export const vendorProfileApprovalValidator = [
+export const vendorKycStatusValidator = [
   body('variables.input._id').isMongoId(),
-  body('variables.input.approvalStatus').optional({ checkFalsy: true }).isBoolean(),
+  body('variables.input.status').optional({ checkFalsy: true }).isBoolean(),
 ];
 
 export const VendorUpdateValidator = [
