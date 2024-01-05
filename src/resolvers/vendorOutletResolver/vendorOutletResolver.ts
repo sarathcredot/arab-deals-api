@@ -207,7 +207,6 @@ export const vendorOutletResolver: Resolvers = {
             await validateInput(validators.vendorOutletStatusUpdationValidator, req);
 
             const _id: Types.ObjectId = new Types.ObjectId(input._id);
-            const status: string = input?.status;
             const vendor = await vendorOutletService.getVendorOutletRecordWithId(_id);
 
             if (!vendor) {
