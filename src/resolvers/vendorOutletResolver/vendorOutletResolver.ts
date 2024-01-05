@@ -219,9 +219,13 @@ export const vendorOutletResolver: Resolvers = {
                 });
             }
 
-            if (status !== undefined) {
-                vendor.status = status;
-            }
+            if (input.status !== null) {
+                vendor.status = input?.status;
+              }
+      
+              if (input.remarks !== null) {
+                vendor.remarks = (input.remarks || []).filter(Boolean) as [];
+              }
 
             await vendor.save();
 
