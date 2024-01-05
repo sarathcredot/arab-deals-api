@@ -191,7 +191,6 @@ export const vendorCompanyResolver: Resolvers = {
             await validateInput(validators.vendorCompanyStatusUpdationValidator, req);
 
             const _id: Types.ObjectId = new Types.ObjectId(input._id);
-            const status: string = input?.status;
             const vendor = await vendorCompanyService.getVendorCompanyRecordWithId(_id);
 
             if (!vendor) {
@@ -203,15 +202,21 @@ export const vendorCompanyResolver: Resolvers = {
                 });
             }
 
-            if (status !== undefined) {
-                vendor.status = status;
-            }
+            if (input.status !== null) {
+                vendor.status = input?.status;
+              }
+      
+              if (input.remarks !== null) {
+                vendor.remarks = (input.remarks || []).filter(Boolean) as [];
+              }
+
 
             await vendor.save();
 
+            console.log(vendor)
+
             const response = {
                 _id: vendor._id?.toString(),
-                status: vendor.status,
                 message: "Vendor kyc of company status updated successfully"
             }
 

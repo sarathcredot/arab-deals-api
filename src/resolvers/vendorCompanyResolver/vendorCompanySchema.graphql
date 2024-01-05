@@ -57,6 +57,7 @@
     input VendorCompanyStatusUpdationInput {
       _id: String!
       status: String!
+      remarks: [String]
     } 
 
 
@@ -118,7 +119,6 @@
 
   type VendorCompanyStatusUpdationResponse {
     _id: String
-    status: String
     message: String
   }
     
