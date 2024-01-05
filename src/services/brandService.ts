@@ -9,12 +9,22 @@ export interface IBrandRecord {
     brandId?: Types.ObjectId,
     brandName?: string,
     isBlocked?: boolean,
+    isPopular?: boolean,
+    priority?: number,
+    logo?: {
+        fileType?: string,
+        fileURL?: string,
+        mimeType?: string,
+        originalName?: string
+    }
 }
 
 export interface IBrandDocument extends Document {
     _id?: string,
     brandName?: string,
     isBlocked?: boolean,
+    isPopular: boolean,
+    priority: number,
     logo?: {
         fileType?: string,
         fileURL?: string,
@@ -33,6 +43,8 @@ export interface IBrandRecordsProjection {
     "logo.originalName"?: 1,
     "logo.createdAt"?: 1,
     isBlocked?: 1,
+    isPopular?: 1,
+    priority?: 1,
     createdAt?: 1,
     updatedAt?: 1,
 }
@@ -40,6 +52,7 @@ export interface IBrandRecordsProjection {
 export interface IBrandRecordsOptions {
     page: number,
     size: number,
+    isBlocked: boolean,
     projection: IBrandRecordsProjection
 }
 
@@ -74,11 +87,13 @@ export const getBrandRecordsWithFilters = async (options: IBrandRecordsOptions):
     pipeline.push(
         {
             $match: {
-                isBlocked: false
+                isBlocked: options.isBlocked
             }
         },
         {
-            $sort: { _id: -1 }
+            $sort: {
+                priority: -1,
+            }
         },
         {
             $facet: {

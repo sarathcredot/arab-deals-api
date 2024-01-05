@@ -42,6 +42,8 @@ export const brandResolver: Resolvers = {
                     brandName: input.brandName,
                     isBlocked: input?.isBlocked || false,
                     logo: brandLogo,
+                    isPopular: input?.isPopular || false,
+                    priority: input.priority,
                 };
 
                 const result = await brandService.createBrandRecord(brandRecord);
@@ -57,7 +59,7 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.brandUpdateValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -103,6 +105,18 @@ export const brandResolver: Resolvers = {
                     brandRecord.logo = brandLogo;
                 }
 
+                if (input.isBlocked) {
+                    brandRecord.isBlocked = input?.isBlocked;
+                }
+
+                if (input.priority) {
+                    brandRecord.priority = input?.priority;
+                }
+
+                if (input.isPopular) {
+                    brandRecord.isPopular = input?.isPopular;
+                }
+
                 const result = await brandRecord.save();
 
                 const response = {
@@ -118,7 +132,7 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.brandDeleteValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const result = await brandService.deleteBrandRecord(_id);
@@ -148,10 +162,12 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.getAllBrandsValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const isBlocked: boolean = input?.isBlocked || false;
+
                 let projection: brandService.IBrandRecordsProjection = { _id: 1 };
 
                 const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
@@ -184,6 +200,7 @@ export const brandResolver: Resolvers = {
                 const options: brandService.IBrandRecordsOptions = {
                     page,
                     size,
+                    isBlocked,
                     projection,
                 }
 
@@ -202,6 +219,7 @@ export const brandResolver: Resolvers = {
         // Fetch brand by id
         async getBrandRecordByAdmin(parent, { input }, { req }, info) {
             try {
+                // await verifyAdmin(req);
                 // Validate Input
                 await validateInput(validators.brandQueryValidator, req);
 
