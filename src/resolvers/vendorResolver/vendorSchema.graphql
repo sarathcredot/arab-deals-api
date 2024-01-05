@@ -29,8 +29,8 @@ type Vendor {
   isBlocked: Boolean
   profilePic:ImageData
   isKycCompleted: Boolean
-  brands: [BrandRecordId]
-  categories: [CategoryRecordId]
+  brands: [String]
+  categories: [String]
 }
 
 type VendorWithKycData {
@@ -46,6 +46,9 @@ type VendorWithKycData {
   companyId: String
   companyName: String
   companyStatus: String
+  profilePic:ImageData
+  brands: [String]
+  categories: [String]
 }
 
 type VendorWithAllKycData {
@@ -157,7 +160,7 @@ type VendorsRecordByAdminResponse {
 }
 
 type VendorsRecordByVendorResponse {
-  record: VendorWithAllKycData
+  record: VendorWithKycData
   message: String
 }
 

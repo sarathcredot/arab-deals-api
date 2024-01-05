@@ -419,7 +419,9 @@ export const vendorResolver: Resolvers = {
         const response = {
           record: {
             ...result,
-            vendorId: result?._id?.toString()
+            brands: (result?.brands || []).map(brandId => brandId.toString()),
+            categories: (result?.categories || []).map(categoryId => categoryId.toString()),
+            vendorId: result?._id?.toString(),
           },
           message: "Vendor record fetched successfully",
         }
@@ -452,10 +454,13 @@ export const vendorResolver: Resolvers = {
           });
         }
 
+
         const response = {
           record: {
             ...result,
-            vendorId: result?._id?.toString()
+            brands: (result?.brands || []).map(brandId => brandId.toString()),
+            categories: (result?.categories || []).map(categoryId => categoryId.toString()),
+            vendorId: result?._id?.toString(),
           },
           message: "Vendor record fetched successfully",
         }
