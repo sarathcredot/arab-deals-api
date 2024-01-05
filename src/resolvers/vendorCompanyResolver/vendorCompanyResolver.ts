@@ -1,6 +1,6 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./vendorCompanyValidator";
-import { validateInput, verifyAdmin , verifyVendor} from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
 import { Types } from "mongoose";
@@ -155,7 +155,7 @@ export const vendorCompanyResolver: Resolvers = {
                 if (input.crNumber) {
                     vendorCompanyRecord.crNumber = input?.crNumber;
                 }
-                
+
                 vendorCompanyRecord.status = "UNDER_VERIFICATION";
 
                 let vendorCompanyImagesKeys = Object.keys(fileMap);
@@ -183,6 +183,44 @@ export const vendorCompanyResolver: Resolvers = {
             } catch (error) {
                 throw error;
             }
+        },
+
+        // Vendor KYC of company details status updation
+        vendorCompanyStatusUpdation: async (parent, { input }, { req }, info) => {
+            // await verifyAdmin(req);
+            await validateInput(validators.vendorCompanyStatusUpdationValidator, req);
+
+            const _id: Types.ObjectId = new Types.ObjectId(input._id);
+            const vendor = await vendorCompanyService.getVendorCompanyRecordWithId(_id);
+
+            if (!vendor) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: []
+                    }
+                });
+            }
+
+            if (input.status !== null) {
+                vendor.status = input?.status;
+              }
+      
+              if (input.remarks !== null) {
+                vendor.remarks = (input.remarks || []).filter(Boolean) as [];
+              }
+
+
+            await vendor.save();
+
+            console.log(vendor)
+
+            const response = {
+                _id: vendor._id?.toString(),
+                message: "Vendor kyc of company status updated successfully"
+            }
+
+            return response;
         },
 
         deleteVendorOutlet: async (parent, { input }, { req }, info) => {

@@ -121,6 +121,7 @@ export interface IVendorRecordsResponse {
 export interface IVendorsRecordsOptions {
   page: number,
   size: number,
+  isKycCompleted: boolean,
 }
 
 
@@ -395,6 +396,11 @@ export const getVendorRecordKycStatusById = async (vendorId: Types.ObjectId): Pr
 
 export const getVendorRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorRecordsResponse> => {
   let pipeline: PipelineStage[] = [
+    {
+      $match: {
+        isKycCompleted: options.isKycCompleted
+      }
+    },
     {
       $sort: { _id: -1 }
     },

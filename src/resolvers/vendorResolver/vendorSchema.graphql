@@ -195,6 +195,7 @@ type CreateVendorByAdminResponse{
  input VendorsRecordsByAdminFilter {
     page: Int
     size: Int
+    isKycCompleted: Boolean
   }
 
 
