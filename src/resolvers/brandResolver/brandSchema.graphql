@@ -59,12 +59,19 @@
   type Query {
     getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
     getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+    getAllBrandRecordsWithVendorByAdmin(input: VendorInput!): BrandRecordsWithVendorResponse!
   }   
 
     # Input
    
   input BrandIdInput {
     _id: String!
+  }
+
+  input VendorInput {
+    vendorId: String!
+    page: Int
+    size: Int
   }
 
   input BrandRecordsFilter {
@@ -97,6 +104,12 @@
   }
 
   type BrandRecordsResponse {
+    maxRecords: Int!
+    records: [BrandRecord!]
+    message: String
+  }
+
+  type BrandRecordsWithVendorResponse {
     maxRecords: Int!
     records: [BrandRecord!]
     message: String
