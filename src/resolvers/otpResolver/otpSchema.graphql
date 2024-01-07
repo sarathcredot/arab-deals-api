@@ -3,9 +3,9 @@ scalar Upload
 # Vendor auth Mutations
 
 type Mutation {
-  sendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
-  verifyOtp(input: VerifyOtpInput!): VerifyOtpResponse!
-  reSendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
+  sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
+  verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
+  reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
 }
 
 # otp  Type
@@ -16,30 +16,42 @@ type MobileOtpData {
   mobileNumber: String
 }
 
+
 # otp Input
 
-input sendMobileOtpInput {
-  _id: String!
+input sendVendorMobileOtpInput {
+  fullName: String
   mobileNumber: String!
-  otpType: String!
+}
+
+input ReSendVendorMobileOtpInput {
+  fullName: String
+  mobileNumber: String!
 }
 
 
-input VerifyOtpInput {
-  _id: String!
-  mobileOtp: String!
+input VerifyVendorOtpInput {
+  code: String!
 }
+
 
 # otp Output
 
-type sendMobileOtpResponse {
+type sendVendorMobileOtpResponse {
   _id: String
   message: String
 }
 
-type VerifyOtpResponse {
+
+type VerifyVendorOtpResponse {
   _id: String
+  fullName: String
   mobileNumber: String
+  message: String
+}
+
+type ReSendVendorMobileOtpResponse {
+  _id: String
   message: String
 }
 

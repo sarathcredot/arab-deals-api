@@ -4,12 +4,33 @@ scalar JSONObject
 # Vendor  Mutations
 
 type Mutation {
+  sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image:Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image:Upload): CreateVendorByAdminResponse!
+  loginVendorWithOtp(input: VendorLoginInput!): VendorLoginResponse!
+  verifyVendorLoginOtp(input: VerifyVendorLoginOtpInput!): VerifyVendorLoginOtpResponse!
   vendorKycApproval(input: VendorKycStatusInput!): VendorKycStatusResponse!
-  loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!,image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!,image: Upload): UpdateVendorByAdminResponse!
+}
+
+# Otp 
+
+input sendOtpInput {
+  fullName: String!
+  mobileNumber: String!
+}
+
+type sendOtpResponse {
+  message: String
+}
+
+input VendorLoginInput {
+  mobileNumber: String!
+}
+
+input VerifyVendorLoginOtpInput {
+    code: String!
 }
 
 # Vendor  Type
@@ -108,10 +129,6 @@ input VendorSignUpByAdminInput {
   categories: [String]
 }
 
-input VendorLoginInput {
-  email: String!
-  password: String!
-}
 
 input VendorEditProfileInput {
    _id: String!
@@ -151,11 +168,6 @@ input VendorKycStatusInput {
 
 # Vendor  Output
 
-type VendorAuthResponse {
-  _id: String
-  token: String
-}
-
 type UpdateVendorResponse {
   _id: String
   message: String
@@ -183,6 +195,18 @@ type VendorsRecordByVendorResponse {
 
 type VendorRecordKycStatusResponse {
   record: VendorWithKycDataStatus
+  message: String
+}
+
+type VendorLoginResponse {
+  _id: String
+  message: String
+}
+
+
+type VerifyVendorLoginOtpResponse {
+  _id: String
+  token: String
   message: String
 }
 

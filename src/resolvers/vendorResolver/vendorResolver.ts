@@ -1,4 +1,4 @@
-import { vendorService, jwtService, spaceService, vendorCompanyService, vendorOutletService, vendorJwtService } from "../../services";
+import { vendorService, jwtService, spaceService, vendorCompanyService, vendorOutletService, vendorJwtService, otpService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./vendorValidator";
@@ -83,8 +83,6 @@ export const vendorResolver: Resolvers = {
       await result.save();
 
       const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
-
-      console.log("createVendorCompanyRecord: ", createVendorCompanyRecord)
 
       if (!createVendorCompanyRecord) {
         throw new GraphQLError("Unable to create vendor company record", {
@@ -220,13 +218,85 @@ export const vendorResolver: Resolvers = {
     },
 
     // Vendor login 
-    loginVendor: async (parent, { input }, { req }, info) => {
+    loginVendorWithOtp: async (parent, { input }, { req }, info) => {
+      await validateInput(validators.loginOtpVerificationValidator, req);
 
       await validateInput(validators.vendorLoginValidator, req);
-      const email: string = input.email.toLowerCase();
-      const password: string = input.password;
 
-      const vendor = await vendorService.findVendorWithFilters({ email: email }, {}, {});
+      const mobileNumber: string = input.mobileNumber;
+
+
+      const mobileOtp = await otpService.generateOtp();
+      if (!mobileOtp) {
+        throw new GraphQLError('OTP generation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let options = {
+        name: "VENDOR_LOGIN_MOBILE_OTP",
+        metadata: {
+          code: mobileOtp.code,
+          expiresAt: mobileOtp.expiresAt,
+          mobileNumber,
+        },
+        isVerified: false
+      };
+
+      const result = await otpService.createOtp(options);
+      if (!result) {
+        throw new GraphQLError('OTP Db creation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let response = {
+        _id: result?._id.toString(),
+        message: "Login OTP send successfully"
+      }
+
+      return response;
+    },
+
+
+    // Vendor login 
+    verifyVendorLoginOtp: async (parent, { input }, { req }, info) => {
+
+      const code: String = input.code;
+      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code }, {}, {});
+
+      if (!otpVerification) {
+        throw new GraphQLError('Verification failed. Invalid OTP.', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
+
+      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt) {
+        throw new Error('Invalid OTP metadata');
+      }
+
+      let expirationTime: Date = new Date(otpVerification?.metadata.expiresAt);
+
+      let checkOtpExpired = await otpService.isOtpExpired(expirationTime)
+
+      if (checkOtpExpired) {
+        throw new Error("Expired OTP");
+      }
+
+      otpVerification.isVerified = true;
+
+      const result = await otpVerification.save();
+
+      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, {});
       if (!vendor) {
         throw new GraphQLError("Invalid Account", {
           extensions: {
@@ -235,15 +305,7 @@ export const vendorResolver: Resolvers = {
           }
         });
       }
-      // TODO: Need to remove after confirm isVerifies feild is not adding in vendor db
-      // else if (!vendor.isVerified) {
-      //   throw new GraphQLError("Vendor not verified by admin", {
-      //     extensions: {
-      //       code: "BAD_REQUEST",
-      //       errors: []
-      //     }
-      //   });
-      // }
+
       else if (vendor.isBlocked) {
         throw new GraphQLError("Vendor Blocked", {
           extensions: {
@@ -259,7 +321,13 @@ export const vendorResolver: Resolvers = {
 
       await vendor.save();
 
-      const response = vendorService.loginVendor(vendor);
+      const loginResponse = vendorService.loginVendor(vendor);
+
+      const response = {
+        _id: loginResponse?._id?.toString(),
+        token: loginResponse?.token,
+        message: 'Vendor otp verifed and logined successfully',
+      };
 
       return response;
     },

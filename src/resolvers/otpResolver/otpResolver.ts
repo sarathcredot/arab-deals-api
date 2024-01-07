@@ -9,13 +9,13 @@ import { Types } from "mongoose";
 export const otpResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
-    // Send OTP to mobile number
-    sendMobileOtp: async (parent, { input }, { req }, info) => {
+    //Vendor Send OTP to mobile number
+    sendVendorMobileOtp: async (parent, { input }, { req }, info) => {
 
-      await validateInput(validators.mobileOtpVerification, req);
+      await validateInput(validators.VendorMobileOtpVerification, req);
 
-      const _id: Types.ObjectId = new Types.ObjectId(input._id);
-      const otpType: String = input.otpType;
+      const fullName: string = input?.fullName || "";
+      const mobileNumber: String = input.mobileNumber;
 
       const mobileOtp = await otpService.generateOtp();
       if (!mobileOtp) {
@@ -28,13 +28,15 @@ export const otpResolver: Resolvers = {
       }
 
       let options = {
-        name: otpType,
-        userId: _id,
-        metadata: mobileOtp,
+        name: "VENDOR_SIGNUP_MOBILE_OTP",
+        metadata: {
+          code: mobileOtp.code,
+          expiresAt: mobileOtp.expiresAt,
+          mobileNumber,
+          fullName,
+        },
         isVerified: false
       };
-
-      options.metadata.mobileNumber = input.mobileNumber;
 
       const result = await otpService.createOtp(options);
       if (!result) {
@@ -47,7 +49,7 @@ export const otpResolver: Resolvers = {
       }
 
       let response = {
-        _id: _id.toString(),
+        _id: result?._id.toString(),
         message: " OTP send successfully"
       }
 
@@ -55,26 +57,13 @@ export const otpResolver: Resolvers = {
     },
 
     // Verify the OTP 
-    verifyOtp: async (parent, { input }, { req }, info) => {
+    verifyVendorOtp: async (parent, { input }, { req }, info) => {
       await validateInput(validators.otpVerificationValidator, req);
 
-      const _id: Types.ObjectId = new Types.ObjectId(input._id);
+      const code: String = input.code;
+      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code }, {}, {});
 
-      const otpRecord = await otpService.findOtpRecordWithFilters({ userId: _id }, {}, {});
-      if (!otpRecord) {
-        throw new GraphQLError('Record not find in this id', {
-          extensions: {
-            code: "",
-            errors: [],
-          },
-        });
-      }
-
-      let inputOTP = input.mobileOtp;
-      let options = { _id: _id, code: inputOTP };
-      let otpVerfication = await otpService.verifyOtp(options);
-
-      if (!otpVerfication) {
+      if (!otpVerification) {
         throw new GraphQLError('Verification failed. Invalid OTP.', {
           extensions: {
             code: "",
@@ -83,20 +72,26 @@ export const otpResolver: Resolvers = {
         });
       }
 
-      // TODO:  we can use this verifyOTP api commonly for all type of otp verification if we can remove this deletion part
-      // const result = await tempVendorAuthService.deleteTempVendor(_id);
-      // if (!result) {
-      //   throw new GraphQLError('Temp record deletion failed.', {
-      //     extensions: {
-      //       code: "",
-      //       errors: [],
-      //     },
-      //   });
-      // }
+      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt) {
+        throw new Error('Invalid OTP metadata');
+      }
+
+       let expirationTime: Date = new Date(otpVerification?.metadata.expiresAt);
+
+        let checkOtpExpired = await otpService.isOtpExpired(expirationTime)
+  
+        if (checkOtpExpired) {
+          throw new Error("Expired OTP");
+        }
+  
+        otpVerification.isVerified = true;
+
+        const result = await otpVerification.save();
 
       let response = {
-        _id: _id?.toString(),
-        mobileNumber: otpRecord?.metadata?.mobileNumber?.toString(),
+        _id: result?._id?.toString(),
+        mobileNumber: result?.metadata?.mobileNumber,
+        fullName: result?.metadata?.fullName,
         message: "OTP verified successfully"
       }
       return response;
@@ -105,12 +100,12 @@ export const otpResolver: Resolvers = {
 
 
     // Resend the OTP
-    reSendMobileOtp: async (parent, { input }, { req }, info) => {
+    reSendVendorMobileOtp: async (parent, { input }, { req }, info) => {
 
       await validateInput(validators.reSendMobileOtpVerification, req);
 
-      const _id: Types.ObjectId = new Types.ObjectId(input._id);
-      const otpType: String = input.otpType;
+      const fullName: string = input?.fullName || "";
+      const mobileNumber: String = input.mobileNumber;
 
       const mobileOtp = await otpService.generateOtp();
       if (!mobileOtp) {
@@ -123,9 +118,13 @@ export const otpResolver: Resolvers = {
       }
 
       let options = {
-        name: otpType,
-        userId: _id,
-        metadata: mobileOtp,
+        name: "VENDOR_SIGNUP_MOBILE_OTP",
+        metadata: {
+          code: mobileOtp.code,
+          expiresAt: mobileOtp.expiresAt,
+          mobileNumber,
+          fullName,
+        },
         isVerified: false
       };
 

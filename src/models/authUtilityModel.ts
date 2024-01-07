@@ -24,6 +24,7 @@ const authUtilitySchema = new Schema(
 
     },
     {
+        _id: true,
         timestamps: true,
     }
 );

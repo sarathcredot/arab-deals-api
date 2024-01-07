@@ -5,14 +5,27 @@ import moment from 'moment';
 export interface IOtpFile {
   code?: string,
   expiresAt?: string,
-  mobileNumber?: string
+  mobileNumber?: string,
+  fullName?: string
 }
 
-export interface otpDocument extends Document {
+export interface IAuthUtility extends Document {
   name: string,
   userId: Types.ObjectId,
   metadata: IOtpFile,
   isVerified: boolean
+}
+
+export interface IAuthUtilityProjection {
+  _id?: 1,
+  name?: 1,
+  "metadata.code"?: 1,
+  "metadata.expiresAt"?: 1,
+  "metadata.mobileNumber"?: 1,
+  "metadata.fullName"?: 1,
+  isVerified?: 1,
+  createdAt?: 1,
+  updatedAt?: 1,
 }
 
 export const generateOtp = async function (): Promise<IOtpFile | null> {
@@ -45,32 +58,23 @@ export const createOtp = async (options: QueryOptions): Promise<Document | null>
 };
 
 
-export const verifyOtp = async function (options: QueryOptions): Promise<boolean> {
-  try {
-    const otpData = await authUtilityModel.findOne({
-      userId: options._id,
-      'metadata.code': options.code,
-    });
+// export const verifyOtp = async function (options: QueryOptions): Promise<IAuthUtility> {
+//   try {
+//     const otpData = await authUtilityModel.findOne({
+//       'metadata.code': options.code,
+//     });
 
-    if (otpData) {
+//     return otpData;
 
-      let checkOtpExpired = await isOtpExpired(otpData.metadata.expiresAt)
+//   } catch (error) {
+//     throw new Error("Invaild otp");
+//   }
+// };
 
-      if (checkOtpExpired) {
-        throw new Error("Expired OTP");
-        return false;
-      }
-
-      otpData.isVerified = true;
-      otpData.save();
-      return true;
-    }
-
-    return false;
-  } catch (error) {
-    throw new Error("Invaild otp");
-  }
-};
+// export const findOtpRecord = async (options: QueryOptions): Promise<IAuthUtility | null> => {
+//   const result = await authUtilityModel.findOne({'metadata.code': options.code}, "fullName mobileNumber expiresAt", { lean: true });
+//   return result;
+// }
 
 
 export const isOtpExpired = async function (expiryTimestamp: Date): Promise<boolean> {
@@ -81,7 +85,7 @@ export const isOtpExpired = async function (expiryTimestamp: Date): Promise<bool
 
 
 
-export const findOtpRecordWithFilters = async (filters: FilterQuery<otpDocument>, projection: ProjectionFields<otpDocument>, options: QueryOptions): Promise<otpDocument | null> => {
+export const findOtpRecordWithFilters = async (filters: FilterQuery<IAuthUtility>, projection: IAuthUtilityProjection = {}, options: QueryOptions): Promise<IAuthUtility | null> => {
   return await authUtilityModel.findOne(filters, projection, options);
 }
 
