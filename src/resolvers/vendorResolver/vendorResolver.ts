@@ -267,7 +267,7 @@ export const vendorResolver: Resolvers = {
     // Edit vendor profile
     updateVendorProfile: async (parent, { input, image }, { req }, info) => {
       try {
-        // await verifyVendor(req);
+        await verifyVendor(req);
         await validateInput(validators.VendorUpdateValidator, req);
 
         const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
@@ -316,6 +316,85 @@ export const vendorResolver: Resolvers = {
 
         if (profilePic) {
           vendor.profilePic = profilePic;
+        }
+
+
+        await vendor.save();
+
+        const response = {
+          _id: vendor?._id?.toString(),
+          message: 'Vendor successfully updated',
+        };
+
+        return response;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+
+    // Edit vendor profile by admin
+    updateVendorProfileByAdmin: async (parent, { input, image }, { req }, info) => {
+      try {
+        await verifyAdmin(req);
+        await validateInput(validators.VendorUpdateValidator, req);
+
+        const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+        if (!vendor) {
+          throw new GraphQLError('Vendor not found', {
+            extensions: {
+              code: 'BAD_REQUEST',
+              errors: [],
+            },
+          });
+        }
+
+        let profilePic: vendorService.FileData | null = null;
+
+        if (image) {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.vendorProfilePic, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+          profilePic = {
+            fileType: "PRIVATE",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          }
+        }
+
+        if (input.email) {
+          vendor.email = input.email.toLowerCase();
+        }
+
+        if (input.fullName) {
+          vendor.fullName = input.fullName;
+        }
+
+        if (input.mobileNumber) {
+          vendor.mobileNumber = input.mobileNumber;
+        }
+
+        if (input.isKycCompleted) {
+          vendor.isKycCompleted = input.isKycCompleted;
+        }
+
+        if (profilePic) {
+          vendor.profilePic = profilePic;
+        }
+
+
+        if (input.brands) {
+          vendor.brands = (input.brands || []).filter(Boolean) as [];
+        }
+
+
+        if (input.categories) {
+          vendor.categories = (input.categories || []).filter(Boolean) as [];
         }
 
 
@@ -436,8 +515,8 @@ export const vendorResolver: Resolvers = {
 
     },
 
-     // Fetch each vendor record by vendor
-     async getVendorRecordByVendor(parent, { input }, { req }, info) {
+    // Fetch each vendor record by vendor
+    async getVendorRecordByVendor(parent, { input }, { req }, info) {
       // await verifyVendor(req);
 
       try {
@@ -475,41 +554,41 @@ export const vendorResolver: Resolvers = {
 
     },
 
-      // Fetch each vendor record KYC status
-      async getKycStatus(parent, { input }, { req }, info) {
-        await verifyVendor(req);
-  
-        try {
-          await validateInput(validators.getVendorRecordValidator, req);
-  
-          const _id: Types.ObjectId = new Types.ObjectId(input._id);
-  
-          const result = await vendorService.getVendorRecordKycStatusById(_id);
-  
-          if (!result) {
-            throw new GraphQLError("Record not found", {
-              extensions: {
-                code: "BAD_REQUEST",
-                errors: []
-              }
-            });
-          }
-  
-          const response = {
-            record: {
-              ...result,
-              vendorId: result?._id?.toString()
-            },
-            message: "Vendor record fetched successfully",
-          }
-  
-          return response;
-  
-        } catch (error) {
-          throw error;
+    // Fetch each vendor record KYC status
+    async getKycStatus(parent, { input }, { req }, info) {
+      await verifyVendor(req);
+
+      try {
+        await validateInput(validators.getVendorRecordValidator, req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const result = await vendorService.getVendorRecordKycStatusById(_id);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
         }
-  
-      },
+
+        const response = {
+          record: {
+            ...result,
+            vendorId: result?._id?.toString()
+          },
+          message: "Vendor record fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
   },
 };
 

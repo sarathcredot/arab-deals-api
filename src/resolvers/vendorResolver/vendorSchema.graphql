@@ -9,6 +9,7 @@ type Mutation {
   vendorKycApproval(input: VendorKycStatusInput!): VendorKycStatusResponse!
   loginVendor(input: VendorLoginInput!): VendorAuthResponse!
   updateVendorProfile(input: VendorEditProfileInput!,image: Upload): UpdateVendorResponse!
+  updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!,image: Upload): UpdateVendorByAdminResponse!
 }
 
 # Vendor  Type
@@ -93,8 +94,8 @@ input VendorSignUpInput {
   mobileNumber: String!
   isBlocked: Boolean
   isKycCompleted: Boolean
-  brands: [BrandRecordIdInput]
-  categories: [CategoryRecordIdInput]
+  brands: [String]
+  categories: [String]
 }
 
 input VendorSignUpByAdminInput {
@@ -103,8 +104,8 @@ input VendorSignUpByAdminInput {
   mobileNumber: String!
   isBlocked: Boolean
   isKycCompleted: Boolean
-  brands: [BrandRecordIdInput]
-  categories: [CategoryRecordIdInput]
+  brands: [String]
+  categories: [String]
 }
 
 input VendorLoginInput {
@@ -119,6 +120,17 @@ input VendorEditProfileInput {
   mobileNumber: String
   isKycCompleted: Boolean
   password: String
+}
+
+input VendorEditProfileByAdminInput {
+   _id: String!
+  fullName: String
+  email: String
+  mobileNumber: String
+  isKycCompleted: Boolean
+  password: String
+  brands: [String]
+  categories: [String]
 }
 
 input MobileOtpDataInput {
@@ -145,6 +157,11 @@ type VendorAuthResponse {
 }
 
 type UpdateVendorResponse {
+  _id: String
+  message: String
+}
+
+type UpdateVendorByAdminResponse {
   _id: String
   message: String
 }
