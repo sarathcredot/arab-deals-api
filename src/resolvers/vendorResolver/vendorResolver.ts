@@ -219,7 +219,6 @@ export const vendorResolver: Resolvers = {
 
     // Vendor login 
     loginVendorWithOtp: async (parent, { input }, { req }, info) => {
-      await validateInput(validators.loginOtpVerificationValidator, req);
 
       await validateInput(validators.vendorLoginValidator, req);
 
@@ -265,8 +264,9 @@ export const vendorResolver: Resolvers = {
     },
 
 
-    // Vendor login 
+    // Vendor verfiy login 
     verifyVendorLoginOtp: async (parent, { input }, { req }, info) => {
+      await validateInput(validators.loginOtpVerificationValidator, req);
 
       const code: String = input.code;
       let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code }, {}, {});
@@ -328,6 +328,52 @@ export const vendorResolver: Resolvers = {
         token: loginResponse?.token,
         message: 'Vendor otp verifed and logined successfully',
       };
+
+      return response;
+    },
+
+    // Vendor re send login otp
+    reSendloginVendorWithOtp: async (parent, { input }, { req }, info) => {
+
+      await validateInput(validators.vendorLoginValidator, req);
+
+      const mobileNumber: string = input.mobileNumber;
+
+
+      const mobileOtp = await otpService.generateOtp();
+      if (!mobileOtp) {
+        throw new GraphQLError('OTP generation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let options = {
+        name: "VENDOR_LOGIN_MOBILE_OTP",
+        metadata: {
+          code: mobileOtp.code,
+          expiresAt: mobileOtp.expiresAt,
+          mobileNumber,
+        },
+        isVerified: false
+      };
+
+      const result = await otpService.createOtp(options);
+      if (!result) {
+        throw new GraphQLError('OTP Db creation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let response = {
+        _id: result?._id.toString(),
+        message: "Login OTP send successfully"
+      }
 
       return response;
     },

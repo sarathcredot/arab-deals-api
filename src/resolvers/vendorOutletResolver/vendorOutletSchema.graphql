@@ -95,7 +95,7 @@
     }  
 
     type UpdateVendorOutletResponse {
-         _id: String!
+        record: VendorOutlet!
         message: String
     }
 

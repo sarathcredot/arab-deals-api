@@ -175,9 +175,12 @@ export const vendorCompanyResolver: Resolvers = {
                     }
                 });
 
-                const result = await vendorCompanyRecord.save(); // Assuming a .save() method on your model
+                const result = await vendorCompanyRecord.save();
 
-                const response = { _id: result?._id?.toString() || "", message: "Vendor company record updated successfully" };
+                const response = {
+                    record: result.toObject(),
+                    message: "Vendor company record updated successfully"
+                };
                 return response;
 
             } catch (error) {
@@ -204,11 +207,11 @@ export const vendorCompanyResolver: Resolvers = {
 
             if (input.status !== null) {
                 vendor.status = input?.status;
-              }
-      
-              if (input.remarks !== null) {
+            }
+
+            if (input.remarks !== null) {
                 vendor.remarks = (input.remarks || []).filter(Boolean) as [];
-              }
+            }
 
 
             await vendor.save();

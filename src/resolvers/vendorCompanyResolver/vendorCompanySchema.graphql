@@ -69,7 +69,7 @@
     }  
 
     type UpdateVendorCompanyResponse {
-        _id: String!
+        record: VendorCompany!
         message: String
     }  
 

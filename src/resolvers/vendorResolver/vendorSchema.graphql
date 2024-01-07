@@ -8,6 +8,7 @@ type Mutation {
   createVendor(input: VendorSignUpInput!, image:Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image:Upload): CreateVendorByAdminResponse!
   loginVendorWithOtp(input: VendorLoginInput!): VendorLoginResponse!
+  reSendloginVendorWithOtp(input: VendorLoginInput!): VendorLoginResponse!
   verifyVendorLoginOtp(input: VerifyVendorLoginOtpInput!): VerifyVendorLoginOtpResponse!
   vendorKycApproval(input: VendorKycStatusInput!): VendorKycStatusResponse!
   updateVendorProfile(input: VendorEditProfileInput!,image: Upload): UpdateVendorResponse!

@@ -112,7 +112,7 @@ export const vendorOutletResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.updateVendorOutletValidatior, req);
-                await verifyVendor(req);
+                // await verifyVendor(req);
 
                 let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
                 const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
@@ -193,7 +193,10 @@ export const vendorOutletResolver: Resolvers = {
                 // Save the updated outlet record
                 const result = await outletRecord.save();
 
-                const response = { _id: result?._id?.toString() || "", message: "Vendor outlet record updated successfully" };
+                const response = {
+                    record: result.toObject(),
+                    message: "Vendor outlet record updated successfully"
+                };
                 return response;
 
             } catch (error) {
@@ -220,11 +223,11 @@ export const vendorOutletResolver: Resolvers = {
 
             if (input.status !== null) {
                 vendor.status = input?.status;
-              }
-      
-              if (input.remarks !== null) {
+            }
+
+            if (input.remarks !== null) {
                 vendor.remarks = (input.remarks || []).filter(Boolean) as [];
-              }
+            }
 
             await vendor.save();
 
