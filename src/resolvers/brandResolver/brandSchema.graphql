@@ -59,7 +59,8 @@
   type Query {
     getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
     getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
-    getAllBrandRecordsWithVendorByAdmin(input: VendorInput!): BrandRecordsWithVendorResponse!
+    getAllBrandRecordsWithVendorByAdmin(input:  getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
+    getAllBrandRecordsWithVendorByVendor(input:  getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
   }   
 
     # Input
@@ -68,11 +69,18 @@
     _id: String!
   }
 
-  input VendorInput {
+  input getAllBrandRecordsWithVendorByAdminInput {
     vendorId: String!
     page: Int
     size: Int
   }
+
+  input getAllBrandRecordsWithVendorByVendorInput {
+    vendorId: String!
+    page: Int
+    size: Int
+  }
+
 
   input BrandRecordsFilter {
     page: Int
@@ -109,8 +117,14 @@
     message: String
   }
 
-  type BrandRecordsWithVendorResponse {
+  type BrandRecordsWithVendorByAdminResponse {
     maxRecords: Int!
+    records: [BrandRecord!]
+    message: String
+  }
+
+  type BrandRecordsWithVendorByVendorResponse {
+     maxRecords: Int!
     records: [BrandRecord!]
     message: String
   }

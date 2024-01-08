@@ -118,12 +118,17 @@ export interface IVendorRecordsResponse {
 }
 
 
-export interface IVendorsRecordsOptions {
+export interface IVendorsRecordsByAdminOptions {
   page: number,
   size: number,
-  isKycCompleted: boolean,
+  isKycCompleted: boolean | null,
 }
 
+export interface IVendorsRecordsByVendorOptions {
+  page: number,
+  size: number,
+  isKycCompleted: boolean | null,
+}
 
 export interface IVendorsRecordsResponse {
   records: Array<IVendor>,
@@ -394,13 +399,21 @@ export const getVendorRecordKycStatusById = async (vendorId: Types.ObjectId): Pr
   return result[0];
 };
 
-export const getVendorRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorRecordsResponse> => {
-  let pipeline: PipelineStage[] = [
-    {
+export const getVendorRecordsByAdminWithFilters = async (options: IVendorsRecordsByAdminOptions): Promise<IVendorRecordsResponse> => {
+
+  
+  let pipeline: PipelineStage[] = [];
+
+  if (options.isKycCompleted != null) {
+    pipeline.push({
       $match: {
-        isKycCompleted: options.isKycCompleted
+        isKycCompleted: options.isKycCompleted  // filter with status
       }
-    },
+    });
+  }
+
+  pipeline.push(
+
     {
       $sort: { _id: -1 }
     },
@@ -474,7 +487,7 @@ export const getVendorRecordsWithFilters = async (options: IVendorsRecordsOption
         data: 1
       }
     }
-  ];
+  );
 
   const result = await vendorModel.aggregate(pipeline);
 
@@ -493,113 +506,110 @@ export const getVendorRecordsWithFilters = async (options: IVendorsRecordsOption
 };
 
 
+export const getVendorRecordsByVendorWithFilters = async (options: IVendorsRecordsByVendorOptions): Promise<IVendorRecordsResponse> => {
 
-// export const getCategorizedKYCs = async (options: QueryOptions): Promise<IVendorsWithKycRecordsResponse> => {
+  let pipeline: PipelineStage[] = [];
 
-//   let inputStatus = options.status;
-//   let checkStatus = {};
-//   if (inputStatus === "DEFAULT") {
-//     checkStatus = {}
-//   } else if (inputStatus === "COMPLETED") {
-//     checkStatus = {
-//       $and: [
-//         { 'companyDetails.status': inputStatus },
-//         { 'businessOutlet.status': inputStatus },
-//         { 'sellingProduct.status': inputStatus }
-//       ]
-//     }
-//   } else {
-//     checkStatus = {
-//       $or: [
-//         { 'companyDetails.status': inputStatus },
-//         { 'businessOutlet.status': inputStatus },
-//         { 'sellingProduct.status': inputStatus }
-//       ]
-//     }
-//   }
+  if (options.isKycCompleted != null) {
+    pipeline.push({
+      $match: {
+        isKycCompleted: options.isKycCompleted  // filter with status
+      }
+    });
+  }
 
-//   let pipeline: PipelineStage[] = [];
+  pipeline.push(
 
-//   pipeline.push(
-//     {
-//       $match: checkStatus,
-//     },
-//     {
-//       $lookup: {
-//         from: collections.VENDORS,
-//         localField: 'vendorId',
-//         foreignField: '_id',
-//         as: 'vendor'
-//       }
-//     },
-//     {
-//       $unwind: '$vendor'
-//     },
-//     {
-//       $project: {
-//         _id: 1,
-//         vendorId: '$vendor._id',
-//         email: '$vendor.email',
-//         fullName: '$vendor.fullName',
-//         mobileNumber: '$vendor.mobileNumber',
-//         country: '$vendor.country',
-//         brand: '$vendor.brand',
-//         isBlocked: '$vendor.isBlocked',
-//         companyName: '$vendor.companyName',
-//         kycStatus: {
-//           $cond: {
-//             if: '$isKycCompleted',
-//             then: 'COMPLETED',
-//             else: 'PENDING'
-//           }
-//         },
-//         companyStatus: '$companyDetails.status',
-//         businessOutletStatus: '$businessOutlet.status',
-//         sellingProductStatus: '$sellingProduct.status'
-//       }
-//     },
-//     {
-//       $facet: {
-//         metadata: [
-//           {
-//             $group: {
-//               _id: null,
-//               total: { $sum: 1 }
-//             }
-//           }
-//         ],
-//         data: [
-//           {
-//             $skip: options.page * options.size
-//           },
-//           {
-//             $limit: options.size
-//           }
-//         ]
-//       }
-//     },
-//     {
-//       $project: {
-//         maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-//         data: 1
-//       }
-//     }
-//   );
+    {
+      $sort: { _id: -1 }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_OUTLETS,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'outlet'
+      }
+    },
+    {
+      $unwind: {
+        path: '$outlet',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_COMPANIES,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'company'
+      }
+    },
+    {
+      $unwind: {
+        path: '$company',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $facet: {
+        metadata: [
+          {
+            $group: {
+              _id: null,
+              total: { $sum: 1 }
+            }
+          }
+        ],
+        data: [
+          {
+            $skip: options.page * options.size
+          },
+          {
+            $limit: options.size
+          },
+          {
+            $project: {
+              _id: 1,
+              fullName: 1,
+              email: 1,
+              mobileNumber: 1,
+              isBlocked: 1,
+              isKycCompleted: 1,
+              companyId: '$company._id',
+              companyName: '$company.companyName',
+              companyStatus: '$company.status',
+              outletId: '$outlet._id',
+              outletName: '$outlet.outletName',
+              outletStatus: '$outlet.status'
+            }
+          }
+        ]
+      }
+    },
+    {
+      $project: {
+        maxRecords: { $ifNull: [{ $arrayElemAt: ['$metadata.total', 0] }, 0] },
+        data: 1
+      }
+    }
+  );
 
-//   const result = await vendorKycModel.aggregate(pipeline);
+  const result = await vendorModel.aggregate(pipeline);
 
-//   let response = {
-//     records: [],
-//     maxRecords: 0
-//   };
-//   if (result.length) {
-//     response.records = result[0].data || [];
-//     response.maxRecords = result[0].maxRecords || 0;
-//   }
+  let response = {
+    records: [],
+    maxRecords: 0
+  };
 
-//   return response;
-// };
+  if (result.length) {
+    response.records = result[0].data || [];
+    response.maxRecords = result[0].maxRecords || 0;
+  }
 
+  return response;
+
+};
 
 
 

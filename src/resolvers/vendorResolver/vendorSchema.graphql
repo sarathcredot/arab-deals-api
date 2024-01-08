@@ -212,8 +212,9 @@ type VerifyVendorLoginOtpResponse {
 }
 
 type Query {
-  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
-  getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse!
+  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
+  getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
+  getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
   getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
 }
@@ -240,6 +241,13 @@ type CreateVendorByAdminResponse{
     isKycCompleted: Boolean
   }
 
+  
+ input VendorsRecordsByVendorFilter {
+    page: Int
+    size: Int
+    isKycCompleted: Boolean
+  }
+
 
  input VendorRecordByAdminInput {
     _id: String!
@@ -253,16 +261,18 @@ type CreateVendorByAdminResponse{
     _id: String!
   }
 
-  type VendorsRecordsResponse {
+  type VendorsRecordsByAdminResponse {
     maxRecords: Int!
     records: [VendorWithKycData]
     message: String
   }   
 
-  type VendorRecordResponse {
-    record: Vendor!
+  
+  type VendorsRecordsByVendorResponse {
+    maxRecords: Int!
+    records: [VendorWithKycData]
     message: String
-  }
+  }   
 
 
 # Schema

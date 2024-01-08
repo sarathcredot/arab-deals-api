@@ -566,24 +566,24 @@ export const vendorResolver: Resolvers = {
   },
 
   Query: {
-    // Fetch all vendors records
+    // Fetch all vendors records by admin
     async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
       try {
-        await validateInput(validators.getAllVendorsRecordsValidator, req);
-        await verifyAdmin(req);
+        await validateInput(validators.getAllVendorsRecordsByAdminValidator, req);
+        // await verifyAdmin(req);
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
-        const isKycCompleted: boolean = input?.isKycCompleted || false;
+        const isKycCompleted: boolean | null = input?.isKycCompleted ?? null;
 
-        const options: vendorService.IVendorsRecordsOptions = {
+        const options: vendorService.IVendorsRecordsByAdminOptions = {
           page,
           size,
           isKycCompleted,
         }
 
         // Fetch all vendors records
-        const result = await vendorService.getVendorRecordsWithFilters(options);
+        const result = await vendorService.getVendorRecordsByAdminWithFilters(options);
         const response = {
           records: result.records,
           maxRecords: result.maxRecords,
@@ -597,7 +597,7 @@ export const vendorResolver: Resolvers = {
 
     // Fetch each vendor record by admin
     async getVendorRecordByAdmin(parent, { input }, { req }, info) {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
 
       try {
         await validateInput(validators.getVendorRecordValidator, req);
@@ -631,6 +631,35 @@ export const vendorResolver: Resolvers = {
         throw error;
       }
 
+    },
+
+    // Fetch all vendors records by vendor
+    async getAllVendorsRecordsByVendor(parent, { input }, { req }, info) {
+      try {
+        await validateInput(validators.getAllVendorsRecordsByVendorValidator, req);
+        // await verifyAdmin(req);
+
+        const page: number = input?.page || 0;
+        const size: number = input?.size || 10;
+        const isKycCompleted: boolean | null = input?.isKycCompleted ?? null;
+
+        const options: vendorService.IVendorsRecordsByVendorOptions = {
+          page,
+          size,
+          isKycCompleted,
+        }
+
+        // Fetch all vendors records
+        const result = await vendorService.getVendorRecordsByVendorWithFilters(options);
+        const response = {
+          records: result.records,
+          maxRecords: result.maxRecords,
+          message: "Vendors records fetched successfully",
+        };
+        return response;
+      } catch (error) {
+        throw error;
+      }
     },
 
     // Fetch each vendor record by vendor

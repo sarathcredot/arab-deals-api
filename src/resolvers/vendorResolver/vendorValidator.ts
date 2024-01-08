@@ -7,9 +7,16 @@ export const vendorLoginValidator = [
 ];
 
 
-export const getAllVendorsRecordsValidator = [
+export const getAllVendorsRecordsByAdminValidator = [
   body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
   body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
+  body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+];
+
+export const getAllVendorsRecordsByVendorValidator = [
+  body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
+  body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
+  body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
 ];
 
 export const VendorCreateValidator = [
