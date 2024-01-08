@@ -701,6 +701,45 @@ export const vendorResolver: Resolvers = {
 
     },
 
+     // Fetch each vendor all kycrecord by vendor
+     async getVendorAllKycRecordByVendor(parent, { input }, { req }, info) {
+      // await verifyVendor(req);
+
+      try {
+        await validateInput(validators.getVendorRecordValidator, req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const result = await vendorService.getVendorAllKycRecordByVendorWithId(_id);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const response = {
+          record: {
+            ...result,
+            brands: (result?.brands || []).map(brandId => brandId.toString()),
+            categories: (result?.categories || []).map(categoryId => categoryId.toString()),
+            vendorId: result?._id?.toString(),
+          },
+          message: "Vendor all kyc record details fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
+
     // Fetch each vendor record KYC status
     async getKycStatus(parent, { input }, { req }, info) {
       await verifyVendor(req);

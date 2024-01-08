@@ -349,6 +349,65 @@ export const getVendorRecordByVendorWithId = async (vendorId: Types.ObjectId): P
   return result[0];
 };
 
+export const getVendorAllKycRecordByVendorWithId = async (vendorId: Types.ObjectId): Promise<IVendorWithKycDetails> => {
+  let pipeline: PipelineStage[] = [
+    {
+      $match: {
+        _id: new Types.ObjectId(vendorId)
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_OUTLETS,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'outlet'
+      }
+    },
+    {
+      $unwind: {
+        path: '$outlet',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: collections.VENDOR_COMPANIES,
+        localField: '_id',
+        foreignField: 'vendorId',
+        as: 'company'
+      }
+    },
+    {
+      $unwind: {
+        path: '$company',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        fullName: 1,
+        email: 1,
+        mobileNumber: 1,
+        isBlocked: 1,
+        brands:1,
+        categories:1,
+        isKycCompleted: 1,
+        companyId: '$company._id',
+        companyName: '$company.companyName',
+        companyStatus: '$company.status',
+        outletId: '$outlet._id',
+        outletName: '$outlet.outletName',
+        outletStatus: '$outlet.status'
+      }
+    }
+  ];
+
+  const result = await vendorModel.aggregate(pipeline);
+  return result[0];
+};
+
 export const getVendorRecordKycStatusById = async (vendorId: Types.ObjectId): Promise<IVendorWithKycDetails> => {
   let pipeline: PipelineStage[] = [
     {

@@ -194,6 +194,11 @@ type VendorsRecordByVendorResponse {
   message: String
 }
 
+type VendorAllKycRecordByVendorResponse {
+  record: VendorWithKycData
+  message: String
+}
+
 type VendorRecordKycStatusResponse {
   record: VendorWithKycDataStatus
   message: String
@@ -216,6 +221,7 @@ type Query {
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
   getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
   getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
+  getVendorAllKycRecordByVendor(input: VendorAllKycRecordByVendorInput!): VendorAllKycRecordByVendorResponse!
   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
 }
 
@@ -260,6 +266,10 @@ type CreateVendorByAdminResponse{
    input VendorRecordKycStatusInput {
     _id: String!
   }
+
+   input VendorAllKycRecordByVendorInput{
+    _id: String!
+  } 
 
   type VendorsRecordsByAdminResponse {
     maxRecords: Int!
