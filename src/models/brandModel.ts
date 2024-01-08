@@ -43,6 +43,11 @@ const brandSchema = new Schema(
             type: Boolean,
             default: false
         },
+        priority: {
+            type: Number,
+            default: 1,
+            min: 1
+        },
         isBlocked: {
             type: Boolean,
             default: false

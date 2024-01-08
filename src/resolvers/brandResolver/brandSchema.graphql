@@ -15,12 +15,16 @@
     input AddBrandInput {
         brandName:String!
         isBlocked: Boolean
+        isPopular: Boolean
+        priority: Int!
     }   
 
     input updateBrandInput {
-         _id: String!
+          _id: String!
         brandName: String
         isBlocked: Boolean
+        isPopular: Boolean
+        priority: Int
     }
 
     input BrandRecordIdInput {
@@ -55,6 +59,7 @@
   type Query {
     getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
     getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+    getAllBrandRecordsWithVendorByAdmin(input: VendorInput!): BrandRecordsWithVendorResponse!
   }   
 
     # Input
@@ -63,9 +68,16 @@
     _id: String!
   }
 
+  input VendorInput {
+    vendorId: String!
+    page: Int
+    size: Int
+  }
+
   input BrandRecordsFilter {
     page: Int
     size: Int
+    isBlocked: Boolean
   }
 
     # Output
@@ -82,13 +94,22 @@
     brandName: String
     isBlocked: Boolean
     logo: ImageData
+    isPopular: Boolean
+    priority: Int
   }  
   
   type BrandRecordResponse {
     record: BrandRecord!
+    message: String
   }
 
   type BrandRecordsResponse {
+    maxRecords: Int!
+    records: [BrandRecord!]
+    message: String
+  }
+
+  type BrandRecordsWithVendorResponse {
     maxRecords: Int!
     records: [BrandRecord!]
     message: String

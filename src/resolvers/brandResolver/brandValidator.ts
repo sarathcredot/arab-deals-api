@@ -13,6 +13,12 @@ export const getAllBrandsValidator = [
     body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
 ]
 
+export const getAllBrandsWithVendorValidator = [
+    body('variables.input.vendorId').notEmpty().isMongoId(),
+    body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
+    body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
+]
+
 export const brandQueryValidator = [
     body('variables.input._id').notEmpty().isMongoId(),
 ]

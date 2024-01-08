@@ -1,7 +1,6 @@
-import { brandModel, productModel } from "../models";
+import { brandModel, vendorModel } from "../models";
 import { Types, Document, QueryOptions, FilterQuery, ProjectionFields, PipelineStage } from "mongoose";
-
-
+import { collections } from "../configs";
 
 
 export interface IBrandRecord {
@@ -9,12 +8,22 @@ export interface IBrandRecord {
     brandId?: Types.ObjectId,
     brandName?: string,
     isBlocked?: boolean,
+    isPopular?: boolean,
+    priority?: number,
+    logo?: {
+        fileType?: string,
+        fileURL?: string,
+        mimeType?: string,
+        originalName?: string
+    }
 }
 
 export interface IBrandDocument extends Document {
     _id?: string,
     brandName?: string,
     isBlocked?: boolean,
+    isPopular: boolean,
+    priority: number,
     logo?: {
         fileType?: string,
         fileURL?: string,
@@ -33,6 +42,8 @@ export interface IBrandRecordsProjection {
     "logo.originalName"?: 1,
     "logo.createdAt"?: 1,
     isBlocked?: 1,
+    isPopular?: 1,
+    priority?: 1,
     createdAt?: 1,
     updatedAt?: 1,
 }
@@ -40,10 +51,22 @@ export interface IBrandRecordsProjection {
 export interface IBrandRecordsOptions {
     page: number,
     size: number,
+    isBlocked: boolean,
     projection: IBrandRecordsProjection
 }
 
+export interface IBrandRecordsWithVendorOptions {
+    page: number,
+    size: number,
+    vendorId: Types.ObjectId,
+}
+
 export interface IBrandRecordsResponse {
+    records: Array<IBrandRecord>,
+    maxRecords: number
+}
+
+export interface IBrandRecordsWithVendorResponse {
     records: Array<IBrandRecord>,
     maxRecords: number
 }
@@ -74,11 +97,13 @@ export const getBrandRecordsWithFilters = async (options: IBrandRecordsOptions):
     pipeline.push(
         {
             $match: {
-                isBlocked: false
+                isBlocked: options.isBlocked
             }
         },
         {
-            $sort: { _id: -1 }
+            $sort: {
+                priority: -1,
+            }
         },
         {
             $facet: {
@@ -112,6 +137,90 @@ export const getBrandRecordsWithFilters = async (options: IBrandRecordsOptions):
     );
 
     const result = await brandModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
+export const getBrandRecordsWithVendorFilters = async (options: IBrandRecordsWithVendorOptions): Promise<IBrandRecordsWithVendorResponse> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                _id: options.vendorId
+            }
+        },
+        {
+            $lookup: {
+                from: collections.BRANDS,
+                localField: "brands",
+                foreignField: "_id",
+                as: "brandDetails"
+            }
+        },
+        {
+            $unwind: "$brandDetails"
+        },
+        {
+            $sort: {
+                "brandDetails.priority": -1,
+            }
+        },
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: {
+                            "_id": "$brandDetails._id",
+                            "brandName": "$brandDetails.brandName",
+                            "logo._id": "$brandDetails.logo._id",
+                            "logo.fileType": "$brandDetails.logo.fileType",
+                            "logo.fileURL": "$brandDetails.logo.fileURL",
+                            "logo.mimeType": "$brandDetails.logo.mimeType",
+                            "logo.originalName": "$brandDetails.logo.originalName",
+                            "isBlocked": "$brandDetails.isBlocked",
+                            "isPopular": "$brandDetails.isPopular",
+                            "priority": "$brandDetails.priority",
+                            "createdAt": "$brandDetails.createdAt",
+                            "updatedAt": "$brandDetails.updatedAt",
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result = await vendorModel.aggregate(pipeline);
     let response = {
         records: [],
         maxRecords: 0
