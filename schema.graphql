@@ -5,45 +5,60 @@ scalar Upload
 scalar JSONObject
 
 type Mutation {
+  sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
-  vendorAccountApproval(input: VendorAccountApprovalInput!): VendorAccountApprovalResponse!
-  loginVendor(input: VendorLoginInput!): VendorAuthResponse!
-  updateVendorProfile(input: VendorEditProfileInput!, images: [Upload], fileMap: JSONObject): UpdateVendorResponse!
-  createTempVendor(input: tempVendorSignUpInput!): AddTempVendorResponse!
-  addSize(input: AddSizeInput!): AddSizeResponse!
+  createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
+  loginVendorWithOtp(input: VendorLoginInput!): VendorLoginResponse!
+  reSendloginVendorWithOtp(input: VendorLoginInput!): VendorLoginResponse!
+  verifyVendorLoginOtp(input: VerifyVendorLoginOtpInput!): VerifyVendorLoginOtpResponse!
+  vendorKycApproval(input: VendorKycStatusInput!): VendorKycStatusResponse!
+  updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
+  updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
+  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
+  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+  vendorOutletStatusUpdation(input: VendorOutletStatusUpdationInput!): VendorOutletStatusUpdationResponse!
+  deleteVendorOutlet(input: DeleteVendorOutletIdInput!): DeleteVendorOutletRecordResponse!
+  addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
+  updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
+  vendorCompanyStatusUpdation(input: VendorCompanyStatusUpdationInput!): VendorCompanyStatusUpdationResponse!
+  deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
   uploadProductFile(file: Upload!): File
   createProduct(input: ProductInput!, images: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
-  sendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
-  verifyOtp(input: VerifyOtpInput!): VerifyOtpResponse!
-  reSendMobileOtp(input: sendMobileOtpInput!): sendMobileOtpResponse!
-  submitKycCompanyDetails(input: KycCompanyDetailsInput!, image: Upload): SubmitKycCompanyDetailsResponse!
-  submitKycBusinessOutletDetails(input: KycBusinessOutletDetailsInput!, images: [Upload], fileMap: JSONObject): SubmitKycBusinessOutletDetailsResponse!
-  submitKycSellingProductDetails(input: KycSellingProductDetailsInput!, images: [Upload]): KycSellingProductDetailsResponse!
-  updateIsKycCompleted: UpdateIsKycCompletedResponse
-  updateKycCompanyDetailsApprovalByAdmin(input: UpdateKycCompanyDetailsApprovalInput!): UpdateKycStatusResponse!
-  updateKycBusinessOutletApprovalByAdmin(input: UpdateKycBusinessOutletApprovalInput!): UpdateKycStatusResponse!
-  updateKycSellingProductApprovalByAdmin(input: UpdateKycSellingProductApprovalInput!): UpdateKycStatusResponse!
-  updateKycCompanyDetails(input: UpdateKycCompanyDetailsInput!, image: Upload): UpdateKycCompanyDetailsResponse!
-  updateKycBusinessOutlet(input: UpdateKycBusinessOutletInput!, images: [Upload], fileMap: JSONObject): UpdateKycBusinessOutletResponse!
-  updateKycSellingProduct(input: UpdateKycSellingProductInput!, images: [Upload]): UpdateKycSellingProducttResponse!
-  addColor(input: AddColorInput!): AddColorResponse!
-  updateColor(input: updateColorInput!): updateColorResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
-  deleteCmsRecord(input: CmsRecordId!): DeleteCmsResponse!
-  addCms2Section(input: Cms2AddInput!, images: [Upload]): Cms2AddResponse!
-  updateCms2Record(input: UpdateCms2Input!, images: [Upload], fileMap: JSONObject): UpdateCms2Response!
-  deleteCms2Record(input: Cms2RecordId!): DeleteCms2Response!
+  sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
+  verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
+  reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
+  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
+  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
+  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image: Upload): UpdateAdminResponse!
   adminApprovalForVendor(input: adminApprovalForVendorInput!): adminApprovalForVendorResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
+}
+
+input sendOtpInput {
+  fullName: String!
+  mobileNumber: String!
+}
+
+type sendOtpResponse {
+  message: String
+}
+
+input VendorLoginInput {
+  mobileNumber: String!
+}
+
+input VerifyVendorLoginOtpInput {
+  code: String!
 }
 
 type ImageData {
@@ -55,31 +70,55 @@ type ImageData {
 
 type Vendor {
   _id: String
+  fullName: String!
   email: String
-  password: String
-  fullName: String
-  mobileNumber: String
-  country: String
-  brand: String
-  profilePic: ImageData
+  mobileNumber: String!
   isBlocked: Boolean
-  companyName: String
+  profilePic: ImageData
+  isKycCompleted: Boolean
+  brands: [String]
+  categories: [String]
 }
 
-type VendorKYCData {
+type VendorWithKycData {
   _id: String
-  vendorId: String
-  email: String
   fullName: String
+  email: String
   mobileNumber: String
-  country: String
-  brand: String
-  isBlocked: Boolean
+  isBlocked: String
+  isKycCompleted: Boolean
+  outletId: String
+  outletName: String
+  outletStatus: String
+  companyId: String
   companyName: String
   companyStatus: String
-  businessOutletStatus: String
-  sellingProductStatus: String
-  kycStatus: String
+  profilePic: ImageData
+  brands: [String]
+  categories: [String]
+}
+
+type VendorWithAllKycData {
+  _id: String
+  fullName: String
+  email: String
+  mobileNumber: String
+  isBlocked: String
+  isKycCompleted: Boolean
+  outletId: String
+  outletName: String
+  outletStatus: String
+  companyId: String
+  companyName: String
+  companyStatus: String
+}
+
+type VendorWithKycDataStatus {
+  _id: String
+  isBlocked: String
+  isKycCompleted: Boolean
+  outletStatus: String
+  companyStatus: String
 }
 
 type MobileOtpData {
@@ -95,39 +134,43 @@ type ContactPersonData {
 }
 
 input VendorSignUpInput {
-  email: String!
-  password: String!
   fullName: String!
+  email: String
   mobileNumber: String!
-  country: String!
-  companyName: String!
+  isBlocked: Boolean
+  isKycCompleted: Boolean
+  brands: [String]
+  categories: [String]
 }
 
-input VendorLoginInput {
-  email: String!
-  password: String!
+input VendorSignUpByAdminInput {
+  fullName: String!
+  email: String
+  mobileNumber: String!
+  isBlocked: Boolean
+  isKycCompleted: Boolean
+  brands: [String]
+  categories: [String]
 }
 
 input VendorEditProfileInput {
   _id: String!
-  email: String!
-  password: String!
-  fullName: String!
-  mobileNumber: String!
-  country: String!
-  brand: String!
-  companyName: String!
-  businessOutletName: String!
-  outletName: String!
-  crNumber: String!
-  crLicence: String!
-  businessLicence: String!
-  chamberOfCommerceCertificate: String!
-  companyType: String!
-  businessAddress: String!
-  contactPerson: ContactPersonInput!
-  sellingProductDetails: String!
-  sellingProductBrands: String!
+  fullName: String
+  email: String
+  mobileNumber: String
+  isKycCompleted: Boolean
+  password: String
+}
+
+input VendorEditProfileByAdminInput {
+  _id: String!
+  fullName: String
+  email: String
+  mobileNumber: String
+  isKycCompleted: Boolean
+  password: String
+  brands: [String]
+  categories: [String]
 }
 
 input MobileOtpDataInput {
@@ -141,14 +184,9 @@ input ContactPersonInput {
   designation: String!
 }
 
-input VendorAccountApprovalInput {
+input VendorKycStatusInput {
   _id: String!
-  approvalStatus: Boolean!
-}
-
-type VendorAuthResponse {
-  _id: String
-  token: String
+  status: Boolean!
 }
 
 type UpdateVendorResponse {
@@ -156,17 +194,52 @@ type UpdateVendorResponse {
   message: String
 }
 
-type VendorAccountApprovalResponse {
+type UpdateVendorByAdminResponse {
   _id: String
   message: String
 }
 
+type VendorKycStatusResponse {
+  _id: String
+  message: String
+}
+
+type VendorsRecordByAdminResponse {
+  record: VendorWithKycData
+  message: String
+}
+
+type VendorsRecordByVendorResponse {
+  record: VendorWithKycData
+  message: String
+}
+
+type VendorRecordKycStatusResponse {
+  record: VendorWithKycDataStatus
+  message: String
+}
+
+type VendorLoginResponse {
+  _id: String
+  message: String
+}
+
+type VerifyVendorLoginOtpResponse {
+  _id: String
+  token: String
+  message: String
+}
+
 type Query {
-  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsResponse!
-  getVendorRecordByAdmin(input: VendorRecordByAdminFilter!): VendorRecordResponse!
-  getSizeRecord(input: SizeId!): SizeRecordResponse!
-  getActiveSizes(input: GetActiveSizesInput): ActiveSizesResponse!
-  getAllSizesWithCatgeoryId(input: CategoryIdInput): getAllSizesResponse!
+  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
+  getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
+  getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
+  getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
+  getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletIdInput!): VendorOutletRecordResponse!
+  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
   getProductByAdmin(input: ProductId!): ProductResponse!
   getVariantsByAdmin(input: VariantsInput!): VariantsResponse!
@@ -175,32 +248,19 @@ type Query {
   getVariants(input: VariantsInput!): VariantsResponse!
   getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
   getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
-  getKYCStatus(input: getKycStatusInput!): KYCStatusResponse!
-  listKYCByStatus(input: listKYCByStatusInput!): listKYCByStatusResponse!
-  getAllKycRecordsByAdmin(input: GetAllKycRecordsInput!): GetAllKycRecordsResponse!
-  getKycRecordByAdmin(input: GetKycRecordInput!): GetKycRecordResponse!
-  getColorRecord(input: colorId!): ColorRecordResponse!
-  getActiveColors(input: GetActiveColorsInput): ActiveColorResponse!
-  getAllColorsWithCategoryId(input: CategoryIdInput): getAllColorsWithCategoryIdResponse!
-  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
-  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
-  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
-  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
-  getCms2Record(input: cms2RecordFilter!): Cms2RecordResponse!
-  getAllCms2Records(input: Cms2RecordsFilter): Cms2RecordsResponse!
-  getAllCms2RecordsByAdmin(input: Cms2RecordsByAdminFilter): Cms2RecordsResponse!
-  getCms2RecordByAdmin(input: cms2RecordByAdminFilter!): Cms2RecordResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveCategoryTree: getActiveCategoryTreeResponse!
   getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
   getAllLeafRecords: getAllLeafRecordsResponse!
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
+  getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
+  getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+  getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
+  getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
   getAdminRecord: getAdminRecordResponse
-}
-
-type getVendorRecordResponse {
-  record: Vendor
+  getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
+  getAttributeRecordByVendor(input: AttributeRecordByAdminInput!): AttributeRecorddByAdminResponse
 }
 
 type CreateVendorResponse {
@@ -209,24 +269,45 @@ type CreateVendorResponse {
   token: String
 }
 
+type CreateVendorByAdminResponse {
+  _id: String
+  message: String
+  token: String
+}
+
 input VendorsRecordsByAdminFilter {
   page: Int
   size: Int
-  status: String
+  isKycCompleted: Boolean
 }
 
-input VendorRecordByAdminFilter {
+input VendorsRecordsByVendorFilter {
+  page: Int
+  size: Int
+  isKycCompleted: Boolean
+}
+
+input VendorRecordByAdminInput {
   _id: String!
 }
 
-type VendorsRecordsResponse {
+input VendorRecordByVendorInput {
+  _id: String!
+}
+
+input VendorRecordKycStatusInput {
+  _id: String!
+}
+
+type VendorsRecordsByAdminResponse {
   maxRecords: Int!
-  records: [VendorKYCData]
+  records: [VendorWithKycData]
   message: String
 }
 
-type VendorRecordResponse {
-  record: Vendor!
+type VendorsRecordsByVendorResponse {
+  maxRecords: Int!
+  records: [VendorWithKycData]
   message: String
 }
 
@@ -235,60 +316,195 @@ schema {
   mutation: Mutation
 }
 
-type tempVendor {
+type VendorOutlet {
+  _id: String
+  vendorId: String
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  status: String
+  remarks: [String]
+  outletLicense: ImageData
+  interiorImage: ImageData
+  exteriorImage: ImageData
+}
+
+type vendorOutletRecordsWithKycData {
+  vendorId: String
+  fullName: String
+  isKycCompleted: String
+  _id: String
+  outletName: String
+  status: String
+  companyId: String
+  companyName: String
+  companyStatus: String
+}
+
+input AddVendorOutletInput {
+  vendorId: String!
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+}
+
+input UpdateVendorOutletInput {
+  vendorId: String!
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+}
+
+input DeleteVendorOutletIdInput {
+  _id: String!
+}
+
+input VendorOutletStatusUpdationInput {
+  _id: String!
+  status: String!
+  remarks: [String]
+}
+
+type AddVendorOutletResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorOutletResponse {
+  record: VendorOutlet!
+  message: String
+}
+
+type DeleteVendorOutletRecordResponse {
+  _id: String!
+  message: String
+}
+
+input VendorOutletIdInput {
+  _id: String!
+}
+
+input VendorOutletRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+}
+
+type VendorOutletRecordResponse {
+  record: VendorOutlet!
+  message: String
+}
+
+type VendorOutletRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorOutletRecordsWithKycData!]
+  message: String
+}
+
+type VendorOutletStatusUpdationResponse {
+  _id: String
+  status: String
+  message: String
+}
+
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
+}
+
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
   _id: String
   fullName: String
-  mobileNumber: String
+  isKycCompleted: String
+  companyName: String
+  status: String
+  outletId: String
+  outletName: String
+  outletStatus: String
 }
 
-input tempVendorSignUpInput {
-  fullName: String!
-  mobileNumber: String!
+input AddVendorCompanyInput {
+  vendorId: String!
+  companyName: String
+  companyType: String
+  crNumber: String
 }
 
-type AddTempVendorResponse {
+input UpdateVendorCompanyInput {
+  vendorId: String!
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+input VendorCompanyStatusUpdationInput {
   _id: String!
-  mobileNumber: String!
+  status: String!
+  remarks: [String]
 }
 
-input AddSizeInput {
-  categoryId: String!
-  size: String!
-  isBlocked: Boolean
+type AddVendorCompanyResponse {
+  _id: String!
+  message: String
 }
 
-type AddSizeResponse {
+type UpdateVendorCompanyResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+input VendorCompanyIdInput {
   _id: String!
 }
 
-input SizeId {
-  _id: String!
+input VendorCompanyRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
 }
 
-input GetActiveSizesInput {
-  categoryId: String
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
 }
 
-input CategoryIdInput {
-  categoryId: String
+type VendorCompanyRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorCompanyRecordsWithKycData!]
+  message: String
 }
 
-type SizeRecord {
-  size: String
-  isBlocked: Boolean
-  categoryIdPath: String
-}
-
-type SizeRecordResponse {
-  record: SizeRecord!
-}
-
-type ActiveSizesResponse {
-  records: [SizeRecord]
-}
-
-type getAllSizesResponse {
-  records: [SizeRecord]
+type VendorCompanyStatusUpdationResponse {
+  _id: String
+  message: String
 }
 
 type File {
@@ -487,608 +703,34 @@ type RelatedProductsResponse {
   records: [Product!]
 }
 
-input sendMobileOtpInput {
-  _id: String!
+input sendVendorMobileOtpInput {
+  fullName: String
   mobileNumber: String!
-  otpType: String!
 }
 
-input VerifyOtpInput {
-  _id: String!
-  mobileOtp: String!
+input ReSendVendorMobileOtpInput {
+  fullName: String
+  mobileNumber: String!
 }
 
-type sendMobileOtpResponse {
+input VerifyVendorOtpInput {
+  code: String!
+}
+
+type sendVendorMobileOtpResponse {
   _id: String
   message: String
 }
 
-type VerifyOtpResponse {
+type VerifyVendorOtpResponse {
   _id: String
+  fullName: String
   mobileNumber: String
   message: String
 }
 
-type CompanyDetailsData {
+type ReSendVendorMobileOtpResponse {
   _id: String
-  sectionName: String
-  name: String
-  type: String
-  crNumber: String
-  crLicence: String
-  status: String
-  remarks: [String]
-  companyLicenceImage: ImageData
-}
-
-type sellingProductData {
-  _id: String
-  sectionName: String
-  discription: String
-  brand: String
-  status: String
-  remarks: [String]
-  sellingProductImage: [ImageData]
-}
-
-type businessOutletData {
-  _id: String
-  sectionName: String
-  name: String
-  address: String
-  interiorImage: ImageData
-  exteriorImage: ImageData
-  status: String
-  remarks: [String]
-}
-
-type KYCRecord {
-  _id: String
-  vendorId: String
-  companyDetails: CompanyDetailsData
-  businessOutlet: businessOutletData
-  sellingProduct: sellingProductData
-  isKycCompleted: Boolean
-}
-
-type ApprovedKYCRecord {
-  _id: String
-  vendorId: String
-  companyDetails: CompanyDetailsApprovedData
-  businessOutlet: businessOutletApprovedData
-  sellingProduct: sellingProductApprovedData
-  isKycCompleted: Boolean
-}
-
-type CompanyDetailsApprovedData {
-  _id: String
-  sectionName: String
-  name: String
-  type: String
-  crNumber: String
-  crLicence: String
-  status: String
-  remarks: [String]
-  companyLicenceImage: ImageData
-}
-
-type sellingProductApprovedData {
-  _id: String
-  sectionName: String
-  discription: String
-  brand: String
-  status: String
-  remarks: [String]
-  sellingProductImage: [ImageData]
-}
-
-type businessOutletApprovedData {
-  _id: String
-  sectionName: String
-  name: String
-  address: String
-  interiorImage: ImageData
-  exteriorImage: ImageData
-  status: String
-  remarks: [String]
-}
-
-type KYCRecordWithVendorDetails {
-  _id: String
-  vendorId: String
-  fullName: String
-  companyDetails: CompanyDetailsData
-  businessOutlet: businessOutletData
-  sellingProduct: sellingProductData
-  isKycCompleted: Boolean
-}
-
-type SubmitKycCompanyDetailsResponse {
-  _id: String
-  message: String
-}
-
-type SubmitKycBusinessOutletDetailsResponse {
-  _id: String
-  message: String
-}
-
-type UpdateKycStatusResponse {
-  record: ApprovedKYCRecord
-  message: String
-}
-
-type UpdateIsKycCompletedResponse {
-  message: String
-}
-
-type KycSellingProductDetailsResponse {
-  _id: String
-  message: String
-}
-
-type UpdateKycCompanyDetailsResponse {
-  _id: String
-  message: String
-}
-
-type UpdateKycBusinessOutletResponse {
-  _id: String
-  message: String
-}
-
-type UpdateKycSellingProducttResponse {
-  _id: String
-  message: String
-}
-
-input KycCompanyDetailsInput {
-  vendorId: String!
-  companyDetails: CompanyDetailsInput!
-}
-
-input KycBusinessOutletDetailsInput {
-  vendorId: String!
-  businessOutlet: businessOutletInput!
-}
-
-input KycSellingProductDetailsInput {
-  vendorId: String!
-  sellingProduct: sellingProductInput!
-}
-
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input kycDataInput {
-  vendorId: String!
-  companyDetails: CompanyDetailsInput
-  businessOutlet: businessOutletInput
-  sellingProduct: sellingProductInput
-  isKycCompleted: Boolean
-}
-
-input CompanyDetailsInput {
-  sectionName: String!
-  name: String!
-  type: String!
-  crNumber: String!
-  crLicence: String!
-}
-
-input sellingProductInput {
-  sectionName: String!
-  discription: String!
-  brand: String!
-}
-
-input businessOutletInput {
-  sectionName: String!
-  name: String!
-  address: String!
-}
-
-input UpdateKycCompanyDetailsApprovalInput {
-  _id: String!
-  companyDetails: CompanyDetailsApprovalInput
-}
-
-input UpdateKycBusinessOutletApprovalInput {
-  _id: String!
-  businessOutlet: businessOutletStatusApprovalInput
-}
-
-input UpdateKycSellingProductApprovalInput {
-  _id: String!
-  sellingProduct: sellingProductStatusApprovalInput
-}
-
-input UpdateKycCompanyDetailsInput {
-  vendorId: String!
-  companyDetails: UpdateCompanyDetailsInput
-}
-
-input UpdateCompanyDetailsInput {
-  sectionName: String
-  name: String
-  type: String
-  crNumber: String
-  crLicence: String
-}
-
-input UpdateKycBusinessOutletInput {
-  vendorId: String!
-  businessOutlet: UpdateBusinessOutletInput
-}
-
-input UpdateBusinessOutletInput {
-  sectionName: String
-  name: String
-  address: String
-}
-
-input UpdateKycSellingProductInput {
-  vendorId: String!
-  sellingProduct: UpdateSellingProductInput
-}
-
-input UpdateSellingProductInput {
-  sectionName: String
-  discription: String
-  brand: String
-}
-
-type SubmitKYCResponse {
-  _id: String
-  message: String
-}
-
-input CompanyDetailsApprovalInput {
-  status: String
-  remarks: [String]
-}
-
-input businessOutletStatusApprovalInput {
-  status: String
-  remarks: [String]
-}
-
-input sellingProductStatusApprovalInput {
-  status: String
-  remarks: [String]
-}
-
-input getKycStatusInput {
-  vendorId: String!
-}
-
-input listKYCByStatusInput {
-  status: String!
-}
-
-input GetAllKycRecordsInput {
-  page: Int
-  size: Int
-}
-
-input GetKycRecordInput {
-  _id: String!
-}
-
-type KYCStatusResponse {
-  _id: String
-  companyDetailsStatus: String
-  businessOutletStatus: String
-  sellingProductStatus: String
-  isKycCompleted: Boolean
-  message: String
-}
-
-type listKYCByStatusResponse {
-  message: String
-}
-
-type GetAllKycRecordsResponse {
-  maxRecords: Int!
-  records: [KYCRecordWithVendorDetails]
-  message: String
-}
-
-type GetKycRecordResponse {
-  record: KYCRecord
-  message: String
-}
-
-input AddColorInput {
-  categoryId: String!
-  colorName: String!
-  colorCode: String!
-  isBlocked: Boolean
-}
-
-input updateColorInput {
-  _id: String!
-  colorName: String
-  colorCode: String
-}
-
-type AddColorResponse {
-  _id: String!
-}
-
-type updateColorResponse {
-  _id: String!
-  message: String
-}
-
-input colorId {
-  _id: String!
-}
-
-input GetActiveColorsInput {
-  categoryId: String
-}
-
-type ColorRecord {
-  _id: String
-  colorName: String
-  colorCode: String
-  isBlocked: Boolean
-  categoryIdPath: String
-}
-
-type ColorRecordResponse {
-  record: ColorRecord!
-}
-
-type ActiveColorResponse {
-  records: [ColorRecord]
-}
-
-type getAllColorsWithCategoryIdResponse {
-  records: [ColorRecord]
-}
-
-input AddCmsInput {
-  pageName: String!
-  title: String
-  subTitle: String
-  description: [String]
-  buttons: [ButtonDataInput]
-}
-
-input ButtonDataInput {
-  buttonText: String!
-  redirectionURL: String!
-}
-
-input UpdateCmsInput {
-  _id: String!
-  pageName: String
-  sectionName: String
-  title: String
-  subTitle: String
-  description: [String]
-  buttons: [ButtonDataInput]
-}
-
-input CmsRecordId {
-  _id: String!
-}
-
-type AddCmsResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateCmsResponse {
-  _id: String!
-  message: String
-}
-
-type DeleteCmsResponse {
-  _id: String!
-  message: String
-}
-
-input cmsRecordByAdminFilter {
-  _id: String!
-}
-
-input cmsRecordFilter {
-  sectionName: String!
-}
-
-input CmsRecordsFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  title: String
-  subTitle: String
-  description: [String]
-  images: [String]
-  buttons: [String]
-}
-
-input CmsRecordsByAdminFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  title: String
-  subTitle: String
-  description: [String]
-  images: [String]
-  buttons: [String]
-  isBlocked: Boolean
-}
-
-type ButtonData {
-  buttonText: String
-  redirectionURL: String
-}
-
-type CmsImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-type CmsRecord {
-  _id: String
-  pageName: String
-  sectionName: String
-  title: String
-  subTitle: String
-  description: [String]
-  images: [CmsImageData]
-  buttons: [ButtonData]
-  isBlocked: Boolean
-}
-
-type CmsRecordResponse {
-  record: CmsRecord!
-  message: String
-}
-
-type CmsRecordsResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
-  message: String
-}
-
-input Cms2AddInput {
-  pageName: String!
-  title: String
-  subTitle: String
-  items: [Cms2ItemsInput]
-}
-
-input Cms2ButtonDataInput {
-  buttonText: String
-  redirectionURL: String
-}
-
-input Cms2ItemsInput {
-  title: String
-  subTitle: String
-  button: Cms2ButtonDataInput
-}
-
-input Cms2ItemsUpdateInput {
-  _id: String
-  title: String
-  subTitle: String
-  button: Cms2ButtonDataInput
-}
-
-input UpdateCms2Input {
-  _id: String!
-  pageName: String
-  title: String
-  subTitle: String
-  sectionName: String
-  items: [Cms2ItemsUpdateInput]
-}
-
-input Cms2RecordId {
-  _id: String!
-}
-
-type Cms2AddResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateCms2Response {
-  record: Cms2Record
-  message: String
-}
-
-type DeleteCms2Response {
-  _id: String!
-  message: String
-}
-
-input cms2RecordByAdminFilter {
-  _id: String!
-}
-
-input cms2RecordFilter {
-  sectionName: String!
-}
-
-input Cms2RecordsFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  title: String
-  subTitle: String
-  description: [String]
-  images: [String]
-  buttons: [String]
-}
-
-input Cms2RecordsByAdminFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  title: String
-  subTitle: String
-  description: [String]
-  images: [String]
-  buttons: [String]
-}
-
-type Cms2ButtonData {
-  buttonText: String
-  redirectionURL: String
-}
-
-type Cms2ImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-type Cms2ItemsData {
-  _id: String
-  title: String
-  subTitle: String
-  button: Cms2ButtonData
-  image: Cms2ImageData
-}
-
-type Cms2Record {
-  _id: String
-  pageName: String
-  sectionName: String
-  title: String
-  subTitle: String
-  items: [Cms2ItemsData]
-}
-
-type Cms2RecordResponse {
-  record: Cms2Record!
-  message: String
-}
-
-type Cms2RecordsResponse {
-  maxRecords: Int!
-  records: [Cms2Record!]
   message: String
 }
 
@@ -1113,6 +755,10 @@ input CategoryId {
   _id: String!
 }
 
+input CategoryRecordIdInput {
+  _id: String
+}
+
 type CreateCategoryResponse {
   _id: String!
 }
@@ -1125,6 +771,10 @@ type UpdateCategoryResponse {
 type DeleteCategoryResponse {
   _id: String!
   message: String
+}
+
+type CategoryRecordId {
+  _id: String
 }
 
 input GetAllChildLevelCategoriesInput {
@@ -1189,6 +839,98 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
+input AddBrandInput {
+  brandName: String!
+  isBlocked: Boolean
+  isPopular: Boolean
+  priority: Int!
+}
+
+input updateBrandInput {
+  _id: String!
+  brandName: String
+  isBlocked: Boolean
+  isPopular: Boolean
+  priority: Int
+}
+
+input BrandRecordIdInput {
+  _id: String
+}
+
+type AddBrandResponse {
+  _id: String!
+  message: String
+}
+
+type updateBrandResponse {
+  _id: String!
+  message: String
+}
+
+type BrandDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input BrandIdInput {
+  _id: String!
+}
+
+input getAllBrandRecordsWithVendorByAdminInput {
+  vendorId: String!
+  page: Int
+  size: Int
+}
+
+input getAllBrandRecordsWithVendorByVendorInput {
+  vendorId: String!
+  page: Int
+  size: Int
+}
+
+input BrandRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type BrandRecord {
+  _id: String
+  brandName: String
+  isBlocked: Boolean
+  logo: ImageData
+  isPopular: Boolean
+  priority: Int
+}
+
+type BrandRecordResponse {
+  record: BrandRecord!
+  message: String
+}
+
+type BrandRecordsResponse {
+  maxRecords: Int!
+  records: [BrandRecord!]
+  message: String
+}
+
+type BrandRecordsWithVendorByAdminResponse {
+  maxRecords: Int!
+  records: [BrandRecord!]
+  message: String
+}
+
+type BrandRecordsWithVendorByVendorResponse {
+  maxRecords: Int!
+  records: [BrandRecord!]
+  message: String
+}
+
 type Admin {
   _id: String
   email: String
@@ -1250,4 +992,51 @@ type getAdminRecordResponse {
 type adminApprovalForVendorResponse {
   _id: String
   message: String
+}
+
+type Attribute {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+input CreateAttributeInput {
+  attributeType: String!
+  name: String!
+  description: String!
+  isBlocked: Boolean
+}
+
+input AttributeEditInput {
+  attributeId: String!
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+type CreateAttributeResponse {
+  _id: String
+  message: String
+}
+
+type AttributeEditResponse {
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+  message: String
+}
+
+input AttributeRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type AttributeRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
 }

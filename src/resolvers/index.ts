@@ -8,6 +8,7 @@ import { otpResolver } from "./otpResolver/otpResolver";
 import { brandResolver } from "./brandResolver/brandResolver";
 import { vendorCompanyResolver } from "./vendorCompanyResolver/vendorCompanyResolver";
 import { vendorOutletResolver } from "./vendorOutletResolver/vendorOutletResolver";
+import { attributeResolver } from "./attributeResolver/attributeResolver";
 
 
 
@@ -22,5 +23,6 @@ export const resolvers: Resolvers = mergeResolvers(
         brandResolver,
         vendorCompanyResolver,
         vendorOutletResolver,
+        attributeResolver,
     ]
 );
