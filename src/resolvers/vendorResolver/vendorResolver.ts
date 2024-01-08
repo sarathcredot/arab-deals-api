@@ -501,14 +501,18 @@ export const vendorResolver: Resolvers = {
           vendor.profilePic = profilePic;
         }
 
+        // Ensure that brands and categories are always arrays of ObjectId
+        vendor.brands = vendor.brands ? vendor.brands.filter(Boolean) as Types.ObjectId[] : [];
+        vendor.categories = vendor.categories ? vendor.categories.filter(Boolean) as Types.ObjectId[] : [];
 
         if (input.brands) {
-          vendor.brands = (input.brands || []).filter(Boolean) as [];
+          // Append new brands to the existing array
+          vendor.brands = [...vendor.brands, ...(input.brands || [])].filter(Boolean) as [];
         }
 
-
         if (input.categories) {
-          vendor.categories = (input.categories || []).filter(Boolean) as [];
+          // Append new categories to the existing array
+          vendor.categories = [...vendor.categories, ...(input.categories || [])].filter(Boolean) as [];;
         }
 
 
