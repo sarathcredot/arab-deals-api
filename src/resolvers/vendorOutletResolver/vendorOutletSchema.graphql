@@ -122,6 +122,7 @@
   input VendorOutletRecordsByAdminFilter {
     page: Int
     size: Int
+    status: String
   }
 
     # Output

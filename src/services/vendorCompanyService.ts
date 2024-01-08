@@ -117,6 +117,7 @@ export interface IVendorCompanyRecordsProjection {
 export interface IVendorCompanyOptions {
   page: number,
   size: number,
+  status: string,
 }
 
 export interface IVendorCompanyRecordsResponse {
@@ -144,6 +145,14 @@ export const getVendorCompanyRecordWithFilter = async (filters = {}, projection:
 
 export const getVendorCompanyRecordsWithFilters = async (options: IVendorCompanyOptions): Promise<IVendorCompanyRecordsResponse> => {
   let pipeline: PipelineStage[] = [];
+
+  if (options.status) {
+    pipeline.push({
+      $match: {
+        status: options.status  // filter with status
+      }
+    });
+  }
 
   pipeline.push(
     {
@@ -209,7 +218,6 @@ export const getVendorCompanyRecordsWithFilters = async (options: IVendorCompany
   );
 
   const result = await vendorCompanyModel.aggregate(pipeline);
-  console.log(result[0].data)
   let response = {
     records: [],
     maxRecords: 0

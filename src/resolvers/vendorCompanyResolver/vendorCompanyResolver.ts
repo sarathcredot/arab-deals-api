@@ -263,10 +263,12 @@ export const vendorCompanyResolver: Resolvers = {
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const status: string = input?.status || '';
 
                 const options = {
                     page,
                     size,
+                    status,
                 }
 
                 const result = await vendorCompanyService.getVendorCompanyRecordsWithFilters(options);

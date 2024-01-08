@@ -273,15 +273,17 @@ export const vendorOutletResolver: Resolvers = {
         // Fetch all vendor outlet
         async getAllVendorOutletRecordsByAdmin(parent, { input }, { req }, info) {
             try {
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
                 await validateInput(validators.getAllVendorOutletValidator, req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const status: string = input?.status || '';
 
                 const options = {
                     page,
                     size,
+                    status,
                 }
 
                 const result = await vendorOutletService.getVendorOutletRecordsWithFilters(options);

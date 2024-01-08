@@ -143,10 +143,7 @@ export interface IVendorOutletRecordsResponse {
 export interface IVendorOutletOptions {
   page: number,
   size: number,
-}
-export interface IVendorOutletOptions {
-  page: number,
-  size: number,
+  status: string,
 }
 
 export const createVendorOutletRecord = async (record: IVendorOutlet): Promise<Document | null> => {
@@ -169,6 +166,14 @@ export const getVendorOutletRecordWithFilter = async (filters = {}, projection: 
 
 export const getVendorOutletRecordsWithFilters = async (options: IVendorOutletOptions): Promise<IVendorOutletRecordsResponse> => {
   let pipeline: PipelineStage[] = [];
+
+  if (options.status) {
+    pipeline.push({
+      $match: {
+        status: options.status  // filter with status
+      }
+    });
+  }
 
   pipeline.push(
     {
@@ -234,7 +239,6 @@ export const getVendorOutletRecordsWithFilters = async (options: IVendorOutletOp
   );
 
   const result = await vendorOutletModel.aggregate(pipeline);
-  console.log(result[0].data)
   let response = {
     records: [],
     maxRecords: 0
