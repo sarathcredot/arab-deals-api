@@ -1,10 +1,9 @@
-import { otpService } from "../../services";
+import { otpService, vendorService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./otpValidator";
 import { GraphQLError } from "graphql";
 import { validateInput } from "../../middlewares";
-import { Types } from "mongoose";
 
 export const otpResolver: Resolvers = {
   Upload: GraphQLUpload,
@@ -16,6 +15,16 @@ export const otpResolver: Resolvers = {
 
       const fullName: string = input?.fullName || "";
       const mobileNumber: String = input.mobileNumber;
+
+      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber }, {mobileNumber: 1}, {lean: true});
+      if (vendor) {
+        throw new GraphQLError("Already have a vendor with this mobile number", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
 
       const mobileOtp = await otpService.generateOtp();
       if (!mobileOtp) {
