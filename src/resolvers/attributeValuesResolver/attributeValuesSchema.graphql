@@ -1,0 +1,87 @@
+scalar Upload
+scalar JSONObject
+
+# attribute  Mutations
+
+type Mutation {
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
+}
+
+
+# attribute  Type
+
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type Attribute {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+
+# attribute  Input
+
+input CreateAttributeInput {
+  attributeType: String!
+  name: String!
+  description: String!
+  isBlocked: Boolean
+} 
+
+
+input AttributeEditInput {
+  attributeId: String!
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+
+# attribute  Output
+
+type CreateAttributeResponse {
+  _id: String
+  message: String
+}
+
+type AttributeEditResponse {
+  _id: String
+  message: String
+}
+
+input AttributeRecordsByAdminFilter {
+ page: Int,
+ size: Int,
+ isBlocked: Boolean
+}
+
+type AttributeRecordsByAdminResponse {
+    maxRecords: Int!
+    records: [Attribute!]
+}
+
+type Query {
+  getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
+  # getAttributeRecordByVendor(input:  AttributeRecordByAdminInput!): AttributeRecorddByAdminResponse
+#   getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
+#   getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
+#   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
+}
+
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}
