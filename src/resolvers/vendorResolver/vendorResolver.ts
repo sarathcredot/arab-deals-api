@@ -15,7 +15,6 @@ export const vendorResolver: Resolvers = {
 
     // Vendor creation from vendor side
     createVendor: async (parent, { input, image }, { req }, info) => {
-
       // await verifyVendor(req);
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input?.email?.toLowerCase() || "";

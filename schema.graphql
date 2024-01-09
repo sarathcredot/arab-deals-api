@@ -28,7 +28,10 @@ type Mutation {
   updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
   updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
+<<<<<<< HEAD
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
+=======
+>>>>>>> 03bb595 (:)
   sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
   verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
   reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
@@ -38,10 +41,13 @@ type Mutation {
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+<<<<<<< HEAD
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
   editAttribute(input: AttributeEditInput!): AttributeEditResponse!
+=======
+>>>>>>> 03bb595 (:)
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image: Upload): UpdateAdminResponse!
@@ -59,7 +65,10 @@ type sendOtpResponse {
 
 input VendorLoginInput {
   mobileNumber: String!
+<<<<<<< HEAD
   countryCode: String!
+=======
+>>>>>>> 03bb595 (:)
 }
 
 input VerifyVendorLoginOtpInput {
@@ -112,6 +121,7 @@ type VendorWithAllKycData {
   isKycCompleted: Boolean
   outletId: String
   outletName: String
+<<<<<<< HEAD
   outletCountry: String
   outletDistrict: String
   outletVillage: String
@@ -135,6 +145,12 @@ type VendorWithAllKycData {
   profilePic: ImageData
   brands: [String]
   categories: [String]
+=======
+  outletStatus: String
+  companyId: String
+  companyName: String
+  companyStatus: String
+>>>>>>> 03bb595 (:)
 }
 
 type VendorWithKycDataStatus {
@@ -160,7 +176,10 @@ type ContactPersonData {
 input VendorSignUpInput {
   fullName: String!
   email: String
+<<<<<<< HEAD
   countryCode: String!
+=======
+>>>>>>> 03bb595 (:)
   mobileNumber: String!
   isBlocked: Boolean
   isKycCompleted: Boolean
@@ -240,7 +259,11 @@ type VendorsRecordByVendorResponse {
 }
 
 type VendorAllKycRecordByVendorResponse {
+<<<<<<< HEAD
   record: VendorWithAllKycData
+=======
+  record: VendorWithKycData
+>>>>>>> 03bb595 (:)
   message: String
 }
 
@@ -281,20 +304,27 @@ type Query {
   getVariants(input: VariantsInput!): VariantsResponse!
   getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
   getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
+<<<<<<< HEAD
   getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
   getVariantsTableByVendor(input: ProductVariantsByVendorFilter!): VariantsTableByVendorResponse!
+=======
+>>>>>>> 03bb595 (:)
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveCategoryTree: getActiveCategoryTreeResponse!
   getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
   getAllLeafRecords: getAllLeafRecordsResponse!
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
+<<<<<<< HEAD
   getAllCategoriesOfVendor(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
+=======
+>>>>>>> 03bb595 (:)
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
   getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
   getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
+<<<<<<< HEAD
   getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!): BrandsDetailsWithCategoryResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
@@ -303,6 +333,8 @@ type Query {
   getAttributeRecordsByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributesDetailsWithCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+=======
+>>>>>>> 03bb595 (:)
   getAdminRecord: getAdminRecordResponse
 }
 
@@ -857,11 +889,30 @@ type RelatedProductsResponse {
   records: [Product!]
 }
 
+<<<<<<< HEAD
 type ProductStatusResponse {
+=======
+input sendVendorMobileOtpInput {
+  fullName: String
+  mobileNumber: String!
+}
+
+input ReSendVendorMobileOtpInput {
+  fullName: String
+  mobileNumber: String!
+}
+
+input VerifyVendorOtpInput {
+  code: String!
+}
+
+type sendVendorMobileOtpResponse {
+>>>>>>> 03bb595 (:)
   _id: String
   message: String
 }
 
+<<<<<<< HEAD
 type VariantsByAdminResponse {
   maxRecords: Int!
   records: [VariantsByAdmin]
@@ -893,6 +944,11 @@ type VerifyVendorOtpResponse {
   _id: String
   fullName: String
   countryCode: String
+=======
+type VerifyVendorOtpResponse {
+  _id: String
+  fullName: String
+>>>>>>> 03bb595 (:)
   mobileNumber: String
   message: String
 }
@@ -1044,10 +1100,13 @@ input BrandRecordIdInput {
   _id: String
 }
 
+<<<<<<< HEAD
 input BrandsDetailsWithCategoryIdInput {
   categoryId: String!
 }
 
+=======
+>>>>>>> 03bb595 (:)
 type AddBrandResponse {
   _id: String!
   message: String
@@ -1067,6 +1126,7 @@ type BrandRecordId {
   _id: String
 }
 
+<<<<<<< HEAD
 type BrandsWithCategory {
   _id: String
   categoryName: String
@@ -1078,6 +1138,8 @@ type BrandsDetailsWithCategoryResponse {
   message: String
 }
 
+=======
+>>>>>>> 03bb595 (:)
 input BrandIdInput {
   _id: String!
 }
@@ -1132,6 +1194,7 @@ type BrandRecordsWithVendorByVendorResponse {
   message: String
 }
 
+<<<<<<< HEAD
 type AttributeValue {
   _id: String
   attributeId: String
@@ -1280,6 +1343,8 @@ type AttributesDetailsWithCategoryResponse {
   message: String
 }
 
+=======
+>>>>>>> 03bb595 (:)
 type Admin {
   _id: String
   email: String
