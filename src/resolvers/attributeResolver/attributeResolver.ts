@@ -192,10 +192,24 @@ export const attributeResolver: Resolvers = {
                 for (let item of selectionSet.selections) {
                     if (item.kind === "Field") {
                         const fieldName = item.name.value;
+                        if (["images"].includes(fieldName)) {
+                            let selectionSet = item.selectionSet || { selections: [] };
+                            for (let item2 of selectionSet.selections) {
+                                if (item2.kind === "Field") {
+                                    const subField = item2.name.value;
+                                    const path = `${fieldName}.${subField}`;
+                                    projection[path as keyof attributeService.IAttributeProjection] = 1;
+                                }
+                            }
+                        }
+                        else {
+                            projection[fieldName as keyof attributeService.IAttributeProjection] = 1;
+                        }
                     }
                 }
             }
         }
+
 
         const options: attributeService.IAttributeRecordsOptions = {
           page,
