@@ -49,7 +49,7 @@ export const vendorOutletResolver: Resolvers = {
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
 
-                    const key = spaceService.getFileKey(filePaths.vendorOutlet, filename, []);
+                    const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
 
                     const stream = createReadStream();
 

@@ -95,22 +95,76 @@ export interface IVendorWithKycDetails {
   email?: string;
   mobileNumber?: string;
   isBlocked?: string;
+  brands?: Types.ObjectId[];
+  categories?: Types.ObjectId[];
   isKycCompleted?: boolean;
+  profilePic?: {
+    _id?: string;
+    fileType?: string;
+    fileURL?: string;
+    mimeType?: string;
+    originalName?: string;
+    createdAt?: number;
+  };
+  companyId?: string;
+  companyName?: string;
+  companyStatus?: string;
+  companyType?: string; // Assuming this field exists in your data
+  companyCrNumber?: string; // Assuming this field exists in your data
+  companyCrLicense?: {
+    _id?: string;
+    fileType?: string;
+    fileURL?: string;
+    mimeType?: string;
+    originalName?: string;
+    createdAt?: number;
+  };
+  CompanyCooCertificate?: {
+    _id?: string;
+    fileType?: string;
+    fileURL?: string;
+    mimeType?: string;
+    originalName?: string;
+    createdAt?: number;
+  };
+  companyRemarks?: [string]; // Assuming this field exists in your data
   outletId?: string;
   outletName?: string;
   outletStatus?: string;
-  companyId?: string;
-  companyName?: string;
-  companyStatus?: string
-  brands?: Types.ObjectId[],
-  categories?: Types.ObjectId[],
-  profilePic?: {
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string
+  outletCountry?: string; // Assuming this field exists in your data
+  outletDistrict?: string; // Assuming this field exists in your data
+  outletVillage?: string; // Assuming this field exists in your data
+  outletAddress?: string; // Assuming this field exists in your data
+  outletLicense?: {
+    _id?: string;
+    fileType?: string;
+    fileURL?: string;
+    mimeType?: string;
+    originalName?: string;
+    createdAt?: number;
   };
+  interiorImage?: {
+    _id?: string;
+    fileType?: string;
+    fileURL?: string;
+    mimeType?: string;
+    originalName?: string;
+    createdAt?: number;
+  };
+  exteriorImage?: {
+    _id?: string;
+    fileType?: string;
+    fileURL?: string;
+    mimeType?: string;
+    originalName?: string;
+    createdAt?: number;
+  };
+  outletContactPersonName?: string;
+  outletContactPersonNumber?: string;
+  outletContactPersonDesignation?: string;
+  outletRemarks?: [string];
 }
+
 
 export interface IVendorRecordsResponse {
   records: Array<IVendorWithKycData>,
@@ -391,16 +445,64 @@ export const getVendorAllKycRecordByVendorWithId = async (vendorId: Types.Object
         email: 1,
         mobileNumber: 1,
         isBlocked: 1,
-        brands:1,
-        categories:1,
+        brands: 1,
+        categories: 1,
         isKycCompleted: 1,
+        "profilePic._id": 1,
+        "profilePic.fileType": 1,
+        "profilePic.fileURL": 1,
+        "profilePic.mimeType": 1,
+        "profilePic.originalName": 1,
+        "profilePic.createdAt": 1,
         companyId: '$company._id',
         companyName: '$company.companyName',
+        companyType: '$company.companyType',
+        companyCrNumber: '$company.crNumber',
+        "companyCrLicense._id": "$company.crLicense._id",
+        "companyCrLicense.fileType": "$company.crLicense.fileType",
+        "companyCrLicense.fileURL": "$company.crLicense.fileURL",
+        "companyCrLicense.mimeType": "$company.crLicense.mimeType",
+        "companyCrLicense.originalName": "$company.crLicense.originalName",
+        "companyCrLicense.createdAt": "$company.crLicense.createdAt",
+        "companyCooCertificate._id": "$company.cooCertificate._id",
+        "companyCooCertificate.fileType": "$company.cooCertificate.fileType",
+        "companyCooCertificate.fileURL": "$company.cooCertificate.fileURL",
+        "companyCooCertificate.mimeType": "$company.cooCertificate.mimeType",
+        "companyCooCertificate.originalName": "$company.cooCertificate.originalName",
+        "companyCooCertificate.createdAt": "$company.cooCertificate.createdAt",
         companyStatus: '$company.status',
+        companyRemarks: '$company.remark',
         outletId: '$outlet._id',
         outletName: '$outlet.outletName',
-        outletStatus: '$outlet.status'
+        outletCountry: '$outlet.country',
+        outletDistrict: '$outlet.district',
+        outletVillage: '$outlet.village',
+        outletAddress: '$outlet.address',
+        "outletLicense._id": "$outlet.outletLicense._id",
+        "outletLicense.fileType": "$outlet.outletLicense.fileType",
+        "outletLicense.fileURL": "$outlet.outletLicense.fileURL",
+        "outletLicense.mimeType": "$outlet.outletLicense.mimeType",
+        "outletLicense.originalName": "$outlet.outletLicense.originalName",
+        "outletLicense.createdAt": "$outlet.outletLicense.createdAt",
+        "outletInteriorImage._id": "$outlet.outletInteriorImage._id",
+        "outletInteriorImage.fileType": "$outlet.interiorImage.fileType",
+        "outletInteriorImage.fileURL": "$outlet.interiorImage.fileURL",
+        "outletInteriorImage.mimeType": "$outlet.interiorImage.mimeType",
+        "outletInteriorImage.originalName": "$outlet.interiorImage.originalName",
+        "outletInteriorImage.createdAt": "$outlet.interiorImage.createdAt",
+        "outletExteriorImage._id": "$outlet.exteriorImage._id",
+        "outletExteriorImage.fileType": "$outlet.exteriorImage.fileType",
+        "outletExteriorImage.fileURL": "$outlet.exteriorImage.fileURL",
+        "outletExteriorImage.mimeType": "$outlet.exteriorImage.mimeType",
+        "outletExteriorImage.originalName": "$outlet.exteriorImage.originalName",
+        "outletExteriorImage.createdAt": "$outlet.exteriorImage.createdAt",
+        outletContactPersonName: '$outlet.contactPersonName',
+        outletContactPersonNumber: '$outlet.contactPersonNumber',
+        outletContactPersonDesignation: '$outlet.contactPersonDesignation',
+        outletStatus: '$outlet.status',
+        outletRemarks: '$outlet.remark',
       }
+      
     }
   ];
 
@@ -460,7 +562,7 @@ export const getVendorRecordKycStatusById = async (vendorId: Types.ObjectId): Pr
 
 export const getVendorRecordsByAdminWithFilters = async (options: IVendorsRecordsByAdminOptions): Promise<IVendorRecordsResponse> => {
 
-  
+
   let pipeline: PipelineStage[] = [];
 
   if (options.isKycCompleted != null) {

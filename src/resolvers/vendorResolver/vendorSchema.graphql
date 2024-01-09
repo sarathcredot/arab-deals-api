@@ -83,11 +83,31 @@ type VendorWithAllKycData {
   isKycCompleted: Boolean
   outletId: String
   outletName: String
+  outletCountry: String
+  outletDistrict: String
+  outletVillage: String
+  outletAddress: String
+  outletLicense: ImageData
+  outletInteriorImage: ImageData
+  outletExteriorImage: ImageData
+  outletContactPersonName: String
+  outletContactPersonNumber: String
+  outletContactPersonDesignation: String
   outletStatus: String
+  outletRemarks:[String]
   companyId: String
   companyName: String
+  companyType: String
+  companyCrNumber: String
+  companyCrLicense: ImageData
+  companyCooCertificate: ImageData
   companyStatus: String
+  companyRemarks:[String]
+  profilePic:ImageData
+  brands: [String]
+  categories: [String]
 }
+
 
 type VendorWithKycDataStatus {
   _id: String
@@ -195,7 +215,7 @@ type VendorsRecordByVendorResponse {
 }
 
 type VendorAllKycRecordByVendorResponse {
-  record: VendorWithKycData
+  record: VendorWithAllKycData
   message: String
 }
 
