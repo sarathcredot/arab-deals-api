@@ -224,6 +224,15 @@ export const vendorResolver: Resolvers = {
 
       const mobileNumber: string = input.mobileNumber;
 
+      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber }, {mobileNumber: 1}, {lean: true});
+      if (!vendor) {
+        throw new GraphQLError("The vendor does not have an account with this number. Please sign up", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
 
       const mobileOtp = await otpService.generateOtp();
       if (!mobileOtp) {
