@@ -10,6 +10,7 @@ import * as brandService from "./brandService";
 import * as vendorCompanyService from "./vendorCompanyService";
 import * as vendorOutletService from "./vendorOutletService";
 import * as attributeService from "./attributeService";
+import * as attributeValueService from "./attributeValueService";
 
 
 export {
@@ -25,4 +26,5 @@ export {
     vendorCompanyService,
     vendorOutletService,
     attributeService,
+    attributeValueService,
 }

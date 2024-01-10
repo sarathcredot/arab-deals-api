@@ -1,7 +1,6 @@
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { attributeModel } from '../models';
+import { attributeValueModel } from '../models';
 import { collections } from "../configs";
-import { attributeResolver } from "src/resolvers/attributeResolver/attributeResolver";
 
 export interface FileData {
   _id?: string,
@@ -13,61 +12,65 @@ export interface FileData {
 }
 
 
-export interface IAttribute {
+export interface IAttributeValue {
   _id?: string;
-  attributeType?: string;
-  name?: string;
-  description?: string;
+  attributeId?: Types.ObjectId;
+  value?: string;
+  colorCode?: string;
+  priority?: number;
   isBlocked?: boolean;
 }
 
-export interface IAttributeDocument extends Document {
+export interface IAttributeValueDocument extends Document {
   _id?: Types.ObjectId;
-  attributeType?: string;
-  name?: string;
-  description?: string;
+  attributeId?: Types.ObjectId;
+  value?: string;
+  colorCode?: string;
+  priority?: number;
   isBlocked?: boolean;
 }
 
-export interface IAttributeProjection {
+export interface IAttributeValueProjection {
   _id?: 1;
-  attributeType?: 1;
-  name?: 1;
+  attributeId?: 1;
+  value?: 1;
+  colorCode?: 1;
+  priority?: 1;
   isBlocked?: 1;
 }
 
-export interface IAttributeRecordsResponse {
-  records: Array<IAttribute>,
+export interface IAttributeValueRecordsResponse {
+  records: Array<IAttributeValue>,
   maxRecords: number
 }
 
 
-export interface IAttributeRecordsOptions {
+export interface IAttributeValueRecordsOptions {
   page: number,
   size: number,
   isBlocked: boolean | null,
-  projection: IAttributeProjection,
+  projection: IAttributeValueProjection,
 }
 
 
-export const createAttribute = async (attributeData: IAttribute): Promise<IAttributeDocument | null> => {
-  let attribute: IAttributeDocument = new attributeModel(attributeData);
-  return await attribute.save();
+export const createAttributeValue = async (attributeValueData: IAttributeValue): Promise<IAttributeValueDocument | null> => {
+  let attributeValue: IAttributeValueDocument = new attributeValueModel(attributeValueData);
+  return await attributeValue.save();
 };
 
 
-export const findAttributeWithFilters = async (filters: FilterQuery<IAttribute>, projection: ProjectionFields<IAttribute>, options: QueryOptions): Promise<IAttributeDocument | null> => {
-  return await attributeModel.findOne(filters, projection, options);
+export const findAttributeValueWithFilters = async (filters: FilterQuery<IAttributeValue>, projection: ProjectionFields<IAttributeValue>, options: QueryOptions): Promise<IAttributeValueDocument | null> => {
+  return await attributeValueModel.findOne(filters, projection, options);
 }
 
 
-export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<IAttributeDocument | null> => {
-  const result = await attributeModel.findById(id);
+export const getAttributeValueRecordWithId = async (id: Types.ObjectId): Promise<IAttributeValueDocument | null> => {
+  const result = await attributeValueModel.findById(id);
   return result;
 }
 
 
-export const getAttributeRecordsWithFilters = async (options: IAttributeRecordsOptions): Promise<IAttributeRecordsResponse> => {
+export const getAttributeValueRecordsWithFilters = async (options: IAttributeValueRecordsOptions): Promise<IAttributeValueRecordsResponse> => {
 
 
   let pipeline: PipelineStage[] = [];
@@ -117,7 +120,7 @@ export const getAttributeRecordsWithFilters = async (options: IAttributeRecordsO
       }
   );
 
-  const result = await attributeModel.aggregate(pipeline);
+  const result = await attributeValueModel.aggregate(pipeline);
   let response = {
       records: [],
       maxRecords: 0

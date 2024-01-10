@@ -49,6 +49,14 @@ export interface IAttributeRecordsOptions {
   projection: IAttributeProjection,
 }
 
+export interface IAttributeRecordOptions {
+  attributeId: string
+  // page: number,
+  // size: number,
+  // isBlocked: boolean | null,
+  // projection: IAttributeProjection,
+}
+
 
 export const createAttribute = async (attributeData: IAttribute): Promise<IAttributeDocument | null> => {
   let attribute: IAttributeDocument = new attributeModel(attributeData);
@@ -81,115 +89,106 @@ export const getAttributeRecordsWithFilters = async (options: IAttributeRecordsO
   }
 
   pipeline.push(
-      {
-          $sort: {
-              priority: -1,
-          }
-      },
-      {
-          $facet: {
-              metadata: [
-                  {
-                      $group: {
-                          _id: null,
-                          total: { $sum: 1 }
-                      }
-                  }
-              ],
-              data: [
-                  {
-                      $skip: options.page * options.size
-                  },
-                  {
-                      $limit: options.size
-                  },
-                  {
-                      $project: options.projection
-                  }
-              ]
-          }
-      },
-      {
-          $project: {
-              maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-              data: 1
-          }
+    {
+      $sort: {
+        priority: -1,
       }
+    },
+    {
+      $facet: {
+        metadata: [
+          {
+            $group: {
+              _id: null,
+              total: { $sum: 1 }
+            }
+          }
+        ],
+        data: [
+          {
+            $skip: options.page * options.size
+          },
+          {
+            $limit: options.size
+          },
+          {
+            $project: options.projection
+          }
+        ]
+      }
+    },
+    {
+      $project: {
+        maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+        data: 1
+      }
+    }
   );
 
   const result = await attributeModel.aggregate(pipeline);
   let response = {
-      records: [],
-      maxRecords: 0
+    records: [],
+    maxRecords: 0
   };
   if (result.length) {
-      response.records = result[0].data || [];
-      response.maxRecords = result[0].maxRecords || 0;
+    response.records = result[0].data || [];
+    response.maxRecords = result[0].maxRecords || 0;
   }
 
   return response;
 }
 
-// export const geAttributeRecordByAdmin = async (vendorId: Types.ObjectId): Promise<IVendorWithKycDetails> => {
-//   let pipeline: PipelineStage[] = [
-//     {
-//       $match: {
-//         _id: new Types.ObjectId(vendorId)
-//       }
-//     },
-//     {
-//       $lookup: {
-//         from: collections.VENDOR_OUTLETS,
-//         localField: '_id',
-//         foreignField: 'vendorId',
-//         as: 'outlet'
-//       }
-//     },
-//     {
-//       $unwind: {
-//         path: '$outlet',
-//         preserveNullAndEmptyArrays: true
-//       }
-//     },
-//     {
-//       $lookup: {
-//         from: collections.VENDOR_COMPANIES,
-//         localField: '_id',
-//         foreignField: 'vendorId',
-//         as: 'company'
-//       }
-//     },
-//     {
-//       $unwind: {
-//         path: '$company',
-//         preserveNullAndEmptyArrays: true
-//       }
-//     },
-//     {
-//       $project: {
-//         _id: 1,
-//         fullName: 1,
-//         email: 1,
-//         mobileNumber: 1,
-//         isBlocked: 1,
-//         isKycCompleted: 1,
-//         companyId: '$company._id',
-//         companyName: '$company.companyName',
-//         companyStatus: '$company.status',
-//         outletId: '$outlet._id',
-//         outletName: '$outlet.outletName',
-//         outletStatus: '$outlet.status'
-//       }
-//     }
-//   ];
-
-//   const result = await vendorModel.aggregate(pipeline);
-//   return result[0];
-// };
+export const getAttributeRecordByAdminWithAttributeId = async (options: IAttributeRecordsOptions): Promise<IAttributeRecordsResponse> => {
 
 
+  let pipeline: PipelineStage[] = [];
 
+  pipeline.push(
+    {
+      $match: {
+        _id: attributeId,
+      },
+    },
+    {
+      $lookup: {
+        from: collections.ATTRIBUTE_VALUES,
+        localField: "_id",
+        foreignField: "attributeId",
+        as: "attributeValues",
+      },
+    },
+    {
+      $project: {
+        attributeType: 1,
+        name: 1,
+        description: 1,
+        isBlocked: 1,
+        attributeValues: {
+          $map: {
+            input: "$attributeValues",
+            as: "value",
+            in: {
+              value: "$$value.value",
+              colorCode: "$$value.colorCode",
+              priority: "$$value.priority",
+              isBlocked: "$$value.isBlocked",
+            },
+          },
+        },
+      },
+    },
+  );
 
+  const result = await attributeModel.aggregate(pipeline);
+  let response = {
+    records: [],
+    maxRecords: 0
+  };
+  if (result.length) {
+    response.records = result[0].data || [];
+    response.maxRecords = result[0].maxRecords || 0;
+  }
 
-
+  return response;
+}
 
