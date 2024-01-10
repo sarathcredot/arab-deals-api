@@ -27,6 +27,7 @@ type Attribute {
 }
 
 type AttributeValueRecord {
+  _id: String
   value: String
   colorCode: String
   priority: Int

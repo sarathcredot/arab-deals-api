@@ -23,6 +23,7 @@ export interface IAttribute {
 }
 
 export interface IAttributeValue {
+  _id?: string;
   value?: string;
   colorCode?: string;
   priority?: number;
@@ -60,7 +61,7 @@ export interface IAttributeRecordsResponse {
 
 export interface IAttributeRecordResponse {
   record: IAttributeWithValues,
-  
+
 }
 
 
@@ -191,6 +192,7 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
             input: "$attributeValues",
             as: "value",
             in: {
+              _id: "$$value._id",
               value: "$$value.value",
               colorCode: "$$value.colorCode",
               priority: "$$value.priority",

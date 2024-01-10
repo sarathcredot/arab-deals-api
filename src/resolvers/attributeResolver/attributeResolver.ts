@@ -105,48 +105,6 @@ export const attributeResolver: Resolvers = {
   },
 
   Query: {
-    // Fetch each attribute record by admin
-    async getAttributeRecordByAdmin(parent, { input }, { req }, info) {
-      // await verifyAdmin(req);
-
-      try {
-        await validateInput(validators.getAttributeRecordValidator, req);
-
-        const attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
-
-        const options = { attributeId };
-
-        const result = await attributeService.getAttributeRecordByAdminWithAttributeId(options);
-
-        if (!result) {
-          throw new GraphQLError("Record not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: []
-            }
-          });
-        }
-
-
-        const response = {
-          record: {
-            _id: result?.record?._id?.toString(), 
-            attributeType: result?.record?.attributeType,
-            name: result?.record?.name,
-            description: result?.record?.description,
-            attributeValues: result?.record?.attributeValues || [],
-            isBlocked: result?.record?.isBlocked,
-          },
-          message: "Vendor record fetched successfully",
-        }
-
-        return response;
-
-      } catch (error) {
-        throw error;
-      }
-
-    },
 
     // Fetch all attribute records by admin
     async getAllAttributeRecordsByAdmin(parent, { input }, { req }, info) {
@@ -207,44 +165,48 @@ export const attributeResolver: Resolvers = {
       }
     },
 
-    // // Fetch each attribute record by admin
-    // async getAttributeRecordByVendor(parent, { input }, { req }, info) {
-    //   // await verifyVendor(req);
+    // Fetch each attribute record by admin
+    async getAttributeRecordByAdmin(parent, { input }, { req }, info) {
+      // await verifyAdmin(req);
 
-    //   try {
-    //     await validateInput(validators.getVendorRecordValidator, req);
+      try {
+        await validateInput(validators.getAttributeRecordValidator, req);
 
-    //     const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
 
-    //     const result = await attributeService.getVendorRecordByVendorWithId(_id);
+        const options = { attributeId };
 
-    //     if (!result) {
-    //       throw new GraphQLError("Record not found", {
-    //         extensions: {
-    //           code: "BAD_REQUEST",
-    //           errors: []
-    //         }
-    //       });
-    //     }
+        const result = await attributeService.getAttributeRecordByAdminWithAttributeId(options);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
 
 
-    //     const response = {
-    //       record: {
-    //         ...result,
-    //         brands: (result?.brands || []).map(brandId => brandId.toString()),
-    //         categories: (result?.categories || []).map(categoryId => categoryId.toString()),
-    //         vendorId: result?._id?.toString(),
-    //       },
-    //       message: "Vendor record fetched successfully",
-    //     }
+        const response = {
+          record: {
+            _id: result?.record?._id?.toString(), 
+            attributeType: result?.record?.attributeType,
+            name: result?.record?.name,
+            description: result?.record?.description,
+            attributeValues: result?.record?.attributeValues || [],
+            isBlocked: result?.record?.isBlocked,
+          },
+          message: "Vendor record fetched successfully",
+        }
 
-    //     return response;
+        return response;
 
-    //   } catch (error) {
-    //     throw error;
-    //   }
+      } catch (error) {
+        throw error;
+      }
 
-    // },
+    },
   },
 };
 
