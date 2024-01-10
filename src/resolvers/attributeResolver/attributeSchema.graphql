@@ -83,7 +83,7 @@ input AttributeRecordsByAdminFilter {
  isBlocked: Boolean
 }
 
-type AttributeRecordByAdminInput {
+input AttributeRecordByAdminInput {
   attributeId: String!
 }
 
@@ -93,16 +93,13 @@ type AttributeRecordsByAdminResponse {
 }
 
 type AttributeRecordByAdminResponse {
-  record: AttributeWithValue!
+  record: AttributeWithValue
   message: String
 }
 
 type Query {
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
-#   getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
-#   getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
-#   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
 }
 
 

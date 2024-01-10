@@ -2,6 +2,7 @@ import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, T
 import { attributeModel } from '../models';
 import { collections } from "../configs";
 import { attributeResolver } from "src/resolvers/attributeResolver/attributeResolver";
+import { response } from "express";
 
 export interface FileData {
   _id?: string,
@@ -22,8 +23,6 @@ export interface IAttribute {
 }
 
 export interface IAttributeValue {
-  _id?: string;
-  attributeId?: Types.ObjectId;
   value?: string;
   colorCode?: string;
   priority?: number;
@@ -60,7 +59,8 @@ export interface IAttributeRecordsResponse {
 }
 
 export interface IAttributeRecordResponse {
-  record: Array<IAttributeWithValues>,
+  record: IAttributeWithValues,
+  
 }
 
 
@@ -181,6 +181,7 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
     },
     {
       $project: {
+        _id: 1,
         attributeType: 1,
         name: 1,
         description: 1,
@@ -202,15 +203,13 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
   );
 
   const result = await attributeModel.aggregate(pipeline);
-  // let response = {
-  //   records: [],
-  //   maxRecords: 0
-  // };
-  // if (result.length) {
-  //   response.records = result[0].data || [];
-  //   response.maxRecords = result[0].maxRecords || 0;
-  // }
+  let response = {
+    record: {},
+  };
+  if (result.length) {
+    response.record = result[0] || {};
+  }
 
-  return result[0];
+  return response;
 }
 
