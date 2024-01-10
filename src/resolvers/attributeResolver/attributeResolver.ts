@@ -1,4 +1,4 @@
-import { vendorService, jwtService, spaceService, vendorCompanyService, vendorOutletService, vendorJwtService, otpService, attributeService } from "../../services";
+import { attributeService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./attributeValidator";
@@ -105,45 +105,18 @@ export const attributeResolver: Resolvers = {
   },
 
   Query: {
-    // Fetch all vendors records by admin
-    async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
-      try {
-        await validateInput(validators.getAllVendorsRecordsByAdminValidator, req);
-        // await verifyAdmin(req);
-
-        const page: number = input?.page || 0;
-        const size: number = input?.size || 10;
-        const isKycCompleted: boolean | null = input?.isKycCompleted ?? null;
-
-        const options: vendorService.IVendorsRecordsByAdminOptions = {
-          page,
-          size,
-          isKycCompleted,
-        }
-
-        // Fetch all vendors records
-        const result = await vendorService.getVendorRecordsByAdminWithFilters(options);
-        const response = {
-          records: result.records,
-          maxRecords: result.maxRecords,
-          message: "Vendors records fetched successfully",
-        };
-        return response;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    // Fetch each vendor record by admin
-    async getVendorRecordByAdmin(parent, { input }, { req }, info) {
+    // Fetch each attribute record by admin
+    async getAttributeRecordByAdmin(parent, { input }, { req }, info) {
       await verifyAdmin(req);
 
       try {
-        await validateInput(validators.getVendorRecordValidator, req);
+        await validateInput(validators.getAttributeRecordValidator, req);
 
-        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
 
-        const result = await vendorService.getVendorRecordByAdminWithId(_id);
+        const options = { attributeId };
+
+        const result = await attributeService.getAttributeRecordByAdminWithAttributeId(options);
 
         if (!result) {
           throw new GraphQLError("Record not found", {
@@ -155,12 +128,7 @@ export const attributeResolver: Resolvers = {
         }
 
         const response = {
-          record: {
-            ...result,
-            brands: (result?.brands || []).map(brandId => brandId.toString()),
-            categories: (result?.categories || []).map(categoryId => categoryId.toString()),
-            vendorId: result?._id?.toString(),
-          },
+          record: result,
           message: "Vendor record fetched successfully",
         }
 

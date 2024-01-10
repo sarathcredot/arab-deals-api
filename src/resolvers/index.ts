@@ -25,6 +25,6 @@ export const resolvers: Resolvers = mergeResolvers(
         vendorCompanyResolver,
         vendorOutletResolver,
         attributeResolver,
-        attributeValueResolver,
+        attributeValueResolver
     ]
 );

@@ -26,6 +26,22 @@ type Attribute {
   isBlocked: Boolean
 }
 
+type AttributeValueRecord {
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+} 
+
+type AttributeWithValue {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  attributeValues:[AttributeValueRecord]
+  isBlocked: Boolean
+}
+
 
 # attribute  Input
 
@@ -67,14 +83,23 @@ input AttributeRecordsByAdminFilter {
  isBlocked: Boolean
 }
 
+type AttributeRecordByAdminInput {
+  attributeId: String!
+}
+
 type AttributeRecordsByAdminResponse {
-    maxRecords: Int!
-    records: [Attribute!]
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeRecordByAdminResponse {
+  record: AttributeWithValue!
+  message: String
 }
 
 type Query {
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
-  # getAttributeRecordByVendor(input:  AttributeRecordByAdminInput!): AttributeRecorddByAdminResponse
+  getAttributeRecordByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
 #   getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
 #   getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
 #   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!

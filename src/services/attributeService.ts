@@ -21,6 +21,24 @@ export interface IAttribute {
   isBlocked?: boolean;
 }
 
+export interface IAttributeValue {
+  _id?: string;
+  attributeId?: Types.ObjectId;
+  value?: string;
+  colorCode?: string;
+  priority?: number;
+  isBlocked?: boolean;
+}
+
+export interface IAttributeWithValues {
+  _id?: string;
+  attributeType?: string;
+  name?: string;
+  description?: string;
+  attributeValues?: IAttributeValue[]
+  isBlocked?: boolean;
+}
+
 export interface IAttributeDocument extends Document {
   _id?: Types.ObjectId;
   attributeType?: string;
@@ -41,6 +59,10 @@ export interface IAttributeRecordsResponse {
   maxRecords: number
 }
 
+export interface IAttributeRecordResponse {
+  record: Array<IAttributeWithValues>,
+}
+
 
 export interface IAttributeRecordsOptions {
   page: number,
@@ -50,7 +72,7 @@ export interface IAttributeRecordsOptions {
 }
 
 export interface IAttributeRecordOptions {
-  attributeId: string
+  attributeId: Types.ObjectId;
   // page: number,
   // size: number,
   // isBlocked: boolean | null,
@@ -138,7 +160,7 @@ export const getAttributeRecordsWithFilters = async (options: IAttributeRecordsO
   return response;
 }
 
-export const getAttributeRecordByAdminWithAttributeId = async (options: IAttributeRecordsOptions): Promise<IAttributeRecordsResponse> => {
+export const getAttributeRecordByAdminWithAttributeId = async (options: IAttributeRecordOptions): Promise<IAttributeRecordResponse> => {
 
 
   let pipeline: PipelineStage[] = [];
@@ -146,7 +168,7 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
   pipeline.push(
     {
       $match: {
-        _id: attributeId,
+        _id: options.attributeId,
       },
     },
     {
@@ -180,15 +202,15 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
   );
 
   const result = await attributeModel.aggregate(pipeline);
-  let response = {
-    records: [],
-    maxRecords: 0
-  };
-  if (result.length) {
-    response.records = result[0].data || [];
-    response.maxRecords = result[0].maxRecords || 0;
-  }
+  // let response = {
+  //   records: [],
+  //   maxRecords: 0
+  // };
+  // if (result.length) {
+  //   response.records = result[0].data || [];
+  //   response.maxRecords = result[0].maxRecords || 0;
+  // }
 
-  return response;
+  return result[0];
 }
 
