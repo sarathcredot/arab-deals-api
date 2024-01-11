@@ -92,6 +92,9 @@ export const attributeResolver: Resolvers = {
 
         let response = {
           _id: result._id!.toString(),
+          attributeType: result.attributeType,
+          name: result.name,
+          description: result.description,
           message: "Attribute edited successfully",
         };
 

@@ -71,6 +71,7 @@ type CreateAttributeResponse {
 }
 
 type AttributeEditResponse {
+  _id:String
   attributeType: String
   name: String
   description: String

@@ -1,15 +1,15 @@
 scalar Upload
 scalar JSONObject
 
-# attribute  Mutations
+# attribute value Mutations
 
 type Mutation {
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeValueEditInput!): AttributeEditResponse!
+  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
 }
 
 
-# attribute  Type
+# attribute value Type
 
 type AttributeValue {
   _id: String
@@ -21,7 +21,7 @@ type AttributeValue {
 }
 
 
-# attribute  Input
+# attribute value Input
 
 input CreateAttributeValueInput {
   attributeId: String!
@@ -33,7 +33,7 @@ input CreateAttributeValueInput {
 
 
 input AttributeValueEditInput {
-  attributeId: String
+  attributeValueId: String!
   value: String
   colorCode: String
   priority: Int
@@ -41,19 +41,10 @@ input AttributeValueEditInput {
 }
 
 
-# attribute  Output
+# attribute value Output
 
 type CreateAttributeValueResponse {
   _id: String
-  message: String
-}
-
-type AttributeValueEditResponse {
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
   message: String
 }
 
@@ -64,19 +55,22 @@ input AttributeValueRecordsByAdminFilter {
 }
 
 type AttributeValueRecordsByAdminResponse {
-    maxRecords: Int!
-    records: [Attribute!]
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
 }
 
 type Query {
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
-  # getAttributeRecordByVendor(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
-#   getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
-#   getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
-#   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
 }
-
-
 
 # Schema
 
