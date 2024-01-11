@@ -105,7 +105,7 @@ export const brandResolver: Resolvers = {
                     brandRecord.logo = brandLogo;
                 }
 
-                if (input.isBlocked) {
+                if (input.isBlocked != null) {
                     brandRecord.isBlocked = input?.isBlocked;
                 }
 
