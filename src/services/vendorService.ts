@@ -127,14 +127,14 @@ export interface IVendorWithKycDetails {
     originalName?: string;
     createdAt?: number;
   };
-  companyRemarks?: [string]; // Assuming this field exists in your data
+  companyRemarks?: [string]; 
   outletId?: string;
   outletName?: string;
   outletStatus?: string;
-  outletCountry?: string; // Assuming this field exists in your data
-  outletDistrict?: string; // Assuming this field exists in your data
-  outletVillage?: string; // Assuming this field exists in your data
-  outletAddress?: string; // Assuming this field exists in your data
+  outletCountry?: string; 
+  outletDistrict?: string; 
+  outletVillage?: string; 
+  outletAddress?: string; 
   outletLicense?: {
     _id?: string;
     fileType?: string;
@@ -216,65 +216,6 @@ export const loginVendor = (vendor: IVendorDocument): IVendorLoginResponse => {
     token: vendor.token || "",
   }
 }
-
-// export const getVendorsRecordsWithFilters = async (options: IVendorsRecordsOptions): Promise<IVendorsRecordsResponse> => {
-
-//   console.log("options: ", options)
-//   let pipeline: PipelineStage[] = [];
-
-//   pipeline.push(
-//     {
-//       $match: {
-//         isBlocked: false
-//       }
-//     },
-//     {
-//       $sort: { _id: -1 }
-//     },
-//     {
-//       $facet: {
-//         metadata: [
-//           {
-//             $group: {
-//               _id: null,
-//               total: { $sum: 1 }
-//             }
-//           }
-//         ],
-//         data: [
-//           {
-//             $skip: options.page * options.size
-//           },
-//           {
-//             $limit: options.size
-//           },
-//           {
-//             $project: options.projection
-//           }
-//         ]
-//       }
-//     },
-//     {
-//       $project: {
-//         maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-//         data: 1
-//       }
-//     }
-//   );
-
-//   const result = await vendorModel.aggregate(pipeline);
-//   console.log(result)
-//   let response = {
-//     records: [],
-//     maxRecords: 0
-//   };
-//   if (result.length) {
-//     response.records = result[0].data || [];
-//     response.maxRecords = result[0].maxRecords || 0;
-//   }
-
-//   return response;
-// }
 
 export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<IVendorDocument | null> => {
   const result = await vendorModel.findById(id);
