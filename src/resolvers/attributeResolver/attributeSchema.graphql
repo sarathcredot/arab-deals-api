@@ -95,6 +95,10 @@ input AttributeRecordByAdminInput {
   attributeId: String!
 }
 
+input AttributeRecordByVendorInput {
+  attributeId: String!
+}
+
 input AttributeRecordsWithCategoryInput {
   categoryId: String!
 }
@@ -109,6 +113,11 @@ type AttributeRecordByAdminResponse {
   message: String
 }
 
+type AttributeRecordByVendorResponse {
+  record: AttributeWithValue
+  message: String
+}
+
 type AttributeRecordsWithCategoryResponse {
   record: CategoryWithAttributes
   message: String
@@ -117,6 +126,7 @@ type AttributeRecordsWithCategoryResponse {
 type Query {
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAttributeRecordByVendor(input:  AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
   getAttributeRecordsByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse  
   getCategoryWithAttributes(input: AttributeRecordsWithCategoryInput!): AttributeRecordsWithCategoryResponse
 }

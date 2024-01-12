@@ -222,6 +222,60 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
   return response;
 }
 
+export const getAttributeRecordByVendorWithAttributeId = async (options: IAttributeRecordOptions): Promise<IAttributeRecordResponse> => {
+
+
+  let pipeline: PipelineStage[] = [];
+
+  pipeline.push(
+    {
+      $match: {
+        _id: options.attributeId,
+      },
+    },
+    {
+      $lookup: {
+        from: collections.ATTRIBUTE_VALUES,
+        localField: "_id",
+        foreignField: "attributeId",
+        as: "attributeValues",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        attributeType: 1,
+        name: 1,
+        description: 1,
+        isBlocked: 1,
+        attributeValues: {
+          $map: {
+            input: "$attributeValues",
+            as: "value",
+            in: {
+              _id: "$$value._id",
+              value: "$$value.value",
+              colorCode: "$$value.colorCode",
+              priority: "$$value.priority",
+              isBlocked: "$$value.isBlocked",
+            },
+          },
+        },
+      },
+    },
+  );
+
+  const result = await attributeModel.aggregate(pipeline);
+  let response = {
+    record: {},
+  };
+  if (result.length) {
+    response.record = result[0] || {};
+  }
+
+  return response;
+}
+
 export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<any> => {
   let pipeline: PipelineStage[] = [];
 

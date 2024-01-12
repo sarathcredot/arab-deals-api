@@ -211,6 +211,49 @@ export const attributeResolver: Resolvers = {
 
     },
 
+    // Fetch each attribute record by vendor
+    async getAttributeRecordByVendor(parent, { input }, { req }, info) {
+      // await verifyAdmin(req);
+
+      try {
+        await validateInput(validators.getAttributeRecordValidator, req);
+
+        const attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
+
+        const options = { attributeId };
+
+        const result = await attributeService.getAttributeRecordByVendorWithAttributeId(options);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const response = {
+          record: {
+            _id: result?.record?._id?.toString(),
+            attributeType: result?.record?.attributeType,
+            name: result?.record?.name,
+            description: result?.record?.description,
+            attributeValues: result?.record?.attributeValues || [],
+            isBlocked: result?.record?.isBlocked,
+          },
+          message: "Vendor record fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
+
     // Fetch each attribute records with category in vendor portal
     async getCategoryWithAttributes(parent, { input }, { req }, info) {
       // await verifyAdmin(req);
