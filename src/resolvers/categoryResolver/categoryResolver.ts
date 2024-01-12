@@ -525,6 +525,92 @@ export const categoryResolver: Resolvers = {
             }
         },
 
+        
+        getAllCategoriesOfVendorByAdmin: async (parent, { input }, { req }, info) => {
+            try {
+                await verifyAdmin(req);
+                const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
+
+                const vendor = await vendorService.getvendorRecordWithId(vendorId);
+
+                if (!vendor) {
+                    throw new GraphQLError("Vendor not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+ 
+                const attributes = vendor.categories || [];
+
+                if (!vendor || attributes?.length === 0) {
+                    throw new GraphQLError("Records not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                let finalResult = await Promise.all(
+                    attributes.map(async (n) => {
+                        const categoryIdPathData = await categoryService.findCategoryWithFilters(
+                            { _id: n._id },
+                            { _id: 1, path: 1, categoryName: 1, isBlocked: 1, description: 1, isLeaf: 1 },
+                            { lean: true }
+                        );
+
+                        let categoryIdPath = `${categoryIdPathData?.path}${n._id}#`;
+
+                        let categoryName = "";
+
+                        let categoryPathIds = [];
+
+                        if (categoryIdPath) {
+                            categoryPathIds = categoryIdPath.split("#");
+                            categoryPathIds = categoryPathIds.filter((id) => id.trim() !== "");
+
+                            const categoryNames = [];
+
+                            for (let categoryIdPathId of categoryPathIds) {
+                                const categoryNamePathData = await categoryService.findCategoryWithFilters(
+                                    { _id: categoryIdPathId },
+                                    { _id: 1, categoryName: 1 },
+                                    { lean: true }
+                                );
+
+                                if (categoryNamePathData) {
+                                    categoryNames.push(categoryNamePathData.categoryName);
+                                }
+                            }
+
+                            categoryName = categoryNames.join(" / ");
+                        }
+
+                        return {
+                            _id: n._id.toString(),
+                            categoryName: categoryIdPathData?.categoryName,
+                            isBlocked: categoryIdPathData?.isBlocked,
+                            fullCategoryName: categoryName,
+                            isLeaf: categoryIdPathData?.isLeaf
+                        };
+                    })
+                );
+
+                const response = {
+                    records: finalResult,
+                };
+
+                finalResult.sort((a, b) => {
+                    return a.fullCategoryName.localeCompare(b.fullCategoryName);
+                });
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+
     }
 
 
