@@ -5,6 +5,8 @@ export const categoryCreateValidator = [
     body('variables.input.categoryName').optional({ checkFalsy: true }).trim(),
     body('variables.input.parentId').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+    body('variables.input.attibutes').optional({ checkFalsy: true }).trim(),
+
 ]
 
 export const categoriesQueryValidator = [
@@ -20,6 +22,8 @@ export const categoryUpdateValidator = [
     body('variables.input.description').optional({ checkFalsy: true }),
     body('variables.input.parentId').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+    body('variables.input.attibutes').optional({ checkFalsy: true }).trim(),
+
 ]
 
 export const categoryDeleteValidator = [

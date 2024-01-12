@@ -102,6 +102,7 @@ type AttributeRecordByAdminResponse {
 type Query {
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAttributeRecordsByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
 }
 
 

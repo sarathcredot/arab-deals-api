@@ -459,7 +459,7 @@ export const vendorResolver: Resolvers = {
     // Edit vendor profile by admin
     updateVendorProfileByAdmin: async (parent, { input, image }, { req }, info) => {
       try {
-        await verifyAdmin(req);
+        // await verifyAdmin(req);
         await validateInput(validators.VendorUpdateValidator, req);
 
         const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
@@ -606,7 +606,7 @@ export const vendorResolver: Resolvers = {
 
     // Fetch each vendor record by admin
     async getVendorRecordByAdmin(parent, { input }, { req }, info) {
-      await verifyAdmin(req);
+      // await verifyAdmin(req);
 
       try {
         await validateInput(validators.getVendorRecordValidator, req);
@@ -701,6 +701,7 @@ export const vendorResolver: Resolvers = {
           },
           message: "Vendor record fetched successfully",
         }
+        console.log("response ", response)
 
         return response;
 
