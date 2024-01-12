@@ -1,5 +1,5 @@
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { attributeModel } from '../models';
+import { attributeModel, categoryModel } from '../models';
 import { collections } from "../configs";
 import { attributeResolver } from "src/resolvers/attributeResolver/attributeResolver";
 import { response } from "express";
@@ -39,6 +39,12 @@ export interface IAttributeWithValues {
   isBlocked?: boolean;
 }
 
+interface ICategoryWithAttributes {
+  _id: string;
+  categoryName: string;
+  attributes: IAttribute[];
+}
+
 export interface IAttributeDocument extends Document {
   _id?: Types.ObjectId;
   attributeType?: string;
@@ -61,9 +67,11 @@ export interface IAttributeRecordsResponse {
 
 export interface IAttributeRecordResponse {
   record: IAttributeWithValues,
-
 }
 
+export interface ICategoryWithAttributesResponse {
+  record: ICategoryWithAttributes,
+}
 
 export interface IAttributeRecordsOptions {
   page: number,
@@ -74,12 +82,11 @@ export interface IAttributeRecordsOptions {
 
 export interface IAttributeRecordOptions {
   attributeId: Types.ObjectId;
-  // page: number,
-  // size: number,
-  // isBlocked: boolean | null,
-  // projection: IAttributeProjection,
 }
 
+export interface ICategoryWithAttributesOptions {
+  categoryId: Types.ObjectId;
+}
 
 export const createAttribute = async (attributeData: IAttribute): Promise<IAttributeDocument | null> => {
   let attribute: IAttributeDocument = new attributeModel(attributeData);
@@ -205,6 +212,66 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
   );
 
   const result = await attributeModel.aggregate(pipeline);
+  let response = {
+    record: {},
+  };
+  if (result.length) {
+    response.record = result[0] || {};
+  }
+
+  return response;
+}
+
+export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<any> => {
+  let pipeline: PipelineStage[] = [];
+
+  pipeline.push(
+    {
+      $match: {
+        _id: options.categoryId,
+      },
+    },
+    {
+      $lookup: {
+        from: collections.CATEGORIES,
+        localField: "_id",
+        foreignField: "_id", 
+        as: "categoryAttributes",
+      },
+    },
+    {
+      $unwind: "$categoryAttributes",
+    },
+    {
+      $lookup: {
+        from: collections.ATTRIBUTES,
+        localField: "categoryAttributes.attibutes", 
+        foreignField: "_id",
+        as: "attributeDetails",
+      },
+    },
+    {
+      $project: {
+        _id:1,
+        categoryName: 1,
+        attributes: {
+          $map: {
+            input: "$attributeDetails",
+            as: "attribute",
+            in: {
+              _id: "$$attribute._id",
+              attributeType: "$$attribute.attributeType",
+              name: "$$attribute.name",
+              description: "$$attribute.description",
+              isBlocked: "$$attribute.isBlocked",
+            },
+          },
+        },
+      },
+    },
+  );
+
+  const result = await categoryModel.aggregate(pipeline);
   let response = {
     record: {},
   };

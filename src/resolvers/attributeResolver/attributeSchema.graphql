@@ -43,6 +43,12 @@ type AttributeWithValue {
   isBlocked: Boolean
 }
 
+type CategoryWithAttributes{
+  _id: String,
+  categoryName: String
+  attributes: [Attribute]
+}
+
 
 # attribute  Input
 
@@ -89,6 +95,10 @@ input AttributeRecordByAdminInput {
   attributeId: String!
 }
 
+input AttributeRecordsWithCategoryInput {
+  categoryId: String!
+}
+
 type AttributeRecordsByAdminResponse {
   maxRecords: Int!
   records: [Attribute!]
@@ -99,10 +109,16 @@ type AttributeRecordByAdminResponse {
   message: String
 }
 
+type AttributeRecordsWithCategoryResponse {
+  record: CategoryWithAttributes
+  message: String
+}
+
 type Query {
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
-  getAttributeRecordsByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAttributeRecordsByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse  
+  getCategoryWithAttributes(input: AttributeRecordsWithCategoryInput!): AttributeRecordsWithCategoryResponse
 }
 
 
