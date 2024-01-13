@@ -23,25 +23,27 @@ type Mutation {
   vendorCompanyStatusUpdation(input: VendorCompanyStatusUpdationInput!): VendorCompanyStatusUpdationResponse!
   deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
   uploadProductFile(file: Upload!): File
-  createProduct(input: ProductInput!, images: [Upload]): ProductResponse
-  createVariant(input: VariantInput!, images: [Upload]): VariantResponse
-  updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
+  createProduct(input: ProductInput!, images: [Upload], attributeFileMap: JSONObject): ProductResponse
+  createVariant(input: VariantInput!, images: [Upload], attributeFileMap: JSONObject): VariantResponse
+  updateProduct(input: ProductUpdateInput!, images: [Upload], attributeFileMap: JSONObject): ProductUpdateResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
-  sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
-  verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
-  reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
+  sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
+  verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
+  reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
+  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image: Upload): UpdateAdminResponse!
   adminApprovalForVendor(input: adminApprovalForVendorInput!): adminApprovalForVendorResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
 }
 
 input sendOtpInput {
@@ -107,10 +109,29 @@ type VendorWithAllKycData {
   isKycCompleted: Boolean
   outletId: String
   outletName: String
+  outletCountry: String
+  outletDistrict: String
+  outletVillage: String
+  outletAddress: String
+  outletLicense: ImageData
+  outletInteriorImage: ImageData
+  outletExteriorImage: ImageData
+  outletContactPersonName: String
+  outletContactPersonNumber: String
+  outletContactPersonDesignation: String
   outletStatus: String
+  outletRemarks: [String]
   companyId: String
   companyName: String
+  companyType: String
+  companyCrNumber: String
+  companyCrLicense: ImageData
+  companyCooCertificate: ImageData
   companyStatus: String
+  companyRemarks: [String]
+  profilePic: ImageData
+  brands: [String]
+  categories: [String]
 }
 
 type VendorWithKycDataStatus {
@@ -214,6 +235,11 @@ type VendorsRecordByVendorResponse {
   message: String
 }
 
+type VendorAllKycRecordByVendorResponse {
+  record: VendorWithAllKycData
+  message: String
+}
+
 type VendorRecordKycStatusResponse {
   record: VendorWithKycDataStatus
   message: String
@@ -235,6 +261,7 @@ type Query {
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
   getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
   getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
+  getVendorAllKycRecordByVendor(input: VendorAllKycRecordByVendorInput!): VendorAllKycRecordByVendorResponse!
   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
   getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
   getVendorOutletRecordByAdmin(input: VendorOutletIdInput!): VendorOutletRecordResponse!
@@ -258,9 +285,10 @@ type Query {
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
   getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
   getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
-  getAdminRecord: getAdminRecordResponse
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
-  getAttributeRecordByVendor(input: AttributeRecordByAdminInput!): AttributeRecorddByAdminResponse
+  getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAdminRecord: getAdminRecordResponse
 }
 
 type CreateVendorResponse {
@@ -296,6 +324,10 @@ input VendorRecordByVendorInput {
 }
 
 input VendorRecordKycStatusInput {
+  _id: String!
+}
+
+input VendorAllKycRecordByVendorInput {
   _id: String!
 }
 
@@ -521,6 +553,9 @@ input ProductFileDataInput {
 }
 
 input ProductInput {
+  vendorId: String!
+  brandId: String
+  brandName: String
   productName: String
   shortDescription: String
   skuId: String
@@ -540,9 +575,13 @@ input ProductInput {
   stock: Int
   categoryId: String
   images: [String]
+  status: String
 }
 
 input VariantInput {
+  vendorId: String!
+  brandId: String!
+  brandName: String
   productName: String
   shortDescription: String
   skuId: String
@@ -562,10 +601,12 @@ input VariantInput {
   stock: Int
   categoryId: String
   images: [String]
+  status: String
 }
 
 input ProductUpdateInput {
   _id: String!
+  vendorId: String
   productName: String
   shortDescription: String
   skuId: String
@@ -585,6 +626,7 @@ input ProductUpdateInput {
   stock: Int
   categoryId: String
   images: [String]
+  status: String
 }
 
 input ProductId {
@@ -703,37 +745,6 @@ type RelatedProductsResponse {
   records: [Product!]
 }
 
-input sendVendorMobileOtpInput {
-  fullName: String
-  mobileNumber: String!
-}
-
-input ReSendVendorMobileOtpInput {
-  fullName: String
-  mobileNumber: String!
-}
-
-input VerifyVendorOtpInput {
-  code: String!
-}
-
-type sendVendorMobileOtpResponse {
-  _id: String
-  message: String
-}
-
-type VerifyVendorOtpResponse {
-  _id: String
-  fullName: String
-  mobileNumber: String
-  message: String
-}
-
-type ReSendVendorMobileOtpResponse {
-  _id: String
-  message: String
-}
-
 input CreateCategoryInput {
   categoryName: String!
   parentId: String
@@ -839,6 +850,37 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
+input sendVendorMobileOtpInput {
+  fullName: String
+  mobileNumber: String!
+}
+
+input ReSendVendorMobileOtpInput {
+  fullName: String
+  mobileNumber: String!
+}
+
+input VerifyVendorOtpInput {
+  code: String!
+}
+
+type sendVendorMobileOtpResponse {
+  _id: String
+  message: String
+}
+
+type VerifyVendorOtpResponse {
+  _id: String
+  fullName: String
+  mobileNumber: String
+  message: String
+}
+
+type ReSendVendorMobileOtpResponse {
+  _id: String
+  message: String
+}
+
 input AddBrandInput {
   brandName: String!
   isBlocked: Boolean
@@ -931,6 +973,130 @@ type BrandRecordsWithVendorByVendorResponse {
   message: String
 }
 
+type AttributeValue {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+input CreateAttributeValueInput {
+  attributeId: String!
+  value: String!
+  colorCode: String!
+  priority: Int!
+  isBlocked: Boolean
+}
+
+input AttributeValueEditInput {
+  attributeValueId: String!
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type CreateAttributeValueResponse {
+  _id: String
+  message: String
+}
+
+input AttributeValueRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type AttributeValueRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type Attribute {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+type AttributeValueRecord {
+  _id: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type AttributeWithValue {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  attributeValues: [AttributeValueRecord]
+  isBlocked: Boolean
+}
+
+input CreateAttributeInput {
+  attributeType: String!
+  name: String!
+  description: String!
+  isBlocked: Boolean
+}
+
+input AttributeEditInput {
+  attributeId: String!
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+type CreateAttributeResponse {
+  _id: String
+  message: String
+}
+
+type AttributeEditResponse {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+  message: String
+}
+
+input AttributeRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+input AttributeRecordByAdminInput {
+  attributeId: String!
+}
+
+type AttributeRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeRecordByAdminResponse {
+  record: AttributeWithValue
+  message: String
+}
+
 type Admin {
   _id: String
   email: String
@@ -992,51 +1158,4 @@ type getAdminRecordResponse {
 type adminApprovalForVendorResponse {
   _id: String
   message: String
-}
-
-type Attribute {
-  _id: String
-  attributeType: String
-  name: String
-  description: String
-  isBlocked: Boolean
-}
-
-input CreateAttributeInput {
-  attributeType: String!
-  name: String!
-  description: String!
-  isBlocked: Boolean
-}
-
-input AttributeEditInput {
-  attributeId: String!
-  attributeType: String
-  name: String
-  description: String
-  isBlocked: Boolean
-}
-
-type CreateAttributeResponse {
-  _id: String
-  message: String
-}
-
-type AttributeEditResponse {
-  attributeType: String
-  name: String
-  description: String
-  isBlocked: Boolean
-  message: String
-}
-
-input AttributeRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type AttributeRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
 }

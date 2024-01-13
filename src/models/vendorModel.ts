@@ -65,14 +65,16 @@ const vendorSchema = new Schema(
         brands: {   // Approved brands
             type: [{
                 type: Schema.Types.ObjectId,
-                ref: collections.BRANDS
+                ref: collections.BRANDS,
+                unique: true
             }]
         },
         categories: {   // Approved categories
             type: [
                 {
                     type: Schema.Types.ObjectId,
-                    ref: collections.CATEGORIES
+                    ref: collections.CATEGORIES,
+                    unique: true,
                 }
             ]
         }

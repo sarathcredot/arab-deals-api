@@ -16,6 +16,9 @@ export interface FileData {
 
 export interface IProduct {
     _id?: string,
+    vendorId?: string,
+    brandId?: string,
+    brandName?: string,
     productName?: string,
     shortDescription?: string,
     skuId?: string,
@@ -39,11 +42,15 @@ export interface IProduct {
     categoryId?: string,
     categoryNamePath?: string,
     categoryIdPath?: string,
+    status?: string,
 }
 
 
 export interface IProductDocument extends Document {
     _id?: Types.ObjectId,
+    vendorId?: string,
+    brandId?: string,
+    brandName?: string,
     productName?: string,
     shortDescription?: string,
     skuId?: string,
@@ -67,6 +74,7 @@ export interface IProductDocument extends Document {
     categoryId?: string,
     categoryNamePath?: string,
     categoryIdPath?: string,
+    status?: string
 }
 
 export interface IProductsProjection {
@@ -95,7 +103,8 @@ export interface IProductsProjection {
     stock?: 1,
     createdAt?: 1,
     updatedAt?: 1,
-    categoryId?: 1,
+    categoryId?: 1
+    status?:1,
 }
 
 
@@ -125,6 +134,7 @@ export interface IProductProjection {
     stock?: 1,
     createdAt?: 1,
     updatedAt?: 1,
+    status?:1,
 }
 
 export interface IProductsOptions {

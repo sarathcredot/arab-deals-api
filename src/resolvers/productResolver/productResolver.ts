@@ -30,7 +30,7 @@ export const productResolver: Resolvers = {
             return { filename, mimetype, encoding };
         },
 
-        createProduct: async (parent, { input, images }, { req }, info) => {
+        createProduct: async (parent, { input, images, attributeFileMap }, { req }, info) => {
             try {
                 // Validate Input
                 await validateInput(validators.createProductValidator, req);
@@ -110,14 +110,15 @@ export const productResolver: Resolvers = {
                 }
 
                 newProduct = {
+                    vendorId: input.vendorId,
+                    brandId: input.brandId || "",
+                    brandName: input.brandName || "",
                     productName: input?.productName || "",
                     shortDescription: input?.shortDescription || "",
                     skuId: input?.skuId || "",
                     description: input?.description || "",
                     productInfo: (input.productInfo || []).filter(Boolean) as [],
                     productShortInfo: input?.productShortInfo || "",
-                    color: input?.color || "",
-                    size: input?.size || "",
                     material: input?.material || "",
                     rating: input?.rating || 0,
                     sellingPrice: input?.sellingPrice || 0,
@@ -131,6 +132,7 @@ export const productResolver: Resolvers = {
                     categoryNamePath: categoryName,
                     categoryIdPath: categoryIdPath,
                     productCode: productCode,
+                    status: "UNDER_VERIFICATION"
                 };
 
                 // Create the product
@@ -148,7 +150,7 @@ export const productResolver: Resolvers = {
             }
         },
 
-        createVariant: async (parent, { input, images }, { req }, info) => {
+        createVariant: async (parent, { input, images, attributeFileMap }, { req }, info) => {
             try {
                 // Validate Input
                 await validateInput(validators.createVariantValidator, req);
@@ -210,8 +212,6 @@ export const productResolver: Resolvers = {
                     description: input?.description || variant.description,
                     productInfo: (input.productInfo || variant.productInfo || []).filter(Boolean) as [],
                     productShortInfo: input?.productShortInfo || variant.productShortInfo,
-                    color: input?.color || variant.color,
-                    size: input?.size || variant.size,
                     material: input?.material || variant.material,
                     rating: input?.rating || variant.rating,
                     sellingPrice: input?.sellingPrice || 0,
@@ -225,6 +225,7 @@ export const productResolver: Resolvers = {
                     categoryNamePath: variant.categoryNamePath,
                     categoryIdPath: variant.categoryIdPath,
                     productCode: productCode,
+                    status: "UNDER_VERIFICATION"
                 };
 
                 // Create the product
@@ -242,7 +243,7 @@ export const productResolver: Resolvers = {
             }
         },
 
-        updateProduct: async (parent, { input, images }, { req }, info) => {
+        updateProduct: async (parent, { input, images, attributeFileMap }, { req }, info) => {
             try {
                 await validateInput(validators.productUpdateValidator, req);
                 await verifyAdmin(req);
@@ -356,6 +357,10 @@ export const productResolver: Resolvers = {
 
                 if (cmsImages.length > 0) {
                     existingProduct.images = cmsImages;
+                }
+
+                if (input.status && existingProduct.status !== input.status) {
+                    existingProduct.status = input.status;
                 }
 
                 // Update the product

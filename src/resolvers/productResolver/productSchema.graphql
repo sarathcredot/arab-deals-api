@@ -2,7 +2,7 @@
 
 # Product Mutations
 
-
+  scalar JSONObject
   scalar Upload
 
   type File {
@@ -13,9 +13,9 @@
 
   type Mutation {
     uploadProductFile(file: Upload!): File
-    createProduct(input: ProductInput!, images:[Upload]): ProductResponse
-    createVariant(input: VariantInput!, images:[Upload]): VariantResponse
-    updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
+    createProduct(input: ProductInput!, images:[Upload], attributeFileMap: JSONObject): ProductResponse
+    createVariant(input: VariantInput!, images:[Upload], attributeFileMap: JSONObject): VariantResponse
+    updateProduct(input: ProductUpdateInput!, images: [Upload], attributeFileMap: JSONObject): ProductUpdateResponse
     deleteProduct(input: ProductId!): DeleteProductResponse!
   }
 
@@ -30,6 +30,9 @@
     }
 
    input ProductInput {
+    vendorId: String!
+    brandId: String
+    brandName: String
     productName: String
     shortDescription: String
     skuId: String
@@ -49,9 +52,13 @@
     stock: Int
     categoryId: String
     images: [String]
+    status: String
 }
 
 input VariantInput {
+    vendorId: String!
+    brandId: String!
+    brandName: String
     productName: String
     shortDescription: String
     skuId: String
@@ -71,10 +78,12 @@ input VariantInput {
     stock: Int
     categoryId: String
     images: [String]
+    status: String
 }
 
    input ProductUpdateInput {
      _id: String!
+    vendorId: String
     productName: String
     shortDescription: String
     skuId: String
@@ -94,6 +103,7 @@ input VariantInput {
     stock: Int
     categoryId: String
     images: [String]
+    status: String
 }
 
     input ProductId {

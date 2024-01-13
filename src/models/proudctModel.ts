@@ -147,6 +147,11 @@ const productSchema = new Schema(
             required: true,
             default: 0,
         },
+        status: {
+            type: String,
+            enum: ["UNDER_VERIFICATION", "APPROVED", "REJECTED"],
+            default: "PENDING"
+        },
     },
     {
         timestamps: true
