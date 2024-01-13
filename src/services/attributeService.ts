@@ -289,7 +289,7 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
       $lookup: {
         from: collections.CATEGORIES,
         localField: "_id",
-        foreignField: "_id", 
+        foreignField: "_id",
         as: "categoryAttributes",
       },
     },
@@ -299,28 +299,43 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
     {
       $lookup: {
         from: collections.ATTRIBUTES,
-        localField: "categoryAttributes.attibutes", 
+        localField: "categoryAttributes.attibutes",
         foreignField: "_id",
         as: "attributeDetails",
       },
     },
     {
-      $project: {
-        _id:1,
-        categoryName: 1,
+      $unwind: "$attributeDetails",
+    },
+    {
+      $lookup: {
+        from: collections.ATTRIBUTE_VALUES,
+        localField: "attributeDetails._id",
+        foreignField: "attributeId",
+        as: "attributeValues",
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        categoryName: { $first: "$categoryName" },
         attributes: {
-          $map: {
-            input: "$attributeDetails",
-            as: "attribute",
-            in: {
-              _id: "$$attribute._id",
-              attributeType: "$$attribute.attributeType",
-              name: "$$attribute.name",
-              description: "$$attribute.description",
-              isBlocked: "$$attribute.isBlocked",
-            },
+          $push: {
+            _id: "$attributeDetails._id",
+            attributeType: "$attributeDetails.attributeType",
+            name: "$attributeDetails.name",
+            description: "$attributeDetails.description",
+            isBlocked: "$attributeDetails.isBlocked",
+            attributeValues: "$attributeValues",
           },
         },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        categoryName: 1,
+        attributes: 1,
       },
     },
   );
@@ -332,7 +347,13 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
   if (result.length) {
     response.record = result[0] || {};
   }
+  console.log(response.record);
 
   return response;
-}
+};
+
+
+
+
+
 

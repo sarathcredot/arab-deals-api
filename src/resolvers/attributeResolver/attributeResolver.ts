@@ -295,7 +295,14 @@ export const attributeResolver: Resolvers = {
           record: {
             _id: result?.record?._id?.toString(),
             categoryName: result?.record?.categoryName,
-            attributes: result?.record?.attributes,
+            attributes: result?.record?.attributes.map((attribute: any) => ({
+              _id: attribute?._id?.toString(),
+              attributeType: attribute?.attributeType,
+              name: attribute?.name,
+              description: attribute?.description,
+              attributeValues: attribute?.attributeValues || [],
+              isBlocked: attribute?.isBlocked,
+            })),
           },
           message: "Vendor record fetched successfully",
         }

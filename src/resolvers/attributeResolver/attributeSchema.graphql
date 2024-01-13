@@ -46,7 +46,7 @@ type AttributeWithValue {
 type CategoryWithAttributes{
   _id: String,
   categoryName: String
-  attributes: [Attribute]
+  attributes: [AttributeWithValue]
 }
 
 
