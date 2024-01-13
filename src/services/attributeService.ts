@@ -347,7 +347,6 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
   if (result.length) {
     response.record = result[0] || {};
   }
-  console.log(response.record);
 
   return response;
 };

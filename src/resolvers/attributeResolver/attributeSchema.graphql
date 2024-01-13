@@ -43,7 +43,7 @@ type AttributeWithValue {
   isBlocked: Boolean
 }
 
-type CategoryWithAttributes{
+type CategoryWithCategory{
   _id: String,
   categoryName: String
   attributes: [AttributeWithValue]
@@ -99,7 +99,7 @@ input AttributeRecordByVendorInput {
   attributeId: String!
 }
 
-input AttributeRecordsWithCategoryInput {
+input AttributesDetailsWithCategoryIdInput {
   categoryId: String!
 }
 
@@ -118,8 +118,8 @@ type AttributeRecordByVendorResponse {
   message: String
 }
 
-type AttributeRecordsWithCategoryResponse {
-  record: CategoryWithAttributes
+type AttributesDetailsWithCategoryResponse {
+  record: CategoryWithCategory
   message: String
 }
 
@@ -128,7 +128,7 @@ type Query {
   getAttributeRecordByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input:  AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
   getAttributeRecordsByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse  
-  getCategoryWithAttributes(input: AttributeRecordsWithCategoryInput!): AttributeRecordsWithCategoryResponse
+  getAttributesDetailsWithCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
 }
 
 

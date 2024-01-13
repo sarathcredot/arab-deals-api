@@ -254,8 +254,8 @@ export const attributeResolver: Resolvers = {
 
     },
 
-    // Fetch each attribute records with category in vendor portal
-    async getCategoryWithAttributes(parent, { input }, { req }, info) {
+    // Fetch each attribute records  and each record values with category in vendor portal
+    async getAttributesDetailsWithCategory(parent, { input }, { req }, info) {
       // await verifyAdmin(req);
 
       try {
