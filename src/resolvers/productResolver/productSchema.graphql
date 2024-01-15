@@ -53,6 +53,7 @@
     categoryId: String
     images: [String]
     status: String
+    offerPrice: Int!
 }
 
 input VariantInput {
@@ -79,11 +80,14 @@ input VariantInput {
     categoryId: String
     images: [String]
     status: String
+    offerPrice: Int!
 }
 
    input ProductUpdateInput {
      _id: String!
     vendorId: String
+    brandId: String
+    brandName: String
     productName: String
     shortDescription: String
     skuId: String
@@ -104,6 +108,7 @@ input VariantInput {
     categoryId: String
     images: [String]
     status: String
+    offerPrice: Int
 }
 
     input ProductId {

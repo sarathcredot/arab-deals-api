@@ -43,8 +43,15 @@ export interface IProduct {
     categoryNamePath?: string,
     categoryIdPath?: string,
     status?: string,
+    attributes?: Record<string, IProductAttribute>;
+    offerPrice?: number,
 }
 
+
+export interface IProductAttribute {
+    attributeValueId: string;
+    attributeValue: string; 
+}
 
 export interface IProductDocument extends Document {
     _id?: Types.ObjectId,
@@ -74,7 +81,8 @@ export interface IProductDocument extends Document {
     categoryId?: string,
     categoryNamePath?: string,
     categoryIdPath?: string,
-    status?: string
+    status?: string,
+    attributes?: Record<string, IProductAttribute>;
 }
 
 export interface IProductsProjection {

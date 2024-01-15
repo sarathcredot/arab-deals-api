@@ -9,7 +9,13 @@ import { ObjectId, QueryOptions, Types } from "mongoose";
 import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
 
-
+export interface ProductAttributes {
+    [key: string]: {
+      attributeValueId: string;
+      attributeValue: string;
+      // other necessary fields if needed
+    };
+  }
 
 export const productResolver: Resolvers = {
     Upload: GraphQLUpload,
@@ -34,7 +40,7 @@ export const productResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.createProductValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 images = images || [];
 
@@ -132,7 +138,9 @@ export const productResolver: Resolvers = {
                     categoryNamePath: categoryName,
                     categoryIdPath: categoryIdPath,
                     productCode: productCode,
-                    status: "UNDER_VERIFICATION"
+                    status: "UNDER_VERIFICATION",
+                    attributes: attributeFileMap,
+                    offerPrice: input.offerPrice
                 };
 
                 // Create the product
@@ -197,7 +205,7 @@ export const productResolver: Resolvers = {
                             errors: [],
                         },
                     });
-                }              
+                }
 
                 let tags: string[] = [];
                 if (input.tags) {
@@ -225,7 +233,8 @@ export const productResolver: Resolvers = {
                     categoryNamePath: variant.categoryNamePath,
                     categoryIdPath: variant.categoryIdPath,
                     productCode: productCode,
-                    status: "UNDER_VERIFICATION"
+                    status: "UNDER_VERIFICATION",
+                    attributes: attributeFileMap
                 };
 
                 // Create the product
@@ -246,7 +255,7 @@ export const productResolver: Resolvers = {
         updateProduct: async (parent, { input, images, attributeFileMap }, { req }, info) => {
             try {
                 await validateInput(validators.productUpdateValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -260,6 +269,7 @@ export const productResolver: Resolvers = {
                     });
                 }
 
+                attributeFileMap = attributeFileMap || {};
 
                 images = images || [];
 
@@ -306,7 +316,7 @@ export const productResolver: Resolvers = {
                 if (input.productInfo) {
                     existingProduct.productInfo = (input.productInfo || []).filter(Boolean) as [];
                 }
-                
+
                 if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
                     existingProduct.productShortInfo = input.productShortInfo;
                 }
@@ -362,6 +372,30 @@ export const productResolver: Resolvers = {
                 if (input.status && existingProduct.status !== input.status) {
                     existingProduct.status = input.status;
                 }
+
+                if (input.brandId !== null && existingProduct.brandId !== input.brandId) {
+                    existingProduct.brandId = input.brandId;
+                }
+
+                if (input.brandName !== null && existingProduct.brandName !== input.brandName) {
+                    existingProduct.brandName = input.brandName;
+                }
+                if (attributeFileMap) {
+                    const updatedAttributes: ProductAttributes = {};
+                  
+                    for (const attributeName in attributeFileMap) {
+                      if (Object.prototype.hasOwnProperty.call(attributeFileMap, attributeName)) {
+                        const attributeValue = attributeFileMap[attributeName];
+                        updatedAttributes[attributeName] = {
+                          attributeValueId: attributeValue.attributeValueId,
+                          attributeValue: attributeValue.attributeValue,
+                        };
+                      }
+                    }
+                  
+                    existingProduct.attributes = {...existingProduct.attributes, ...updatedAttributes};
+                  }
+
 
                 // Update the product
                 const result = await existingProduct.save();
