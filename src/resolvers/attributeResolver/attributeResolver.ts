@@ -353,28 +353,6 @@ export const attributeResolver: Resolvers = {
           });
         }
 
-        // Creating the desired output format
-        const attributes: Record<string, { attributeValueId: string; attributeValue: string }[]> = {};
-
-        for (const attribute of result?.record?.attributes) {
-          const attributeName = attribute.name;
-          const attributeValues = attribute.attributeValues;
-
-          const attributeArray: { attributeValueId: string; attributeValue: string }[] = [];
-
-          for (const value of attributeValues) {
-            const attributeValueId = value._id;
-            const attributeValue = value.value;
-
-            attributeArray.push({
-              attributeValueId,
-              attributeValue,
-            });
-          }
-
-          attributes[attributeName] = attributeArray;
-        }
-
 
         const response = {
           record: {

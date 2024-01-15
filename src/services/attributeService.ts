@@ -46,6 +46,10 @@ interface ICategoryWithAttributes {
   attributes: IAttribute[];
 }
 
+export interface ICategoryWithAttributesResponse {
+  record: ICategoryWithAttributes;
+}
+
 export interface IAttributeDocument extends Document {
   _id?: Types.ObjectId;
   attributeType?: string;
@@ -70,9 +74,6 @@ export interface IAttributeRecordResponse {
   record: IAttributeWithValues,
 }
 
-export interface ICategoryWithAttributesResponse {
-  record: ICategoryWithAttributes,
-}
 
 export interface IAttributeRecordsOptions {
   page: number,
@@ -277,7 +278,7 @@ export const getAttributeRecordByVendorWithAttributeId = async (options: IAttrib
   return response;
 }
 
-export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<any> => {
+export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<ICategoryWithAttributesResponse> => {
   let pipeline: PipelineStage[] = [];
 
   pipeline.push(
@@ -343,11 +344,17 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
 
   const result = await categoryModel.aggregate(pipeline);
   let response = {
-    record: {},
+    record: {
+      _id: '',
+      categoryName: '',
+      attributes: [],
+    },
   };
   if (result.length) {
     response.record = result[0] || {};
   }
+
+  console.log(response)
 
   return response;
 };
