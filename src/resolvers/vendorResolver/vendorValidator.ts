@@ -41,6 +41,7 @@ export const VendorUpdateValidator = [
   body('variables.input.mobileNumber').optional({ checkFalsy: true }).trim(),
   body('variables.input.country').optional({ checkFalsy: true }).trim(),
   body('variables.input.brand').optional({ checkFalsy: true }).trim(),
+  body('variables.input.categories').optional({ checkFalsy: true }).trim(),
   body('variables.input.companyName').optional({ checkFalsy: true }).trim(),
 ];
 

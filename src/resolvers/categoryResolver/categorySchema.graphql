@@ -18,6 +18,7 @@
         isBlocked: Boolean
         description: String
         isLeaf: Boolean
+        attibutes: [String]
     }
 
     input UpdateCategoryInput {
@@ -27,6 +28,7 @@
         isBlocked: Boolean
         description: String
         isLeaf: Boolean
+        attibutes: [String]
     }
 
     input CategoryId {
@@ -67,6 +69,8 @@
   getCategoriesAutoComplete(input:GetCategoriesAutoCompleteInput!):GetCategoriesAutoCompleteRespons
   getAllLeafRecords: getAllLeafRecordsResponse!
   getLevelCategories(input:GetLevelCategoriesInput): GetLevelCategoriesResponse!
+  getAllCategoriesOfVendor(input:vendorIdInput!): getAllCategoriesOfVendorResponse!
+  getAllCategoriesOfVendorByAdmin(input:vendorIdInput!): getAllCategoriesOfVendorResponse!
 }   
 
     # Input
@@ -74,7 +78,7 @@
       parent:String
     }
 
-    input GetActiveChildCategoriesInput{
+    input GetActiveChildCategoriesInput{ 
       parent:String
     }
   
@@ -86,6 +90,10 @@
     input GetLevelCategoriesInput{
       level: Int
       limit: Int
+    }
+
+    input vendorIdInput {
+      vendorId: String!
     }
 
 
@@ -106,6 +114,14 @@
       isLeaf: Boolean
       description: String
       sizeChart: ImageData
+    }
+
+    type CategoryAssignedToVendor{
+      categoryName:String
+      _id: String
+      isBlocked: Boolean
+      fullCategoryName: String
+      isLeaf: Boolean
     }
 
     type CategoryNode{
@@ -138,6 +154,10 @@
 
     type getAllLeafRecordsResponse{
       records:[Category]
+    }
+
+    type getAllCategoriesOfVendorResponse{
+      records:[CategoryAssignedToVendor]
     }
 
     type GetLevelCategoriesResponse{

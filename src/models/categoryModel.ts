@@ -24,6 +24,14 @@ const categorySchema = new Schema(
             type: Boolean,
             default: false
         },
+        attibutes: {   // Approved attibutes
+            type: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: collections.CATEGORIES
+                }
+            ]
+        },
         isBlocked: {
             type: Boolean,
             default: false
