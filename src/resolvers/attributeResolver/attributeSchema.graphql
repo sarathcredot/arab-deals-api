@@ -129,6 +129,7 @@ type Query {
   getAttributeRecordByVendor(input:  AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
   getAttributeRecordsByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse  
   getAttributesDetailsWithCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
 }
 
 
