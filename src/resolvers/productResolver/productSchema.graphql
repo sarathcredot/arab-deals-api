@@ -204,8 +204,6 @@ type Query {
         description: String
         productInfo: [String]
         productShortInfo: String
-        size: String
-        color: String
         material: String
         images: [ProductFileData]
         rating: Int
