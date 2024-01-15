@@ -16,6 +16,7 @@
     createProduct(input: ProductInput!, images:[Upload], attributeFileMap: JSONObject): ProductResponse
     createVariant(input: VariantInput!, images:[Upload], attributeFileMap: JSONObject): VariantResponse
     updateProduct(input: ProductUpdateInput!, images: [Upload], attributeFileMap: JSONObject): ProductUpdateResponse
+    updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
     deleteProduct(input: ProductId!): DeleteProductResponse!
   }
 
@@ -27,6 +28,18 @@
     fileURL: String
     mimeType: String
     originalName: String
+    }
+
+    input ProductStatusInput{
+      _id: String!
+      status: String
+    }
+
+    input ProductFileDataInput {
+        fileType: String
+        fileURL: String
+        mimeType: String
+        originalName: String
     }
 
    input ProductInput {
@@ -266,6 +279,11 @@ type Query {
 
     type RelatedProductsResponse {
         records: [Product!]
+    }
+
+    type ProductStatusResponse {
+        _id: String
+        message: String
     }
 # Schema
 

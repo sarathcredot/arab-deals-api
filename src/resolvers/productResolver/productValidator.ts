@@ -101,3 +101,8 @@ export const relatedProductsQueryValidator = [
     body('variables.input._id').isMongoId(),
     body('variables.input.limit').optional({ checkFalsy: true }).custom(val => val > 0),
 ]
+
+export const productUpdateStatusValidator = [
+    body('variables.input._id').isMongoId(),
+    body('variables.input.status').optional({ checkFalsy: true })
+]

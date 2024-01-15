@@ -412,6 +412,53 @@ export const productResolver: Resolvers = {
             }
         },
 
+        //  Update product status by admin
+        updateProductStatus: async (parent, { input }, { req }, info) => {
+            try {
+                await validateInput(validators.productUpdateStatusValidator, req);
+                await verifyAdmin(req);
+
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+                const existingProduct: productService.IProductDocument | null = await productService.getProductWithId(_id);
+                if (!existingProduct) {
+                    throw new GraphQLError("Product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+
+                if (input.status && existingProduct.status !== input.status) {
+                    existingProduct.status = input.status;
+                }
+
+
+                // Update the product
+                const result = await existingProduct.save();
+
+                if (!result) {
+                    throw new GraphQLError("Product updatation failed", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                const response = {
+                    _id: result?._id?.toString(),
+                    message: "Product updated successfully",
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+
         deleteProduct: async (parent, { input }, { req }, info) => {
             try {
                 await validateInput(validators.productDeleteValidator, req);
