@@ -24,6 +24,7 @@ export interface IAttribute {
 
 export interface IAttributeValue {
   _id?: string;
+  attributeId: Types.ObjectId
   value?: string;
   colorCode?: string;
   priority?: number;
@@ -350,9 +351,3 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
 
   return response;
 };
-
-
-
-
-
-

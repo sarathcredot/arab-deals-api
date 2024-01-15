@@ -50,7 +50,7 @@
     isBlocked: Boolean
     productCode: Int
     stock: Int
-    categoryId: String
+    categoryId: String!
     images: [String]
     status: String
     offerPrice: Int!
