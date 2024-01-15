@@ -104,7 +104,7 @@ const productSchema = new Schema(
         },
         attributes: {
             type: Map,
-            of: attributeSchema,
+            of: [attributeSchema],
             default: {}
         },
         rating: {
