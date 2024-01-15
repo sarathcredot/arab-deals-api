@@ -1,4 +1,4 @@
-import { attributeService } from "../../services";
+import { attributeService, categoryService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./attributeValidator";
@@ -99,7 +99,7 @@ export const attributeResolver: Resolvers = {
         };
 
         return response;
-      }catch (error) {
+      } catch (error) {
         console.error(error);
         throw error;
       }
@@ -123,28 +123,28 @@ export const attributeResolver: Resolvers = {
 
         const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
         for (const selection of selectedFields) {
-            if (selection.kind === "Field" && selection.name.value == "records") {
+          if (selection.kind === "Field" && selection.name.value == "records") {
 
-                let selectionSet = selection.selectionSet || { selections: [] };
-                for (let item of selectionSet.selections) {
-                    if (item.kind === "Field") {
-                        const fieldName = item.name.value;
-                        if (["images"].includes(fieldName)) {
-                            let selectionSet = item.selectionSet || { selections: [] };
-                            for (let item2 of selectionSet.selections) {
-                                if (item2.kind === "Field") {
-                                    const subField = item2.name.value;
-                                    const path = `${fieldName}.${subField}`;
-                                    projection[path as keyof attributeService.IAttributeProjection] = 1;
-                                }
-                            }
-                        }
-                        else {
-                            projection[fieldName as keyof attributeService.IAttributeProjection] = 1;
-                        }
+            let selectionSet = selection.selectionSet || { selections: [] };
+            for (let item of selectionSet.selections) {
+              if (item.kind === "Field") {
+                const fieldName = item.name.value;
+                if (["images"].includes(fieldName)) {
+                  let selectionSet = item.selectionSet || { selections: [] };
+                  for (let item2 of selectionSet.selections) {
+                    if (item2.kind === "Field") {
+                      const subField = item2.name.value;
+                      const path = `${fieldName}.${subField}`;
+                      projection[path as keyof attributeService.IAttributeProjection] = 1;
                     }
+                  }
                 }
+                else {
+                  projection[fieldName as keyof attributeService.IAttributeProjection] = 1;
+                }
+              }
             }
+          }
         }
 
 
@@ -193,12 +193,201 @@ export const attributeResolver: Resolvers = {
 
         const response = {
           record: {
-            _id: result?.record?._id?.toString(), 
+            _id: result?.record?._id?.toString(),
             attributeType: result?.record?.attributeType,
             name: result?.record?.name,
             description: result?.record?.description,
             attributeValues: result?.record?.attributeValues || [],
             isBlocked: result?.record?.isBlocked,
+          },
+          message: "Vendor record fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
+
+    // Fetch each attribute record by vendor
+    async getAttributeRecordByVendor(parent, { input }, { req }, info) {
+      // await verifyAdmin(req);
+
+      try {
+        await validateInput(validators.getAttributeRecordValidator, req);
+
+        const attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
+
+        const options = { attributeId };
+
+        const result = await attributeService.getAttributeRecordByVendorWithAttributeId(options);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const response = {
+          record: {
+            _id: result?.record?._id?.toString(),
+            attributeType: result?.record?.attributeType,
+            name: result?.record?.name,
+            description: result?.record?.description,
+            attributeValues: result?.record?.attributeValues || [],
+            isBlocked: result?.record?.isBlocked,
+          },
+          message: "Vendor record fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
+
+    // Fetch each attribute records  and each record values with category in vendor portal
+    async getAttributesDetailsWithCategory(parent, { input }, { req }, info) {
+      // await verifyAdmin(req);
+
+      try {
+        await validateInput(validators.getCategoryWithAttributeValidator, req);
+
+        const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
+
+        const categoryRecord = await categoryService.findCategoryWithFilters(
+          { _id: categoryId },
+          {},
+          {}
+        );
+
+        if (!categoryRecord) {
+          throw new GraphQLError("Category not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+
+        const options = { categoryId };
+
+        const result = await attributeService.getCategoryWithAttributesBycategoryId(options);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const response = {
+          record: {
+            _id: result?.record?._id?.toString(),
+            categoryName: result?.record?.categoryName,
+            attributes: result?.record?.attributes.map((attribute: any) => ({
+              _id: attribute?._id?.toString(),
+              attributeType: attribute?.attributeType,
+              name: attribute?.name,
+              description: attribute?.description,
+              attributeValues: attribute?.attributeValues || [],
+              isBlocked: attribute?.isBlocked,
+            })),
+          },
+          message: "Vendor record fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
+
+    // Fetch each attribute records  and each record values with category in admin portal
+    async getAttributesDetailsWithCategoryByAdmin(parent, { input }, { req }, info) {
+      // await verifyAdmin(req);
+
+      try {
+        await validateInput(validators.getCategoryWithAttributeValidator, req);
+
+        const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
+
+        const categoryRecord = await categoryService.findCategoryWithFilters(
+          { _id: categoryId },
+          {},
+          {}
+        );
+
+        if (!categoryRecord) {
+          throw new GraphQLError("Category not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+
+        const options = { categoryId };
+
+        const result = await attributeService.getCategoryWithAttributesBycategoryId(options);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+        // Creating the desired output format
+        const attributes: Record<string, { attributeValueId: string; attributeValue: string }[]> = {};
+
+        for (const attribute of result?.record?.attributes) {
+          const attributeName = attribute.name;
+          const attributeValues = attribute.attributeValues;
+
+          const attributeArray: { attributeValueId: string; attributeValue: string }[] = [];
+
+          for (const value of attributeValues) {
+            const attributeValueId = value._id;
+            const attributeValue = value.value;
+
+            attributeArray.push({
+              attributeValueId,
+              attributeValue,
+            });
+          }
+
+          attributes[attributeName] = attributeArray;
+        }
+
+
+        const response = {
+          record: {
+            _id: result?.record?._id?.toString(),
+            categoryName: result?.record?.categoryName,
+            attributes: result?.record?.attributes.map((attribute: any) => ({
+              _id: attribute?._id?.toString(),
+              attributeType: attribute?.attributeType,
+              name: attribute?.name,
+              description: attribute?.description,
+              attributeValues: attribute?.attributeValues || [],
+              isBlocked: attribute?.isBlocked,
+            })),
           },
           message: "Vendor record fetched successfully",
         }

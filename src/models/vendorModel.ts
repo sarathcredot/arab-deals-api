@@ -65,9 +65,9 @@ const vendorSchema = new Schema(
         brands: {   // Approved brands
             type: [{
                 type: Schema.Types.ObjectId,
-                ref: collections.BRANDS,
-                unique: true
-            }]
+                ref: collections.BRANDS
+            }],
+            unique:true
         },
         categories: {   // Approved categories
             type: [
@@ -76,7 +76,8 @@ const vendorSchema = new Schema(
                     ref: collections.CATEGORIES,
                     unique: true,
                 }
-            ]
+            ],
+            unique:true
         }
     },
     {
@@ -84,22 +85,8 @@ const vendorSchema = new Schema(
     }
 );
 
-vendorSchema.methods.setHash = async function (password: string): Promise<void> {
-    try {
-        this.hash = await argon2.hash(password);
-    } catch (error) {
-        return Promise.reject(error);
-    }
-};
-
-vendorSchema.methods.verifyHash = async function (password: string): Promise<boolean> {
-    try {
-        return await argon2.verify(this.hash, password);
-    } catch (error) {
-        return Promise.reject(error);
-    }
-};
-
+// Create compound index on brands and categories
+vendorSchema.index({ brands: 1, categories: 1 }, { unique: true });
 
 const vendorModel = model(collections.VENDORS, vendorSchema);
 

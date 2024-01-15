@@ -1,5 +1,5 @@
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { attributeModel } from '../models';
+import { attributeModel, categoryModel } from '../models';
 import { collections } from "../configs";
 import { attributeResolver } from "src/resolvers/attributeResolver/attributeResolver";
 import { response } from "express";
@@ -39,6 +39,12 @@ export interface IAttributeWithValues {
   isBlocked?: boolean;
 }
 
+interface ICategoryWithAttributes {
+  _id: string;
+  categoryName: string;
+  attributes: IAttribute[];
+}
+
 export interface IAttributeDocument extends Document {
   _id?: Types.ObjectId;
   attributeType?: string;
@@ -61,9 +67,11 @@ export interface IAttributeRecordsResponse {
 
 export interface IAttributeRecordResponse {
   record: IAttributeWithValues,
-
 }
 
+export interface ICategoryWithAttributesResponse {
+  record: ICategoryWithAttributes,
+}
 
 export interface IAttributeRecordsOptions {
   page: number,
@@ -74,12 +82,11 @@ export interface IAttributeRecordsOptions {
 
 export interface IAttributeRecordOptions {
   attributeId: Types.ObjectId;
-  // page: number,
-  // size: number,
-  // isBlocked: boolean | null,
-  // projection: IAttributeProjection,
 }
 
+export interface ICategoryWithAttributesOptions {
+  categoryId: Types.ObjectId;
+}
 
 export const createAttribute = async (attributeData: IAttribute): Promise<IAttributeDocument | null> => {
   let attribute: IAttributeDocument = new attributeModel(attributeData);
@@ -214,4 +221,138 @@ export const getAttributeRecordByAdminWithAttributeId = async (options: IAttribu
 
   return response;
 }
+
+export const getAttributeRecordByVendorWithAttributeId = async (options: IAttributeRecordOptions): Promise<IAttributeRecordResponse> => {
+
+
+  let pipeline: PipelineStage[] = [];
+
+  pipeline.push(
+    {
+      $match: {
+        _id: options.attributeId,
+      },
+    },
+    {
+      $lookup: {
+        from: collections.ATTRIBUTE_VALUES,
+        localField: "_id",
+        foreignField: "attributeId",
+        as: "attributeValues",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        attributeType: 1,
+        name: 1,
+        description: 1,
+        isBlocked: 1,
+        attributeValues: {
+          $map: {
+            input: "$attributeValues",
+            as: "value",
+            in: {
+              _id: "$$value._id",
+              value: "$$value.value",
+              colorCode: "$$value.colorCode",
+              priority: "$$value.priority",
+              isBlocked: "$$value.isBlocked",
+            },
+          },
+        },
+      },
+    },
+  );
+
+  const result = await attributeModel.aggregate(pipeline);
+  let response = {
+    record: {},
+  };
+  if (result.length) {
+    response.record = result[0] || {};
+  }
+
+  return response;
+}
+
+export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<any> => {
+  let pipeline: PipelineStage[] = [];
+
+  pipeline.push(
+    {
+      $match: {
+        _id: options.categoryId,
+      },
+    },
+    {
+      $lookup: {
+        from: collections.CATEGORIES,
+        localField: "_id",
+        foreignField: "_id",
+        as: "categoryAttributes",
+      },
+    },
+    {
+      $unwind: "$categoryAttributes",
+    },
+    {
+      $lookup: {
+        from: collections.ATTRIBUTES,
+        localField: "categoryAttributes.attibutes",
+        foreignField: "_id",
+        as: "attributeDetails",
+      },
+    },
+    {
+      $unwind: "$attributeDetails",
+    },
+    {
+      $lookup: {
+        from: collections.ATTRIBUTE_VALUES,
+        localField: "attributeDetails._id",
+        foreignField: "attributeId",
+        as: "attributeValues",
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        categoryName: { $first: "$categoryName" },
+        attributes: {
+          $push: {
+            _id: "$attributeDetails._id",
+            attributeType: "$attributeDetails.attributeType",
+            name: "$attributeDetails.name",
+            description: "$attributeDetails.description",
+            isBlocked: "$attributeDetails.isBlocked",
+            attributeValues: "$attributeValues",
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        categoryName: 1,
+        attributes: 1,
+      },
+    },
+  );
+
+  const result = await categoryModel.aggregate(pipeline);
+  let response = {
+    record: {},
+  };
+  if (result.length) {
+    response.record = result[0] || {};
+  }
+
+  return response;
+};
+
+
+
+
+
 
