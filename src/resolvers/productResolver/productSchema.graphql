@@ -182,6 +182,9 @@ type Query {
 
     type Product {
         _id:String
+        vendorId: String
+        brandId: String
+        brandName: String
         productName: String
         shortDescription: String
         skuId: String
@@ -203,9 +206,21 @@ type Query {
         categoryIdPath: String
         isBlocked: Boolean
         stock: Int
+        status: String
+        offerPrice: Int
+        attributes: ProductAttribute
+    }
+
+    type Attributes {
+        attributeValueId: String
+        attributeValue: String
+        _id: String
+    }
+
+    type ProductAttribute {
+       attributes: [Attributes]
     }
     
-
     type ProductsResponse {
         maxRecords: Int!
         records: [Product!]
@@ -213,13 +228,11 @@ type Query {
 
     type ProductResponse {
         product: Product!
-        sizeChartUrl:String
         message: String
     }
 
     type VariantResponse {
         product: Product!
-        sizeChartUrl:String
         message: String
     }
 

@@ -11,11 +11,11 @@ import { filePaths } from "../../configs";
 
 export interface ProductAttributes {
     [key: string]: {
-      attributeValueId: string;
-      attributeValue: string;
-      // other necessary fields if needed
+        attributeValueId: string;
+        attributeValue: string;
+        // other necessary fields if needed
     };
-  }
+}
 
 export const productResolver: Resolvers = {
     Upload: GraphQLUpload,
@@ -214,6 +214,9 @@ export const productResolver: Resolvers = {
                 }
 
                 const newProduct = {
+                    vendorId: input.vendorId,
+                    brandId: input.brandId || "",
+                    brandName: input.brandName || "",
                     productName: input?.productName || variant.productName,
                     shortDescription: input?.shortDescription || variant.shortDescription,
                     skuId: input?.skuId || variant.skuId,
@@ -234,7 +237,8 @@ export const productResolver: Resolvers = {
                     categoryIdPath: variant.categoryIdPath,
                     productCode: productCode,
                     status: "UNDER_VERIFICATION",
-                    attributes: attributeFileMap
+                    attributes: attributeFileMap,
+                    offerPrice: input.offerPrice
                 };
 
                 // Create the product
@@ -380,21 +384,10 @@ export const productResolver: Resolvers = {
                 if (input.brandName !== null && existingProduct.brandName !== input.brandName) {
                     existingProduct.brandName = input.brandName;
                 }
-                if (attributeFileMap) {
-                    const updatedAttributes: ProductAttributes = {};
-                  
-                    for (const attributeName in attributeFileMap) {
-                      if (Object.prototype.hasOwnProperty.call(attributeFileMap, attributeName)) {
-                        const attributeValue = attributeFileMap[attributeName];
-                        updatedAttributes[attributeName] = {
-                          attributeValueId: attributeValue.attributeValueId,
-                          attributeValue: attributeValue.attributeValue,
-                        };
-                      }
-                    }
-                  
-                    existingProduct.attributes = {...existingProduct.attributes, ...updatedAttributes};
-                  }
+
+                if (attributeFileMap !== null && existingProduct.attributes !== attributeFileMap) {
+                    existingProduct.attributes = attributeFileMap;
+                }
 
 
                 // Update the product
@@ -457,7 +450,7 @@ export const productResolver: Resolvers = {
             try {
                 //Validate Input
                 await validateInput(validators.productQueryValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
                 const options: QueryOptions = { lean: true };
@@ -489,7 +482,7 @@ export const productResolver: Resolvers = {
                 }
 
                 const result = await productService.getProductWithId(productId, projection, options);
-
+                console.log((result as any).attributes)
 
                 if (!result) {
                     throw new GraphQLError("product not found", {
@@ -499,13 +492,9 @@ export const productResolver: Resolvers = {
                         }
                     });
                 }
-                const categoryId: Types.ObjectId = (result as categoryService.CategoryDocument).categoryId;
-
-                const lowestCategoryTreeData = await categoryService.findCategoryWithFilters({ _id: categoryId }, { _id: 1, path: 1, sizeChart: 1 }, { lean: true });
 
                 const response = {
                     product: result,
-                    sizeChartUrl: (lowestCategoryTreeData as categoryService.CategoryDocument).sizeChart?.fileURL
                 }
 
                 return response;
@@ -588,6 +577,7 @@ export const productResolver: Resolvers = {
                 }
 
                 const result = await productService.getProductsByAdminWithFilters(options);
+
 
                 const response = {
                     maxRecords: result.maxRecords,
@@ -684,6 +674,8 @@ export const productResolver: Resolvers = {
 
                 const result = await productService.getProductWithId(productId, projection, options);
 
+                console.log(result)
+
 
                 if (!result) {
                     throw new GraphQLError("product not found", {
@@ -693,13 +685,13 @@ export const productResolver: Resolvers = {
                         }
                     });
                 }
-                const categoryId: Types.ObjectId = (result as categoryService.CategoryDocument).categoryId;
+                // const categoryId: Types.ObjectId = (result as categoryService.CategoryDocument).categoryId;
 
-                const lowestCategoryTreeData = await categoryService.findCategoryWithFilters({ _id: categoryId }, { _id: 1, path: 1, sizeChart: 1 }, { lean: true });
+                // const lowestCategoryTreeData = await categoryService.findCategoryWithFilters({ _id: categoryId }, { _id: 1, path: 1, sizeChart: 1 }, { lean: true });
 
                 const response = {
                     product: result,
-                    sizeChartUrl: (lowestCategoryTreeData as categoryService.CategoryDocument).sizeChart?.fileURL
+                    // sizeChartUrl: (lowestCategoryTreeData as categoryService.CategoryDocument).sizeChart?.fileURL
                 }
 
                 return response;

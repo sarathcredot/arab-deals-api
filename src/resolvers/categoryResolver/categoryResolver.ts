@@ -20,22 +20,22 @@ export const categoryResolver: Resolvers = {
             await validateInput(validators.categoryCreateValidator, req);
             // await verifyAdmin(req);
 
-            let sizeChart: categoryService.FileData | null = null;
+            // let sizeChart: categoryService.FileData | null = null;
             let attibutes: Types.ObjectId[] = (input.attibutes || []).filter(Boolean) as [];
 
-            if (image) {
-                const { createReadStream, filename, mimetype, encoding } = await image;
-                const key = spaceService.getFileKey(filePaths.categorySizeChart, filename, []);
-                const stream = createReadStream();
-                const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+            // if (image) {
+            //     const { createReadStream, filename, mimetype, encoding } = await image;
+            //     const key = spaceService.getFileKey(filePaths.categorySizeChart, filename, []);
+            //     const stream = createReadStream();
+            //     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-                sizeChart = {
-                    fileType: "PUBLIC",
-                    fileURL: file.location,
-                    mimeType: mimetype,
-                    originalName: filename
-                }
-            }
+            //     sizeChart = {
+            //         fileType: "PUBLIC",
+            //         fileURL: file.location,
+            //         mimeType: mimetype,
+            //         originalName: filename
+            //     }
+            // }
 
             const category: categoryService.ICategory = {
                 categoryName: input.categoryName || "",
@@ -44,9 +44,9 @@ export const categoryResolver: Resolvers = {
                 isLeaf: input.isLeaf || false,
                 attibutes
             }
-            if (sizeChart) {
-                category.sizeChart = sizeChart;
-            }
+            // if (sizeChart) {
+            //     category.sizeChart = sizeChart;
+            // }
             let parentPath = '';
             if (input.parentId) {
                 const parentRecord = await categoryService.findCategoryWithFilters({ _id: input.parentId }, { _id: 1, path: 1, isLeaf: 1 }, { lean: true });
@@ -127,21 +127,21 @@ export const categoryResolver: Resolvers = {
                     });
                 }
 
-                let sizeChart: categoryService.FileData | null = null;
+                // let sizeChart: categoryService.FileData | null = null;
 
-                if (image) {
-                    const { createReadStream, filename, mimetype, encoding } = await image;
-                    const key = spaceService.getFileKey(filePaths.categorySizeChart, filename, []);
-                    const stream = createReadStream();
-                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+                // if (image) {
+                //     const { createReadStream, filename, mimetype, encoding } = await image;
+                //     const key = spaceService.getFileKey(filePaths.categorySizeChart, filename, []);
+                //     const stream = createReadStream();
+                //     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-                    sizeChart = {
-                        fileType: "PUBLIC",
-                        fileURL: file.location,
-                        mimeType: mimetype,
-                        originalName: filename
-                    }
-                }
+                //     sizeChart = {
+                //         fileType: "PUBLIC",
+                //         fileURL: file.location,
+                //         mimeType: mimetype,
+                //         originalName: filename
+                //     }
+                // }
 
                 const options: QueryOptions = {};
 
@@ -161,9 +161,9 @@ export const categoryResolver: Resolvers = {
                 if (input.description) {
                     categoryRecord.description = input?.description;
                 }
-                if (sizeChart) {
-                    categoryRecord.sizeChart = sizeChart;
-                }
+                // if (sizeChart) {
+                //     categoryRecord.sizeChart = sizeChart;
+                // }
                 if (typeof input.isLeaf === 'boolean') {
                     categoryRecord.isLeaf = input.isLeaf;
                 }
@@ -223,7 +223,7 @@ export const categoryResolver: Resolvers = {
 
                 const mPath = parentId ? new RegExp(`${parentId}#$`) : /^#$/;
 
-                const result = await categoryService.findCategoriesWithFilters({ path: mPath }, { _id: 1, categoryName: 1, isBlocked: 1, isLeaf: 1, description: 1, sizeChart: 1 }, { lean: true, sort: { categoryName: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ path: mPath }, { _id: 1, categoryName: 1, isBlocked: 1, isLeaf: 1, description: 1 }, { lean: true, sort: { categoryName: 1 } });
 
                 const response = {
                     records: result && result.length ? result.map((item) => { return { ...item, _id: item._id.toString() } }) : []

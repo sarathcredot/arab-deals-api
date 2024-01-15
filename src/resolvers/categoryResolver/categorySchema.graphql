@@ -113,7 +113,7 @@
       fullCategoryName: String
       isLeaf: Boolean
       description: String
-      sizeChart: ImageData
+      # sizeChart: ImageData
     }
 
     type CategoryAssignedToVendor{

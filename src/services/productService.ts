@@ -43,14 +43,21 @@ export interface IProduct {
     categoryNamePath?: string,
     categoryIdPath?: string,
     status?: string,
-    attributes?: Record<string, IProductAttribute>;
+    attributes?: AttributeResponse;
     offerPrice?: number,
 }
 
 
 export interface IProductAttribute {
-    attributeValueId: string;
-    attributeValue: string; 
+    attributeValueId: Types.ObjectId;
+    attributeValue: string;
+    _id: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface AttributeResponse {
+    [size: string]: IProductAttribute[];
 }
 
 export interface IProductDocument extends Document {
@@ -82,7 +89,7 @@ export interface IProductDocument extends Document {
     categoryNamePath?: string,
     categoryIdPath?: string,
     status?: string,
-    attributes?: Record<string, IProductAttribute>;
+    attributes?: AttributeResponse;
 }
 
 export interface IProductsProjection {
@@ -112,7 +119,8 @@ export interface IProductsProjection {
     createdAt?: 1,
     updatedAt?: 1,
     categoryId?: 1
-    status?:1,
+    status?: 1,
+    attributes?: 1,
 }
 
 
@@ -142,7 +150,8 @@ export interface IProductProjection {
     stock?: 1,
     createdAt?: 1,
     updatedAt?: 1,
-    status?:1,
+    status?: 1,
+    attributes?: 1,
 }
 
 export interface IProductsOptions {
