@@ -162,7 +162,7 @@ export const productResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.createVariantValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 images = images || [];
 
@@ -184,6 +184,8 @@ export const productResolver: Resolvers = {
                     });
                 }
 
+                let newProduct: productService.IProduct = {};
+
                 let productCode: number = input.productCode;
 
                 const variant = await productService.getProductWithFilters({ productCode: productCode }, {}, { lean: true });
@@ -196,7 +198,7 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                const isVariantExists = await productService.getProductWithFilters({ productCode: productCode, color: input.color, size: input.size }, {}, { lean: true });
+                const isVariantExists = await productService.getProductWithFilters({ productCode: productCode,  }, { attributes: attributeFileMap }, { lean: true });
 
                 if (isVariantExists) {
                     throw new GraphQLError("Variant with this same color and size already exists", {
@@ -213,8 +215,8 @@ export const productResolver: Resolvers = {
                     tags = inputTags.split(',').map(tag => tag.trim());
                 }
 
-                const newProduct = {
-                    vendorId: input.vendorId,
+                 newProduct = {
+                    // vendorId: input.vendorId,
                     brandId: input.brandId || "",
                     brandName: input.brandName || "",
                     productName: input?.productName || variant.productName,
@@ -238,7 +240,7 @@ export const productResolver: Resolvers = {
                     productCode: productCode,
                     status: "UNDER_VERIFICATION",
                     attributes: attributeFileMap,
-                    offerPrice: input.offerPrice
+                    offerPrice: input?.offerPrice || 0,
                 };
 
                 // Create the product
@@ -333,13 +335,13 @@ export const productResolver: Resolvers = {
                     existingProduct.description = input.description;
                 }
 
-                if (input.color && existingProduct.color !== input.color) {
-                    existingProduct.color = input.color;
-                }
+                // if (input.color && existingProduct.color !== input.color) {
+                //     existingProduct.color = input.color;
+                // }
 
-                if (input.size && existingProduct.size !== input.size) {
-                    existingProduct.size = input.size;
-                }
+                // if (input.size && existingProduct.size !== input.size) {
+                //     existingProduct.size = input.size;
+                // }
 
                 if (input.material && existingProduct.material !== input.material) {
                     existingProduct.material = input.material;
@@ -385,13 +387,47 @@ export const productResolver: Resolvers = {
                     existingProduct.brandName = input.brandName;
                 }
 
+                
                 if (attributeFileMap !== null && existingProduct.attributes !== attributeFileMap) {
                     existingProduct.attributes = attributeFileMap;
                 }
 
+                // interface AttributeResponse {
+                //     [key: string]: productService.IProductAttribute[];
+                // }
+
+                // // Ensure existingProduct.attributes is defined and is of the correct type
+                // if (!existingProduct.attributes) {
+                //     console.log('Initializing attributes for the first time.');
+                //     existingProduct.attributes = new Map<string, IProductAttribute[]>();
+                // }
+
+                // // Check if attributeFileMap is not null and has keys
+                // if (attributeFileMap !== null && Object.keys(attributeFileMap).length > 0) {
+                //     // Merge existing attributes with new ones
+                //     for (const [key, value] of Object.entries(attributeFileMap)) {
+                //         // Check if the key already exists in existingProduct.attributes
+                //         if (!existingProduct.attributes.has(key)) {
+                //             // If not, create an empty array for the key
+                //             existingProduct.attributes.set(key, []);
+                //         }
+
+                //         // Ensure existingProduct.attributes.get(key) is an array
+                //         const existingArray = existingProduct.attributes.get(key) as IProductAttribute[];
+
+                //         // Merge the existing array with the new one
+                //         existingProduct.attributes.set(key, [
+                //             ...existingArray,
+                //             ...value,
+                //         ]);
+                //     }
+
+                //     console.log('Updated attributes:', existingProduct.attributes);
+                // }
 
                 // Update the product
                 const result = await existingProduct.save();
+
 
                 if (!result) {
                     throw new GraphQLError("Product updatation failed", {
@@ -566,7 +602,7 @@ export const productResolver: Resolvers = {
                 const size: number = input?.size || 10;
                 const minPrice: number | null = input?.minPrice || null;
                 const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
-                const color: string[] = (input?.color || []) as [];
+                // const color: string[] = (input?.color || []) as [];
                 const productSize: string[] = (input?.productSize || []) as [];
                 const newest: boolean = input?.newest || false;
                 const priceLowToHigh: boolean = input?.priceLowToHigh || false;
@@ -613,7 +649,7 @@ export const productResolver: Resolvers = {
                     minPrice,
                     maxPrice,
                     productSize,
-                    color,
+                    // color,
                     newest,
                     priceLowToHigh,
                     priceHighToLow,
@@ -761,7 +797,7 @@ export const productResolver: Resolvers = {
                 const size: number = input?.size || 10;
                 const minPrice: number | null = input?.minPrice || null;
                 const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
-                const color: string[] = (input?.color || []) as [];
+                // const color: string[] = (input?.color || []) as [];
                 const productSize: string[] = (input?.productSize || []) as [];
                 const newest: boolean = input?.newest || false;
                 const priceLowToHigh: boolean = input?.priceLowToHigh || false;
@@ -808,7 +844,7 @@ export const productResolver: Resolvers = {
                     minPrice,
                     maxPrice,
                     productSize,
-                    color,
+                    // color,
                     newest,
                     priceLowToHigh,
                     priceHighToLow,
