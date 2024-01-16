@@ -52,8 +52,6 @@
     description: String
     productInfo: [String]
     productShortInfo: String
-    color: String
-    size: String
     material: String,
     rating: Int
     tags: String
@@ -70,8 +68,8 @@
 }
 
 input VariantInput {
-    vendorId: String!
-    brandId: String!
+    vendorId: String
+    brandId: String
     brandName: String
     productName: String
     shortDescription: String
@@ -79,8 +77,6 @@ input VariantInput {
     description: String
     productInfo: [String]
     productShortInfo: String
-    color: String
-    size: String
     material: String,
     rating: Int
     tags: String
@@ -93,7 +89,7 @@ input VariantInput {
     categoryId: String
     images: [String]
     status: String
-    offerPrice: Int!
+    offerPrice: Int
 }
 
    input ProductUpdateInput {
@@ -107,8 +103,6 @@ input VariantInput {
     description: String
     productInfo: [String]
     productShortInfo: String
-    color: String
-    size: String
     material: String,
     rating: Int
     tags: String
