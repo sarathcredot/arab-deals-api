@@ -13,7 +13,7 @@
 
   type Mutation {
     uploadProductFile(file: Upload!): File
-    createProduct(input: ProductInput!, images:[Upload], attributeFileMap: JSONObject): ProductResponse
+    createProduct(input: ProductInput!, images:[Upload]): ProductResponse
     createVariant(input: VariantInput!, images:[Upload], attributeFileMap: JSONObject): VariantResponse
     updateProduct(input: ProductUpdateInput!, images: [Upload], attributeFileMap: JSONObject): ProductUpdateResponse
     updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
@@ -62,9 +62,8 @@
     productCode: Int
     stock: Int
     categoryId: String!
-    images: [String]
-    status: String
     offerPrice: Int!
+    attributes: [String]
 }
 
 input VariantInput {
@@ -87,9 +86,9 @@ input VariantInput {
     productCode: Int!
     stock: Int
     categoryId: String
-    images: [String]
     status: String
     offerPrice: Int
+    attributes: [String]
 }
 
    input ProductUpdateInput {
@@ -113,9 +112,9 @@ input VariantInput {
     productCode: Int
     stock: Int
     categoryId: String
-    images: [String]
     status: String
     offerPrice: Int
+    attributes: [String]
 }
 
     input ProductId {
@@ -144,8 +143,6 @@ type Query {
     input ProductFilters {
         page: Int
         size: Int
-        color: [String]
-        productSize: [String]
         minPrice: Float
         maxPrice: Float
         newest: Boolean
@@ -213,18 +210,22 @@ type Query {
         stock: Int
         status: String
         offerPrice: Int
-        attributes: ProductAttribute
+        attributes: [IProductAttribute]
     }
 
-    type Attributes {
+    type IProductAttribute {
+        attributeId: String
+        attributeName: String
         attributeValueId: String
         attributeValue: String
-        _id: String
+        attributeDescription: String
+   }
+
+    type Attributes {
+        # attributeValueId: String
+        attributeValue: String
     }
 
-    type ProductAttribute {
-       attributes: [Attributes]
-    }
     
     type ProductsResponse {
         maxRecords: Int!

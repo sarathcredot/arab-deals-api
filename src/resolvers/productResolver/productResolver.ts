@@ -9,13 +9,6 @@ import { ObjectId, QueryOptions, Types } from "mongoose";
 import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
 
-export interface ProductAttributes {
-    [key: string]: {
-        attributeValueId: string;
-        attributeValue: string;
-        // other necessary fields if needed
-    };
-}
 
 export const productResolver: Resolvers = {
     Upload: GraphQLUpload,
@@ -36,7 +29,7 @@ export const productResolver: Resolvers = {
             return { filename, mimetype, encoding };
         },
 
-        createProduct: async (parent, { input, images, attributeFileMap }, { req }, info) => {
+        createProduct: async (parent, { input, images }, { req }, info) => {
             try {
                 // Validate Input
                 await validateInput(validators.createProductValidator, req);
@@ -115,6 +108,26 @@ export const productResolver: Resolvers = {
                     tags = inputTags.split(',').map(tag => tag.trim());
                 }
 
+                let attributes: Types.ObjectId[] = (input.attributes || []).filter(Boolean) as [];
+
+                // Explicitly define the type of result based on your Mongoose model
+                const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
+
+                const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
+
+                // const transformedOutput = {};
+
+                // for (const item of attributeData) {
+                //     const { attribute } = item;
+                //     const { attributeDescription } = attribute;
+
+                //     (transformedOutput as any)[attributeDescription] = {
+                //         attributeValueId: item.attributeValueId,
+                //         attributeValue: item.value,
+                //         colorCode: item.colorCode
+                //     };
+                // }
+
                 newProduct = {
                     vendorId: input.vendorId,
                     brandId: input.brandId || "",
@@ -139,7 +152,7 @@ export const productResolver: Resolvers = {
                     categoryIdPath: categoryIdPath,
                     productCode: productCode,
                     status: "UNDER_VERIFICATION",
-                    attributes: attributeFileMap,
+                    attributes: attributeData,
                     offerPrice: input.offerPrice
                 };
 
@@ -158,7 +171,7 @@ export const productResolver: Resolvers = {
             }
         },
 
-        createVariant: async (parent, { input, images, attributeFileMap }, { req }, info) => {
+        createVariant: async (parent, { input, images }, { req }, info) => {
             try {
                 // Validate Input
                 await validateInput(validators.createVariantValidator, req);
@@ -198,16 +211,16 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                const isVariantExists = await productService.getProductWithFilters({ productCode: productCode,  }, { attributes: attributeFileMap }, { lean: true });
+                // const isVariantExists = await productService.getProductWithFilters({ productCode: productCode, }, { attributes: attributeFileMap }, { lean: true });
 
-                if (isVariantExists) {
-                    throw new GraphQLError("Variant with this same color and size already exists", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
+                // if (isVariantExists) {
+                //     throw new GraphQLError("Variant with this attributes already exists", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: [],
+                //         },
+                //     });
+                // }
 
                 let tags: string[] = [];
                 if (input.tags) {
@@ -215,10 +228,17 @@ export const productResolver: Resolvers = {
                     tags = inputTags.split(',').map(tag => tag.trim());
                 }
 
-                 newProduct = {
-                    // vendorId: input.vendorId,
-                    brandId: input.brandId || "",
-                    brandName: input.brandName || "",
+                let attributes: Types.ObjectId[] = (input.attributes || []).filter(Boolean) as [];
+
+                // Explicitly define the type of result based on your Mongoose model
+                const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
+
+                const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
+
+                newProduct = {
+                    vendorId: input.vendorId || variant.vendorId,
+                    brandId: input.brandId || variant.brandId,
+                    brandName: input.brandName || variant.brandName,
                     productName: input?.productName || variant.productName,
                     shortDescription: input?.shortDescription || variant.shortDescription,
                     skuId: input?.skuId || variant.skuId,
@@ -239,7 +259,7 @@ export const productResolver: Resolvers = {
                     categoryIdPath: variant.categoryIdPath,
                     productCode: productCode,
                     status: "UNDER_VERIFICATION",
-                    attributes: attributeFileMap,
+                    attributes: attributeData,
                     offerPrice: input?.offerPrice || 0,
                 };
 
@@ -258,7 +278,7 @@ export const productResolver: Resolvers = {
             }
         },
 
-        updateProduct: async (parent, { input, images, attributeFileMap }, { req }, info) => {
+        updateProduct: async (parent, { input, images }, { req }, info) => {
             try {
                 await validateInput(validators.productUpdateValidator, req);
                 // await verifyAdmin(req);
@@ -274,8 +294,6 @@ export const productResolver: Resolvers = {
                         },
                     });
                 }
-
-                attributeFileMap = attributeFileMap || {};
 
                 images = images || [];
 
@@ -304,6 +322,14 @@ export const productResolver: Resolvers = {
                     tags = inputTags.split(',').map(tag => tag.trim());
                     existingProduct.tags = (tags || []).filter(Boolean) as [];
                 }
+
+                
+                let attributes: Types.ObjectId[] = (input.attributes || []).filter(Boolean) as [];
+
+                // Explicitly define the type of result based on your Mongoose model
+                const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
+
+                const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 
                 let productInfo: string[] = [];
                 if (input.productInfo) {
@@ -335,13 +361,6 @@ export const productResolver: Resolvers = {
                     existingProduct.description = input.description;
                 }
 
-                // if (input.color && existingProduct.color !== input.color) {
-                //     existingProduct.color = input.color;
-                // }
-
-                // if (input.size && existingProduct.size !== input.size) {
-                //     existingProduct.size = input.size;
-                // }
 
                 if (input.material && existingProduct.material !== input.material) {
                     existingProduct.material = input.material;
@@ -387,9 +406,9 @@ export const productResolver: Resolvers = {
                     existingProduct.brandName = input.brandName;
                 }
 
-                
-                if (attributeFileMap !== null && existingProduct.attributes !== attributeFileMap) {
-                    existingProduct.attributes = attributeFileMap;
+
+                if (input.attributes !== null ) {
+                    (existingProduct as any).attributes = attributeData;
                 }
 
                 // interface AttributeResponse {
@@ -565,7 +584,6 @@ export const productResolver: Resolvers = {
                 }
 
                 const result = await productService.getProductWithId(productId, projection, options);
-                console.log((result as any).attributes)
 
                 if (!result) {
                     throw new GraphQLError("product not found", {
@@ -576,8 +594,36 @@ export const productResolver: Resolvers = {
                     });
                 }
 
+
+                // // Explicitly define the type of result based on your Mongoose model
+                // const productDocument: productService.IProductDocument = result;
+
+                // const attributeIdsArray = productDocument.attributes || []; // Assuming the field is named 'attributes'
+                // console.log(attributeIdsArray);
+
+                // const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
+
+                // const transformedOutput = {};
+
+                // for (const item of attributeData) {
+                //     const { attribute } = item;
+                //     const { attributeDescription } = attribute;
+
+                //     (transformedOutput as any)[attributeDescription] = {
+                //         attributeValueId: item.attributeValueId,
+                //         value: item.value,
+                //         colorCode: item.colorCode
+                //     };
+                // }
+
+                // console.log(transformedOutput);
+
                 const response = {
-                    product: result,
+                    product: {
+                        ...result,
+                        attributes: (result as any)?.attributes?._id.toString(),
+                    }
+               
                 }
 
                 return response;
@@ -589,89 +635,86 @@ export const productResolver: Resolvers = {
 
         },
 
+        //TODO 1
         // Fetch all product by admin
-        async getProductsByAdmin(parent, { input }, { req }, info) {
+        // async getProductsByAdmin(parent, { input }, { req }, info) {
 
-            try {
+        //     try {
 
-                //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
-                await verifyAdmin(req);
+        //         //Validate Input
+        //         await validateInput(validators.productsQueryValidator, req);
+        //         await verifyAdmin(req);
 
-                const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
-                const minPrice: number | null = input?.minPrice || null;
-                const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
-                // const color: string[] = (input?.color || []) as [];
-                const productSize: string[] = (input?.productSize || []) as [];
-                const newest: boolean = input?.newest || false;
-                const priceLowToHigh: boolean = input?.priceLowToHigh || false;
-                const priceHighToLow: boolean = input?.priceHighToLow || false;
-                const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
-                const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
-                const categories: string[] = (input?.categories || []).map((item: string | null) => {
-                    return item ? new Types.ObjectId(item).toString() : '';
-                }).filter((item) => item ? true : false);
+        //         const page: number = input?.page || 0;
+        //         const size: number = input?.size || 10;
+        //         const minPrice: number | null = input?.minPrice || null;
+        //         const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
+        //         const newest: boolean = input?.newest || false;
+        //         const priceLowToHigh: boolean = input?.priceLowToHigh || false;
+        //         const priceHighToLow: boolean = input?.priceHighToLow || false;
+        //         const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
+        //         const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
+        //         const categories: string[] = (input?.categories || []).map((item: string | null) => {
+        //             return item ? new Types.ObjectId(item).toString() : '';
+        //         }).filter((item) => item ? true : false);
 
 
-                let projection: productService.IProductsProjection = { _id: 1 };
+        //         let projection: productService.IProductsProjection = { _id: 1 };
 
-                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-                for (const selection of selectedFields) {
-                    if (selection.kind === "Field" && selection.name.value == "records") {
+        //         const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+        //         for (const selection of selectedFields) {
+        //             if (selection.kind === "Field" && selection.name.value == "records") {
 
-                        let selectionSet = selection.selectionSet || { selections: [] };
-                        for (let item of selectionSet.selections) {
-                            if (item.kind === "Field") {
-                                const fieldName = item.name.value;
-                                if (["images"].includes(fieldName)) {
-                                    let selectionSet = item.selectionSet || { selections: [] };
-                                    for (let item2 of selectionSet.selections) {
-                                        if (item2.kind === "Field") {
-                                            const subField = item2.name.value;
-                                            const path = `${fieldName}.${subField}`;
-                                            projection[path as keyof productService.IProductsProjection] = 1;
-                                        }
-                                    }
-                                }
-                                else {
-                                    projection[fieldName as keyof productService.IProductsProjection] = 1;
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                const options: productService.IProductsOptions = {
-                    page,
-                    size,
-                    minPrice,
-                    maxPrice,
-                    productSize,
-                    // color,
-                    newest,
-                    priceLowToHigh,
-                    priceHighToLow,
-                    query,
-                    projection,
-                    parentCategory,
-                    categories
-                }
-
-                const result = await productService.getProductsByAdminWithFilters(options);
+        //                 let selectionSet = selection.selectionSet || { selections: [] };
+        //                 for (let item of selectionSet.selections) {
+        //                     if (item.kind === "Field") {
+        //                         const fieldName = item.name.value;
+        //                         if (["images"].includes(fieldName)) {
+        //                             let selectionSet = item.selectionSet || { selections: [] };
+        //                             for (let item2 of selectionSet.selections) {
+        //                                 if (item2.kind === "Field") {
+        //                                     const subField = item2.name.value;
+        //                                     const path = `${fieldName}.${subField}`;
+        //                                     projection[path as keyof productService.IProductsProjection] = 1;
+        //                                 }
+        //                             }
+        //                         }
+        //                         else {
+        //                             projection[fieldName as keyof productService.IProductsProjection] = 1;
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
 
 
-                const response = {
-                    maxRecords: result.maxRecords,
-                    records: result.records
-                }
-                return response;
-            } catch (error) {
-                throw error;
-            }
+        //         const options: productService.IProductsOptions = {
+        //             page,
+        //             size,
+        //             minPrice,
+        //             maxPrice,
+        //             newest,
+        //             priceLowToHigh,
+        //             priceHighToLow,
+        //             query,
+        //             projection,
+        //             parentCategory,
+        //             categories
+        //         }
 
-        },
+        //         const result = await productService.getProductsByAdminWithFilters(options);
+
+
+        //         const response = {
+        //             maxRecords: result.maxRecords,
+        //             records: result.records
+        //         }
+        //         return response;
+        //     } catch (error) {
+        //         throw error;
+        //     }
+
+        // },
         // Fetch Variants by admin
         // async getVariantsByAdmin(parent, { input }, { req }, info) {
         //     try {
@@ -786,86 +829,83 @@ export const productResolver: Resolvers = {
 
         },
 
-        async getProducts(parent, { input }, { req }, info) {
+        //TODO -2
+        // async getProducts(parent, { input }, { req }, info) {
 
-            try {
+        //     try {
 
-                //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
+        //         //Validate Input
+        //         await validateInput(validators.productsQueryValidator, req);
 
-                const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
-                const minPrice: number | null = input?.minPrice || null;
-                const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
-                // const color: string[] = (input?.color || []) as [];
-                const productSize: string[] = (input?.productSize || []) as [];
-                const newest: boolean = input?.newest || false;
-                const priceLowToHigh: boolean = input?.priceLowToHigh || false;
-                const priceHighToLow: boolean = input?.priceHighToLow || false;
-                const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
-                const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
-                const categories: string[] = (input?.categories || []).map((item: string | null) => {
-                    return item ? new Types.ObjectId(item).toString() : '';
-                }).filter((item) => item ? true : false);
-
-
-                let projection: productService.IProductsProjection = { _id: 1 };
-
-                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-                for (const selection of selectedFields) {
-                    if (selection.kind === "Field" && selection.name.value == "records") {
-
-                        let selectionSet = selection.selectionSet || { selections: [] };
-                        for (let item of selectionSet.selections) {
-                            if (item.kind === "Field") {
-                                const fieldName = item.name.value;
-                                if (["images"].includes(fieldName)) {
-                                    let selectionSet = item.selectionSet || { selections: [] };
-                                    for (let item2 of selectionSet.selections) {
-                                        if (item2.kind === "Field") {
-                                            const subField = item2.name.value;
-                                            const path = `${fieldName}.${subField}`;
-                                            projection[path as keyof productService.IProductsProjection] = 1;
-                                        }
-                                    }
-                                }
-                                else {
-                                    projection[fieldName as keyof productService.IProductsProjection] = 1;
-                                }
-                            }
-                        }
-                    }
-                }
+        //         const page: number = input?.page || 0;
+        //         const size: number = input?.size || 10;
+        //         const minPrice: number | null = input?.minPrice || null;
+        //         const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
+        //         const newest: boolean = input?.newest || false;
+        //         const priceLowToHigh: boolean = input?.priceLowToHigh || false;
+        //         const priceHighToLow: boolean = input?.priceHighToLow || false;
+        //         const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
+        //         const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
+        //         const categories: string[] = (input?.categories || []).map((item: string | null) => {
+        //             return item ? new Types.ObjectId(item).toString() : '';
+        //         }).filter((item) => item ? true : false);
 
 
-                const options: productService.IProductsOptions = {
-                    page,
-                    size,
-                    minPrice,
-                    maxPrice,
-                    productSize,
-                    // color,
-                    newest,
-                    priceLowToHigh,
-                    priceHighToLow,
-                    query,
-                    projection,
-                    parentCategory,
-                    categories
-                }
+        //         let projection: productService.IProductsProjection = { _id: 1 };
 
-                const result = await productService.getProductsWithFilters(options);
+        //         const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+        //         for (const selection of selectedFields) {
+        //             if (selection.kind === "Field" && selection.name.value == "records") {
 
-                const response = {
-                    maxRecords: result.maxRecords,
-                    records: result.records
-                }
-                return response;
-            } catch (error) {
-                throw error;
-            }
+        //                 let selectionSet = selection.selectionSet || { selections: [] };
+        //                 for (let item of selectionSet.selections) {
+        //                     if (item.kind === "Field") {
+        //                         const fieldName = item.name.value;
+        //                         if (["images"].includes(fieldName)) {
+        //                             let selectionSet = item.selectionSet || { selections: [] };
+        //                             for (let item2 of selectionSet.selections) {
+        //                                 if (item2.kind === "Field") {
+        //                                     const subField = item2.name.value;
+        //                                     const path = `${fieldName}.${subField}`;
+        //                                     projection[path as keyof productService.IProductsProjection] = 1;
+        //                                 }
+        //                             }
+        //                         }
+        //                         else {
+        //                             projection[fieldName as keyof productService.IProductsProjection] = 1;
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
 
-        },
+
+        //         const options: productService.IProductsOptions = {
+        //             page,
+        //             size,
+        //             minPrice,
+        //             maxPrice,
+        //             newest,
+        //             priceLowToHigh,
+        //             priceHighToLow,
+        //             query,
+        //             projection,
+        //             parentCategory,
+        //             categories
+        //         }
+
+        //         const result = await productService.getProductsWithFilters(options);
+
+        //         const response = {
+        //             maxRecords: result.maxRecords,
+        //             records: result.records
+        //         }
+        //         return response;
+        //     } catch (error) {
+        //         throw error;
+        //     }
+
+        // },
 
 
         // async getVariants(parent, { input }, { req }, info) {
@@ -942,56 +982,57 @@ export const productResolver: Resolvers = {
             }
         },
 
-        async getRelatedProducts(parent, { input }, { req }, info) {
-            try {
+        //TODO-3
+        // async getRelatedProducts(parent, { input }, { req }, info) {
+        //     try {
 
-                //Validate Input
-                await validateInput(validators.relatedProductsQueryValidator, req);
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                const limit: number = input.limit || 12;
+        //         //Validate Input
+        //         await validateInput(validators.relatedProductsQueryValidator, req);
+        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        //         const limit: number = input.limit || 12;
 
 
-                const product = await productService.getProductWithId(_id, { _id: 1, categoryId: 1, productCode: 1 }, { lean: true });
-                if (!product) {
-                    throw new GraphQLError("product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let productData: productService.IProduct = product;
-                if (!productData.categoryId) {
-                    throw new GraphQLError("category not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
+        //         const product = await productService.getProductWithId(_id, { _id: 1, categoryId: 1, productCode: 1 }, { lean: true });
+        //         if (!product) {
+        //             throw new GraphQLError("product not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
+        //         let productData: productService.IProduct = product;
+        //         if (!productData.categoryId) {
+        //             throw new GraphQLError("category not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
 
-                const options: QueryOptions = { productCode: productData.productCode, categoryId: productData.categoryId, limit: limit };
+        //         const options: QueryOptions = { productCode: productData.productCode, categoryId: productData.categoryId, limit: limit };
 
-                const records = await productService.getProductsByCategory(options);
-                if (!records || records.length === 0) {
-                    throw new GraphQLError("Related products not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
+        //         const records = await productService.getProductsByCategory(options);
+        //         if (!records || records.length === 0) {
+        //             throw new GraphQLError("Related products not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
 
-                let response = {
-                    records: records
-                }
+        //         let response = {
+        //             records: records
+        //         }
 
-                return response;
-            } catch (error) {
-                console.log(error);
-                throw error;
-            }
-        },
+        //         return response;
+        //     } catch (error) {
+        //         console.log(error);
+        //         throw error;
+        //     }
+        // },
 
     },
 

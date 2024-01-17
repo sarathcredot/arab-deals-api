@@ -32,12 +32,26 @@ const fileSchema = new Schema(
 
 const attributeSchema = new Schema(
     {
+        attributeId: {
+            type: Schema.Types.ObjectId,
+            ref: collections.ATTRIBUTES,
+            required: true
+        },
+        attributeName: {
+            type: String,
+            required: true
+        },
         attributeValueId: {
             type: Schema.Types.ObjectId,
-            ref: collections.ATTRIBUTE_VALUES
+            ref: collections.ATTRIBUTE_VALUES, 
+            required: true
         },
         attributeValue: {
-            type: Schema.Types.Mixed
+            type: Schema.Types.Mixed,
+            required: true
+        },
+        attributeDescription: {
+            type: String
         }
     },
     {
@@ -103,9 +117,8 @@ const productSchema = new Schema(
             default: []
         },
         attributes: {
-            type: Map,
-            of: [attributeSchema],
-            default: {}
+            type: [attributeSchema],
+            default: []
         },
         rating: {
             type: Number,

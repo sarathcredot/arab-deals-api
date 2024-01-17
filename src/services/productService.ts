@@ -1,6 +1,8 @@
 import { Types, PipelineStage, QueryOptions, Document, FilterQuery, UpdateQuery, ObjectId, Model } from "mongoose";
+import mongoose from 'mongoose';
 import { collections } from "../configs";
-import { productModel } from "../models";
+import { attributeValueModel, productModel } from "../models";
+import { attributeService } from ".";
 
 
 
@@ -43,21 +45,17 @@ export interface IProduct {
     categoryNamePath?: string,
     categoryIdPath?: string,
     status?: string,
-    attributes?: AttributeResponse;
+    attributes?: {};
     offerPrice?: number,
 }
 
 
 export interface IProductAttribute {
+    attributeId: Types.ObjectId;
+    attributeName: string;
     attributeValueId: Types.ObjectId;
     attributeValue: string;
-    _id: Types.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-interface AttributeResponse {
-    [size: string]: IProductAttribute[];
+    attributeDescription: string;
 }
 
 export interface IProductDocument extends Document {
@@ -89,7 +87,7 @@ export interface IProductDocument extends Document {
     categoryNamePath?: string,
     categoryIdPath?: string,
     status?: string,
-    attributes?: AttributeResponse;
+    attributes?: [IProductAttribute];
 }
 
 export interface IProductsProjection {
@@ -790,3 +788,44 @@ export const getProductsByCategory = async (options: QueryOptions): Promise<IPro
 export const getVariantsWithFilters = async (filters: FilterQuery<IProduct>, projection: IProductsProjection = {}, options: QueryOptions = {}): Promise<IProductDocument[] | []> => {
     return await productModel.find(filters, projection, options);
 }
+
+// Find with attributes ids in product attruibutes and take each ids attribute value, is and its main attribute
+export const getProductsAttributesData = async (attributeValueIds: Types.ObjectId[]): Promise<any> => {
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                _id: { $in: attributeValueIds }
+            }
+        },
+        {
+            $lookup: {
+                from: collections.ATTRIBUTES,
+                localField: 'attributeId',
+                foreignField: '_id',
+                as: 'attribute'
+            }
+        },
+        {
+            $unwind: '$attribute'
+        },
+        {
+            $project: {
+                _id: 0,
+                attributeId: '$attribute._id',
+                attributeName: '$attribute.name',
+                attributeDescription: {
+                    $ifNull: ['$attribute.description', null]
+                },
+                attributeValueId: '$_id',
+                attributeValue: '$value',
+
+            }
+        }
+    ];
+
+    const result = await attributeValueModel.aggregate(pipeline);
+    console.log(result);
+    return result;
+};
+
+
