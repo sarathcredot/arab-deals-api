@@ -798,7 +798,7 @@ export const productResolver: Resolvers = {
 
                 //Validate Input
                 await validateInput(validators.productsQueryValidator, req);
-                // await verifyVendor(req);
+                await verifyVendor(req);
 
                 const vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
 
