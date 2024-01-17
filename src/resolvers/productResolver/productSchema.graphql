@@ -134,7 +134,9 @@ input VariantInput {
 
 type Query {
     getProductsByAdmin(input:ProductFilters):ProductsResponse!
+    getProductsByVendor(input:ProductFilters):ProductsResponse!
     getProductByAdmin(input: ProductId!): ProductResponse!
+    getProductByVendor(input: ProductId!): ProductResponse!
     getVariantsByAdmin(input:VariantsInput!) : VariantsResponse!
     getProducts(input:ProductFilters):ProductsResponse!
     getProduct(input: ProductId!): ProductResponse!

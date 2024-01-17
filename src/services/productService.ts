@@ -534,6 +534,147 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
 }
 
 
+export const getProductsByVendorWithFilters = async (options: IProductsOptions): Promise<any> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+    let sort: { [key: string]: 1 | -1 } = {};
+
+
+
+
+    if (options.query || options.color?.length || options.productSize?.length) {
+        let query = options.query || '';
+        if (options.productSize?.length) {
+            query = query.concat(" ", options.productSize.join(" "));
+        }
+        if (options.color?.length) {
+            query = query.concat(" ", options.color.join(" "));
+        }
+        query = query.trim();
+        pipeline.push(
+            { $match: { $text: { $search: query } } },
+            {
+                $addFields: {
+                    score: { $meta: "textScore" }
+                }
+            }
+        );
+        sort = { score: -1 }
+    }
+
+    if (options.minPrice) {
+        pipeline.push({
+            $match: {
+                sellingPrice: { $gte: options.minPrice }
+            }
+        });
+    }
+
+    if (options.maxPrice) {
+        pipeline.push({
+            $match: {
+                sellingPrice: { $lte: options.maxPrice }
+            }
+        });
+    }
+
+    if (options.categories?.length) {
+        const regexExpressions = options.categories.map((item) => ({
+            categoryIdPath: { $regex: new RegExp(`${item}`) }
+        }));
+        pipeline.push({
+            $match: {
+                $or: regexExpressions
+            }
+        });
+    } else if (options.parentCategory) {
+        let regex = new RegExp(`${options.parentCategory}`)
+        pipeline.push({
+            $match: {
+                categoryIdPath: { $regex: regex }
+            }
+        });
+    }
+
+
+    if (options.newest) {
+        sort = { createdAt: -1 }
+    }
+
+    else if (options.priceLowToHigh) {
+        sort = { sellingPrice: 1 }
+
+    }
+
+    else if (options.priceHighToLow) {
+        sort = { sellingPrice: -1 }
+    }
+
+    sort["_id"] = 1;
+
+
+    pipeline.push(
+        {
+            $group: {
+                _id: "$productCode",
+                product: { $first: "$$ROOT" }
+            }
+        },
+        {
+            $sort: sort
+        },
+        {
+            $replaceRoot: { newRoot: "$product" }
+        },
+        {
+            $sort: sort
+        },
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: options.projection
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result = await productModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
 // export const getProductVariants = async (productCode: number): Promise<IVariant[]> => {
 //     let pipeline: PipelineStage[] = [];
 //     pipeline.push(

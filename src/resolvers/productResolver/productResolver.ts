@@ -634,29 +634,67 @@ export const productResolver: Resolvers = {
                     });
                 }
 
+                const response = {
+                    product: result
 
-                // // Explicitly define the type of result based on your Mongoose model
-                // const productDocument: productService.IProductDocument = result;
+                }
 
-                // const attributeIdsArray = productDocument.attributes || []; // Assuming the field is named 'attributes'
-                // console.log(attributeIdsArray);
+                return response;
 
-                // const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
 
-                // const transformedOutput = {};
+        },
 
-                // for (const item of attributeData) {
-                //     const { attribute } = item;
-                //     const { attributeDescription } = attribute;
+          // Fetch each product by id detail by vendor
+          async getProductByVendor(parent, { input }, { req }, info) {
 
-                //     (transformedOutput as any)[attributeDescription] = {
-                //         attributeValueId: item.attributeValueId,
-                //         value: item.value,
-                //         colorCode: item.colorCode
-                //     };
-                // }
+            try {
+                //Validate Input
+                await validateInput(validators.productQueryValidator, req);
+                // await verifyVendor(req);
 
-                // console.log(transformedOutput);
+                const productId: Types.ObjectId = new Types.ObjectId(input._id);
+                const options: QueryOptions = { lean: true };
+                const projection: productService.IProductProjection = {};
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "product") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["images"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof productService.IProductProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof productService.IProductProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                const result = await productService.getProductWithId(productId, projection, options);
+
+                if (!result) {
+                    throw new GraphQLError("product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
 
                 const response = {
                     product: result
@@ -740,6 +778,86 @@ export const productResolver: Resolvers = {
                 }
 
                 const result = await productService.getProductsByAdminWithFilters(options);
+
+
+                const response = {
+                    maxRecords: result.maxRecords,
+                    records: result.records
+                }
+                return response;
+            } catch (error) {
+                throw error;
+            }
+
+        },
+
+        // fetch product in vendor side
+        async getProductsByVendor(parent, { input }, { req }, info) {
+
+            try {
+
+                //Validate Input
+                await validateInput(validators.productsQueryValidator, req);
+                await verifyAdmin(req);
+
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+                const minPrice: number | null = input?.minPrice || null;
+                const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
+                const newest: boolean = input?.newest || false;
+                const priceLowToHigh: boolean = input?.priceLowToHigh || false;
+                const priceHighToLow: boolean = input?.priceHighToLow || false;
+                const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
+                const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+
+
+                let projection: productService.IProductsProjection = { _id: 1 };
+
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "records") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["images"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof productService.IProductsProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof productService.IProductsProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                const options: productService.IProductsOptions = {
+                    page,
+                    size,
+                    minPrice,
+                    maxPrice,
+                    newest,
+                    priceLowToHigh,
+                    priceHighToLow,
+                    query,
+                    projection,
+                    parentCategory,
+                    categories
+                }
+
+                const result = await productService.getProductsByVendorWithFilters(options);
 
 
                 const response = {
