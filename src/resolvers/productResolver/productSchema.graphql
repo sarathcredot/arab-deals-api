@@ -134,7 +134,7 @@ input VariantInput {
 
 type Query {
     getProductsByAdmin(input:ProductFilters):ProductsResponse!
-    getProductsByVendor(input:ProductFilters):ProductsResponse!
+    getProductsByVendor(input:ProductByVendorFilters):ProductsResponse!
     getProductByAdmin(input: ProductId!): ProductResponse!
     getProductByVendor(input: ProductId!): ProductResponse!
     getVariantsByAdmin(input:VariantsInput!) : VariantsResponse!
@@ -149,6 +149,20 @@ type Query {
 
     # Input
     input ProductFilters {
+        page: Int
+        size: Int
+        minPrice: Float
+        maxPrice: Float
+        newest: Boolean
+        priceLowToHigh: Boolean
+        priceHighToLow: Boolean
+        query: String
+        categories:[String]
+        parentCategory:String
+    }
+
+    input ProductByVendorFilters {
+        vendorId: String!
         page: Int
         size: Int
         minPrice: Float

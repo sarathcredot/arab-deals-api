@@ -174,6 +174,23 @@ export interface IProductsOptions {
     parentCategory?: string
 }
 
+export interface IProductsByVendorOptions {
+    vendorId: Types.ObjectId,
+    page: number,
+    size: number,
+    projection: IProductsProjection,
+    color?: string[],
+    productSize?: string[],
+    minPrice?: number | null,
+    maxPrice?: number | null,
+    newest?: boolean,
+    priceLowToHigh?: boolean,
+    priceHighToLow?: boolean,
+    query?: string,
+    categories?: string[],
+    parentCategory?: string
+}
+
 export interface IProductsResponse {
     records: Array<IProduct>,
     maxRecords: number
@@ -534,7 +551,7 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
 }
 
 
-export const getProductsByVendorWithFilters = async (options: IProductsOptions): Promise<any> => {
+export const getProductsByVendorWithFilters = async (options: IProductsByVendorOptions): Promise<any> => {
 
 
     let pipeline: PipelineStage[] = [];
@@ -542,7 +559,13 @@ export const getProductsByVendorWithFilters = async (options: IProductsOptions):
     let sort: { [key: string]: 1 | -1 } = {};
 
 
-
+    if (options.vendorId) {
+        pipeline.push({
+            $match: {
+                vendorId: options.vendorId
+            }
+        });
+    }
 
     if (options.query || options.color?.length || options.productSize?.length) {
         let query = options.query || '';

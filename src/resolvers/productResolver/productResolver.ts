@@ -798,7 +798,9 @@ export const productResolver: Resolvers = {
 
                 //Validate Input
                 await validateInput(validators.productsQueryValidator, req);
-                await verifyAdmin(req);
+                // await verifyVendor(req);
+
+                const vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
@@ -843,7 +845,8 @@ export const productResolver: Resolvers = {
                 }
 
 
-                const options: productService.IProductsOptions = {
+                const options: productService.IProductsByVendorOptions = {
+                    vendorId,
                     page,
                     size,
                     minPrice,
