@@ -45,7 +45,13 @@ export interface IProduct {
     categoryNamePath?: string,
     categoryIdPath?: string,
     status?: string,
-    attributes?: {};
+    attributes?: {
+        attributeId: Types.ObjectId;
+        attributeName: string;
+        attributeValueId: Types.ObjectId;
+        attributeValue: string;
+        attributeDescription: string;
+    }[];
     offerPrice?: number,
 }
 
@@ -365,7 +371,7 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
     return response;
 }
 
-export const getProductsByAdminWithFilters = async (options: IProductsOptions): Promise<IProductsResponse> => {
+export const getProductsByAdminWithFilters = async (options: IProductsOptions): Promise<any> => {
 
 
     let pipeline: PipelineStage[] = [];

@@ -619,10 +619,7 @@ export const productResolver: Resolvers = {
                 // console.log(transformedOutput);
 
                 const response = {
-                    product: {
-                        ...result,
-                        attributes: (result as any)?.attributes?._id.toString(),
-                    }
+                    product: result
                
                 }
 
@@ -637,84 +634,84 @@ export const productResolver: Resolvers = {
 
         //TODO 1
         // Fetch all product by admin
-        // async getProductsByAdmin(parent, { input }, { req }, info) {
+        async getProductsByAdmin(parent, { input }, { req }, info) {
 
-        //     try {
+            try {
 
-        //         //Validate Input
-        //         await validateInput(validators.productsQueryValidator, req);
-        //         await verifyAdmin(req);
+                //Validate Input
+                await validateInput(validators.productsQueryValidator, req);
+                // await verifyAdmin(req);
 
-        //         const page: number = input?.page || 0;
-        //         const size: number = input?.size || 10;
-        //         const minPrice: number | null = input?.minPrice || null;
-        //         const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
-        //         const newest: boolean = input?.newest || false;
-        //         const priceLowToHigh: boolean = input?.priceLowToHigh || false;
-        //         const priceHighToLow: boolean = input?.priceHighToLow || false;
-        //         const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
-        //         const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
-        //         const categories: string[] = (input?.categories || []).map((item: string | null) => {
-        //             return item ? new Types.ObjectId(item).toString() : '';
-        //         }).filter((item) => item ? true : false);
-
-
-        //         let projection: productService.IProductsProjection = { _id: 1 };
-
-        //         const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-        //         for (const selection of selectedFields) {
-        //             if (selection.kind === "Field" && selection.name.value == "records") {
-
-        //                 let selectionSet = selection.selectionSet || { selections: [] };
-        //                 for (let item of selectionSet.selections) {
-        //                     if (item.kind === "Field") {
-        //                         const fieldName = item.name.value;
-        //                         if (["images"].includes(fieldName)) {
-        //                             let selectionSet = item.selectionSet || { selections: [] };
-        //                             for (let item2 of selectionSet.selections) {
-        //                                 if (item2.kind === "Field") {
-        //                                     const subField = item2.name.value;
-        //                                     const path = `${fieldName}.${subField}`;
-        //                                     projection[path as keyof productService.IProductsProjection] = 1;
-        //                                 }
-        //                             }
-        //                         }
-        //                         else {
-        //                             projection[fieldName as keyof productService.IProductsProjection] = 1;
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+                const minPrice: number | null = input?.minPrice || null;
+                const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
+                const newest: boolean = input?.newest || false;
+                const priceLowToHigh: boolean = input?.priceLowToHigh || false;
+                const priceHighToLow: boolean = input?.priceHighToLow || false;
+                const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
+                const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
 
 
-        //         const options: productService.IProductsOptions = {
-        //             page,
-        //             size,
-        //             minPrice,
-        //             maxPrice,
-        //             newest,
-        //             priceLowToHigh,
-        //             priceHighToLow,
-        //             query,
-        //             projection,
-        //             parentCategory,
-        //             categories
-        //         }
+                let projection: productService.IProductsProjection = { _id: 1 };
 
-        //         const result = await productService.getProductsByAdminWithFilters(options);
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "records") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["images"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof productService.IProductsProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof productService.IProductsProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
 
 
-        //         const response = {
-        //             maxRecords: result.maxRecords,
-        //             records: result.records
-        //         }
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
+                const options: productService.IProductsOptions = {
+                    page,
+                    size,
+                    minPrice,
+                    maxPrice,
+                    newest,
+                    priceLowToHigh,
+                    priceHighToLow,
+                    query,
+                    projection,
+                    parentCategory,
+                    categories
+                }
 
-        // },
+                const result = await productService.getProductsByAdminWithFilters(options);
+
+
+                const response = {
+                    maxRecords: result.maxRecords,
+                    records: result.records
+                }
+                return response;
+            } catch (error) {
+                throw error;
+            }
+
+        },
         // Fetch Variants by admin
         // async getVariantsByAdmin(parent, { input }, { req }, info) {
         //     try {
