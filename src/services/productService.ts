@@ -189,6 +189,27 @@ export interface IVariant {
     productCode: number,
 }
 
+export interface IVariantTablesByAdmin {
+    _id: string,
+    productName: string,
+    attributes: {
+        attributeId: Types.ObjectId;
+        attributeName: string;
+        attributeValueId: Types.ObjectId;
+        attributeValue: string;
+        attributeDescription: string;
+    }[],
+    stock: number,
+    status: string,
+    images?: FileData[]
+}
+
+export interface IVariantTablesByAdminOptions {
+    page: number,
+    size: number,
+    productCode: number,
+}
+
 
 export interface IProductSuggestion {
     productName: string,
@@ -212,7 +233,7 @@ export const createProduct = async (productData: IProduct): Promise<Document> =>
 }
 
 
-export const getProductWithId = async (id: Types.ObjectId, projection: IProductsProjection = {}, options: QueryOptions = {}): Promise<Document | null> => {
+export const getProductWithId = async (id: Types.ObjectId, projection: IProductsProjection = {}, options: QueryOptions = {}): Promise<any> => {
     const result = await productModel.findById(id, projection, options);
     return result;
 }
@@ -225,7 +246,7 @@ export const deleteProduct = async (filter: FilterQuery<IProduct>): Promise<IPro
     return await productModel.findOneAndDelete(filter);
 };
 
-export const getProductsWithFilters = async (options: IProductsOptions): Promise<IProductsResponse> => {
+export const getProductsWithFilters = async (options: IProductsOptions): Promise<any> => {
 
 
     let pipeline: PipelineStage[] = [];
@@ -571,6 +592,221 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
 //     let result: IVariant[] = await productModel.aggregate(pipeline);
 //     return result;
 // }
+
+export const getProductVariantsByAdminTable = async (options: QueryOptions): Promise<any> => {
+    let pipeline: PipelineStage[] = [];
+    pipeline.push(
+        {
+            $match: {
+                productCode: options.productCode
+            }
+        },
+        // Lookup related products with the same categoryId (excluding the current product)
+        {
+            $lookup: {
+                from: collections.PRODUCTS,
+                let: { categoryId: "$categoryId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ["$_id", "$$categoryId"] }, // Exclude the current product
+                                    { $eq: ["$categoryId", "$$categoryId"] } // Match products with the same categoryId
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            productName: 1,
+                            _id: 1,
+                            images: 1,
+                            attributes: 1,
+                            stock: 1,
+                            status: 1,
+                            isBlocked: 1
+                        }
+                    }
+                ],
+                as: "relatedProducts"
+            }
+        },
+        // Project specific fields from the result
+        // {
+        //     $project: {
+        //         _id: 1,
+        //         productName: 1,
+        //         images: 1,
+        //         attributes: 1,
+        //         stock: 1,
+        //         status: 1,
+        //         isBlocked: 1,
+        //         relatedProducts: 1
+        //     }
+        // },
+        // Pagination
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            productName: 1,
+                            images: 1,
+                            attributes: 1,
+                            stock: 1,
+                            status: 1,
+                            isBlocked: 1,
+                            relatedProducts: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result: any[] = await productModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+};
+
+export const getProductVariantsByVendorTable = async (options: QueryOptions): Promise<any> => {
+    let pipeline: PipelineStage[] = [];
+    pipeline.push(
+        {
+            $match: {
+                productCode: options.productCode
+            }
+        },
+        // Lookup related products with the same categoryId (excluding the current product)
+        {
+            $lookup: {
+                from: collections.PRODUCTS,
+                let: { categoryId: "$categoryId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ["$_id", "$$categoryId"] }, // Exclude the current product
+                                    { $eq: ["$categoryId", "$$categoryId"] } // Match products with the same categoryId
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            productName: 1,
+                            _id: 1,
+                            images: 1,
+                            attributes: 1,
+                            stock: 1,
+                            status: 1,
+                            isBlocked: 1
+                        }
+                    }
+                ],
+                as: "relatedProducts"
+            }
+        },
+        // Project specific fields from the result
+        // {
+        //     $project: {
+        //         _id: 1,
+        //         productName: 1,
+        //         images: 1,
+        //         attributes: 1,
+        //         stock: 1,
+        //         status: 1,
+        //         isBlocked: 1,
+        //         relatedProducts: 1
+        //     }
+        // },
+        // Pagination
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            productName: 1,
+                            images: 1,
+                            attributes: 1,
+                            stock: 1,
+                            status: 1,
+                            isBlocked: 1,
+                            relatedProducts: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result: any[] = await productModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+};
+
 
 
 export const getProductsAutoComplete = async (query: string): Promise<IProductSuggestion[]> => {

@@ -14,10 +14,11 @@
   type Mutation {
     uploadProductFile(file: Upload!): File
     createProduct(input: ProductInput!, images:[Upload]): ProductResponse
-    createVariant(input: VariantInput!, images:[Upload], attributeFileMap: JSONObject): VariantResponse
-    updateProduct(input: ProductUpdateInput!, images: [Upload], attributeFileMap: JSONObject): ProductUpdateResponse
+    createVariant(input: VariantInput!, images:[Upload]): VariantResponse
+    updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
     updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
     deleteProduct(input: ProductId!): DeleteProductResponse!
+    submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
   }
 
 
@@ -33,6 +34,10 @@
     input ProductStatusInput{
       _id: String!
       status: String
+    }
+
+    input ProductPreviewInput{
+      _id: String!
     }
 
     input ProductFileDataInput {
@@ -136,7 +141,8 @@ type Query {
     getVariants(input:VariantsInput!) : VariantsResponse!
     getProductsAutoComplete(input:GetProductsAutoCompleteInput!) : GetProductsAutoCompleteResponse
     getRelatedProducts(input: RelatedProductsFilters!):RelatedProductsResponse!
-
+    getVariantsTableByAdmin(input:ProductVariantsByAdminFilter!) : VariantsTableByAdminResponse!
+    getVariantsTableByVendor(input:ProductVariantsByVendorFilter!) : VariantsTableByVendorResponse!
 }
 
     # Input
@@ -174,6 +180,19 @@ type Query {
         _id: String!
         limit: Int
     }
+
+    input ProductVariantsByAdminFilter {
+        _id: String!
+        page: Int
+        size: Int
+  }
+
+      input ProductVariantsByVendorFilter {
+        _id: String!
+        page: Int
+        size: Int
+  }
+
 
     # Output
 
@@ -260,7 +279,38 @@ type Query {
     type VariantsResponse {
        variants: [Variant]
     }
+    
+    type VariantTableByAdmin {
+       _id: String
+       productName: String
+       images: [ProductFileData]
+       attributes: [IProductAttribute]
+       stock: Int
+       status: String
+       isBlocked: Boolean
+    }
 
+    type VariantTableByVendor {
+       _id: String
+       productName: String
+       images: [ProductFileData]
+       attributes: [IProductAttribute]
+       stock: Int
+       status: String
+       isBlocked: Boolean
+    }
+
+    type VariantsTableByAdminResponse {
+       maxRecords: Int!
+       records: [VariantTableByAdmin]
+       message: String
+    }
+
+     type VariantsTableByVendorResponse {
+       maxRecords: Int!
+       records: [VariantTableByVendor]
+       message: String
+    }
 
     type ProductSuggestion {
       productName:String!
@@ -278,6 +328,9 @@ type Query {
         _id: String
         message: String
     }
+
+    
+
 # Schema
 
 schema {

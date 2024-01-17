@@ -162,7 +162,7 @@ const productSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ["UNDER_VERIFICATION", "APPROVED", "REJECTED"],
+            enum: ["PENDING" ,"UNDER_VERIFICATION", "APPROVED", "REJECTED"],
             default: "PENDING"
         },
     },
