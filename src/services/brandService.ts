@@ -1,4 +1,4 @@
-import { brandModel, vendorModel } from "../models";
+import { brandModel, vendorModel, categoryModel } from "../models";
 import { Types, Document, QueryOptions, FilterQuery, ProjectionFields, PipelineStage } from "mongoose";
 import { collections } from "../configs";
 
@@ -59,6 +59,20 @@ export interface IBrandRecordsWithVendorByAdminOptions {
     page: number,
     size: number,
     vendorId: Types.ObjectId,
+}
+
+interface ICategoryWithBrands {
+    _id: string;
+    categoryName: string;
+    brands: IBrandRecord[];
+}
+
+export interface ICategoryWithBrandsResponse {
+    record: ICategoryWithBrands;
+}
+
+export interface ICategoryWithBrandsOptions {
+    categoryId: Types.ObjectId;
 }
 
 export interface IBrandRecordsWithVendorByVendorOptions {
@@ -331,4 +345,76 @@ export const getBrandRecordsWithVendorByVendorFilters = async (options: IBrandRe
 
 export const deleteBrandRecord = async (filter: FilterQuery<IBrandRecord>): Promise<IBrandDocument | null> => {
     return await brandModel.findOneAndDelete(filter);
+};
+
+// get brands by passing category id
+export const getCategoryWithBrandsBycategoryId = async (options: ICategoryWithBrandsOptions): Promise<any> => {
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                _id: options.categoryId,
+            },
+        },
+        {
+            $lookup: {
+                from: collections.CATEGORIES,
+                localField: "_id",
+                foreignField: "_id",
+                as: "categoryBrands",
+            },
+        },
+        {
+            $unwind: "$categoryBrands",
+        },
+        {
+            $lookup: {
+                from: collections.BRANDS,
+                localField: "categoryBrands.brands",
+                foreignField: "_id",
+                as: "brandDetails",
+            },
+        },
+        {
+            $unwind: "$brandDetails",
+        },
+        {
+            $group: {
+                _id: "$_id",
+                categoryName: { $first: "$categoryName" },
+                brands: {
+                    $push: {
+                        _id: "$brandDetails._id",
+                        brandName: "$brandDetails.brandName",
+                        isBlocked: "$brandDetails.isBlocked",
+                        logo: "$brandDetails.logo",
+                        isPopular: "$brandDetails.isPopular",
+                        priority: "$brandDetails.priority",
+                    },
+                },
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                categoryName: 1,
+                brands: 1,
+            },
+        },
+    );
+
+    const result = await categoryModel.aggregate(pipeline);
+    let response = {
+        record: {
+            _id: '',
+            categoryName: '',
+            attributes: [],
+        },
+    };
+    if (result.length) {
+        response.record = result[0] || {};
+    }
+
+    return response;
 };

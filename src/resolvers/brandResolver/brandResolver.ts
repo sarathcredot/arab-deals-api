@@ -309,66 +309,65 @@ export const brandResolver: Resolvers = {
         },
 
         // Fetch each brand records  and each record values with category in vendor portal
-        // async getAttributesDetailsWithCategory(parent, { input }, { req }, info) {
-        //     // await verifyAdmin(req);
+        async getBrandDetailsWithCategory(parent, { input }, { req }, info) {
+            // await verifyAdmin(req);
 
-        //     try {
-        //       await validateInput(validators.getBrandsWithCategoryValidator, req);
+            try {
+                await validateInput(validators.getBrandsWithCategoryValidator, req);
 
-        //       const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
+                const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
 
-        //       const categoryRecord = await categoryService.findCategoryWithFilters(
-        //         { _id: categoryId },
-        //         {},
-        //         {}
-        //       );
+                const categoryRecord = await categoryService.findCategoryWithFilters(
+                    { _id: categoryId },
+                    {},
+                    {}
+                );
 
-        //       if (!categoryRecord) {
-        //         throw new GraphQLError("Category not found", {
-        //           extensions: {
-        //             code: "BAD_REQUEST",
-        //             errors: [],
-        //           },
-        //         });
-        //       }
+                if (!categoryRecord) {
+                    throw new GraphQLError("Category not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
-        //       const options = { categoryId };
+                const options = { categoryId };
 
-        //       const result = await brandService.getCategoryWithAttributesBycategoryId(options);
+                const result = await brandService.getCategoryWithBrandsBycategoryId(options);
 
-        //       if (!result) {
-        //         throw new GraphQLError("Record not found", {
-        //           extensions: {
-        //             code: "BAD_REQUEST",
-        //             errors: []
-        //           }
-        //         });
-        //       }
+                if (!result) {
+                    throw new GraphQLError("Record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
 
+                const response = {
+                    record: {
+                        _id: result?.record?._id?.toString(),
+                        categoryName: result?.record?.categoryName,
+                        brands: result?.record?.brands.map((brand: any) => ({
+                            _id: brand?._id?.toString(),
+                            brandName: brand?.brandName,
+                            isBlocked: brand?.isBlocked,
+                            logo: brand?.logo,
+                            isPopular: brand?.isPopular,
+                            priority: brand?.priority,
+                        })),
+                    },
+                    message: "Vendor record fetched successfully",
+                }
 
-        //       const response = {
-        //         record: {
-        //           _id: result?.record?._id?.toString(),
-        //           categoryName: result?.record?.categoryName,
-        //           attributes: result?.record?.attributes.map((attribute: any) => ({
-        //             _id: attribute?._id?.toString(),
-        //             attributeType: attribute?.attributeType,
-        //             name: attribute?.name,
-        //             description: attribute?.description,
-        //             attributeValues: attribute?.attributeValues || [],
-        //             isBlocked: attribute?.isBlocked,
-        //           })),
-        //         },
-        //         message: "Vendor record fetched successfully",
-        //       }
+                return response;
 
-        //       return response;
+            } catch (error) {
+                throw error;
+            }
 
-        //     } catch (error) {
-        //       throw error;
-        //     }
-
-        //   },
+        },
 
     }
 };

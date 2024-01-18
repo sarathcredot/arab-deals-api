@@ -90,6 +90,7 @@ export interface ICategoryWithAttributesOptions {
   categoryId: Types.ObjectId;
 }
 
+
 export const createAttribute = async (attributeData: IAttribute): Promise<IAttributeDocument | null> => {
   let attribute: IAttributeDocument = new attributeModel(attributeData);
   return await attribute.save();
@@ -278,6 +279,7 @@ export const getAttributeRecordByVendorWithAttributeId = async (options: IAttrib
   return response;
 }
 
+// get attributes by passing category id
 export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<ICategoryWithAttributesResponse> => {
   let pipeline: PipelineStage[] = [];
 
@@ -353,8 +355,6 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
   if (result.length) {
     response.record = result[0] || {};
   }
-
-  console.log(response)
 
   return response;
 };
