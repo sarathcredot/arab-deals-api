@@ -65,9 +65,9 @@ const vendorSchema = new Schema(
         brands: {   // Approved brands
             type: [{
                 type: Schema.Types.ObjectId,
-                ref: collections.BRANDS
+                ref: collections.BRANDS,
+                unique: true
             }],
-            unique:true
         },
         categories: {   // Approved categories
             type: [
@@ -77,7 +77,6 @@ const vendorSchema = new Schema(
                     unique: true,
                 }
             ],
-            unique:true
         }
     },
     {

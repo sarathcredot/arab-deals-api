@@ -24,13 +24,21 @@ const categorySchema = new Schema(
             type: Boolean,
             default: false
         },
-        attibutes: {   // Approved attibutes
+        attributes: {
             type: [
                 {
                     type: Schema.Types.ObjectId,
-                    ref: collections.CATEGORIES
+                    ref: collections.CATEGORIES,
                 }
-            ]
+            ],
+        },
+        brands: {
+            type: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: collections.CATEGORIES,
+                }
+            ],
         },
         isBlocked: {
             type: Boolean,
@@ -43,6 +51,7 @@ const categorySchema = new Schema(
 );
 
 categorySchema.index({ categoryName: 1, path: 1 }, { unique: true });
+
 
 const categoryModel = model(collections.CATEGORIES, categorySchema);
 

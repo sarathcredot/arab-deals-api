@@ -301,7 +301,7 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
     {
       $lookup: {
         from: collections.ATTRIBUTES,
-        localField: "categoryAttributes.attibutes",
+        localField: "categoryAttributes.attributes",
         foreignField: "_id",
         as: "attributeDetails",
       },

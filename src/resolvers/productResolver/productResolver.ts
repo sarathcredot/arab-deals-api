@@ -222,6 +222,8 @@ export const productResolver: Resolvers = {
                 //     });
                 // }
 
+
+
                 let tags: string[] = [];
                 if (input.tags) {
                     const inputTags: string = input.tags;
@@ -232,6 +234,36 @@ export const productResolver: Resolvers = {
 
                 // Explicitly define the type of result based on your Mongoose model
                 const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
+
+                // Check if the combination of attributeValueIds and productCode already exists
+                const existingProduct = await productService.getProductWithFilters(
+                    {
+                        $and: [
+                            {
+                                attributes: {
+                                    $all: attributeIdsArray,
+                                },
+                            },
+                            {
+                                productCode: productCode,
+                            },
+                        ],
+                    },
+                    {},
+                    { lean: true }
+                );
+
+                console.log(existingProduct)
+
+                if (existingProduct) {
+                    throw new GraphQLError("Variant with these attributes already exists", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                } 
+
 
                 const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 
@@ -404,41 +436,11 @@ export const productResolver: Resolvers = {
 
 
                 if (input.attributes !== null) {
-                    (existingProduct as any).attributes = attributeData;
+                    (existingProduct as any).attributes = [...(existingProduct as any).attributes, ...attributeData].filter(Boolean) as [];
                 }
 
-                // interface AttributeResponse {
-                //     [key: string]: productService.IProductAttribute[];
-                // }
-
-                // // Ensure existingProduct.attributes is defined and is of the correct type
-                // if (!existingProduct.attributes) {
-                //     console.log('Initializing attributes for the first time.');
-                //     existingProduct.attributes = new Map<string, IProductAttribute[]>();
-                // }
-
-                // // Check if attributeFileMap is not null and has keys
-                // if (attributeFileMap !== null && Object.keys(attributeFileMap).length > 0) {
-                //     // Merge existing attributes with new ones
-                //     for (const [key, value] of Object.entries(attributeFileMap)) {
-                //         // Check if the key already exists in existingProduct.attributes
-                //         if (!existingProduct.attributes.has(key)) {
-                //             // If not, create an empty array for the key
-                //             existingProduct.attributes.set(key, []);
-                //         }
-
-                //         // Ensure existingProduct.attributes.get(key) is an array
-                //         const existingArray = existingProduct.attributes.get(key) as IProductAttribute[];
-
-                //         // Merge the existing array with the new one
-                //         existingProduct.attributes.set(key, [
-                //             ...existingArray,
-                //             ...value,
-                //         ]);
-                //     }
-
-                //     console.log('Updated attributes:', existingProduct.attributes);
-                // }
+                // This code for remove the remarks array empty when resubmitting or updating the same product aftrer rejection
+                existingProduct.remarks = [];
 
                 // Update the product
                 const result = await existingProduct.save();
@@ -485,7 +487,9 @@ export const productResolver: Resolvers = {
                 if (input.status && existingProduct.status !== input.status) {
                     existingProduct.status = input.status;
                 }
-
+                if (input.remarks !== null) {
+                    existingProduct.remarks = (input.remarks || []).filter(Boolean) as [];
+                }
 
                 // Update the product
                 const result = await existingProduct.save();
@@ -527,7 +531,7 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-              // Hardcoded beacuse only one status is passing
+                // Hardcoded beacuse only one status is passing
                 existingProduct.status = "UNDER_VERIFICATION";
 
 
@@ -648,8 +652,8 @@ export const productResolver: Resolvers = {
 
         },
 
-          // Fetch each product by id detail by vendor
-          async getProductByVendor(parent, { input }, { req }, info) {
+        // Fetch each product by id detail by vendor
+        async getProductByVendor(parent, { input }, { req }, info) {
 
             try {
                 //Validate Input
@@ -798,7 +802,7 @@ export const productResolver: Resolvers = {
 
                 //Validate Input
                 await validateInput(validators.productsQueryValidator, req);
-                await verifyVendor(req);
+                // await verifyVendor(req);
 
                 const vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
 

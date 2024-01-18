@@ -18,7 +18,7 @@
         isBlocked: Boolean
         description: String
         isLeaf: Boolean
-        attibutes: [String]
+        attributes: [String]
     }
 
     input UpdateCategoryInput {
@@ -28,7 +28,8 @@
         isBlocked: Boolean
         description: String
         isLeaf: Boolean
-        attibutes: [String]
+        attributes: [String]
+        brands: [String]
     }
 
     input CategoryId {

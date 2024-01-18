@@ -34,6 +34,7 @@
     input ProductStatusInput{
       _id: String!
       status: String
+      remarks: [String]
     }
 
     input ProductPreviewInput{
@@ -69,6 +70,7 @@
     categoryId: String!
     offerPrice: Int!
     attributes: [String]
+    images: [String]
 }
 
 input VariantInput {
@@ -94,6 +96,7 @@ input VariantInput {
     status: String
     offerPrice: Int
     attributes: [String]
+    images: [String]
 }
 
    input ProductUpdateInput {
@@ -120,6 +123,7 @@ input VariantInput {
     status: String
     offerPrice: Int
     attributes: [String]
+    images: [String]
 }
 
     input ProductId {

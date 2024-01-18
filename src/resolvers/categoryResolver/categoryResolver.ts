@@ -21,7 +21,7 @@ export const categoryResolver: Resolvers = {
             // await verifyAdmin(req);
 
             // let sizeChart: categoryService.FileData | null = null;
-            let attibutes: Types.ObjectId[] = (input.attibutes || []).filter(Boolean) as [];
+            let attributes: Types.ObjectId[] = (input.attributes || []).filter(Boolean) as [];
 
             // if (image) {
             //     const { createReadStream, filename, mimetype, encoding } = await image;
@@ -42,7 +42,7 @@ export const categoryResolver: Resolvers = {
                 isBlocked: input.isBlocked || false,
                 description: input.description || "",
                 isLeaf: input.isLeaf || false,
-                attibutes
+                attributes
             }
             // if (sizeChart) {
             //     category.sizeChart = sizeChart;
@@ -111,7 +111,7 @@ export const categoryResolver: Resolvers = {
                 // await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                
+
                 const categoryRecord = await categoryService.findCategoryWithFilters(
                     { _id: _id },
                     {},
@@ -167,8 +167,36 @@ export const categoryResolver: Resolvers = {
                 if (typeof input.isLeaf === 'boolean') {
                     categoryRecord.isLeaf = input.isLeaf;
                 }
-                if (input.attibutes) {
-                    categoryRecord.attibutes = [...categoryRecord.attibutes, ...(input.attibutes || [])].filter(Boolean) as [];
+
+                if (input.attributes) {
+                    // Check if any input.attributes are already in the existing category array
+                    const existingAttributesSet = new Set(categoryRecord.attributes.map(attribute => attribute?.toString()));
+
+                    if (input.attributes.some(attribute => attribute && existingAttributesSet.has(attribute.toString()))) {
+                        throw new GraphQLError("One or more attributes already exist in the category", {
+                            extensions: {
+                                code: "BAD_REQUEST",
+                                errors: [],
+                            },
+                        });
+                    }
+
+                    categoryRecord.attributes = [...categoryRecord.attributes, ...(input.attributes || [])].filter(Boolean) as [];
+                }
+                if (input.brands) {
+                    // Check if any input.brands are already in the existing category array
+                    const existingBrandsSet = new Set(categoryRecord.brands.map(brand => brand?.toString()));
+
+                    if (input.brands.some(brand => brand && existingBrandsSet.has(brand.toString()))) {
+                        throw new GraphQLError("One or more brands already exist in the category", {
+                            extensions: {
+                                code: "BAD_REQUEST",
+                                errors: [],
+                            },
+                        });
+                    }
+
+                    categoryRecord.brands = [...categoryRecord.brands, ...(input.brands || [])].filter(Boolean) as [];
                 }
 
                 await categoryRecord.save();
@@ -455,7 +483,7 @@ export const categoryResolver: Resolvers = {
                         },
                     });
                 }
- 
+
                 const attributes = vendor.categories || [];
 
                 if (!vendor || attributes?.length === 0) {
@@ -525,7 +553,7 @@ export const categoryResolver: Resolvers = {
             }
         },
 
-        
+
         getAllCategoriesOfVendorByAdmin: async (parent, { input }, { req }, info) => {
             try {
                 await verifyAdmin(req);
@@ -541,7 +569,7 @@ export const categoryResolver: Resolvers = {
                         },
                     });
                 }
- 
+
                 const attributes = vendor.categories || [];
 
                 if (!vendor || attributes?.length === 0) {

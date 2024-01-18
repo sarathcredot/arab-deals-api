@@ -53,6 +53,7 @@ export interface IProduct {
         attributeDescription: string;
     }[];
     offerPrice?: number,
+    remarks?: string
 }
 
 
@@ -94,6 +95,7 @@ export interface IProductDocument extends Document {
     categoryIdPath?: string,
     status?: string,
     attributes?: [IProductAttribute];
+    remarks?: string[];
 }
 
 export interface IProductsProjection {
@@ -125,6 +127,7 @@ export interface IProductsProjection {
     categoryId?: 1
     status?: 1,
     attributes?: 1,
+    remarks?:1
 }
 
 
@@ -156,6 +159,7 @@ export interface IProductProjection {
     updatedAt?: 1,
     status?: 1,
     attributes?: 1,
+    remarks?:1
 }
 
 export interface IProductsOptions {
