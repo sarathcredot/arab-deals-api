@@ -127,7 +127,7 @@ export interface IProductsProjection {
     categoryId?: 1
     status?: 1,
     attributes?: 1,
-    remarks?:1
+    remarks?: 1
 }
 
 
@@ -159,7 +159,7 @@ export interface IProductProjection {
     updatedAt?: 1,
     status?: 1,
     attributes?: 1,
-    remarks?:1
+    remarks?: 1
 }
 
 export interface IProductsOptions {
@@ -352,6 +352,7 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
         {
             $match: {
                 isBlocked: false,
+                status: "COMPLETED"
             }
         },
         {
@@ -1175,8 +1176,8 @@ export const getProductsByCategory = async (options: QueryOptions): Promise<IPro
                 shortDescription: 1,
                 skuId: 1,
                 description: 1,
-                color: 1,
-                size: 1,
+                // color: 1,
+                // size: 1,
                 material: 1,
                 images: 1,
                 rating: 1,
@@ -1187,6 +1188,12 @@ export const getProductsByCategory = async (options: QueryOptions): Promise<IPro
                 tags: 1,
                 productCode: 1,
                 stock: 1,
+                brandId: 1,
+                brandName: 1,
+                vendorId: 1,
+                offerPrice: 1,
+                remarks: 1,
+                status: 1,
             },
         },
     );
@@ -1239,3 +1246,6 @@ export const getProductsAttributesData = async (attributeValueIds: Types.ObjectI
 };
 
 
+export const findAllProducts = async (filters: FilterQuery<IProduct>, projection: IProductsProjection = {}, options: QueryOptions = {}): Promise<any[]> => {
+    return await productModel.find(filters, projection, options);
+};

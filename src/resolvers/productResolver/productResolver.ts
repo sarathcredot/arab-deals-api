@@ -211,18 +211,6 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                // const isVariantExists = await productService.getProductWithFilters({ productCode: productCode, }, { attributes: attributeFileMap }, { lean: true });
-
-                // if (isVariantExists) {
-                //     throw new GraphQLError("Variant with this attributes already exists", {
-                //         extensions: {
-                //             code: "BAD_REQUEST",
-                //             errors: [],
-                //         },
-                //     });
-                // }
-
-
 
                 let tags: string[] = [];
                 if (input.tags) {
@@ -235,35 +223,38 @@ export const productResolver: Resolvers = {
                 // Explicitly define the type of result based on your Mongoose model
                 const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
 
-                // Check if the combination of attributeValueIds and productCode already exists
-                const existingProduct = await productService.getProductWithFilters(
-                    {
-                        $and: [
-                            {
-                                attributes: {
-                                    $all: attributeIdsArray,
-                                },
-                            },
-                            {
-                                productCode: productCode,
-                            },
-                        ],
-                    },
-                    {},
-                    { lean: true }
-                );
+                // // Check if the combination of attributeValueIds and productCode already exists
 
-                console.log(existingProduct)
+                // const existingProduct = await productService.findAllProducts({ productCode: productCode }, {}, { lean: true });
 
-                if (existingProduct) {
-                    throw new GraphQLError("Variant with these attributes already exists", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                } 
+                // if (!existingProduct) {
+                //     throw new GraphQLError("Product not found", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: [],
+                //         },
+                //     });
+                // }
 
+                // console.log("length: ", existingProduct)
+
+                // if (existingProduct) {
+                //     // Fetch existing attributeValueIds from the database
+                //     const inputAttrIds = attributes.map(attr => attr.toString()) || [];
+
+                //     console.log("inputAttrIds: ", inputAttrIds)
+
+                //     // Validate that input attributeValueIds are a subset of existing attributeValueIds
+                //     const existAttrs = existingProduct.map(attr => attr.attributes[0]);
+                //     console.log("existAttrs: ", existAttrs)
+
+                //     const existAttrIds = existAttrs.map(at => at.attributeValueId.toString())
+                //     console.log("existAttrIds: ", existAttrIds)
+
+                //     if (existAttrIds.every(id => inputAttrIds.includes(id))) {
+                //         throw new GraphQLError("Invalid attributeValueIds 2");
+                //     }
+                // }
 
                 const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 
@@ -992,82 +983,82 @@ export const productResolver: Resolvers = {
         },
 
         //TODO -2
-        // async getProducts(parent, { input }, { req }, info) {
+        async getProducts(parent, { input }, { req }, info) {
 
-        //     try {
+            try {
 
-        //         //Validate Input
-        //         await validateInput(validators.productsQueryValidator, req);
+                //Validate Input
+                await validateInput(validators.productsQueryValidator, req);
 
-        //         const page: number = input?.page || 0;
-        //         const size: number = input?.size || 10;
-        //         const minPrice: number | null = input?.minPrice || null;
-        //         const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
-        //         const newest: boolean = input?.newest || false;
-        //         const priceLowToHigh: boolean = input?.priceLowToHigh || false;
-        //         const priceHighToLow: boolean = input?.priceHighToLow || false;
-        //         const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
-        //         const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
-        //         const categories: string[] = (input?.categories || []).map((item: string | null) => {
-        //             return item ? new Types.ObjectId(item).toString() : '';
-        //         }).filter((item) => item ? true : false);
-
-
-        //         let projection: productService.IProductsProjection = { _id: 1 };
-
-        //         const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-        //         for (const selection of selectedFields) {
-        //             if (selection.kind === "Field" && selection.name.value == "records") {
-
-        //                 let selectionSet = selection.selectionSet || { selections: [] };
-        //                 for (let item of selectionSet.selections) {
-        //                     if (item.kind === "Field") {
-        //                         const fieldName = item.name.value;
-        //                         if (["images"].includes(fieldName)) {
-        //                             let selectionSet = item.selectionSet || { selections: [] };
-        //                             for (let item2 of selectionSet.selections) {
-        //                                 if (item2.kind === "Field") {
-        //                                     const subField = item2.name.value;
-        //                                     const path = `${fieldName}.${subField}`;
-        //                                     projection[path as keyof productService.IProductsProjection] = 1;
-        //                                 }
-        //                             }
-        //                         }
-        //                         else {
-        //                             projection[fieldName as keyof productService.IProductsProjection] = 1;
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+                const minPrice: number | null = input?.minPrice || null;
+                const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
+                const newest: boolean = input?.newest || false;
+                const priceLowToHigh: boolean = input?.priceLowToHigh || false;
+                const priceHighToLow: boolean = input?.priceHighToLow || false;
+                const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
+                const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
 
 
-        //         const options: productService.IProductsOptions = {
-        //             page,
-        //             size,
-        //             minPrice,
-        //             maxPrice,
-        //             newest,
-        //             priceLowToHigh,
-        //             priceHighToLow,
-        //             query,
-        //             projection,
-        //             parentCategory,
-        //             categories
-        //         }
+                let projection: productService.IProductsProjection = { _id: 1 };
 
-        //         const result = await productService.getProductsWithFilters(options);
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "records") {
 
-        //         const response = {
-        //             maxRecords: result.maxRecords,
-        //             records: result.records
-        //         }
-        //         return response;
-        //     } catch (error) {
-        //         throw error;
-        //     }
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["images"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof productService.IProductsProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof productService.IProductsProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
 
-        // },
+
+                const options: productService.IProductsOptions = {
+                    page,
+                    size,
+                    minPrice,
+                    maxPrice,
+                    newest,
+                    priceLowToHigh,
+                    priceHighToLow,
+                    query,
+                    projection,
+                    parentCategory,
+                    categories
+                }
+
+                const result = await productService.getProductsWithFilters(options);
+
+                const response = {
+                    maxRecords: result.maxRecords,
+                    records: result.records
+                }
+                return response;
+            } catch (error) {
+                throw error;
+            }
+
+        },
 
 
         // async getVariants(parent, { input }, { req }, info) {
@@ -1253,56 +1244,56 @@ export const productResolver: Resolvers = {
         },
 
         //TODO-3
-        // async getRelatedProducts(parent, { input }, { req }, info) {
-        //     try {
+        async getRelatedProducts(parent, { input }, { req }, info) {
+            try {
 
-        //         //Validate Input
-        //         await validateInput(validators.relatedProductsQueryValidator, req);
-        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
-        //         const limit: number = input.limit || 12;
+                //Validate Input
+                await validateInput(validators.relatedProductsQueryValidator, req);
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const limit: number = input.limit || 12;
 
 
-        //         const product = await productService.getProductWithId(_id, { _id: 1, categoryId: 1, productCode: 1 }, { lean: true });
-        //         if (!product) {
-        //             throw new GraphQLError("product not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: []
-        //                 }
-        //             });
-        //         }
-        //         let productData: productService.IProduct = product;
-        //         if (!productData.categoryId) {
-        //             throw new GraphQLError("category not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: []
-        //                 }
-        //             });
-        //         }
+                const product = await productService.getProductWithId(_id, { _id: 1, categoryId: 1, productCode: 1 }, { lean: true });
+                if (!product) {
+                    throw new GraphQLError("product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+                let productData: productService.IProduct = product;
+                if (!productData.categoryId) {
+                    throw new GraphQLError("category not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
 
-        //         const options: QueryOptions = { productCode: productData.productCode, categoryId: productData.categoryId, limit: limit };
+                const options: QueryOptions = { productCode: productData.productCode, categoryId: productData.categoryId, limit: limit };
 
-        //         const records = await productService.getProductsByCategory(options);
-        //         if (!records || records.length === 0) {
-        //             throw new GraphQLError("Related products not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: []
-        //                 }
-        //             });
-        //         }
+                const records = await productService.getProductsByCategory(options);
+                if (!records || records.length === 0) {
+                    throw new GraphQLError("Related products not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
 
-        //         let response = {
-        //             records: records
-        //         }
+                let response: any = {
+                    records: records
+                };
 
-        //         return response;
-        //     } catch (error) {
-        //         console.log(error);
-        //         throw error;
-        //     }
-        // },
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
 
     },
 
