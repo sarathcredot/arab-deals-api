@@ -1121,6 +1121,68 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
 //     let result: IVariant[] = await productModel.aggregate(pipeline);
 //     return result;
 // }
+export const getAllProductVariantsByAdminWithProductCode = async (options: QueryOptions): Promise<any> => {
+    let pipeline: PipelineStage[] = [];
+    pipeline.push(
+        {
+            $match: {
+                productCode: options.productCode
+            }
+        },
+        // Pagination
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            productName: 1,
+                            images: 1,
+                            attributes: 1,
+                            stock: 1,
+                            status: 1,
+                            isBlocked: 1,
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+    const result = await productModel.aggregate(pipeline);
+
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
 
 
 export const getProductVariantsByProductCode = async (productCode: number): Promise<IVariant[]> => {
