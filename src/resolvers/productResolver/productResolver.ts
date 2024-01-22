@@ -9,7 +9,6 @@ import { ObjectId, QueryOptions, Types } from "mongoose";
 import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
 
-
 export const productResolver: Resolvers = {
     Upload: GraphQLUpload,
     Mutation: {
@@ -223,38 +222,23 @@ export const productResolver: Resolvers = {
                 // Explicitly define the type of result based on your Mongoose model
                 const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
 
-                // // Check if the combination of attributeValueIds and productCode already exists
+                const existingProduct = await productService.getProductsVairantsIds(productCode);
 
-                // const existingProduct = await productService.findAllProducts({ productCode: productCode }, {}, { lean: true });
+                if (!existingProduct || existingProduct.length === 0) {
+                    throw new GraphQLError("Product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
-                // if (!existingProduct) {
-                //     throw new GraphQLError("Product not found", {
-                //         extensions: {
-                //             code: "BAD_REQUEST",
-                //             errors: [],
-                //         },
-                //     });
-                // }
+                const inputAttrIds = attributes.map(attr => attr.toString()) || [];
 
-                // console.log("length: ", existingProduct)
-
-                // if (existingProduct) {
-                //     // Fetch existing attributeValueIds from the database
-                //     const inputAttrIds = attributes.map(attr => attr.toString()) || [];
-
-                //     console.log("inputAttrIds: ", inputAttrIds)
-
-                //     // Validate that input attributeValueIds are a subset of existing attributeValueIds
-                //     const existAttrs = existingProduct.map(attr => attr.attributes[0]);
-                //     console.log("existAttrs: ", existAttrs)
-
-                //     const existAttrIds = existAttrs.map(at => at.attributeValueId.toString())
-                //     console.log("existAttrIds: ", existAttrIds)
-
-                //     if (existAttrIds.every(id => inputAttrIds.includes(id))) {
-                //         throw new GraphQLError("Invalid attributeValueIds 2");
-                //     }
-                // }
+                // Validate that input attributeValueIds are a subset of existing attributeValueIds
+                if (inputAttrIds.every(id => existingProduct[0].existAttrIds.includes(id))) {
+                    throw new GraphQLError("Variant already exist!");
+                }
 
                 const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 

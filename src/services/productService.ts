@@ -1249,3 +1249,19 @@ export const getProductsAttributesData = async (attributeValueIds: Types.ObjectI
 export const findAllProducts = async (filters: FilterQuery<IProduct>, projection: IProductsProjection = {}, options: QueryOptions = {}): Promise<any[]> => {
     return await productModel.find(filters, projection, options);
 };
+
+
+// check repeated ids of attribute value ids
+export const getProductsVairantsIds = async (productCode: number): Promise<any> => {
+    const pipeline: PipelineStage[] = [
+        { $match: { productCode: productCode } },
+        { $project: { attributes: 1 } }, // Only retrieve the 'attributes' field
+        { $unwind: "$attributes" }, // Flatten the 'attributes' array
+        { $group: { _id: null, existAttrIds: { $addToSet: { $toString: "$attributes.attributeValueId" } } } },
+        { $project: { _id: 0, existAttrIds: 1 } }
+    ];
+
+    const result = await productModel.aggregate(pipeline);
+    console.log(result);
+    return result;
+};
