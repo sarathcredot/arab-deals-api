@@ -30,6 +30,8 @@ export interface IBrandDocument extends Document {
         mimeType?: string,
         originalName?: string
     }
+    categories: Types.ObjectId[]
+
 }
 
 export interface IBrandRecordsProjection {
@@ -73,6 +75,10 @@ export interface ICategoryWithBrandsResponse {
 
 export interface ICategoryWithBrandsOptions {
     categoryId: Types.ObjectId;
+}
+
+export interface ICategoryWithBrandOptions {
+    brandId: Types.ObjectId;
 }
 
 export interface IBrandRecordsWithVendorByVendorOptions {
@@ -355,6 +361,77 @@ export const getCategoryWithBrandsBycategoryId = async (options: ICategoryWithBr
         {
             $match: {
                 _id: options.categoryId,
+            },
+        },
+        {
+            $lookup: {
+                from: collections.CATEGORIES,
+                localField: "_id",
+                foreignField: "_id",
+                as: "categoryBrands",
+            },
+        },
+        {
+            $unwind: "$categoryBrands",
+        },
+        {
+            $lookup: {
+                from: collections.BRANDS,
+                localField: "categoryBrands.brands",
+                foreignField: "_id",
+                as: "brandDetails",
+            },
+        },
+        {
+            $unwind: "$brandDetails",
+        },
+        {
+            $group: {
+                _id: "$_id",
+                categoryName: { $first: "$categoryName" },
+                brands: {
+                    $push: {
+                        _id: "$brandDetails._id",
+                        brandName: "$brandDetails.brandName",
+                        isBlocked: "$brandDetails.isBlocked",
+                        logo: "$brandDetails.logo",
+                        isPopular: "$brandDetails.isPopular",
+                        priority: "$brandDetails.priority",
+                    },
+                },
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                categoryName: 1,
+                brands: 1,
+            },
+        },
+    );
+
+    const result = await categoryModel.aggregate(pipeline);
+    let response = {
+        record: {
+            _id: '',
+            categoryName: '',
+            attributes: [],
+        },
+    };
+    if (result.length) {
+        response.record = result[0] || {};
+    }
+
+    return response;
+};
+
+export const getCategoryWithBrandByBrandId = async (options: ICategoryWithBrandOptions): Promise<any> => {
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                _id: options.brandId,
             },
         },
         {

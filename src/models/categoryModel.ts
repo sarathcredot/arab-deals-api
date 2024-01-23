@@ -32,14 +32,14 @@ const categorySchema = new Schema(
                 }
             ],
         },
-        brands: {
-            type: [
-                {
-                    type: Schema.Types.ObjectId,
-                    ref: collections.CATEGORIES,
-                }
-            ],
-        },
+        // brands: {
+        //     type: [
+        //         {
+        //             type: Schema.Types.ObjectId,
+        //             ref: collections.CATEGORIES,
+        //         }
+        //     ],
+        // },
         isBlocked: {
             type: Boolean,
             default: false

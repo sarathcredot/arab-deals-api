@@ -117,6 +117,22 @@ export const brandResolver: Resolvers = {
                     brandRecord.isPopular = input?.isPopular;
                 }
 
+                if (input.categories) {
+                    // Check if any input.brands are already in the existing category array
+                    const existingBrandsSet = new Set(brandRecord.categories.map(category => category?.toString()));
+
+                    if (input.categories.some(brand => brand && existingBrandsSet.has(brand.toString()))) {
+                        throw new GraphQLError("One or more brands already exist in the category", {
+                            extensions: {
+                                code: "BAD_REQUEST",
+                                errors: [],
+                            },
+                        });
+                    }
+
+                    brandRecord.categories = [...brandRecord.categories, ...(input.categories || [])].filter(Boolean) as [];
+                }
+
                 const result = await brandRecord.save();
 
                 const response = {
@@ -308,55 +324,167 @@ export const brandResolver: Resolvers = {
             }
         },
 
+        // // Fetch each brand records  and each record values with category in vendor portal
+        // async getBrandDetailsWithCategory(parent, { input }, { req }, info) {
+        //     // await verifyAdmin(req);
+
+        //     try {
+        //         await validateInput(validators.getBrandsWithCategoryValidator, req);
+
+        //         const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
+
+        //         const categoryRecord = await categoryService.findCategoryWithFilters(
+        //             { _id: categoryId },
+        //             {},
+        //             {}
+        //         );
+
+        //         if (!categoryRecord) {
+        //             throw new GraphQLError("Category not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: [],
+        //                 },
+        //             });
+        //         }
+
+        //         const options = { categoryId };
+
+        //         const result = await brandService.getCategoryWithBrandsBycategoryId(options);
+
+        //         if (!result) {
+        //             throw new GraphQLError("Record not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: []
+        //                 }
+        //             });
+        //         }
+
+        //         const response = {
+        //             record: {
+        //                 _id: result?.record?._id?.toString(),
+        //                 categoryName: result?.record?.categoryName,
+        //                 brands: result?.record?.brands.map((brand: any) => ({
+        //                     _id: brand?._id?.toString(),
+        //                     brandName: brand?.brandName,
+        //                     isBlocked: brand?.isBlocked,
+        //                     logo: brand?.logo,
+        //                     isPopular: brand?.isPopular,
+        //                     priority: brand?.priority,
+        //                 })),
+        //             },
+        //             message: "Vendor record fetched successfully",
+        //         }
+
+        //         return response;
+
+        //     } catch (error) {
+        //         throw error;
+        //     }
+
+        // },
+
         // Fetch each brand records  and each record values with category in vendor portal
-        async getBrandDetailsWithCategory(parent, { input }, { req }, info) {
+        async getCategoryDetailsWithBrand(parent, { input }, { req }, info) {
             // await verifyAdmin(req);
 
             try {
-                await validateInput(validators.getBrandsWithCategoryValidator, req);
+                await validateInput(validators.getCategoriesWithbrandValidator, req);
 
-                const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
+                const brandId: Types.ObjectId = new Types.ObjectId(input.brandId);
 
-                const categoryRecord = await categoryService.findCategoryWithFilters(
-                    { _id: categoryId },
-                    {},
-                    {}
+                // const brandRecord = await categoryService.findCategoryWithFilters(
+                //     { _id: brandId },
+                //     { _id: 1, brandName: 1, isBlocked: 1, isPopular: 1, priority: 1, categories: 1 },
+                //     {lean: true}
+                // );
+
+                // console.log("brandRecord: ", brandRecord)
+
+                // if (!brandRecord) {
+                //     throw new GraphQLError("Brand not found", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: [],
+                //         },
+                //     });
+                // }
+
+                // const options = { brandId };
+
+                // const result = await brandService.getCategoryWithBrandByBrandId(options);
+
+                // if (!result) {
+                //     throw new GraphQLError("Record not found", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: []
+                //         }
+                //     });
+                // }
+                const result = await brandService.getBrandWithFilters(
+                    { _id: brandId },
+                    { categories: 1, brandName: 1, _id: 1 },
+                    { lean: true }
                 );
 
-                if (!categoryRecord) {
-                    throw new GraphQLError("Category not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
+                let finalResult = await Promise.all(
+                    (result as any).categories.map(async (n: any) => {
+                        const categoryIdPathData: any = await categoryService.findCategoryWithFilters(
+                            { _id: n._id },
+                            { _id: 1, path: 1, categoryName: 1, isBlocked: 1, description: 1, isLeaf: 1 },
+                            { lean: true }
+                        );
 
-                const options = { categoryId };
+                        let categoryIdPath = `${categoryIdPathData?.path}${n._id}#`;
 
-                const result = await brandService.getCategoryWithBrandsBycategoryId(options);
+                        let categoryName = "";
 
-                if (!result) {
-                    throw new GraphQLError("Record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
+                        let categoryPathIds = [];
+
+                        if (categoryIdPath) {
+                            categoryPathIds = categoryIdPath.split("#");
+                            categoryPathIds = categoryPathIds.filter((id) => id.trim() !== "");
+
+                            const categoryNames = [];
+
+                            for (let categoryIdPathId of categoryPathIds) {
+                                const categoryNamePathData = await categoryService.findCategoryWithFilters(
+                                    { _id: categoryIdPathId },
+                                    { _id: 1, categoryName: 1 },
+                                    { lean: true }
+                                );
+
+                                if (categoryNamePathData) {
+                                    categoryNames.push(categoryNamePathData.categoryName);
+                                }
+                            }
+
+                            categoryName = categoryNames.join(" / ");
                         }
-                    });
-                }
+
+                        return {
+                            _id: String(n._id),
+                            categoryName: categoryIdPathData.categoryName,
+                            path: categoryIdPathData.path,
+                            isBlocked: categoryIdPathData.isBlocked,
+                            fullCategoryName: categoryName,
+                            description: categoryIdPathData.description,
+                            isLeaf: categoryIdPathData.isLeaf
+                        };
+                    })
+                );
+
+                finalResult.sort((a, b) => {
+                    return a.fullCategoryName.localeCompare(b.fullCategoryName);
+                });
 
                 const response = {
-                    record: {
-                        _id: result?.record?._id?.toString(),
-                        categoryName: result?.record?.categoryName,
-                        brands: result?.record?.brands.map((brand: any) => ({
-                            _id: brand?._id?.toString(),
-                            brandName: brand?.brandName,
-                            isBlocked: brand?.isBlocked,
-                            logo: brand?.logo,
-                            isPopular: brand?.isPopular,
-                            priority: brand?.priority,
-                        })),
+                    records: {
+                        brandId: result?._id?.toString(),
+                        brandName: result?.brandName,
+                        categories: finalResult
                     },
                     message: "Vendor record fetched successfully",
                 }

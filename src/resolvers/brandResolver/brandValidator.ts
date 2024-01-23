@@ -44,3 +44,6 @@ export const getBrandsWithCategoryValidator = [
     body('variables.input.categoryId').notEmpty().isMongoId(),
 ]
 
+export const getCategoriesWithbrandValidator = [
+    body('variables.input.brandId').notEmpty().isMongoId(),
+]

@@ -183,21 +183,21 @@ export const categoryResolver: Resolvers = {
 
                     categoryRecord.attributes = [...categoryRecord.attributes, ...(input.attributes || [])].filter(Boolean) as [];
                 }
-                if (input.brands) {
-                    // Check if any input.brands are already in the existing category array
-                    const existingBrandsSet = new Set(categoryRecord.brands.map(brand => brand?.toString()));
+                // if (input.brands) {
+                //     // Check if any input.brands are already in the existing category array
+                //     const existingBrandsSet = new Set(categoryRecord.brands.map(brand => brand?.toString()));
 
-                    if (input.brands.some(brand => brand && existingBrandsSet.has(brand.toString()))) {
-                        throw new GraphQLError("One or more brands already exist in the category", {
-                            extensions: {
-                                code: "BAD_REQUEST",
-                                errors: [],
-                            },
-                        });
-                    }
+                //     if (input.brands.some(brand => brand && existingBrandsSet.has(brand.toString()))) {
+                //         throw new GraphQLError("One or more brands already exist in the category", {
+                //             extensions: {
+                //                 code: "BAD_REQUEST",
+                //                 errors: [],
+                //             },
+                //         });
+                //     }
 
-                    categoryRecord.brands = [...categoryRecord.brands, ...(input.brands || [])].filter(Boolean) as [];
-                }
+                //     categoryRecord.brands = [...categoryRecord.brands, ...(input.brands || [])].filter(Boolean) as [];
+                // }
 
                 await categoryRecord.save();
 

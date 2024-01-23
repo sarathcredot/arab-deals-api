@@ -52,6 +52,14 @@ const brandSchema = new Schema(
             type: Boolean,
             default: false
         },
+        categories: {
+            type: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: collections.BRANDS,
+                }
+            ],
+        },
     },
     {
         timestamps: true

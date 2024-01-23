@@ -25,6 +25,7 @@
         isBlocked: Boolean
         isPopular: Boolean
         priority: Int
+        categories: [String]
     }
 
     input BrandRecordIdInput {
@@ -76,6 +77,7 @@
     getAllBrandRecordsWithVendorByAdmin(input:  getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
     getAllBrandRecordsWithVendorByVendor(input:  getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
     getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!):BrandsDetailsWithCategoryResponse!
+    getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!):CategoriesDetailsWithBrandResponse!
   }   
 
     # Input
@@ -101,6 +103,10 @@
     page: Int
     size: Int
     isBlocked: Boolean
+  }
+
+  input CategoriesDetailsWithBrandIdInput {
+    brandId: String!
   }
 
     # Output
@@ -139,10 +145,30 @@
   }
 
   type BrandRecordsWithVendorByVendorResponse {
-     maxRecords: Int!
+    maxRecords: Int!
     records: [BrandRecord!]
     message: String
   }
+
+  type CategoriesDetailsWithBrandResponse {
+   records: BrandDetailsWithCategory
+  }
+
+  type BrandDetailsWithCategory {
+    brandId: String,
+    brandName: String,
+    categories: [CategoryInBrands]
+    message: String
+  }
+
+    type CategoryInBrands{
+    categoryName:String
+    _id: String
+    isBlocked: Boolean
+    fullCategoryName: String
+    isLeaf: Boolean
+    description: String
+  } 
     
 
 
