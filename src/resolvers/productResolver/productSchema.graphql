@@ -214,7 +214,8 @@ type Query {
   }
 
       input ProductVariantsByVendorFilter {
-        _id: String!
+        # _id: String!
+        productCode: Int!
         page: Int
         size: Int
   }

@@ -1156,23 +1156,36 @@ export const productResolver: Resolvers = {
 
                 //Validate Input
                 await validateInput(validators.variantsQueryValidator, req);
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-
+                // const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const productCode: number = input.productCode;
 
-                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+                // const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+                // if (!product) {
+                //     throw new GraphQLError("product not found", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: []
+                //         }
+                //     });
+                // }
+                
+                // let result: productService.IProduct = product;
+                // if (!result.productCode) {
+                //     throw new GraphQLError("variants not found", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: []
+                //         }
+                //     });
+                // }
+
+                const product = await productService.getProductWithFilters({ productCode: productCode }, { productCode: 1 }, { lean: true });
+                console.log("product: ", product)
+
                 if (!product) {
-                    throw new GraphQLError("product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let result: productService.IProduct = product;
-                if (!result.productCode) {
                     throw new GraphQLError("variants not found", {
                         extensions: {
                             code: "BAD_REQUEST",
@@ -1181,7 +1194,7 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                let productCode = result.productCode
+                // let productCode = result.productCode
 
                 let options = { page, size, productCode };
 
