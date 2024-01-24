@@ -352,7 +352,7 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
         {
             $match: {
                 isBlocked: false,
-                status: "COMPLETED"
+                status: "APPROVED"
             }
         },
         {

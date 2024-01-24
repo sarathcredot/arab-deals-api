@@ -20,6 +20,7 @@ export interface IVendor {
   _id?: string;
   fullName?: string;
   email?: string;
+  countryCode?: string;
   mobileNumber?: string;
   profilePic?: {
     fileType?: string,
@@ -37,6 +38,7 @@ export interface IVendorDocument extends Document {
   _id?: Types.ObjectId;
   fullName?: string;
   email?: string;
+  countryCode?: string;
   mobileNumber?: string;
   profilePic?: {
     fileType?: string,
@@ -61,6 +63,7 @@ export interface IVendorProjection {
   _id?: 1;
   fullName?: 1;
   email?: 1;
+  countryCode?: 1,
   mobileNumber?: 1;
   isBlocked?: 1;
   isKycCompleted?: 1;
@@ -93,6 +96,7 @@ export interface IVendorWithKycDetails {
   _id?: string;
   fullName?: string;
   email?: string;
+  countryCode?: string;
   mobileNumber?: string;
   isBlocked?: string;
   brands?: Types.ObjectId[];

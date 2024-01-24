@@ -32,6 +32,7 @@ export const vendorResolver: Resolvers = {
       }
 
       let fullName: string = input.fullName;
+      let countryCode: string = input.countryCode;
       let mobileNumber: string = input.mobileNumber;
       let profilePic: vendorService.FileData | null = null;
       let brands: Types.ObjectId[] = (input.brands || []).filter(Boolean) as [];
@@ -59,7 +60,7 @@ export const vendorResolver: Resolvers = {
         mobileNumber,
         brands,
         categories,
-
+        countryCode
       };
 
       if (profilePic) {
@@ -224,6 +225,7 @@ export const vendorResolver: Resolvers = {
 
       await validateInput(validators.vendorLoginValidator, req);
 
+      const countryCode: string = input.countryCode;
       const mobileNumber: string = input.mobileNumber;
 
       const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber }, {mobileNumber: 1}, {lean: true});
@@ -252,6 +254,7 @@ export const vendorResolver: Resolvers = {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
           mobileNumber,
+          countryCode: countryCode
         },
         isVerified: false
       };
