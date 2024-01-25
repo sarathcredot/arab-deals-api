@@ -43,6 +43,10 @@ const vendorSchema = new Schema(
             sparse: true,
             lowercase: true,
         },
+        countryCode: {
+            type: String,
+            required: true,
+        },
         mobileNumber: {
             type: String,
             unique: true,

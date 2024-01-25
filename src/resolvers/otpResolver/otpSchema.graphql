@@ -21,11 +21,13 @@ type MobileOtpData {
 
 input sendVendorMobileOtpInput {
   fullName: String
+  countryCode: String!
   mobileNumber: String!
 }
 
 input ReSendVendorMobileOtpInput {
   fullName: String
+  countryCode: String!
   mobileNumber: String!
 }
 
@@ -46,6 +48,7 @@ type sendVendorMobileOtpResponse {
 type VerifyVendorOtpResponse {
   _id: String
   fullName: String
+  countryCode: String
   mobileNumber: String
   message: String
 }

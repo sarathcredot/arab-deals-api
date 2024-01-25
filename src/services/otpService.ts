@@ -5,6 +5,7 @@ import moment from 'moment';
 export interface IOtpFile {
   code?: string,
   expiresAt?: string,
+  countryCode?: string,
   mobileNumber?: string,
   fullName?: string
 }
@@ -21,6 +22,7 @@ export interface IAuthUtilityProjection {
   name?: 1,
   "metadata.code"?: 1,
   "metadata.expiresAt"?: 1,
+  "metadata.countryCode"?: 1,
   "metadata.mobileNumber"?: 1,
   "metadata.fullName"?: 1,
   isVerified?: 1,
