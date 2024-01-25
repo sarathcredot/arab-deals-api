@@ -22,7 +22,6 @@ export const vendorResolver: Resolvers = {
       let email: string = input?.email?.toLowerCase() || "";
 
       const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
-      console.log("isEmailExists: ", isEmailExists);
       if (isEmailExists) {
         throw new GraphQLError('This email already exists', {
           extensions: {
