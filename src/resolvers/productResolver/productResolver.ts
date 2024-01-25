@@ -36,7 +36,7 @@ export const productResolver: Resolvers = {
 
                 images = images || [];
 
-                let cmsImages = [];
+                let productImages = [];
 
                 for (let image of images) {
                     const { createReadStream, filename, mimetype, encoding } = await image;
@@ -46,7 +46,7 @@ export const productResolver: Resolvers = {
 
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-                    cmsImages.push({
+                    productImages.push({
                         fileType: "PUBLIC",
                         fileURL: file.location,
                         mimeType: mimetype,
@@ -145,7 +145,7 @@ export const productResolver: Resolvers = {
                     isBlocked: input?.isBlocked || false,
                     tags: tags || [],
                     stock: input?.stock || 0,
-                    images: cmsImages || [],
+                    images: productImages || [],
                     categoryId: input.categoryId || "",
                     categoryNamePath: categoryName,
                     categoryIdPath: categoryIdPath,
@@ -178,7 +178,7 @@ export const productResolver: Resolvers = {
 
                 images = images || [];
 
-                let cmsImages = [];
+                let productImages = [];
 
                 for (let image of images) {
                     const { createReadStream, filename, mimetype, encoding } = await image;
@@ -188,7 +188,7 @@ export const productResolver: Resolvers = {
 
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-                    cmsImages.push({
+                    productImages.push({
                         fileType: "PUBLIC",
                         fileURL: file.location,
                         mimeType: mimetype,
@@ -260,7 +260,7 @@ export const productResolver: Resolvers = {
                     isBlocked: input?.isBlocked || false,
                     tags: tags || [],
                     stock: input?.stock || 0,
-                    images: cmsImages || [],
+                    images: productImages || [],
                     categoryId: variant.categoryId,
                     categoryNamePath: variant.categoryNamePath,
                     categoryIdPath: variant.categoryIdPath,
@@ -304,7 +304,7 @@ export const productResolver: Resolvers = {
 
                 images = images || [];
 
-                let cmsImages = [];
+                let productImages = [];
 
                 for (let image of images) {
                     const { createReadStream, filename, mimetype, encoding } = await image;
@@ -315,7 +315,7 @@ export const productResolver: Resolvers = {
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
 
-                    cmsImages.push({
+                    productImages.push({
                         fileType: "PUBLIC",
                         fileURL: file.location,
                         mimeType: mimetype,
@@ -397,8 +397,8 @@ export const productResolver: Resolvers = {
                     existingProduct.stock = input.stock;
                 }
 
-                if (cmsImages.length > 0) {
-                    existingProduct.images = cmsImages;
+                if (productImages.length > 0) {
+                    existingProduct.images = productImages;
                 }
 
                 if (input.brandId !== null && existingProduct.brandId !== input.brandId) {
