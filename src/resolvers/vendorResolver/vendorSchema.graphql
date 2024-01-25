@@ -28,6 +28,7 @@ type sendOtpResponse {
 
 input VendorLoginInput {
   mobileNumber: String!
+  countryCode: String!
 }
 
 input VerifyVendorLoginOtpInput {
@@ -133,6 +134,7 @@ type ContactPersonData {
 input VendorSignUpInput {
   fullName: String!
   email: String
+  countryCode: String!
   mobileNumber: String!
   isBlocked: Boolean
   isKycCompleted: Boolean

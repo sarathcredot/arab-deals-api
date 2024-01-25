@@ -17,12 +17,12 @@ export interface ICategory {
     categoryName?: string;
     description?: string;
     path?: string;
-    // sizeChart?: {
-    //     fileType?: string,
-    //     fileURL?: string,
-    //     mimeType?: string,
-    //     originalName?: string
-    // };
+    categoryImage?: {
+        fileType?: string,
+        fileURL?: string,
+        mimeType?: string,
+        originalName?: string
+    };
     isBlocked?: boolean;
     categoryId?: string;
     isLeaf?: boolean;
@@ -35,7 +35,7 @@ export interface CategoryDocument extends Document {
     _id: Types.ObjectId;
     categoryName: string;
     path: string;
-    // sizeChart: FileData;
+    categoryImage: FileData;
     isBlocked: boolean;
     categoryId: Types.ObjectId;
     isLeaf?: boolean

@@ -141,7 +141,7 @@ type Query {
     getProductsByVendor(input:ProductByVendorFilters):ProductsResponse!
     getProductByAdmin(input: ProductId!): ProductResponse!
     getProductByVendor(input: ProductId!): ProductResponse!
-    getVariantsByAdmin(input:VariantsInput!) : VariantsResponse!
+    getVariantsByAdmin(input:VariantsByAdminInput!) : VariantsByAdminResponse!
     getProducts(input:ProductFilters):ProductsResponse!
     getProduct(input: ProductId!): ProductResponse!
     getVariants(input:VariantsInput!) : VariantsResponse!
@@ -187,6 +187,12 @@ type Query {
         _id: String!
     }
 
+    input VariantsByAdminInput {
+        _id: String!
+        page: Int
+        size: Int
+    }
+
     input GetProductsAutoCompleteInput {
         query: String!
     }
@@ -208,7 +214,8 @@ type Query {
   }
 
       input ProductVariantsByVendorFilter {
-        _id: String!
+        # _id: String!
+        productCode: Int!
         page: Int
         size: Int
   }
@@ -310,6 +317,16 @@ type Query {
        isBlocked: Boolean
     }
 
+    type VariantsByAdmin {
+       _id: String
+       productName: String
+       images: [ProductFileData]
+       attributes: [IProductAttribute]
+       stock: Int
+       status: String
+       isBlocked: Boolean
+    }
+
     type VariantTableByVendor {
        _id: String
        productName: String
@@ -347,6 +364,12 @@ type Query {
     type ProductStatusResponse {
         _id: String
         message: String
+    }
+
+    type VariantsByAdminResponse {
+       maxRecords: Int!
+       records: [VariantsByAdmin]
+       message: String
     }
 
     

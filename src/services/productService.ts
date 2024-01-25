@@ -352,7 +352,7 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
         {
             $match: {
                 isBlocked: false,
-                status: "COMPLETED"
+                status: "APPROVED"
             }
         },
         {
@@ -1121,6 +1121,68 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
 //     let result: IVariant[] = await productModel.aggregate(pipeline);
 //     return result;
 // }
+export const getAllProductVariantsByAdminWithProductCode = async (options: QueryOptions): Promise<any> => {
+    let pipeline: PipelineStage[] = [];
+    pipeline.push(
+        {
+            $match: {
+                productCode: options.productCode
+            }
+        },
+        // Pagination
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            productName: 1,
+                            images: 1,
+                            attributes: 1,
+                            stock: 1,
+                            status: 1,
+                            isBlocked: 1,
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+    const result = await productModel.aggregate(pipeline);
+
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
 
 
 export const getProductVariantsByProductCode = async (productCode: number): Promise<IVariant[]> => {
@@ -1248,4 +1310,20 @@ export const getProductsAttributesData = async (attributeValueIds: Types.ObjectI
 
 export const findAllProducts = async (filters: FilterQuery<IProduct>, projection: IProductsProjection = {}, options: QueryOptions = {}): Promise<any[]> => {
     return await productModel.find(filters, projection, options);
+};
+
+
+// check repeated ids of attribute value ids
+export const getProductsVairantsIds = async (productCode: number): Promise<any> => {
+    const pipeline: PipelineStage[] = [
+        { $match: { productCode: productCode } },
+        { $project: { attributes: 1 } }, // Only retrieve the 'attributes' field
+        { $unwind: "$attributes" }, // Flatten the 'attributes' array
+        { $group: { _id: null, existAttrIds: { $addToSet: { $toString: "$attributes.attributeValueId" } } } },
+        { $project: { _id: 0, existAttrIds: 1 } }
+    ];
+
+    const result = await productModel.aggregate(pipeline);
+    console.log(result);
+    return result;
 };

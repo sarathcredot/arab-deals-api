@@ -28,7 +28,8 @@ export const productQueryValidator = [
 ]
 
 export const variantsQueryValidator = [
-    body('variables.input._id').isMongoId(),
+    // body('variables.input._id').isMongoId(),
+    body('variables.input.productCode').optional({ checkFalsy: true }),
 ]
 
 export const productsAutoCompleteQueryValidator = [

@@ -9,7 +9,6 @@ import { ObjectId, QueryOptions, Types } from "mongoose";
 import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
 
-
 export const productResolver: Resolvers = {
     Upload: GraphQLUpload,
     Mutation: {
@@ -223,38 +222,23 @@ export const productResolver: Resolvers = {
                 // Explicitly define the type of result based on your Mongoose model
                 const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
 
-                // // Check if the combination of attributeValueIds and productCode already exists
+                const existingProduct = await productService.getProductsVairantsIds(productCode);
 
-                // const existingProduct = await productService.findAllProducts({ productCode: productCode }, {}, { lean: true });
+                if (!existingProduct || existingProduct.length === 0) {
+                    throw new GraphQLError("Product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
-                // if (!existingProduct) {
-                //     throw new GraphQLError("Product not found", {
-                //         extensions: {
-                //             code: "BAD_REQUEST",
-                //             errors: [],
-                //         },
-                //     });
-                // }
+                const inputAttrIds = attributes.map(attr => attr.toString()) || [];
 
-                // console.log("length: ", existingProduct)
-
-                // if (existingProduct) {
-                //     // Fetch existing attributeValueIds from the database
-                //     const inputAttrIds = attributes.map(attr => attr.toString()) || [];
-
-                //     console.log("inputAttrIds: ", inputAttrIds)
-
-                //     // Validate that input attributeValueIds are a subset of existing attributeValueIds
-                //     const existAttrs = existingProduct.map(attr => attr.attributes[0]);
-                //     console.log("existAttrs: ", existAttrs)
-
-                //     const existAttrIds = existAttrs.map(at => at.attributeValueId.toString())
-                //     console.log("existAttrIds: ", existAttrIds)
-
-                //     if (existAttrIds.every(id => inputAttrIds.includes(id))) {
-                //         throw new GraphQLError("Invalid attributeValueIds 2");
-                //     }
-                // }
+                // Validate that input attributeValueIds are a subset of existing attributeValueIds
+                if (inputAttrIds.every(id => existingProduct[0].existAttrIds.includes(id))) {
+                    throw new GraphQLError("Variant already exist!");
+                }
 
                 const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 
@@ -869,50 +853,58 @@ export const productResolver: Resolvers = {
 
         },
         // Fetch Variants by admin
-        // async getVariantsByAdmin(parent, { input }, { req }, info) {
-        //     try {
-        //         //Validate Input
-        //         await validateInput(validators.variantsQueryValidator, req);
-        //         await verifyAdmin(req);
+        async getVariantsByAdmin(parent, { input }, { req }, info) {
+            try {
+                //Validate Input
+                await validateInput(validators.variantsQueryValidator, req);
+                // await verifyAdmin(req);
 
-        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+
+                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+                if (!product) {
+                    throw new GraphQLError("product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+                let result: productService.IProduct = product;
+                if (!result.productCode) {
+                    throw new GraphQLError("variants not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                const productCode = result.productCode;
+
+                const options ={ page, size, productCode}
+                const variants = await productService.getAllProductVariantsByAdminWithProductCode(options);
+
+                // variants.sort((a, b) => {
+                //     return a.size.localeCompare(b.size)
+                // });
 
 
-        //         const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
-        //         if (!product) {
-        //             throw new GraphQLError("product not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: []
-        //                 }
-        //             });
-        //         }
-        //         let result: productService.IProduct = product;
-        //         if (!result.productCode) {
-        //             throw new GraphQLError("variants not found", {
-        //                 extensions: {
-        //                     code: "BAD_REQUEST",
-        //                     errors: []
-        //                 }
-        //             });
-        //         }
-        //         const variants = await productService.getAllProductVariants(result.productCode);
+                let response = {
+                    maxRecords: variants.maxRecords,
+                    records: variants.records, 
+                    message: "Variants feteched successfully"
+                }
 
-        //         variants.sort((a, b) => {
-        //             return a.size.localeCompare(b.size)
-        //         });
-
-
-        //         let response = {
-        //             variants: variants
-        //         }
-
-        //         return response;
-        //     } catch (error) {
-        //         console.log(error);
-        //         throw error;
-        //     }
-        // },
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
 
         // Fetch each product by id
         async getProduct(parent, { input }, { req }, info) {
@@ -1164,23 +1156,36 @@ export const productResolver: Resolvers = {
 
                 //Validate Input
                 await validateInput(validators.variantsQueryValidator, req);
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-
+                // const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const productCode: number = input.productCode;
 
-                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+                // const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+                // if (!product) {
+                //     throw new GraphQLError("product not found", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: []
+                //         }
+                //     });
+                // }
+                
+                // let result: productService.IProduct = product;
+                // if (!result.productCode) {
+                //     throw new GraphQLError("variants not found", {
+                //         extensions: {
+                //             code: "BAD_REQUEST",
+                //             errors: []
+                //         }
+                //     });
+                // }
+
+                const product = await productService.getProductWithFilters({ productCode: productCode }, { productCode: 1 }, { lean: true });
+                console.log("product: ", product)
+
                 if (!product) {
-                    throw new GraphQLError("product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let result: productService.IProduct = product;
-                if (!result.productCode) {
                     throw new GraphQLError("variants not found", {
                         extensions: {
                             code: "BAD_REQUEST",
@@ -1189,7 +1194,7 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                let productCode = result.productCode
+                // let productCode = result.productCode
 
                 let options = { page, size, productCode };
 

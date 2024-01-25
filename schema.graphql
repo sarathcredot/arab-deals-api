@@ -23,16 +23,18 @@ type Mutation {
   vendorCompanyStatusUpdation(input: VendorCompanyStatusUpdationInput!): VendorCompanyStatusUpdationResponse!
   deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
   uploadProductFile(file: Upload!): File
-  createProduct(input: ProductInput!, images: [Upload], attributeFileMap: JSONObject): ProductResponse
-  createVariant(input: VariantInput!, images: [Upload], attributeFileMap: JSONObject): VariantResponse
-  updateProduct(input: ProductUpdateInput!, images: [Upload], attributeFileMap: JSONObject): ProductUpdateResponse
+  createProduct(input: ProductInput!, images: [Upload]): ProductResponse
+  createVariant(input: VariantInput!, images: [Upload]): VariantResponse
+  updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
+  updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
-  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
-  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
-  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
+  submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
   sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
   verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
   reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
+  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
+  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
+  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
@@ -57,6 +59,7 @@ type sendOtpResponse {
 
 input VendorLoginInput {
   mobileNumber: String!
+  countryCode: String!
 }
 
 input VerifyVendorLoginOtpInput {
@@ -157,6 +160,7 @@ type ContactPersonData {
 input VendorSignUpInput {
   fullName: String!
   email: String
+  countryCode: String!
   mobileNumber: String!
   isBlocked: Boolean
   isKycCompleted: Boolean
@@ -268,26 +272,37 @@ type Query {
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
+  getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
   getProductByAdmin(input: ProductId!): ProductResponse!
-  getVariantsByAdmin(input: VariantsInput!): VariantsResponse!
+  getProductByVendor(input: ProductId!): ProductResponse!
+  getVariantsByAdmin(input: VariantsByAdminInput!): VariantsByAdminResponse!
   getProducts(input: ProductFilters): ProductsResponse!
   getProduct(input: ProductId!): ProductResponse!
   getVariants(input: VariantsInput!): VariantsResponse!
   getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
   getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
+  getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
+  getVariantsTableByVendor(input: ProductVariantsByVendorFilter!): VariantsTableByVendorResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveCategoryTree: getActiveCategoryTreeResponse!
   getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
   getAllLeafRecords: getAllLeafRecordsResponse!
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
+  getAllCategoriesOfVendor(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
+  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
   getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
   getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
+  getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!): BrandsDetailsWithCategoryResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
+  getAttributeRecordsByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAttributesDetailsWithCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAdminRecord: getAdminRecordResponse
 }
 
@@ -552,6 +567,16 @@ input ProductFileDataInput {
   originalName: String
 }
 
+input ProductStatusInput {
+  _id: String!
+  status: String
+  remarks: [String]
+}
+
+input ProductPreviewInput {
+  _id: String!
+}
+
 input ProductInput {
   vendorId: String!
   brandId: String
@@ -562,8 +587,6 @@ input ProductInput {
   description: String
   productInfo: [String]
   productShortInfo: String
-  color: String
-  size: String
   material: String
   rating: Int
   tags: String
@@ -573,14 +596,15 @@ input ProductInput {
   isBlocked: Boolean
   productCode: Int
   stock: Int
-  categoryId: String
+  categoryId: String!
+  offerPrice: Int!
+  attributes: [String]
   images: [String]
-  status: String
 }
 
 input VariantInput {
-  vendorId: String!
-  brandId: String!
+  vendorId: String
+  brandId: String
   brandName: String
   productName: String
   shortDescription: String
@@ -588,8 +612,6 @@ input VariantInput {
   description: String
   productInfo: [String]
   productShortInfo: String
-  color: String
-  size: String
   material: String
   rating: Int
   tags: String
@@ -600,21 +622,23 @@ input VariantInput {
   productCode: Int!
   stock: Int
   categoryId: String
-  images: [String]
   status: String
+  offerPrice: Int
+  attributes: [String]
+  images: [String]
 }
 
 input ProductUpdateInput {
   _id: String!
   vendorId: String
+  brandId: String
+  brandName: String
   productName: String
   shortDescription: String
   skuId: String
   description: String
   productInfo: [String]
   productShortInfo: String
-  color: String
-  size: String
   material: String
   rating: Int
   tags: String
@@ -625,8 +649,10 @@ input ProductUpdateInput {
   productCode: Int
   stock: Int
   categoryId: String
-  images: [String]
   status: String
+  offerPrice: Int
+  attributes: [String]
+  images: [String]
 }
 
 input ProductId {
@@ -636,8 +662,20 @@ input ProductId {
 input ProductFilters {
   page: Int
   size: Int
-  color: [String]
-  productSize: [String]
+  minPrice: Float
+  maxPrice: Float
+  newest: Boolean
+  priceLowToHigh: Boolean
+  priceHighToLow: Boolean
+  query: String
+  categories: [String]
+  parentCategory: String
+}
+
+input ProductByVendorFilters {
+  vendorId: String!
+  page: Int
+  size: Int
   minPrice: Float
   maxPrice: Float
   newest: Boolean
@@ -650,6 +688,12 @@ input ProductFilters {
 
 input VariantsInput {
   _id: String!
+}
+
+input VariantsByAdminInput {
+  _id: String!
+  page: Int
+  size: Int
 }
 
 input GetProductsAutoCompleteInput {
@@ -666,6 +710,18 @@ input RelatedProductsFilters {
   limit: Int
 }
 
+input ProductVariantsByAdminFilter {
+  _id: String!
+  page: Int
+  size: Int
+}
+
+input ProductVariantsByVendorFilter {
+  productCode: Int!
+  page: Int
+  size: Int
+}
+
 type ProductFileData {
   fileType: String
   fileURL: String
@@ -675,14 +731,15 @@ type ProductFileData {
 
 type Product {
   _id: String
+  vendorId: String
+  brandId: String
+  brandName: String
   productName: String
   shortDescription: String
   skuId: String
   description: String
   productInfo: [String]
   productShortInfo: String
-  size: String
-  color: String
   material: String
   images: [ProductFileData]
   rating: Int
@@ -696,6 +753,21 @@ type Product {
   categoryIdPath: String
   isBlocked: Boolean
   stock: Int
+  status: String
+  offerPrice: Int
+  attributes: [IProductAttribute]
+}
+
+type IProductAttribute {
+  attributeId: String
+  attributeName: String
+  attributeValueId: String
+  attributeValue: String
+  attributeDescription: String
+}
+
+type Attributes {
+  attributeValue: String
 }
 
 type ProductsResponse {
@@ -705,13 +777,11 @@ type ProductsResponse {
 
 type ProductResponse {
   product: Product!
-  sizeChartUrl: String
   message: String
 }
 
 type VariantResponse {
   product: Product!
-  sizeChartUrl: String
   message: String
 }
 
@@ -733,6 +803,48 @@ type VariantsResponse {
   variants: [Variant]
 }
 
+type VariantTableByAdmin {
+  _id: String
+  productName: String
+  images: [ProductFileData]
+  attributes: [IProductAttribute]
+  stock: Int
+  status: String
+  isBlocked: Boolean
+}
+
+type VariantsByAdmin {
+  _id: String
+  productName: String
+  images: [ProductFileData]
+  attributes: [IProductAttribute]
+  stock: Int
+  status: String
+  isBlocked: Boolean
+}
+
+type VariantTableByVendor {
+  _id: String
+  productName: String
+  images: [ProductFileData]
+  attributes: [IProductAttribute]
+  stock: Int
+  status: String
+  isBlocked: Boolean
+}
+
+type VariantsTableByAdminResponse {
+  maxRecords: Int!
+  records: [VariantTableByAdmin]
+  message: String
+}
+
+type VariantsTableByVendorResponse {
+  maxRecords: Int!
+  records: [VariantTableByVendor]
+  message: String
+}
+
 type ProductSuggestion {
   productName: String!
 }
@@ -745,12 +857,58 @@ type RelatedProductsResponse {
   records: [Product!]
 }
 
+type ProductStatusResponse {
+  _id: String
+  message: String
+}
+
+type VariantsByAdminResponse {
+  maxRecords: Int!
+  records: [VariantsByAdmin]
+  message: String
+}
+
+input sendVendorMobileOtpInput {
+  fullName: String
+  countryCode: String!
+  mobileNumber: String!
+}
+
+input ReSendVendorMobileOtpInput {
+  fullName: String
+  countryCode: String!
+  mobileNumber: String!
+}
+
+input VerifyVendorOtpInput {
+  code: String!
+}
+
+type sendVendorMobileOtpResponse {
+  _id: String
+  message: String
+}
+
+type VerifyVendorOtpResponse {
+  _id: String
+  fullName: String
+  countryCode: String
+  mobileNumber: String
+  message: String
+}
+
+type ReSendVendorMobileOtpResponse {
+  _id: String
+  message: String
+}
+
 input CreateCategoryInput {
   categoryName: String!
   parentId: String
   isBlocked: Boolean
   description: String
   isLeaf: Boolean
+  attributes: [String]
 }
 
 input UpdateCategoryInput {
@@ -760,6 +918,8 @@ input UpdateCategoryInput {
   isBlocked: Boolean
   description: String
   isLeaf: Boolean
+  attributes: [String]
+  brands: [String]
 }
 
 input CategoryId {
@@ -805,6 +965,10 @@ input GetLevelCategoriesInput {
   limit: Int
 }
 
+input vendorIdInput {
+  vendorId: String!
+}
+
 type Category {
   categoryName: String
   _id: String
@@ -812,7 +976,14 @@ type Category {
   fullCategoryName: String
   isLeaf: Boolean
   description: String
-  sizeChart: ImageData
+}
+
+type CategoryAssignedToVendor {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
 }
 
 type CategoryNode {
@@ -846,39 +1017,12 @@ type getAllLeafRecordsResponse {
   records: [Category]
 }
 
+type getAllCategoriesOfVendorResponse {
+  records: [CategoryAssignedToVendor]
+}
+
 type GetLevelCategoriesResponse {
   records: [Category]
-}
-
-input sendVendorMobileOtpInput {
-  fullName: String
-  mobileNumber: String!
-}
-
-input ReSendVendorMobileOtpInput {
-  fullName: String
-  mobileNumber: String!
-}
-
-input VerifyVendorOtpInput {
-  code: String!
-}
-
-type sendVendorMobileOtpResponse {
-  _id: String
-  message: String
-}
-
-type VerifyVendorOtpResponse {
-  _id: String
-  fullName: String
-  mobileNumber: String
-  message: String
-}
-
-type ReSendVendorMobileOtpResponse {
-  _id: String
-  message: String
 }
 
 input AddBrandInput {
@@ -900,6 +1044,10 @@ input BrandRecordIdInput {
   _id: String
 }
 
+input BrandsDetailsWithCategoryIdInput {
+  categoryId: String!
+}
+
 type AddBrandResponse {
   _id: String!
   message: String
@@ -917,6 +1065,17 @@ type BrandDeleteRecordResponse {
 
 type BrandRecordId {
   _id: String
+}
+
+type BrandsWithCategory {
+  _id: String
+  categoryName: String
+  brands: [BrandRecord]
+}
+
+type BrandsDetailsWithCategoryResponse {
+  record: BrandsWithCategory
+  message: String
 }
 
 input BrandIdInput {
@@ -1048,6 +1207,12 @@ type AttributeWithValue {
   isBlocked: Boolean
 }
 
+type CategoryWithCategory {
+  _id: String
+  categoryName: String
+  attributes: [AttributeWithValue]
+}
+
 input CreateAttributeInput {
   attributeType: String!
   name: String!
@@ -1087,6 +1252,14 @@ input AttributeRecordByAdminInput {
   attributeId: String!
 }
 
+input AttributeRecordByVendorInput {
+  attributeId: String!
+}
+
+input AttributesDetailsWithCategoryIdInput {
+  categoryId: String!
+}
+
 type AttributeRecordsByAdminResponse {
   maxRecords: Int!
   records: [Attribute!]
@@ -1094,6 +1267,16 @@ type AttributeRecordsByAdminResponse {
 
 type AttributeRecordByAdminResponse {
   record: AttributeWithValue
+  message: String
+}
+
+type AttributeRecordByVendorResponse {
+  record: AttributeWithValue
+  message: String
+}
+
+type AttributesDetailsWithCategoryResponse {
+  record: CategoryWithCategory
   message: String
 }
 

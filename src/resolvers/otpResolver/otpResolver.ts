@@ -14,6 +14,7 @@ export const otpResolver: Resolvers = {
       await validateInput(validators.VendorMobileOtpVerification, req);
 
       const fullName: string = input?.fullName || "";
+      let countryCode: string = input.countryCode;
       const mobileNumber: String = input.mobileNumber;
 
       const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber }, {mobileNumber: 1}, {lean: true});
@@ -41,6 +42,7 @@ export const otpResolver: Resolvers = {
         metadata: {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
+          countryCode,
           mobileNumber,
           fullName,
         },
@@ -99,6 +101,7 @@ export const otpResolver: Resolvers = {
 
       let response = {
         _id: result?._id?.toString(),
+        countryCode: result?.metadata?.countryCode,
         mobileNumber: result?.metadata?.mobileNumber,
         fullName: result?.metadata?.fullName,
         message: "OTP verified successfully"
@@ -114,6 +117,7 @@ export const otpResolver: Resolvers = {
       await validateInput(validators.reSendMobileOtpVerification, req);
 
       const fullName: string = input?.fullName || "";
+      let countryCode: string = input.countryCode;
       const mobileNumber: String = input.mobileNumber;
 
       const mobileOtp = await otpService.generateOtp();
@@ -131,6 +135,7 @@ export const otpResolver: Resolvers = {
         metadata: {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
+          countryCode,
           mobileNumber,
           fullName,
         },
