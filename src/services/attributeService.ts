@@ -358,3 +358,83 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
 
   return response;
 };
+
+// // get attributes and its values by passing category id
+// export const getAllAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<ICategoryWithAttributesResponse> => {
+//   let pipeline: PipelineStage[] = [];
+
+//   pipeline.push(
+//     {
+//       $match: {
+//         _id: options.categoryId,
+//       },
+//     },
+//     {
+//       $lookup: {
+//         from: collections.CATEGORIES,
+//         localField: "_id",
+//         foreignField: "_id",
+//         as: "categoryAttributes",
+//       },
+//     },
+//     {
+//       $unwind: "$categoryAttributes",
+//     },
+//     {
+//       $lookup: {
+//         from: collections.ATTRIBUTES,
+//         localField: "categoryAttributes.attributes",
+//         foreignField: "_id",
+//         as: "attributeDetails",
+//       },
+//     },
+//     {
+//       $unwind: "$attributeDetails",
+//     },
+//     {
+//       $lookup: {
+//         from: collections.ATTRIBUTE_VALUES,
+//         localField: "attributeDetails._id",
+//         foreignField: "attributeId",
+//         as: "attributeValues",
+//       },
+//     },
+//     {
+//       $group: {
+//         _id: "$_id",
+//         categoryName: { $first: "$categoryName" },
+//         attributes: {
+//           $push: {
+//             _id: "$attributeDetails._id",
+//             attributeType: "$attributeDetails.attributeType",
+//             name: "$attributeDetails.name",
+//             description: "$attributeDetails.description",
+//             isBlocked: "$attributeDetails.isBlocked",
+//             attributeValues: "$attributeValues",
+//           },
+//         },
+//       },
+//     },
+//     {
+//       $project: {
+//         _id: 1,
+//         categoryName: 1,
+//         attributes: 1,
+//       },
+//     },
+//   );
+
+//   const result = await categoryModel.aggregate(pipeline);
+//   let response = {
+//     record: {
+//       _id: '',
+//       categoryName: '',
+//       attributes: [],
+//     },
+//   };
+//   if (result.length) {
+//     response.record = result[0] || {};
+//   }
+
+//   return response;
+// };

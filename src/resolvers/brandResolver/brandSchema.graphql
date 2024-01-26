@@ -57,13 +57,14 @@
       _id: String
     }
 
-    type BrandsWithCategory{
-      _id: String,
-      categoryName: String
-      brands: [BrandRecord]
-    }
+    # type BrandsWithCategory{
+    #   _id: String,
+    #   categoryName: String
+    #   brands: [BrandRecord]
+    # }
+
     type BrandsDetailsWithCategoryResponse {
-      record: BrandsWithCategory
+      records: [BrandRecord]
       message: String
     }
  

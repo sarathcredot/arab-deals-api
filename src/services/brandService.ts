@@ -116,7 +116,7 @@ export const getBrandWithFilters = async (filters = {}, projection: ProjectionFi
 }
 
 
-export const getBrandsWithFilter = async (filters = {}, projection: string = "", options: QueryOptions = {}) => {
+export const getBrandsWithFilter = async (filters = {}, projection: string = "", options: QueryOptions = {}): Promise<any> => {
     return await brandModel.find(filters, projection, options);
 }
 
@@ -354,69 +354,139 @@ export const deleteBrandRecord = async (filter: FilterQuery<IBrandRecord>): Prom
 };
 
 // get brands by passing category id
+// export const getCategoryWithBrandsBycategoryId = async (options: ICategoryWithBrandsOptions): Promise<any> => {
+//     let pipeline: PipelineStage[] = [];
+
+//     pipeline.push(
+//         {
+//             $match: {
+//                 _id: options.categoryId,
+//             },
+//         },
+//         {
+//             $lookup: {
+//                 from: collections.CATEGORIES,
+//                 localField: "_id",
+//                 foreignField: "_id",
+//                 as: "categoryBrands",
+//             },
+//         },
+//         {
+//             $unwind: "$categoryBrands",
+//         },
+//         {
+//             $lookup: {
+//                 from: collections.BRANDS,
+//                 localField: "categoryBrands.brands",
+//                 foreignField: "_id",
+//                 as: "brandDetails",
+//             },
+//         },
+//         {
+//             $unwind: "$brandDetails",
+//         },
+//         {
+//             $group: {
+//                 _id: "$_id",
+//                 categoryName: { $first: "$categoryName" },
+//                 brands: {
+//                     $push: {
+//                         _id: "$brandDetails._id",
+//                         brandName: "$brandDetails.brandName",
+//                         isBlocked: "$brandDetails.isBlocked",
+//                         logo: "$brandDetails.logo",
+//                         isPopular: "$brandDetails.isPopular",
+//                         priority: "$brandDetails.priority",
+//                     },
+//                 },
+//             },
+//         },
+//         {
+//             $project: {
+//                 _id: 1,
+//                 categoryName: 1,
+//                 brands: 1,
+//             },
+//         },
+//     );
+
+//     const result = await categoryModel.aggregate(pipeline);
+//     let response = {
+//         record: {
+//             _id: '',
+//             categoryName: '',
+//             attributes: [],
+//         },
+//     };
+//     if (result.length) {
+//         response.record = result[0] || {};
+//     }
+
+//     return response;
+// };
+
 export const getCategoryWithBrandsBycategoryId = async (options: ICategoryWithBrandsOptions): Promise<any> => {
     let pipeline: PipelineStage[] = [];
 
     pipeline.push(
         {
             $match: {
-                _id: options.categoryId,
-            },
+                "categories": options.categoryId
+            }
         },
         {
             $lookup: {
                 from: collections.CATEGORIES,
-                localField: "_id",
+                localField: "categories",
                 foreignField: "_id",
-                as: "categoryBrands",
-            },
+                as: "categoryDetails"
+            }
         },
         {
-            $unwind: "$categoryBrands",
-        },
-        {
-            $lookup: {
-                from: collections.BRANDS,
-                localField: "categoryBrands.brands",
-                foreignField: "_id",
-                as: "brandDetails",
-            },
-        },
-        {
-            $unwind: "$brandDetails",
-        },
-        {
-            $group: {
-                _id: "$_id",
-                categoryName: { $first: "$categoryName" },
-                brands: {
-                    $push: {
-                        _id: "$brandDetails._id",
-                        brandName: "$brandDetails.brandName",
-                        isBlocked: "$brandDetails.isBlocked",
-                        logo: "$brandDetails.logo",
-                        isPopular: "$brandDetails.isPopular",
-                        priority: "$brandDetails.priority",
-                    },
-                },
-            },
+            $unwind: {
+                path: "$categoryDetails",
+                preserveNullAndEmptyArrays: true
+            }
         },
         {
             $project: {
                 _id: 1,
-                categoryName: 1,
-                brands: 1,
-            },
+                brandName: 1,
+                logo: 1,
+                isPopular: 1,
+                priority: 1,
+                isBlocked: 1,
+                categoryDetails: {
+                    _id: 1,
+                    categoryName: 1
+                }
+                // Add other fields you want to include in the result
+            }
         },
+        {
+            $group: {
+                // _id: "$categoryDetails._id",
+                categoryName: { $first: "$categoryDetails.categoryName" },
+                brands: {
+                    $push: {
+                        _id: "$_id",
+                        brandName: "$brandName",
+                        logo: "$logo",
+                        isPopular: "$isPopular",
+                        priority: "$priority",
+                        isBlocked: "$isBlocked"
+                        // Add other brand fields as needed
+                    }
+                }
+            }
+        }
     );
 
-    const result = await categoryModel.aggregate(pipeline);
+
+    const result = await brandModel.aggregate(pipeline);
+    console.log("result: ", result)
     let response = {
-        record: {
-            _id: '',
-            categoryName: '',
-            attributes: [],
-        },
+        record: [],
     };
     if (result.length) {
         response.record = result[0] || {};
@@ -424,6 +494,8 @@ export const getCategoryWithBrandsBycategoryId = async (options: ICategoryWithBr
 
     return response;
 };
+
+
 
 export const getCategoryWithBrandByBrandId = async (options: ICategoryWithBrandOptions): Promise<any> => {
     let pipeline: PipelineStage[] = [];
