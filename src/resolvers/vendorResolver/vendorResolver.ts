@@ -16,7 +16,6 @@ export const vendorResolver: Resolvers = {
     // Vendor creation from vendor side
     createVendor: async (parent, { input, image }, { req }, info) => {
 
-
       // await verifyVendor(req);
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input?.email?.toLowerCase() || "";
@@ -231,7 +230,7 @@ export const vendorResolver: Resolvers = {
       const countryCode: string = input.countryCode;
       const mobileNumber: string = input.mobileNumber;
 
-      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber }, {mobileNumber: 1}, {lean: true});
+      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber, countryCode: countryCode }, {mobileNumber: 1}, {lean: true});
       if (!vendor) {
         throw new GraphQLError("The vendor does not have an account with this number. Please sign up", {
           extensions: {
