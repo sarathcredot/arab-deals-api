@@ -149,10 +149,28 @@ type Query {
     getRelatedProducts(input: RelatedProductsFilters!):RelatedProductsResponse!
     getVariantsTableByAdmin(input:ProductVariantsByAdminFilter!) : VariantsTableByAdminResponse!
     getVariantsTableByVendor(input:ProductVariantsByVendorFilter!) : VariantsTableByVendorResponse!
+
+ # MOBILE SIDE APIS
+    getProductsInMobile(input:ProductsInMobileFilters):ProductsInMobileResponse!
+    getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
+
 }
 
     # Input
     input ProductFilters {
+        page: Int
+        size: Int
+        minPrice: Float
+        maxPrice: Float
+        newest: Boolean
+        priceLowToHigh: Boolean
+        priceHighToLow: Boolean
+        query: String
+        categories:[String]
+        parentCategory:String
+    }
+
+      input ProductsInMobileFilters {
         page: Int
         size: Int
         minPrice: Float
@@ -180,6 +198,10 @@ type Query {
     }
 
     input ProductId {
+        _id: String!
+    }
+
+    input ProductIdInMobile {
         _id: String!
     }
 
@@ -278,7 +300,17 @@ type Query {
         records: [Product!]
     }
 
+    type ProductsInMobileResponse {
+        maxRecords: Int!
+        records: [Product!]
+    }
+
     type ProductResponse {
+        product: Product!
+        message: String
+    }
+
+    type ProductInMobileResponse {
         product: Product!
         message: String
     }

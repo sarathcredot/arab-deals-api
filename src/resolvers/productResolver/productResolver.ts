@@ -885,7 +885,7 @@ export const productResolver: Resolvers = {
 
                 const productCode = result.productCode;
 
-                const options ={ page, size, productCode}
+                const options = { page, size, productCode }
                 const variants = await productService.getAllProductVariantsByAdminWithProductCode(options);
 
                 // variants.sort((a, b) => {
@@ -895,7 +895,7 @@ export const productResolver: Resolvers = {
 
                 let response = {
                     maxRecords: variants.maxRecords,
-                    records: variants.records, 
+                    records: variants.records,
                     message: "Variants feteched successfully"
                 }
 
@@ -974,8 +974,153 @@ export const productResolver: Resolvers = {
 
         },
 
-        //TODO -2
+        // Fetch each product by id in mobile side
+        async getProductInMobile(parent, { input }, { req }, info) {
+
+            try {
+
+                //Validate Input
+                await validateInput(validators.productQueryValidator, req);
+
+                const productId: Types.ObjectId = new Types.ObjectId(input._id);
+                const options: QueryOptions = { lean: true };
+                const projection: productService.IProductProjection = {};
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "product") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["images"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof productService.IProductProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof productService.IProductProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                const result = await productService.getProductWithId(productId, projection, options);
+
+                console.log(result)
+
+
+                if (!result) {
+                    throw new GraphQLError("product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+                // const categoryId: Types.ObjectId = (result as categoryService.CategoryDocument).categoryId;
+
+                // const lowestCategoryTreeData = await categoryService.findCategoryWithFilters({ _id: categoryId }, { _id: 1, path: 1, sizeChart: 1 }, { lean: true });
+
+                const response = {
+                    product: result,
+                    // sizeChartUrl: (lowestCategoryTreeData as categoryService.CategoryDocument).sizeChart?.fileURL
+                }
+
+                return response;
+
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+
+        },
+
         async getProducts(parent, { input }, { req }, info) {
+
+            try {
+
+                //Validate Input
+                await validateInput(validators.productsQueryValidator, req);
+
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+                const minPrice: number | null = input?.minPrice || null;
+                const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
+                const newest: boolean = input?.newest || false;
+                const priceLowToHigh: boolean = input?.priceLowToHigh || false;
+                const priceHighToLow: boolean = input?.priceHighToLow || false;
+                const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
+                const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+
+
+                let projection: productService.IProductsProjection = { _id: 1 };
+
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "records") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["images"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof productService.IProductsProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof productService.IProductsProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                const options: productService.IProductsOptions = {
+                    page,
+                    size,
+                    minPrice,
+                    maxPrice,
+                    newest,
+                    priceLowToHigh,
+                    priceHighToLow,
+                    query,
+                    projection,
+                    parentCategory,
+                    categories
+                }
+
+                const result = await productService.getProductsWithFilters(options);
+
+                const response = {
+                    maxRecords: result.maxRecords,
+                    records: result.records
+                }
+                return response;
+            } catch (error) {
+                throw error;
+            }
+
+        },
+
+        // Products listing in mobile side
+        async getProductsInMobile(parent, { input }, { req }, info) {
 
             try {
 
@@ -1171,7 +1316,7 @@ export const productResolver: Resolvers = {
                 //         }
                 //     });
                 // }
-                
+
                 // let result: productService.IProduct = product;
                 // if (!result.productCode) {
                 //     throw new GraphQLError("variants not found", {
