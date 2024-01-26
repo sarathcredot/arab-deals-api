@@ -7,8 +7,8 @@ const fileSchema = new Schema(
     {
         fileType: {
             type: String,
-            enum: ["PUBLIC"],
-            default: "PUBLIC",
+            enum: ["PRIVATE"],
+            default: "PRIVATE",
             required: true
         },
         fileURL: {

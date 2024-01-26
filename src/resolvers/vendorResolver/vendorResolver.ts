@@ -45,7 +45,7 @@ export const vendorResolver: Resolvers = {
         const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
         profilePic = {
-          fileType: "PUBLIC",
+          fileType: "PRIVATE",
           fileURL: file.location,
           mimeType: mimetype,
           originalName: filename
