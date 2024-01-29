@@ -1300,7 +1300,7 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.variantsQueryValidator, req);
+                await validateInput(validators.variantsTableByVendorQueryValidator, req);
                 // const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
                 const page: number = input?.page || 0;

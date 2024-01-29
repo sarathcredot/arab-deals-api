@@ -32,6 +32,10 @@ export const variantsQueryValidator = [
     body('variables.input.productCode').optional({ checkFalsy: true }),
 ]
 
+export const variantsTableByVendorQueryValidator = [
+    body('variables.input.productCode').optional({ checkFalsy: true }),
+]
+
 export const productsAutoCompleteQueryValidator = [
     body('variables.input.query').toLowerCase().trim(),
 ]
