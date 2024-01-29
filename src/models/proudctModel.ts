@@ -54,6 +54,9 @@ const attributeSchema = new Schema(
         },
         attributeDescription: {
             type: String
+        },
+        colorCode: {
+            type: String
         }
     },
     {
