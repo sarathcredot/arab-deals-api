@@ -820,7 +820,8 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
     pipeline.push(
         {
             $match: {
-                productCode: options.productCode
+                productCode: options.productCode,
+                status: { $ne: "PENDING" }
             }
         },
         // Lookup related products with the same categoryId (excluding the current product)
