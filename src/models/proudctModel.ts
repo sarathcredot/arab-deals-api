@@ -117,6 +117,9 @@ const productSchema = new Schema(
         productShortInfo: {
             type: String
         },
+        material: {
+            type: String
+        },
         images: {
             type: [fileSchema],
             default: []
