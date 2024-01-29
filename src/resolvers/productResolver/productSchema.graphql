@@ -333,6 +333,7 @@ type Query {
         attributeValueId: String
         attributeValue: String
         attributeDescription: String
+        colorCode: String
     }
 
     type VariantsResponse {

@@ -785,6 +785,17 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
             $unwind: '$attribute'
         },
         {
+            $lookup: {
+                from: collections.ATTRIBUTE_VALUES, // Assuming 'ATTRIBUTE_VALUES' is the collection for attribute values
+                localField: 'attributes.attributeValueId',
+                foreignField: '_id',
+                as: 'attributeValue'
+            }
+        },
+        {
+            $unwind: '$attributeValue'
+        },
+        {
             $project: {
                 _id: 1,
                 attributeId: '$attribute._id',
@@ -794,6 +805,7 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
                 },
                 attributeValueId: '$attributes.attributeValueId',
                 attributeValue: '$attributes.attributeValue',
+                colorCode: '$attributes.colorCode'
             }
         }
     ];
