@@ -62,6 +62,7 @@ type VendorWithKycData {
   fullName: String
   email: String
   mobileNumber: String
+  profilePic:ImageData
   isBlocked: String
   isKycCompleted: Boolean
   outletId: String
@@ -70,7 +71,6 @@ type VendorWithKycData {
   companyId: String
   companyName: String
   companyStatus: String
-  profilePic:ImageData
   brands: [String]
   categories: [String]
 }

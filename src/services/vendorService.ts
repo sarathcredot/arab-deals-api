@@ -330,6 +330,7 @@ export const getVendorRecordByVendorWithId = async (vendorId: Types.ObjectId): P
       $project: {
         _id: 1,
         fullName: 1,
+        profilePic:1,
         email: 1,
         mobileNumber: 1,
         isBlocked: 1,
