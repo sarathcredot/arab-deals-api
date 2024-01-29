@@ -245,7 +245,7 @@ export const categoryResolver: Resolvers = {
             try {
                 //Validate Input
                 await validateInput(validators.categoriesQueryValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 const parentId = input.parent ? new Types.ObjectId(input.parent) : "";
 
