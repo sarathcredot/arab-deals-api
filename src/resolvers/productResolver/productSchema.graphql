@@ -327,12 +327,12 @@ type Query {
     
 
     type Variant {
-       _id: String!
-       color: String!
-       size: String!
-       stock: Int!
-       colorCode: String!
-       isBlocked: Boolean
+        _id: String!
+        attributeId: String
+        attributeName: String
+        attributeValueId: String
+        attributeValue: String
+        attributeDescription: String
     }
 
     type VariantsResponse {
