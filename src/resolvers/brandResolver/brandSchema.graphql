@@ -36,6 +36,10 @@
       categoryId: String!
     }
 
+    input BrandsDetailsWithCategoryIdInMobileInput {
+      categoryId: String!
+    }
+
     # Output
 
     type AddBrandResponse {
@@ -67,6 +71,11 @@
       records: [BrandRecord]
       message: String
     }
+
+    type BrandsDetailsWithCategoryInMobileResponse {
+      records: [BrandRecord]
+      message: String
+    }
  
 
 
@@ -78,6 +87,7 @@
     getAllBrandRecordsWithVendorByAdmin(input:  getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
     getAllBrandRecordsWithVendorByVendor(input:  getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
     getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!):BrandsDetailsWithCategoryResponse!
+    getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!):BrandsDetailsWithCategoryInMobileResponse!
     getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!):CategoriesDetailsWithBrandResponse!
   }   
 

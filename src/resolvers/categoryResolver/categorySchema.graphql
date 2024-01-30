@@ -66,7 +66,9 @@
  type Query {
   getAllChildCategories(input:GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input:GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
+  getActiveChildCategoriesInMobile(input:GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
   getActiveCategoryTree: getActiveCategoryTreeResponse!
+  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
   getCategoriesAutoComplete(input:GetCategoriesAutoCompleteInput!):GetCategoriesAutoCompleteRespons
   getAllLeafRecords: getAllLeafRecordsResponse!
   getLevelCategories(input:GetLevelCategoriesInput): GetLevelCategoriesResponse!
@@ -80,6 +82,10 @@
     }
 
     input GetActiveChildCategoriesInput{ 
+      parent:String
+    }
+
+    input GetActiveChildCategoriesInMobileInput{ 
       parent:String
     }
   
@@ -135,12 +141,20 @@
       records:[Category]
     }
 
+    type GetActiveChildCategoriesInMobileResponse{
+      records:[Category]
+    }
+
     type GetAllChildLevelCategoriesResponse{
       records:[Category]
     }
 
 
     type getActiveCategoryTreeResponse{
+      records:[CategoryNode]
+    }
+
+    type getActiveCategoryTreeInMobileesponse{
       records:[CategoryNode]
     }
 

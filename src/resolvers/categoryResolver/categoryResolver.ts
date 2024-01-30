@@ -284,7 +284,84 @@ export const categoryResolver: Resolvers = {
                 throw error;
             }
         },
+        // Fetch active child categories under parent category
+        getActiveChildCategoriesInMobile: async (parent, { input }, { req }, info) => {
+            try {
+                //Validate Input
+                await validateInput(validators.categoriesQueryValidator, req);
+
+                const parentId = input.parent ? new Types.ObjectId(input.parent) : "";
+
+                const mPath = parentId ? new RegExp(`${parentId}#$`) : /^#$/;
+
+                const result = await categoryService.findCategoriesWithFilters({ path: mPath, isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1 }, { lean: true, sort: { categoryName: 1 } });
+
+                const response = {
+                    records: result && result.length ? result.map((item) => { return { ...item, _id: item._id.toString() } }) : []
+                }
+
+                return response;
+
+            } catch (error) {
+                throw error;
+            }
+        },
         getActiveCategoryTree: async (parent, { }, { req }, info) => {
+            try {
+
+                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1 }, { lean: true, sort: { path: 1 } });
+
+                if (!result || result.length == 0) {
+                    throw new GraphQLError("Records not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                const parentCategories = result.filter((item) => item.path === "#");
+                const childCategories = result.filter((item) => item.path !== "#");
+                let finalResult = [];
+
+
+                function findChildren(parentId: string): any[] {
+                    let children = [];
+                    for (let [key, item] of childCategories.entries()) {
+                        if (new RegExp(`${parentId}#$`).test(item.path)) {
+                            let data = findChildren(item._id.toString());
+                            let child = {
+                                ...item, _id: item._id.toString(), children: data
+                            }
+                            children.push(child);
+                        }
+                    }
+                    return children;
+                }
+
+                for (let item of parentCategories) {
+                    const data = findChildren(item._id.toString());
+                    finalResult.push(
+                        {
+                            ...item,
+                            _id: item._id.toString(),
+                            children: data
+                        }
+                    )
+                }
+
+                const response = {
+                    records: finalResult
+                }
+                return response;
+
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        // get all active category in mobile side
+        getActiveCategoryTreeInMobile: async (parent, { }, { req }, info) => {
             try {
 
                 const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1 }, { lean: true, sort: { path: 1 } });
