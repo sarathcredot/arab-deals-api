@@ -49,20 +49,6 @@ export const userResolver: Resolvers = {
         isVerified: false
       };
 
-      const newUser = {
-        mobileNumber: mobileNumber
-      }
-
-      const result = await userService.createUser(newUser);
-      if (!result) {
-        throw new GraphQLError('User Db creation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
       const otpCreation = await otpService.createOtp(options);
       if (!otpCreation) {
         throw new GraphQLError('OTP Db creation failed', {
@@ -140,14 +126,24 @@ export const userResolver: Resolvers = {
       otpVerification.isVerified = true;
 
       const result = await otpVerification.save();
-      const user = await userService.findUserWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, {});
-      let token = ""
 
-      if (user) {
-        token = await jwtService.createUserJWT(user._id!.toString());
-        user.token = token;
-        await user.save();
+      const user = await userService.createUser({ mobileNumber: result?.metadata?.mobileNumber });
+      if (!user) {
+        throw new GraphQLError('User Db creation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
       }
+
+      const token = await jwtService.createUserJWT(user._id!.toString());
+
+      user.token = token;
+
+      await user.save();
+
+      console.log("user: ", user)
 
       const response = {
         message: "OTP verified",
@@ -214,81 +210,81 @@ export const userResolver: Resolvers = {
     //   }
     //   return response
     // }
-      // Edit vendor profile
-  updateUserProfile: async (parent, { input }, { req }, info) => {
-    try {
-      await verifyUser(req);
-      await validateInput(validators.userUpdateProfileValidator, req);
+    // Edit vendor profile
+    updateUserProfile: async (parent, { input }, { req }, info) => {
+      try {
+        await verifyUser(req);
+        await validateInput(validators.userUpdateProfileValidator, req);
 
-      const userId: Types.ObjectId = new Types.ObjectId(input._id);
+        const userId: Types.ObjectId = new Types.ObjectId(input._id);
 
-      const user = await userService.findUserWithFilters({ _id: userId }, {}, {});
-      if (!user) {
-        throw new GraphQLError('Vendor not found', {
-          extensions: {
-            code: 'BAD_REQUEST',
-            errors: [],
-          },
-        });
-      }
-
-      if (input.email) {
-        user.email = input.email.toLowerCase();
-      }
-  
-      if (input.firstName) {
-        user.firstName = input.firstName;
-      }
-  
-      if (input.lastName) {
-        user.lastName = input.lastName;
-      }
-  
-      if (input.displayName) {
-        user.displayName = input.displayName;
-      }
-  
-      if (input.address) {
-        user.address = input.address;
-      }
-  
-      if (input.countryCode) {
-        user.countryCode = input.countryCode;
-      }
-  
-      if (input.mobileNumber) {
-        user.mobileNumber = input.mobileNumber;
-      }
-  
-      if (input.isBlocked !== null) {
-        user.isBlocked = input.isBlocked;
-      }
-
-      if (input.password) {
-        if (await user.verifyHash?.(input.password)) {
-          throw new GraphQLError("You entered same password", {
+        const user = await userService.findUserWithFilters({ _id: userId }, {}, {});
+        if (!user) {
+          throw new GraphQLError('Vendor not found', {
             extensions: {
-              code: "BAD_REQUEST",
-              errors: []
-            }
+              code: 'BAD_REQUEST',
+              errors: [],
+            },
           });
         }
-        await user.setHash!(input.password);
+
+        if (input.email) {
+          user.email = input.email.toLowerCase();
+        }
+
+        if (input.firstName) {
+          user.firstName = input.firstName;
+        }
+
+        if (input.lastName) {
+          user.lastName = input.lastName;
+        }
+
+        if (input.displayName) {
+          user.displayName = input.displayName;
+        }
+
+        if (input.address) {
+          user.address = input.address;
+        }
+
+        if (input.countryCode) {
+          user.countryCode = input.countryCode;
+        }
+
+        if (input.mobileNumber) {
+          user.mobileNumber = input.mobileNumber;
+        }
+
+        if (input.isBlocked !== null) {
+          user.isBlocked = input.isBlocked;
+        }
+
+        if (input.password) {
+          if (await user.verifyHash?.(input.password)) {
+            throw new GraphQLError("You entered same password", {
+              extensions: {
+                code: "BAD_REQUEST",
+                errors: []
+              }
+            });
+          }
+          await user.setHash!(input.password);
+        }
+
+        await user.save();
+
+        const response = {
+          _id: user?._id?.toString(),
+          message: 'Vendor successfully updated',
+        };
+
+        return response;
+      } catch (error) {
+        console.error(error);
+        throw error;
       }
-
-      await user.save();
-
-      const response = {
-        _id: user?._id?.toString(),
-        message: 'Vendor successfully updated',
-      };
-
-      return response;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  },
+    },
   },
 
   // Query: {
