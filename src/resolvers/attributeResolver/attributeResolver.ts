@@ -316,6 +316,67 @@ export const attributeResolver: Resolvers = {
 
     },
 
+      // Fetch each attribute records  and each record values with category in mobile side
+      async getAttributesDetailsWithCategoryInMobile(parent, { input }, { req }, info) {
+  
+        try {
+          await validateInput(validators.getCategoryWithAttributeValidator, req);
+  
+          const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
+  
+          const categoryRecord = await categoryService.findCategoryWithFilters(
+            { _id: categoryId },
+            {},
+            {}
+          );
+  
+          if (!categoryRecord) {
+            throw new GraphQLError("Category not found", {
+              extensions: {
+                code: "BAD_REQUEST",
+                errors: [],
+              },
+            });
+          }
+  
+          const options = { categoryId };
+  
+          const result = await attributeService.getCategoryWithAttributesBycategoryIdInMobile(options);
+  
+          if (!result) {
+            throw new GraphQLError("Record not found", {
+              extensions: {
+                code: "BAD_REQUEST",
+                errors: []
+              }
+            });
+          }
+  
+  
+          const response = {
+            record: {
+              _id: result?.record?._id?.toString(),
+              categoryName: result?.record?.categoryName,
+              attributes: result?.record?.attributes.map((attribute: any) => ({
+                _id: attribute?._id?.toString(),
+                attributeType: attribute?.attributeType,
+                name: attribute?.name,
+                description: attribute?.description,
+                attributeValues: attribute?.attributeValues || [],
+                isBlocked: attribute?.isBlocked,
+              })),
+            },
+            message: "Vendor record fetched successfully",
+          }
+  
+          return response;
+  
+        } catch (error) {
+          throw error;
+        }
+  
+      },
+
     // Fetch each attribute records  and each record values with category in admin portal
     async getAttributesDetailsWithCategoryByAdmin(parent, { input }, { req }, info) {
       // await verifyAdmin(req);

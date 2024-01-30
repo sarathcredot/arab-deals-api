@@ -103,6 +103,10 @@ input AttributesDetailsWithCategoryIdInput {
   categoryId: String!
 }
 
+input AttributesDetailsWithCategoryIdInMobileInput {
+  categoryId: String!
+}
+
 type AttributeRecordsByAdminResponse {
   maxRecords: Int!
   records: [Attribute!]
@@ -123,12 +127,18 @@ type AttributesDetailsWithCategoryResponse {
   message: String
 }
 
+type AttributesDetailsWithCategoryInMobileResponse {
+  record: CategoryWithCategory
+  message: String
+}
+
 type Query {
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input:  AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
   getAttributeRecordsByAdmin(input:  AttributeRecordByAdminInput!): AttributeRecordByAdminResponse  
   getAttributesDetailsWithCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
 }
