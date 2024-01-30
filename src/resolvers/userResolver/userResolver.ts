@@ -139,11 +139,18 @@ export const userResolver: Resolvers = {
 
       const token = await jwtService.createUserJWT(user._id!.toString());
 
+      if (!token) {
+        throw new GraphQLError('Token generation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
       user.token = token;
 
       await user.save();
-
-      console.log("user: ", user)
 
       const response = {
         message: "OTP verified",
