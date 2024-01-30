@@ -125,7 +125,7 @@ type MobileOtpData {
 
 type ContactPersonData {
   name: String
-  phoneNumber: String
+  mobileNumber: String
   designation: String
 }
 
@@ -180,7 +180,7 @@ input MobileOtpDataInput {
 
 input ContactPersonInput {
   name: String!
-  phoneNumber: String!
+  mobileNumber: String!
   designation: String!
 }
 

@@ -8,5 +8,6 @@ export const collections = {
     VENDOR_OUTLETS: "vendor_outlets",
     BRANDS: "brands",
     ATTRIBUTES: "attributes",
-    ATTRIBUTE_VALUES: "attribute_values"
+    ATTRIBUTE_VALUES: "attribute_values",
+    USERS:"users",
 }

@@ -1,0 +1,110 @@
+# user auth Mutations
+
+ type Mutation {
+  userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
+  userVerifyOtp(input:userVerifyOtpInput!): userVerifyOtpResponse!
+  createUser(input: userSignUpInput!): userSignUpResponse!
+  userBlock(input:userBlockInput!):userBlockResponse!
+  updateUserProfile(input:updateUserProfileInput!):updateUserProfileResponse!
+}
+
+# user auth query
+
+type Query{
+  getUsersByAdmin(input:userFilters):usersResponse!
+}
+
+# user auth Input
+
+input userLoginOtpInput {
+  mobileNumber: String!
+}
+input userBlockInput {
+  _id: String!
+  isBlocked:Boolean!
+}
+
+input userFilters{
+  page: Int
+  size: Int
+  isBlocked:Boolean
+  query: String
+}
+
+input userVerifyOtpInput {
+  code: String!
+}
+
+input userSignUpInput{
+  mobileNumber:String!
+  email:String!
+  gender:String!
+  age:String!
+}
+
+input updateUserProfileInput {
+  _id: String!
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+  address: String
+  countryCode: String
+  mobileNumber: String
+  password: String
+  isBlocked: Boolean
+}
+
+    
+
+# user auth Output
+
+type userBlockResponse{
+  message:String
+}
+
+type userLoginOtpResponse {
+  message: String!
+  mobileNumber:String!
+  }
+type userVerifyOtpResponse {
+  token: String
+  message:String
+  }
+type userSignUpResponse {
+    _id: String
+    message: String
+    token: String
+  }
+
+type user{
+  _id:String
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+  address: String
+  countryCode: String
+  mobileNumber: String
+  hash: String
+  isBlocked: String
+  token: String
+}
+
+type usersResponse {
+    maxRecords: Int!
+    records: [user!]
+}
+
+type updateUserProfileResponse {
+   _id: String
+   message: String
+}
+  
+# Schema
+
+schema {
+mutation: Mutation,
+}
+
+

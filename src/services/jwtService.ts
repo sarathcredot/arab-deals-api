@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from "express";
 
 const adminSecretKey: string = process.env.ADMIN_JWT_SECRET || "";
 const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
+const userSecretKey: string = process.env.USER_JWT_SECRET || "";
 
 // Admin JWT Services
 export const getAuthTokenFromHeaders = (req: Request): string => {
@@ -80,6 +81,41 @@ export const verifyVendorJWT = (token: string): JwtPayload => {
     return new Promise((resolve, reject) => {
         try {
             const decoded = jwt.verify(token, vendorSecretKey, { ignoreExpiration: true });
+            resolve(decoded);
+        } catch (e) {
+            reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+}
+
+// user JWT service
+
+export const createUserJWT = (id: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        try {
+            const token = jwt.sign({ id }, userSecretKey, { expiresIn: "5d" });
+            resolve(token);
+        } catch (e) {
+            reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+};
+
+export const verifyUserJWT = (token: string): JwtPayload => {
+    return new Promise((resolve, reject) => {
+        try {
+            const decoded = jwt.verify(token, userSecretKey, { ignoreExpiration: true });
+
             resolve(decoded);
         } catch (e) {
             reject(new GraphQLError("JWT error", {

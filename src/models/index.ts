@@ -8,6 +8,7 @@ import { vendorOutletModel } from "./vendorOutletSchema";
 import { brandModel } from "./brandModel";
 import { attributeModel } from "./attributeModel";
 import { attributeValueModel } from "./attributeValueModel";
+import { userModel } from "./userModel";
 
 
 
@@ -25,4 +26,5 @@ export {
     brandModel,
     attributeModel,
     attributeValueModel,
+    userModel,
 }
