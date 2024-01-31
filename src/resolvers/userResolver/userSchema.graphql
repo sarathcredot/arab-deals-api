@@ -3,7 +3,6 @@
  type Mutation {
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
   userVerifyOtp(input:userVerifyOtpInput!): userVerifyOtpResponse!
-  createUser(input: userSignUpInput!): userSignUpResponse!
   userBlock(input:userBlockInput!):userBlockResponse!
   updateUserProfile(input:updateUserProfileInput!):updateUserProfileResponse!
 }
@@ -12,6 +11,7 @@
 
 type Query{
   getUsersByAdmin(input:userFilters):usersResponse!
+  getUserRecordByAdmin(input:userInput!):userResponse!
 }
 
 # user auth Input
@@ -35,13 +35,6 @@ input userVerifyOtpInput {
   code: String!
 }
 
-input userSignUpInput{
-  mobileNumber:String!
-  email:String!
-  gender:String!
-  age:String!
-}
-
 input updateUserProfileInput {
   _id: String!
   email: String
@@ -55,7 +48,9 @@ input updateUserProfileInput {
   isBlocked: Boolean
 }
 
-    
+input userInput{
+  _id: String!
+}    
 
 # user auth Output
 
@@ -99,6 +94,11 @@ type usersResponse {
 type updateUserProfileResponse {
    _id: String
    message: String
+}
+
+type userResponse{
+  record: user
+  message: String
 }
   
 # Schema

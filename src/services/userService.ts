@@ -86,6 +86,7 @@ export const findOneAndUpdateUser = async (filters: FilterQuery<IUser>, update: 
   return await userModel.findOneAndUpdate(filters, update, options);
 }
 
+
 export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promise<IUsersResponse> => {
 
 

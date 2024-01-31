@@ -159,64 +159,6 @@ export const userResolver: Resolvers = {
       return response;
     },
 
-    // createUser: async (parent, { input }, { req }, info) => {
-
-    //   await validateInput(validators.createUserValidator, req);
-
-    //   let email: string = input.email;
-    //   let mobileNumber: string = input.mobileNumber;
-    //   let gender: string = input.gender;
-    //   let age: string = input.age;
-
-    //   let newUserData: userService.IUser = {
-    //     email,
-    //     mobileNumber,
-    //     gender,
-    //     age,
-
-    //   };
-
-    //   const existingUserPhoneNumber = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
-
-    //   if (existingUserPhoneNumber) {
-    //     throw new GraphQLError("Phone number already taken", {
-    //       extensions: {
-    //         code: "INTERNAL_SERVER_ERROR",
-    //         errors: []
-    //       }
-    //     });
-    //   }
-    //   const existingUserEmail = await userService.findUserWithFilters({ email: email }, {}, {});
-
-    //   if (existingUserEmail) {
-    //     throw new GraphQLError("Email already taken", {
-    //       extensions: {
-    //         code: "INTERNAL_SERVER_ERROR",
-    //         errors: []
-    //       }
-    //     });
-    //   }
-
-    //   const user = await userService.createUser(newUserData);
-
-    //   if (!user) {
-    //     throw new GraphQLError("Unable to create user", {
-    //       extensions: {
-    //         code: "INTERNAL_SERVER_ERROR",
-    //         errors: []
-    //       }
-    //     });
-    //   }
-    //   let token = await jwtService.createUserJWT(user._id!.toString());
-    //   user.token = token;
-    //   await user.save();
-    //   const response = {
-    //     _id: user._id!.toString(),
-    //     message: "User created",
-    //     token: token
-    //   }
-    //   return response
-    // }
     // Edit vendor profile
     updateUserProfile: async (parent, { input }, { req }, info) => {
       try {
@@ -268,14 +210,6 @@ export const userResolver: Resolvers = {
         }
 
         if (input.password) {
-          if (await user.verifyHash?.(input.password)) {
-            throw new GraphQLError("You entered same password", {
-              extensions: {
-                code: "BAD_REQUEST",
-                errors: []
-              }
-            });
-          }
           await user.setHash!(input.password);
         }
 
@@ -327,6 +261,40 @@ export const userResolver: Resolvers = {
       }
 
     },
+
+    async getUserRecordByAdmin(parent, { input }, { req }, info) {
+
+      try {
+        await validateInput(validators.userQueryValidator, req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const result = await userService.findUserWithFilters({ _id }, {}, {});
+        if (!result) {
+          throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+            extensions: {
+              code: "",
+              errors: [],
+            },
+          });
+        }
+        const response = {
+          record: {
+            ...result,
+            _id: result?._id?.toString()
+
+          },
+          message: "User fetched succesfully"
+        }
+
+        return response;
+
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+
+    }
   }
 };
 

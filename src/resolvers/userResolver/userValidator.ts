@@ -10,17 +10,15 @@ export const userBlockValidator = [
   body('variables.input._id').notEmpty(),
   body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
 ];
-export const createUserValidator = [
-  body('variables.input.mobileNumber').notEmpty(),
-  body('variables.input.email').trim().isEmail(),
-  body('variables.input.gender').notEmpty(),
-  body('variables.input.age').notEmpty()
-];
 
 export const usersQueryValidator = [
   body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
   body('variables.input.size').optional({ checkFalsy: true }).custom(val => val > 0),
   body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+]
+
+export const userQueryValidator = [
+  body('variables.input._id').notEmpty(),
 ]
 
 export const userUpdateProfileValidator = [
@@ -33,6 +31,7 @@ export const userUpdateProfileValidator = [
   body('variables.input.countryCode').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.mobileNumber').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+  body('variables.input.password').optional({ checkFalsy: true }).isLength({ min: 6 }),
 ];
 
 
