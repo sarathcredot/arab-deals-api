@@ -39,7 +39,7 @@ export interface IGeneralResponse {
 export interface IUsersOptions {
   page: number,
   size: number,
-  isBlocked: boolean | null,
+  isBlocked: Boolean | null,
   query: string
 }
 
@@ -128,14 +128,16 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
           },
           {
             $project: {
-              _id: 1,
+              _id:1,
               email: 1,
-              gender: 1,
+              firstName: 1,
+              lastName: 1,
+              displayName: 1,
+              address: 1,
+              countryCode: 1,
               mobileNumber: 1,
+              hash: 1,
               isBlocked: 1,
-              age: 1
-
-
             }
           }
         ]

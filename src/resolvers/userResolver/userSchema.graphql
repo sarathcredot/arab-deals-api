@@ -87,7 +87,7 @@ type user{
   countryCode: String
   mobileNumber: String
   hash: String
-  isBlocked: String
+  isBlocked: Boolean
   token: String
 }
 

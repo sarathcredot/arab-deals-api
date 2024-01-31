@@ -294,39 +294,39 @@ export const userResolver: Resolvers = {
     },
   },
 
-  // Query: {
-  //   async getUsersByAdmin(parent, { input }, { req }, info) {
+  Query: {
+    async getUsersByAdmin(parent, { input }, { req }, info) {
 
-  //     try {
+      try {
 
-  //       //Validate Input
-  //       await validateInput(validators.usersQueryValidator, req);
-  //       await verifyAdmin(req);
+        //Validate Input
+        await validateInput(validators.usersQueryValidator, req);
+        // await verifyAdmin(req);
 
-  //       const page: number = input?.page || 0;
-  //       const size: number = input?.size || 10;
-  //       const isBlocked: Boolean | null = input?.isBlocked ?? null;
-  //       const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
+        const page: number = input?.page || 0;
+        const size: number = input?.size || 10;
+        const isBlocked: Boolean | null = input?.isBlocked ?? null;
+        const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
 
-  //       const options: userService.IUsersOptions = {
-  //         page,
-  //         size,
-  //         isBlocked,
-  //         query
-  //       }
+        const options: userService.IUsersOptions = {
+          page,
+          size,
+          isBlocked,
+          query
+        }
 
-  //       const result = await userService.getUsersByAdminWithFilters(options);
+        const result = await userService.getUsersByAdminWithFilters(options);
 
-  //       const response = {
-  //         maxRecords: result.maxRecords,
-  //         records: result.records
-  //       }
-  //       return response;
-  //     } catch (error) {
-  //       throw error;
-  //     }
+        const response = {
+          maxRecords: result.maxRecords,
+          records: result.records
+        }
+        return response;
+      } catch (error) {
+        throw error;
+      }
 
-  //   },
-  // }
+    },
+  }
 };
 
