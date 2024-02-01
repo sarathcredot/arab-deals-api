@@ -1043,7 +1043,6 @@ export const productResolver: Resolvers = {
         },
 
         async getProducts(parent, { input }, { req }, info) {
-
             try {
 
                 //Validate Input
@@ -1059,6 +1058,9 @@ export const productResolver: Resolvers = {
                 const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
                 const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
                 const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+                const brands: string[] = (input?.brands || []).map((item: string | null) => {
                     return item ? new Types.ObjectId(item).toString() : '';
                 }).filter((item) => item ? true : false);
 
@@ -1103,7 +1105,8 @@ export const productResolver: Resolvers = {
                     query,
                     projection,
                     parentCategory,
-                    categories
+                    categories,
+                    brands,
                 }
 
                 const result = await productService.getProductsWithFilters(options);

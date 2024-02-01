@@ -175,7 +175,8 @@ export interface IProductsOptions {
     priceHighToLow?: boolean,
     query?: string,
     categories?: string[],
-    parentCategory?: string
+    parentCategory?: string,
+    brands?: string[],
 }
 
 export interface IProductsByVendorOptions {
@@ -327,6 +328,17 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
         pipeline.push({
             $match: {
                 categoryIdPath: { $regex: regex }
+            }
+        });
+    }
+
+    if (options.brands?.length) {
+        const regexExpressions = options.brands.map((item) => ({
+            brandId: new Types.ObjectId(item)
+        }));
+        pipeline.push({
+            $match: {
+                $or: regexExpressions
             }
         });
     }

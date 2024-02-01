@@ -18,6 +18,14 @@ export const productsQueryValidator = [
         }
         return true;
     }),
+    body('variables.input.brands').optional({ checkFalsy: true }).isArray({ min: 0 }).custom(val => {
+        for (let item of val) {
+            if (!item) {
+                return false;
+            }
+        }
+        return true;
+    }),
 
 
 ]
