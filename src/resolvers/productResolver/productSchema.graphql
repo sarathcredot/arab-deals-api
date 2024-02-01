@@ -328,6 +328,7 @@ type Query {
 
     type Variant {
         _id: String!
+        productId: String
         attributeId: String
         attributeName: String
         attributeValueId: String

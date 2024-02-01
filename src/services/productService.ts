@@ -797,7 +797,8 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
         },
         {
             $project: {
-                _id: 1,
+                _id:0,
+                productId: '$_id',
                 attributeId: '$attribute._id',
                 attributeName: '$attribute.name',
                 attributeDescription: {
@@ -950,7 +951,7 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
                     {
                         $project: {
                             productName: 1,
-                            _id: 1,
+                            _id: 0,
                             images: 1,
                             attributes: 1,
                             stock: 1,
