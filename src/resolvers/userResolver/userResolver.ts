@@ -127,30 +127,40 @@ export const userResolver: Resolvers = {
 
       const result = await otpVerification.save();
 
-      const user = await userService.createUser({ mobileNumber: result?.metadata?.mobileNumber });
-      if (!user) {
-        throw new GraphQLError('User Db creation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
+      let token = "";
+
+      const existingUser = await userService.findUserWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, { lean: true })
+
+      if (!existingUser) {
+        const user = await userService.createUser({ mobileNumber: result?.metadata?.mobileNumber });
+        if (!user) {
+          throw new GraphQLError('User Db creation failed', {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+        }
+
+        token = await jwtService.createUserJWT(user._id!.toString());
+
+        if (!token) {
+          throw new GraphQLError('Token generation failed', {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+        }
+
+        user.token = token;
+
+        // Save the user object
+        await user.save();
+
+      } else {
+        token = await jwtService.createUserJWT(existingUser._id!.toString());
       }
-
-      const token = await jwtService.createUserJWT(user._id!.toString());
-
-      if (!token) {
-        throw new GraphQLError('Token generation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-      user.token = token;
-
-      await user.save();
 
       const response = {
         message: "OTP verified",
@@ -158,6 +168,7 @@ export const userResolver: Resolvers = {
       }
       return response;
     },
+
 
     // Edit vendor profile
     updateUserProfile: async (parent, { input }, { req }, info) => {
@@ -209,9 +220,9 @@ export const userResolver: Resolvers = {
           user.isBlocked = input.isBlocked;
         }
 
-        if (input.password) {
-          await user.setHash!(input.password);
-        }
+        // if (input.password) {
+        //   await user.setHash!(input.password);
+        // }
 
         await user.save();
 

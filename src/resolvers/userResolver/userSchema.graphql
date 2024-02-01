@@ -44,7 +44,7 @@ input updateUserProfileInput {
   address: String
   countryCode: String
   mobileNumber: String
-  password: String
+  # password: String
   isBlocked: Boolean
 }
 

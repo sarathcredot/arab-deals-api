@@ -11,7 +11,7 @@ export interface IUser {
   address?: string;
   countryCode?: string;
   mobileNumber?: string;
-  hash?: string;
+  // hash?: string;
   isBlocked?: boolean;
   token?: string;
 }
@@ -25,11 +25,11 @@ export interface IUserDocument extends Document {
   address?: string;
   countryCode?: string;
   mobileNumber?: string;
-  hash?: string;
+  // hash?: string;
   isBlocked?: boolean;
   token?: string;
-  verifyHash?(password: string): Promise<boolean>;
-  setHash?(password: string): Promise<void>;
+  // verifyHash?(password: string): Promise<boolean>;
+  // setHash?(password: string): Promise<void>;
 }
 
 export interface IGeneralResponse {
@@ -76,11 +76,11 @@ export const createUser = async (userData: IUser): Promise<IUserDocument | null>
   return await user.save();
 };
 
-export const createUserWithPassword = async (userData: IUser,  password: string): Promise<IUserDocument | null> => {
-  let user: IUserDocument = new userModel(userData);
-  await user.setHash!(password);
-  return await user.save();
-};
+// export const createUserWithPassword = async (userData: IUser,  password: string): Promise<IUserDocument | null> => {
+//   let user: IUserDocument = new userModel(userData);
+//   await user.setHash!(password);
+//   return await user.save();
+// };
 
 export const findOneAndUpdateUser = async (filters: FilterQuery<IUser>, update: UpdateQuery<IUser>, options: QueryOptions): Promise<IGeneralResponse | null> => {
   return await userModel.findOneAndUpdate(filters, update, options);
