@@ -63,6 +63,7 @@ type userLoginOtpResponse {
   mobileNumber:String!
   }
 type userVerifyOtpResponse {
+  userId: String
   token: String
   message:String
   }

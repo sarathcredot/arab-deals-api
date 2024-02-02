@@ -128,6 +128,7 @@ export const userResolver: Resolvers = {
       const result = await otpVerification.save();
 
       let token = "";
+      let userId;
 
       const existingUser = await userService.findUserWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, { lean: true })
 
@@ -154,15 +155,18 @@ export const userResolver: Resolvers = {
         }
 
         user.token = token;
+        userId = user._id;
 
         // Save the user object
         await user.save();
 
       } else {
         token = await jwtService.createUserJWT(existingUser._id!.toString());
+        userId = existingUser._id;
       }
 
       const response = {
+        userId: userId?.toString(),
         message: "OTP verified",
         token: token
       }
