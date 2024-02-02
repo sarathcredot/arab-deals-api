@@ -14,6 +14,11 @@ export interface IUser {
   // hash?: string;
   isBlocked?: boolean;
   token?: string;
+  houseNumber?: string;
+  streetName?: string;
+  city?: string;
+  pincode?: string;
+  country?: string;
 }
 
 export interface IUserDocument extends Document {
@@ -30,6 +35,11 @@ export interface IUserDocument extends Document {
   token?: string;
   // verifyHash?(password: string): Promise<boolean>;
   // setHash?(password: string): Promise<void>;
+  houseNumber?: string;
+  streetName?: string;
+  city?: string;
+  pincode?: string;
+  country?: string;
 }
 
 export interface IGeneralResponse {
@@ -50,14 +60,19 @@ export interface IUsersResponse {
 
 export interface IUsersProjection {
   _id?: 1,
-  email:1,
-  firstName:1,
-  lastName:1,
-  displayName:1,
-  address:1,
-  countryCode:1,
-  mobileNumber:1,
-  isBlocked:1,
+  email: 1,
+  firstName: 1,
+  lastName: 1,
+  displayName: 1,
+  address: 1,
+  countryCode: 1,
+  mobileNumber: 1,
+  isBlocked: 1,
+  houseNumber: 1,
+  streetName: 1,
+  city: 1,
+  pincode: 1,
+  country: 1,
 }
 
 
@@ -129,7 +144,7 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
           },
           {
             $project: {
-              _id:1,
+              _id: 1,
               email: 1,
               firstName: 1,
               lastName: 1,
@@ -139,6 +154,11 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
               mobileNumber: 1,
               hash: 1,
               isBlocked: 1,
+              houseNumber: 1,
+              streetName: 1,
+              city: 1,
+              pincode: 1,
+              country: 1,
             }
           }
         ]

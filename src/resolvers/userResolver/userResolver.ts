@@ -177,7 +177,7 @@ export const userResolver: Resolvers = {
     // Edit vendor profile
     updateUserProfile: async (parent, { input }, { req }, info) => {
       try {
-        await verifyUser(req);
+        // await verifyUser(req);
         await validateInput(validators.userUpdateProfileValidator, req);
 
         const userId: Types.ObjectId = new Types.ObjectId(input._id);
@@ -224,14 +224,34 @@ export const userResolver: Resolvers = {
           user.isBlocked = input.isBlocked;
         }
 
+        if (input.houseNumber) {
+          user.houseNumber = input.houseNumber;
+        }
+
+        if (input.streetName) {
+          user.streetName = input.streetName;
+        }
+
+        if (input.city) {
+          user.city = input.city;
+        }
+
+        if (input.pincode) {
+          user.pincode = input.pincode;
+        }
+
+        if (input.country) {
+          user.country = input.country;
+        }
+
         // if (input.password) {
         //   await user.setHash!(input.password);
         // }
 
-        await user.save();
+        const result = await user.save();
 
         const response = {
-          _id: user?._id?.toString(),
+          updatedRecord: result.toObject(),
           message: 'Vendor successfully updated',
         };
 
