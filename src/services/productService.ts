@@ -177,6 +177,7 @@ export interface IProductsOptions {
     categories?: string[],
     parentCategory?: string,
     brands?: string[],
+    attributes?: Array<{ id: string, values: string[] }>,
 }
 
 export interface IProductsByVendorOptions {
@@ -276,7 +277,16 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
     let sort: { [key: string]: 1 | -1 } = {};
 
 
-
+    if (options?.attributes?.length) {
+        options.attributes.forEach((attribute) => {
+            pipeline.push({
+                $match: {
+                    'attributes.attributeId': new Types.ObjectId(attribute.id),
+                    'attributes.attributeValueId': { $in: attribute.values.map(value => new Types.ObjectId(value)) }
+                }
+            });
+        });
+    }
 
     if (options.query || options.color?.length || options.productSize?.length) {
         let query = options.query || '';

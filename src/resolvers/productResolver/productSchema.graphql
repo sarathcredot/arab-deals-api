@@ -169,6 +169,12 @@ type Query {
         categories:[String]
         parentCategory:String
         brands:[String]
+        attributes: [AttributeInput]
+    }
+
+    input AttributeInput {
+        id: String
+        values: [String]
     }
 
       input ProductsInMobileFilters {
