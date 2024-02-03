@@ -1043,7 +1043,6 @@ export const productResolver: Resolvers = {
         },
 
         async getProducts(parent, { input }, { req }, info) {
-
             try {
 
                 //Validate Input
@@ -1061,6 +1060,17 @@ export const productResolver: Resolvers = {
                 const categories: string[] = (input?.categories || []).map((item: string | null) => {
                     return item ? new Types.ObjectId(item).toString() : '';
                 }).filter((item) => item ? true : false);
+
+                const brands: string[] = (input?.brands || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+
+                const attributes: Array<{ id: string, values: string[] }> = (input?.attributes || []).map((attribute) => {
+                    return {
+                        id: attribute?.id ? new Types.ObjectId(attribute.id).toString() : '',
+                        values: (attribute?.values || []).filter((value): value is string => value !== null && value !== undefined),
+                    };
+                }).filter((attribute) => attribute.id && attribute.values.length > 0);
 
 
                 let projection: productService.IProductsProjection = { _id: 1 };
@@ -1103,7 +1113,9 @@ export const productResolver: Resolvers = {
                     query,
                     projection,
                     parentCategory,
-                    categories
+                    categories,
+                    brands,
+                    attributes
                 }
 
                 const result = await productService.getProductsWithFilters(options);

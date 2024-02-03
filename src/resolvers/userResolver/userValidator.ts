@@ -31,7 +31,7 @@ export const userUpdateProfileValidator = [
   body('variables.input.countryCode').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.mobileNumber').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
-  body('variables.input.password').optional({ checkFalsy: true }).isLength({ min: 6 }),
+  // body('variables.input.password').optional({ checkFalsy: true }).isLength({ min: 6 }),
 ];
 
 

@@ -18,9 +18,24 @@ export const productsQueryValidator = [
         }
         return true;
     }),
+    body('variables.input.brands').optional({ checkFalsy: true }).isArray({ min: 0 }).custom(val => {
+        for (let item of val) {
+            if (!item) {
+                return false;
+            }
+        }
+        return true;
+    }),
+    body('variables.input.attributes').optional({ checkFalsy: true }).isArray({ min: 0 }).custom((attributes) => {
+        for (let attribute of attributes) {
+            if (!attribute.id || !attribute.values || !Array.isArray(attribute.values) || attribute.values.length === 0) {
+                return false;
+            }
+        }
+        return true;
+    }),
+];
 
-
-]
 
 
 export const productQueryValidator = [

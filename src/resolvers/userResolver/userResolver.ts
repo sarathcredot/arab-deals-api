@@ -127,42 +127,57 @@ export const userResolver: Resolvers = {
 
       const result = await otpVerification.save();
 
-      const user = await userService.createUser({ mobileNumber: result?.metadata?.mobileNumber });
-      if (!user) {
-        throw new GraphQLError('User Db creation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
+      let token = "";
+      let userId;
+
+      const existingUser = await userService.findUserWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, { lean: true })
+
+      if (!existingUser) {
+        const user = await userService.createUser({ mobileNumber: result?.metadata?.mobileNumber });
+        if (!user) {
+          throw new GraphQLError('User Db creation failed', {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+        }
+
+        token = await jwtService.createUserJWT(user._id!.toString());
+
+        if (!token) {
+          throw new GraphQLError('Token generation failed', {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+        }
+
+        user.token = token;
+        userId = user._id;
+
+        // Save the user object
+        await user.save();
+
+      } else {
+        token = await jwtService.createUserJWT(existingUser._id!.toString());
+        userId = existingUser._id;
       }
-
-      const token = await jwtService.createUserJWT(user._id!.toString());
-
-      if (!token) {
-        throw new GraphQLError('Token generation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-      user.token = token;
-
-      await user.save();
 
       const response = {
+        userId: userId?.toString(),
         message: "OTP verified",
         token: token
       }
       return response;
     },
 
+
     // Edit vendor profile
     updateUserProfile: async (parent, { input }, { req }, info) => {
       try {
-        await verifyUser(req);
+        // await verifyUser(req);
         await validateInput(validators.userUpdateProfileValidator, req);
 
         const userId: Types.ObjectId = new Types.ObjectId(input._id);
@@ -209,14 +224,34 @@ export const userResolver: Resolvers = {
           user.isBlocked = input.isBlocked;
         }
 
-        if (input.password) {
-          await user.setHash!(input.password);
+        if (input.houseNumber) {
+          user.houseNumber = input.houseNumber;
         }
 
-        await user.save();
+        if (input.streetName) {
+          user.streetName = input.streetName;
+        }
+
+        if (input.city) {
+          user.city = input.city;
+        }
+
+        if (input.pincode) {
+          user.pincode = input.pincode;
+        }
+
+        if (input.country) {
+          user.country = input.country;
+        }
+
+        // if (input.password) {
+        //   await user.setHash!(input.password);
+        // }
+
+        const result = await user.save();
 
         const response = {
-          _id: user?._id?.toString(),
+          updatedRecord: result.toObject(),
           message: 'Vendor successfully updated',
         };
 

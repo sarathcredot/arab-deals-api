@@ -44,8 +44,13 @@ input updateUserProfileInput {
   address: String
   countryCode: String
   mobileNumber: String
-  password: String
+  # password: String
   isBlocked: Boolean
+  houseNumber: String
+  streetName: String
+  city: String
+  pincode: String
+  country: String
 }
 
 input userInput{
@@ -63,6 +68,7 @@ type userLoginOtpResponse {
   mobileNumber:String!
   }
 type userVerifyOtpResponse {
+  userId: String
   token: String
   message:String
   }
@@ -81,9 +87,14 @@ type user{
   address: String
   countryCode: String
   mobileNumber: String
-  hash: String
+  # hash: String
   isBlocked: Boolean
   token: String
+  houseNumber: String
+  streetName: String
+  city: String
+  pincode: String
+  country: String
 }
 
 type usersResponse {
@@ -92,7 +103,7 @@ type usersResponse {
 }
 
 type updateUserProfileResponse {
-   _id: String
+   updatedRecord: user
    message: String
 }
 
