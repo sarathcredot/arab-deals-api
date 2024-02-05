@@ -313,12 +313,9 @@ export const userResolver: Resolvers = {
             },
           });
         }
-        const response = {
-          record: {
-            ...result,
-            _id: result?._id?.toString()
 
-          },
+        const response = {
+          record: result.toObject(),
           message: "User fetched succesfully"
         }
 
