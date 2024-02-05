@@ -149,6 +149,7 @@ type Query {
     getRelatedProducts(input: RelatedProductsFilters!):RelatedProductsResponse!
     getVariantsTableByAdmin(input:ProductVariantsByAdminFilter!) : VariantsTableByAdminResponse!
     getVariantsTableByVendor(input:ProductVariantsByVendorFilter!) : VariantsTableByVendorResponse!
+    getProductsMaxPrice(input:categoriesInput!) : getProductsMaxPriceResponse!
 
  # MOBILE SIDE APIS
     getProductsInMobile(input:ProductsInMobileFilters):ProductsInMobileResponse!
@@ -250,6 +251,10 @@ type Query {
         page: Int
         size: Int
   }
+
+    input categoriesInput {
+      categories:[String]
+    }
 
 
     # Output
@@ -413,6 +418,11 @@ type Query {
        maxRecords: Int!
        records: [VariantsByAdmin]
        message: String
+    }
+
+    type getProductsMaxPriceResponse {
+        maxPrice: Int
+        message: String
     }
 
     
