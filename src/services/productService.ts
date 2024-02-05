@@ -180,6 +180,10 @@ export interface IProductsOptions {
     attributes?: Array<{ id: string, values: string[] }>,
 }
 
+export interface IProductsPriceRangeOptions {
+    categories?: string[]
+}
+
 export interface IProductsByVendorOptions {
     vendorId: Types.ObjectId,
     page: number,
@@ -434,6 +438,50 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
     }
 
     return response;
+}
+
+export const getProductsMaxPriceRangeWithCategories = async (options: IProductsPriceRangeOptions): Promise<any> => {
+    let pipeline: PipelineStage[] = [];
+    let sort: { [key: string]: 1 | -1 } = {};
+
+    if (options.categories?.length) {
+        const regexExpressions = options.categories.map((item) => ({
+            categoryIdPath: { $regex: new RegExp(`${item}`) }
+        }));
+        pipeline.push({
+            $match: {
+                $or: regexExpressions
+            }
+        });
+    }
+
+    // Add a new stage to group all products and get the max sellingPrice
+    pipeline.push(
+        {
+            $group: {
+                _id: null,
+                maxSellingPrice: { $max: "$sellingPrice" }
+            }
+        }
+    );
+
+    sort["_id"] = -1;
+
+    pipeline.push(
+        {
+            $sort: sort
+        },
+        {
+            $project: {
+                _id: 0,
+                maxSellingPrice: 1
+            }
+        }
+    );
+
+    const result = await productModel.aggregate(pipeline);
+
+    return result[0] ? result[0].maxSellingPrice : null;
 }
 
 export const getProductsByAdminWithFilters = async (options: IProductsOptions): Promise<any> => {
@@ -819,7 +867,7 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
         },
         {
             $project: {
-                _id:0,
+                _id: 0,
                 productId: '$_id',
                 attributeId: '$attribute._id',
                 attributeName: '$attribute.name',

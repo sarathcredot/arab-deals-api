@@ -1469,6 +1469,37 @@ export const productResolver: Resolvers = {
             }
         },
 
+        // Fetch max price
+        async getProductsMaxPrice(parent, { input }, { req }, info) {
+            try {
+    
+                //Validate Input
+                await validateInput(validators.productsQueryValidator, req);
+    
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item: any) => item ? true : false);
+    
+    
+    
+                const options: productService.IProductsPriceRangeOptions = {
+                    categories,
+                }
+    
+                const result = await productService.getProductsMaxPriceRangeWithCategories(options);
+    
+                const response = {
+                    maxPrice: result,
+                    message: "Products max price fetched successfully"
+                }
+                return response;
+            } catch (error) {
+                throw error;
+            }
+    
+        },
+
     },
+
 
 }
