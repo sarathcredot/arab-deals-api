@@ -12,6 +12,7 @@
 type Query{
   getUsersByAdmin(input:userFilters):usersResponse!
   getUserRecordByAdmin(input:userInput!):userResponse!
+  getUserRecord(input:userInput!):userResponse!
 }
 
 # user auth Input
