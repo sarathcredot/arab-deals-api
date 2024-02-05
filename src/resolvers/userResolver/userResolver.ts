@@ -300,6 +300,38 @@ export const userResolver: Resolvers = {
     async getUserRecordByAdmin(parent, { input }, { req }, info) {
 
       try {
+        await verifyAdmin(req);
+        await validateInput(validators.userQueryValidator, req);
+
+        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+        const result = await userService.findUserWithFilters({ _id }, {}, {});
+        if (!result) {
+          throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+            extensions: {
+              code: "",
+              errors: [],
+            },
+          });
+        }
+
+        const response = {
+          record: result.toObject(),
+          message: "User fetched succesfully"
+        }
+
+        return response;
+
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+
+    },
+    async getUserRecord(parent, { input }, { req }, info) {
+
+      try {
+        await verifyUser(req);
         await validateInput(validators.userQueryValidator, req);
 
         const _id: Types.ObjectId = new Types.ObjectId(input._id);
