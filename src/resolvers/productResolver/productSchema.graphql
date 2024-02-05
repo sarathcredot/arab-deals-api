@@ -188,6 +188,8 @@ type Query {
         query: String
         categories:[String]
         parentCategory:String
+        brands:[String]
+        attributes: [AttributeInput]
     }
 
     input ProductByVendorFilters {
