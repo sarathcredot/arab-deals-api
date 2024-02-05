@@ -309,7 +309,7 @@ export const categoryResolver: Resolvers = {
         getActiveCategoryTree: async (parent, { }, { req }, info) => {
             try {
 
-                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1 }, { lean: true, sort: { path: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1 , categoryImage: 1}, { lean: true, sort: { path: 1 } });
 
                 if (!result || result.length == 0) {
                     throw new GraphQLError("Records not found", {
@@ -364,7 +364,7 @@ export const categoryResolver: Resolvers = {
         getActiveCategoryTreeInMobile: async (parent, { }, { req }, info) => {
             try {
 
-                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1 }, { lean: true, sort: { path: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1, categoryImage:1 }, { lean: true, sort: { path: 1 } });
 
                 if (!result || result.length == 0) {
                     throw new GraphQLError("Records not found", {

@@ -134,6 +134,7 @@
     type CategoryNode{
       categoryName:String
       _id: String
+      categoryImage: ImageData
       children: [CategoryNode]
     }
 
