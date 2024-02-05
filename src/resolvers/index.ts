@@ -11,6 +11,7 @@ import { vendorOutletResolver } from "./vendorOutletResolver/vendorOutletResolve
 import { attributeResolver } from "./attributeResolver/attributeResolver";
 import { attributeValueResolver } from "./attributeValueResolver/attributeValueResolver";
 import { userResolver } from "./userResolver/userResolver";
+import { cartResolver } from "./cartResolver/cartResolver";
 
 
 export const resolvers: Resolvers = mergeResolvers(
@@ -26,5 +27,6 @@ export const resolvers: Resolvers = mergeResolvers(
         attributeResolver,
         attributeValueResolver,
         userResolver,
+        cartResolver,
     ]
 );

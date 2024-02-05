@@ -10,4 +10,5 @@ export const collections = {
     ATTRIBUTES: "attributes",
     ATTRIBUTE_VALUES: "attribute_values",
     USERS:"users",
+    CARTS:"carts",
 }

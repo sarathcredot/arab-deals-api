@@ -1,0 +1,81 @@
+# cart Mutations
+
+ type Mutation {
+  addToCart(input: addToCartInput!): addToCartResponse!
+  removeFromCart(input: removeFromCartInput!):removeFromCartResponse!
+  updateCartQuantity(input: updateCartQuantityInput!):updateCartQuantityResponse!
+  
+}
+
+# cart query
+ type Query{
+  getCart:getCartResponse!
+ }
+
+# cart Input
+
+input addToCartInput {
+    productId:String!
+    quantity:Int!
+}
+input removeFromCartInput {
+    productId:String!
+}
+input updateCartQuantityInput {
+    productId:String!
+    quantity:Int!
+}
+
+# cart Output
+
+type addToCartResponse{
+  message:String
+}
+type removeFromCartResponse{
+  message:String
+}
+type updateCartQuantityResponse{
+  message:String
+}
+
+type cartProduct{
+    _id:String
+    productId:String
+    quantity:Int
+    name: String
+    stock: Int
+    attributes: [ProductAttribute]
+    price: Int
+    image:[ProductImage]
+}
+
+type getCartResponse{
+    products:[cartProduct]
+    grandTotal:Int
+    subTotal:Int
+    deliveryCharge:Int
+}
+
+ type ProductAttribute {
+    attributeId: String
+    attributeName: String
+    attributeValueId: String
+    attributeValue: String
+    attributeDescription: String
+}
+
+  type ProductImage {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+}
+
+
+# Schema
+
+schema {
+mutation: Mutation,
+}
+
+

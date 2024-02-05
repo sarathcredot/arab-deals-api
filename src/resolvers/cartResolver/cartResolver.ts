@@ -1,0 +1,275 @@
+import { jwtService, productService, cartService } from "../../services";
+import { Resolvers } from "../../_generated_/resolvers-types";
+import { GraphQLUpload } from "graphql-upload-ts";
+import * as validators from "./cartValidator";
+import { GraphQLError } from "graphql";
+import { validateInput, verifyUser } from "../../middlewares";
+import { Types } from "mongoose";
+
+export const cartResolver: Resolvers = {
+    Upload: GraphQLUpload,
+
+    Mutation: {
+        addToCart: async (parent, { input }, { req }, info) => {
+
+            try {
+                await verifyUser(req);
+                await validateInput(validators.addToCartValidator, req);
+                const quantity: number = input.quantity;
+                const userId: string = req.authAccount._id;
+                const productId: Types.ObjectId = new Types.ObjectId(input.productId);
+
+                const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
+
+                if (!product) {
+                    throw new GraphQLError("Product not found", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+                if (product.isBlocked) {
+                    throw new GraphQLError("Product is blocked", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+                if (product.stock !== undefined && product.stock < quantity) {
+                    throw new GraphQLError("No enough stock", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+
+                const cart = await cartService.checkCartExist(userId)
+                if (cart) {
+                    const itemExist = await cartService.checkItemExists(productId);
+                    if (itemExist) {
+                        try {
+                            await cartService.editQuantityOfItem(productId, userId, quantity);
+
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    } else {
+                        try {
+                            await cartService.addItem(productId, userId, quantity);
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+                } else {
+                    try {
+                        await cartService.createCart(input.productId, userId, quantity);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+                const response = {
+                    message: "Items added to cart",
+
+                }
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+
+        },
+
+        removeFromCart: async (parent, { input }, { req }, info) => {
+
+            try {
+                await verifyUser(req);
+                await validateInput(validators.removeFromCartValidator, req);
+                const userId: string = req.authAccount._id;
+                const productId: Types.ObjectId = new Types.ObjectId(input.productId);
+
+                const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
+
+                if (!product) {
+                    throw new GraphQLError("Product not found", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+                if (product.isBlocked) {
+                    throw new GraphQLError("Product is blocked", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+                const cart = await cartService.checkCartExist(userId)
+                if (cart) {
+                    const itemExist = await cartService.checkItemExists(productId);
+                    if (itemExist) {
+                        try {
+                            await cartService.removeItem(productId, userId);
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+                    else {
+                        throw new GraphQLError("Product does not exist in cart", {
+                            extensions: {
+                                code: "INTERNAL_SERVER_ERROR",
+                                errors: []
+                            }
+                        });
+                    }
+                } else {
+                    throw new GraphQLError("Cart does not exist", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+
+                const response = {
+                    message: "Items removed from cart",
+
+                }
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+
+        },
+
+        updateCartQuantity: async (parent, { input }, { req }, info) => {
+            try {
+                await verifyUser(req);
+                await validateInput(validators.removeFromCartValidator, req);
+                const userId: string = req.authAccount._id;
+                const productId: Types.ObjectId = new Types.ObjectId(input.productId);
+                const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
+
+                if (!product) {
+                    throw new GraphQLError("Product not found", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+                if (product.isBlocked) {
+                    throw new GraphQLError("Product is blocked", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+
+                if (product.stock !== undefined && product.stock < input.quantity) {
+                    throw new GraphQLError("No enough stock", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+                const cart = await cartService.checkCartExist(userId)
+                if (cart) {
+                    const itemExist = await cartService.checkItemExists(productId);
+                    if (itemExist) {
+                        try {
+                            await cartService.updateQuantity(productId, userId, input.quantity);
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+                    else {
+                        throw new GraphQLError("Product does not exist in cart", {
+                            extensions: {
+                                code: "INTERNAL_SERVER_ERROR",
+                                errors: []
+                            }
+                        });
+                    }
+                } else {
+                    throw new GraphQLError("Cart does not exist", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: []
+                        }
+                    });
+                }
+                const response = {
+                    message: "Quantity updated",
+
+                }
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        }
+    },
+
+    Query: {
+        getCart: async (parent, { }, { req }, info) => {
+            try {
+                await verifyUser(req);
+                const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
+                const cart = await cartService.getCart(userId)
+                const user_Id = userId.toString()
+
+                let subTotal = 0;
+                let grandTotal = 0;
+                // let discount = 0;
+                let deliveryCharge = 0;
+                let validList = [];
+                let updateList = [];
+
+                if (cart && cart.length) {
+                    for (let product of cart) {
+                        if (!product ||
+                            !product.name ||
+                            product.isBlocked ||
+                            product.stock <= 0) {
+                            updateList.push(cartService.removeItem(product.productId, user_Id,));
+                            continue;
+                        }
+                        if (product.quantity > product.stock) {
+                            product.quantity = product.stock;
+                            updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
+                        }
+                        subTotal += product.quantity * product.price;
+                        delete product.isBlocked;
+                        validList.push(product);
+                    }
+
+                    await Promise.all(updateList);
+                }
+                grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2))
+
+
+
+                const response = {
+                    products: validList,
+                    grandTotal,
+                    deliveryCharge,
+                    subTotal
+                }
+                return response
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+
+        }
+    }
+};
+

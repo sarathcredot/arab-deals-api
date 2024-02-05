@@ -9,6 +9,7 @@ import { brandModel } from "./brandModel";
 import { attributeModel } from "./attributeModel";
 import { attributeValueModel } from "./attributeValueModel";
 import { userModel } from "./userModel";
+import { cartModel } from "./cartModel";
 
 
 
@@ -27,4 +28,5 @@ export {
     attributeModel,
     attributeValueModel,
     userModel,
+    cartModel,
 }
