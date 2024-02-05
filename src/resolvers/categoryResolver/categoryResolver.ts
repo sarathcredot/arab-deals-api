@@ -25,7 +25,7 @@ export const categoryResolver: Resolvers = {
 
             if (image) {
                 const { createReadStream, filename, mimetype, encoding } = await image;
-                const key = spaceService.getFileKey(filePaths.categorySizeChart, filename, []);
+                const key = spaceService.getFileKey(filePaths.categoryImages, filename, []);
                 const stream = createReadStream();
                 const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
@@ -131,7 +131,7 @@ export const categoryResolver: Resolvers = {
 
                 if (image) {
                     const { createReadStream, filename, mimetype, encoding } = await image;
-                    const key = spaceService.getFileKey(filePaths.categorySizeChart, filename, []);
+                    const key = spaceService.getFileKey(filePaths.categoryImages, filename, []);
                     const stream = createReadStream();
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
