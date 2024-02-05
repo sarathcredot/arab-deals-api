@@ -57,6 +57,13 @@ export interface IBrandRecordsOptions {
     projection: IBrandRecordsProjection
 }
 
+export interface ITopBrandRecordsOptions {
+    page: number,
+    size: number,
+    isBlocked: boolean,
+    projection: IBrandRecordsProjection
+}
+
 export interface IBrandRecordsWithVendorByAdminOptions {
     page: number,
     size: number,
@@ -92,6 +99,11 @@ export interface IBrandRecordsResponse {
     maxRecords: number
 }
 
+export interface IBrandTopRecordsResponse {
+    records: Array<IBrandRecord>,
+    maxRecords: number
+}
+
 export interface IBrandRecordsWithVendorByAdminResponse {
     records: Array<IBrandRecord>,
     maxRecords: number
@@ -121,6 +133,126 @@ export const getBrandsWithFilter = async (filters = {}, projection: string = "",
 }
 
 export const getBrandRecordsWithFilters = async (options: IBrandRecordsOptions): Promise<IBrandRecordsResponse> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                isBlocked: options.isBlocked
+            }
+        },
+        {
+            $sort: {
+                priority: -1,
+            }
+        },
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: options.projection
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result = await brandModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
+export const getTopBrandRecordsWithFilters = async (options: ITopBrandRecordsOptions): Promise<IBrandRecordsResponse> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                isBlocked: options.isBlocked
+            }
+        },
+        {
+            $sort: {
+                priority: -1,
+            }
+        },
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: options.projection
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result = await brandModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
+export const getTopBrandRecordsInMobileWithFilters = async (options: ITopBrandRecordsOptions): Promise<IBrandRecordsResponse> => {
 
 
     let pipeline: PipelineStage[] = [];

@@ -232,6 +232,121 @@ export const brandResolver: Resolvers = {
             }
         },
 
+        // Fetch all top brands
+        async getAllTopBrandRecords(parent, { input }, { req }, info) {
+            try {
+                // Validate Input
+                await validateInput(validators.getAllBrandsValidator, req);
+
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+                const isBlocked: boolean = input?.isBlocked || false;
+
+                let projection: brandService.IBrandRecordsProjection = { _id: 1 };
+
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "records") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["logo"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof brandService.IBrandRecordsProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof brandService.IBrandRecordsProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                const options: brandService.IBrandRecordsOptions = {
+                    page,
+                    size,
+                    isBlocked,
+                    projection,
+                }
+
+                const result = await brandService.getTopBrandRecordsWithFilters(options);
+                const response = {
+                    records: result.records,
+                    maxRecords: result.maxRecords,
+                    message: "Brands fetched successfully",
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async getAllTopBrandRecordsInMobile(parent, { input }, { req }, info) {
+            try {
+                // Validate Input
+                await validateInput(validators.getAllBrandsValidator, req);
+
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+                const isBlocked: boolean = input?.isBlocked || false;
+
+                let projection: brandService.IBrandRecordsProjection = { _id: 1 };
+
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "records") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["logo"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof brandService.IBrandRecordsProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof brandService.IBrandRecordsProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                const options: brandService.IBrandRecordsOptions = {
+                    page,
+                    size,
+                    isBlocked,
+                    projection,
+                }
+
+                const result = await brandService.getTopBrandRecordsInMobileWithFilters(options);
+                const response = {
+                    records: result.records,
+                    maxRecords: result.maxRecords,
+                    message: "Brands fetched successfully",
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+
         // Fetch all brands by Admin
         async getAllBrandRecordsWithVendorByAdmin(parent, { input }, { req }, info) {
             try {
@@ -421,7 +536,7 @@ export const brandResolver: Resolvers = {
                 }
 
                 const response = {
-        
+
                     records: result?.map((n: any) => ({
                         _id: n?._id?.toString(),
                         brandName: n?.brandName,

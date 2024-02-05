@@ -83,6 +83,8 @@
 
   type Query {
     getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
+    getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
+    getAllTopBrandRecordsInMobile(input: BrandRecordsFilter): BrandRecordsResponse!
     getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
     getAllBrandRecordsWithVendorByAdmin(input:  getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
     getAllBrandRecordsWithVendorByVendor(input:  getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
