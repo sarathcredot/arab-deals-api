@@ -1,0 +1,154 @@
+  scalar Upload
+
+
+# Cms Mutations
+
+
+  type Mutation {
+    addCmsSection(input: AddCmsInput!, images:[Upload]): AddCmsResponse!
+    updateCmsRecord(input: UpdateCmsInput!, images:[Upload]): UpdateCmsResponse!
+    deleteCmsRecord(input: CmsRecordId!): DeleteCmsResponse!
+
+  }
+
+
+    # Input
+
+    input AddCmsInput {
+        pageName: String!
+        title: String
+        subTitle: String
+        description: [String]
+        buttons: [ButtonDataInput]
+    }
+
+
+    input ButtonDataInput {
+        buttonText: String!
+        redirectionURL: String!
+    }
+
+    input UpdateCmsInput {
+        _id: String!
+        pageName: String
+        sectionName: String
+        title: String
+        subTitle: String
+        description: [String]
+        buttons: [ButtonDataInput]
+    }
+
+    input CmsRecordId {
+        _id: String!
+    }
+
+
+    # Output
+
+    type AddCmsResponse {
+        _id: String!
+        message: String
+    }
+
+    type UpdateCmsResponse {
+      _id: String!
+      message: String
+    }
+
+    type DeleteCmsResponse {
+    _id: String!
+    message: String
+    }
+
+
+# Cms Queries
+
+ type Query {
+  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
+  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
+  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
+  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
+
+}   
+
+    # Input
+  input cmsRecordByAdminFilter {
+    _id: String!
+  }    
+   
+  input cmsRecordFilter {
+    sectionName: String!
+  }
+
+  input CmsRecordsFilter {
+    _id: String
+    page: Int
+    size: Int
+    pageName: String
+    sectionName: String
+    title: String
+    subTitle: String
+    description: [String]
+    images: [String]
+    buttons: [String]  
+  }
+
+  input CmsRecordsByAdminFilter {
+    _id: String
+    page: Int
+    size: Int
+    pageName: String
+    sectionName: String
+    title: String
+    subTitle: String
+    description: [String]
+    images: [String]
+    buttons: [String]  
+    isBlocked: Boolean
+  }
+
+    # Output
+
+  type ButtonData {
+    buttonText: String
+    redirectionURL: String
+    }
+
+  type CmsImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }  
+
+  type CmsRecord {
+    _id: String
+    pageName: String
+    sectionName: String
+    title: String
+    subTitle: String
+    description: [String]
+    images: [CmsImageData]
+    buttons: [ButtonData]
+    isBlocked: Boolean
+  }  
+  
+  type CmsRecordResponse {
+    record: CmsRecord!
+    message: String
+  }
+
+ type CmsRecordsResponse {
+    maxRecords: Int!
+    records: [CmsRecord!]
+    message: String
+  }   
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query:Query
+}
+
