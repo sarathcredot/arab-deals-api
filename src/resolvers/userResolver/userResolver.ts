@@ -177,6 +177,7 @@ export const userResolver: Resolvers = {
 
     // Edit vendor profile
     updateUserProfile: async (parent, { input }, { req }, info) => {
+
       try {
         // await verifyUser(req);
         await validateInput(validators.userUpdateProfileValidator, req);
@@ -240,7 +241,7 @@ export const userResolver: Resolvers = {
           user.mobileNumber = input.mobileNumber;
         }
 
-        if (input.isBlocked !== null) {
+        if (input.isBlocked !== null && input.isBlocked !== undefined) {
           user.isBlocked = input.isBlocked;
         }
 
