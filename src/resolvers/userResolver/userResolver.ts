@@ -155,6 +155,7 @@ export const userResolver: Resolvers = {
         }
 
         user.token = token;
+        user.isBlocked = false;
         userId = user._id;
 
         // Save the user object
@@ -289,7 +290,7 @@ export const userResolver: Resolvers = {
 
         //Validate Input
         await validateInput(validators.usersQueryValidator, req);
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;

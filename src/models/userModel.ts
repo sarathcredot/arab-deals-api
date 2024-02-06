@@ -44,7 +44,6 @@ const userSchema = new Schema(
     // profilePic: fileSchema,
     isBlocked: {
       type: Boolean,
-      required: true,
       default: false,
     },
     token: {
