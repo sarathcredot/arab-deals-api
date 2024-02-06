@@ -14,11 +14,9 @@ export const cmsResolver: Resolvers = {
 
     Mutation: {
         addCmsSection: async (parent, { input, images }, { req }, info) => {
-
             //Validate Input
             await validateInput(validators.cmsCreateValidator, req);
-            await verifyAdmin(req);
-
+            // await verifyAdmin(req);
 
             images = images || [];
 
@@ -50,9 +48,9 @@ export const cmsResolver: Resolvers = {
             const cmsRecord: cmsService.ICmsRecord = {
                 pageName: input?.pageName || "",
                 sectionName: sectionName,
-                title: input?.title || "",
-                subTitle: input?.subTitle || "",
-                description: (input.description || []).filter(Boolean) as [],
+                // title: input?.title || "",
+                // subTitle: input?.subTitle || "",
+                // description: (input.description || []).filter(Boolean) as [],
                 buttons: (input.buttons || []).filter(Boolean) as [],
                 images: cmsImages || [],
             };
@@ -106,24 +104,25 @@ export const cmsResolver: Resolvers = {
                 let update: cmsService.ICmsRecord = {};
 
 
-                if (input.title) {
-                    update.title = input?.title;
-                }
+                // if (input.title) {
+                //     update.title = input?.title;
+                // }
 
                 if (input.pageName) {
                     update.pageName = input?.pageName;
                 }
 
-                if (input.subTitle) {
-                    update.subTitle = input?.subTitle;
-                }
+                // if (input.subTitle) {
+                //     update.subTitle = input?.subTitle;
+                // }
+
                 if (cmsImages.length > 0) {
                     update.images = cmsImages;
                 }
 
-                if (input.description) {
-                    update.description = (input.description || []).filter(Boolean) as [];
-                }
+                // if (input.description) {
+                //     update.description = (input.description || []).filter(Boolean) as [];
+                // }
 
                 if (input.buttons != null) {
                     update.buttons = (input.buttons || []).filter(Boolean) as [];
@@ -332,9 +331,9 @@ export const cmsResolver: Resolvers = {
             }
         },
 
-           // Fetch each record by id for admin
+        // Fetch each record by id for admin
 
-           async getCmsRecordByAdmin(parent, { input }, { req }, info) {
+        async getCmsRecordByAdmin(parent, { input }, { req }, info) {
 
             try {
 
