@@ -56,15 +56,15 @@ const cmsSchema = new Schema(
             required: true,
             unique: true
         },
-        title: {
-            type: String
-        },
-        subTitle: {
-            type: String
-        },
-        description: {
-            type: [String]
-        },
+        // title: {
+        //     type: String
+        // },
+        // subTitle: {
+        //     type: String
+        // },
+        // description: {
+        //     type: [String]
+        // },
         images: {
             type: [fileSchema],
             deafult: []

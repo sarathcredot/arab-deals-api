@@ -192,21 +192,27 @@ export const userResolver: Resolvers = {
           });
         }
 
-        if(input.email && input.email != null){
-          const email = await userService.findUserWithFilters({ email: input.email }, {}, {});
-          if (email) {
-            throw new GraphQLError('Email is already exist', {
-              extensions: {
-                code: 'BAD_REQUEST',
-                errors: [],
-              },
-            });
-          }
-        }
-
-
         if (input.email) {
-          user.email = input.email.toLowerCase();
+          const trimmedEmail = input.email.trim().toLowerCase();
+
+          if (user.email !== trimmedEmail) {
+            const isEmailExists = await adminService.findAdminWithFilters(
+              { email: trimmedEmail },
+              { _id: 1, email: 1 },
+              { lean: true }
+            );
+
+            if (isEmailExists) {
+              throw new GraphQLError('User with this email already exists', {
+                extensions: {
+                  code: 'BAD_REQUEST',
+                  errors: [],
+                },
+              });
+            }
+
+            user.email = trimmedEmail;
+          }
         }
 
         if (input.firstName) {
