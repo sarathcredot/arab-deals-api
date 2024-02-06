@@ -10,6 +10,7 @@ import { attributeModel } from "./attributeModel";
 import { attributeValueModel } from "./attributeValueModel";
 import { userModel } from "./userModel";
 import { cartModel } from "./cartModel";
+import { cmsModel } from "./cmsModel";
 
 
 
@@ -29,4 +30,5 @@ export {
     attributeValueModel,
     userModel,
     cartModel,
+    cmsModel,
 }

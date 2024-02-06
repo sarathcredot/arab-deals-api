@@ -13,6 +13,7 @@ import * as attributeService from "./attributeService";
 import * as attributeValueService from "./attributeValueService";
 import * as userService from "./userService";
 import * as cartService from "./cartService";
+import * as cmsService from "./cmsService";
 
 
 export {
@@ -31,4 +32,5 @@ export {
     attributeValueService,
     userService,
     cartService,
+    cmsService,
 }
