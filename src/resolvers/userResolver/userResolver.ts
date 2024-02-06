@@ -184,13 +184,26 @@ export const userResolver: Resolvers = {
 
         const user = await userService.findUserWithFilters({ _id: userId }, {}, {});
         if (!user) {
-          throw new GraphQLError('Vendor not found', {
+          throw new GraphQLError('User not found', {
             extensions: {
               code: 'BAD_REQUEST',
               errors: [],
             },
           });
         }
+
+        if(input.email && input.email != null){
+          const email = await userService.findUserWithFilters({ email: input.email }, {}, {});
+          if (email) {
+            throw new GraphQLError('Email is already exist', {
+              extensions: {
+                code: 'BAD_REQUEST',
+                errors: [],
+              },
+            });
+          }
+        }
+
 
         if (input.email) {
           user.email = input.email.toLowerCase();

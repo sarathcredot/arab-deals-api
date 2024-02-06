@@ -8,7 +8,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       trim: true,
-      unique: true,
+      // unique: true,
       // required: true,
       lowercase: true,
     },
@@ -77,23 +77,6 @@ const userSchema = new Schema(
   }
 )
 
-userSchema.index({ mobileNumber: "text" });
-
-userSchema.methods.setHash = async function (password: string): Promise<void> {
-  try {
-    this.hash = await argon2.hash(password);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-}
-
-userSchema.methods.verifyHash = async function (password: string): Promise<boolean> {
-  try {
-    return await argon2.verify(this.hash, password);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-}
 
 const userModel = model(collections.USERS, userSchema);
 
