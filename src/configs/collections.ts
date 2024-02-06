@@ -12,4 +12,6 @@ export const collections = {
     USERS:"users",
     CARTS:"carts",
     CMS:"cms",
+    WISHLISTS: "wishlists",
+    USER_SHIPPING_ADDRESS: "user_shipping_address",
 }

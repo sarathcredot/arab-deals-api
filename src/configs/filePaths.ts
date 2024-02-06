@@ -6,5 +6,5 @@ export const filePaths = {
     brand: "public/brand",
     vendorCompany: "public/kyc/vendorCompany",
     vendorOutlet: "public/kyc/vendorOutlet",
-    cms: "public/cmsImages",
+    cms: "public/cms",
 }

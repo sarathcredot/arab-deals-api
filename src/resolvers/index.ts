@@ -13,6 +13,8 @@ import { attributeValueResolver } from "./attributeValueResolver/attributeValueR
 import { userResolver } from "./userResolver/userResolver";
 import { cartResolver } from "./cartResolver/cartResolver";
 import { cmsResolver } from "./cmsResolver/cmsResolver";
+import { wishListResolver } from "./wishListResolver/wishListResolver";
+import { userShippingAddressResolver } from "./userShipingAddressResolver/userShippingAddressResolver";
 
 
 export const resolvers: Resolvers = mergeResolvers(
@@ -30,5 +32,7 @@ export const resolvers: Resolvers = mergeResolvers(
         userResolver,
         cartResolver,
         cmsResolver,
+        wishListResolver,
+        userShippingAddressResolver,
     ]
 );

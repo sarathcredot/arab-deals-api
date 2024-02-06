@@ -1,0 +1,41 @@
+# wishList Mutations
+
+ type Mutation {
+  addToWishList(input: addToWishListtInput!): addToWishListResponse!
+  removeFromWishList(input: removeFromWishListInput!):removeFromWishListResponse!
+  }
+
+  type Query{
+    getWishList:getWishListResponse
+  }
+
+
+# wishList Input
+
+input addToWishListtInput {
+    productId:String!
+}
+input removeFromWishListInput {
+    productId:String!
+}
+
+# wishList Output
+
+type addToWishListResponse{
+  message:String
+}
+type removeFromWishListResponse{
+  message:String
+}
+type getWishListResponse{
+  products:[String]
+}
+
+
+# Schema
+
+schema {
+mutation: Mutation,
+}
+
+

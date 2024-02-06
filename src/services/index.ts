@@ -14,6 +14,8 @@ import * as attributeValueService from "./attributeValueService";
 import * as userService from "./userService";
 import * as cartService from "./cartService";
 import * as cmsService from "./cmsService";
+import * as wishListService from "./wishListService";
+import * as  userShippingAddressService from "./userShippingAddressService";
 
 
 export {
@@ -33,4 +35,6 @@ export {
     userService,
     cartService,
     cmsService,
+    wishListService,
+    userShippingAddressService
 }

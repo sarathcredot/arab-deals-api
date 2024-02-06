@@ -11,10 +11,8 @@ import { attributeValueModel } from "./attributeValueModel";
 import { userModel } from "./userModel";
 import { cartModel } from "./cartModel";
 import { cmsModel } from "./cmsModel";
-
-
-
-
+import { wishListModel } from "./wishlistModel";
+import { userShippingAddressModel } from "./userShippingAddressModel";
 
 
 export {
@@ -31,4 +29,6 @@ export {
     userModel,
     cartModel,
     cmsModel,
+    wishListModel,
+    userShippingAddressModel,
 }

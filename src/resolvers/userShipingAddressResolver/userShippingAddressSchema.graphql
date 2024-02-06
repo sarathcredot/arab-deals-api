@@ -1,0 +1,128 @@
+scalar Upload
+scalar ObjectId
+
+
+# User Shipping Address  Mutations
+
+type Mutation {
+    createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
+    editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
+}
+
+
+# Shipping Address Input
+
+input UserCreateShippingAddressInput {
+    firstname: String!
+    email: String
+    mobile: String!
+    streetName: String!
+    city: String!
+    houseNumber: String!
+    country: String
+    postCode: String!
+    landmark: String
+    apartment: String
+    suite: String
+    unit: String
+    companyName: String
+    vatNumber: String
+}
+
+# Shipping Address Edit Input
+
+input UserEditShippingAddressInput {
+    _id: ObjectId!
+    firstname: String
+    email: String
+    mobile: String
+    streetName: String
+    city: String
+    apartment: String
+    suite: String
+    unit: String
+    postCode: String
+    houseNumber: String
+    country: String
+    companyName: String
+    vatNumber: String
+}
+
+# Shipping Address Create Output
+
+type UserCreateShippingAddressResponse {
+    _id: ObjectId!
+}
+
+# Shipping Address Edit Output
+
+type UserEditShippingAddressResponse {
+    _id: ObjectId!
+}
+
+
+
+
+
+# User Shipping Address  Queries
+
+type Query {
+    getUserShippingAddresses: GetUserShippingAddressesResponse!
+    getUserShippingAddress(input:GetUserShippingAddressInput!): GetUserShippingAddressResponse!
+    getUserDefaultShippingAddress: GetUserShippingAddressResponse!
+
+}
+
+
+input GetUserShippingAddressInput {
+    _id: ObjectId!  
+}
+
+type UserShippingAddress {
+    _id: ObjectId 
+    firstname: String
+    email: String
+    mobile: String
+    streetName: String
+    city: String
+    apartment: String
+    suite: String
+    unit: String
+    postCode: String
+    houseNumber: String
+    country: String
+    companyName: String
+    vatNumber: String
+}
+
+type GetUserShippingAddressesResponse {
+    address:[UserShippingAddress]
+}
+
+type GetUserShippingAddressResponse {
+    _id: ObjectId
+    firstname: String
+    email: String
+    mobile: String
+    streetName: String
+    city: String
+    apartment: String
+    suite: String
+    unit: String
+    postCode: String
+    houseNumber: String
+    country: String
+    companyName: String
+    vatNumber: String
+}
+
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query: Query
+}
+
+

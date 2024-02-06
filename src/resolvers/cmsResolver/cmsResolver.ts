@@ -75,6 +75,8 @@ export const cmsResolver: Resolvers = {
 
                     const key = spaceService.getFileKey(filePaths.cms, filename, []);
 
+                    console.log("key: ", key)
+
                     const stream = createReadStream();
 
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
