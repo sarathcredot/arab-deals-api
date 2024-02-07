@@ -16,7 +16,7 @@ export const cmsResolver: Resolvers = {
         addCmsSection: async (parent, { input, images }, { req }, info) => {
             //Validate Input
             await validateInput(validators.cmsCreateValidator, req);
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
 
             images = images || [];
 
@@ -185,7 +185,7 @@ export const cmsResolver: Resolvers = {
         async getAllCmsRecords(parent, { input }, { req }, info) {
             try {
                 await validateInput(validators.getAllCmsRecordsValidator, req);
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;

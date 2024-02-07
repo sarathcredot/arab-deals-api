@@ -26,6 +26,8 @@ export const brandResolver: Resolvers = {
 
                     const key = spaceService.getFileKey(filePaths.brand, filename, []);
 
+                    console.log("key: ", key);
+
                     const stream = createReadStream();
 
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);

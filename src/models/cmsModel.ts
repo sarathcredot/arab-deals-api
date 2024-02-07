@@ -72,7 +72,12 @@ const cmsSchema = new Schema(
         buttons: {
             type: [buttonSchema],
             default: []
-        }
+        },
+        isBlocked: {
+            type: Boolean,
+            required: true,
+            default: false,
+        },
     },
     {
         timestamps: true
