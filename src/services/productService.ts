@@ -243,6 +243,11 @@ export interface IProductSuggestion {
     color: string
 }
 
+export interface ProductStock {
+    _id: Types.ObjectId;
+    quantity: number;
+}
+
 export const findOneAndUpdateProduct = async (filters: FilterQuery<IProduct>, update: UpdateQuery<IProduct>, options: QueryOptions): Promise<IProduct | null> => {
     return await productModel.findOneAndUpdate(filters, update, options);
 }
@@ -1502,3 +1507,22 @@ export const getProductsVairantsIds = async (productCode: number): Promise<any> 
     const result = await productModel.aggregate(pipeline);
     return result;
 };
+
+export const decreaseProductsStock = async (products: ProductStock[]): Promise<void> => {
+    let writes: any[] = [];
+
+    for (let product of products) {
+        writes.push(
+            {
+                updateOne: {
+                    filter: { _id: product._id },
+                    update: {
+                        $inc: { stock: -product.quantity }
+                    }
+                }
+            }
+        );
+    }
+
+    const result = await productModel.bulkWrite(writes);
+}

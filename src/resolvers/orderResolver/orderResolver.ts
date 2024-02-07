@@ -1,0 +1,856 @@
+import { cartService, orderProductService, orderService, productService, settingsService, spaceService, userShippingAddressService } from "../../services";
+import { Resolvers } from "../../_generated_/resolvers-types";
+import * as validators from "./orderValidator";
+import { GraphQLError } from "graphql";
+import { verifyUser, verifyAdmin, validateInput } from "../../middlewares";
+import { Types } from "mongoose";
+import moment from "moment";
+import { filePaths } from "../../configs";
+
+
+
+export const orderResolver: Resolvers = {
+    Mutation: {
+
+        createUserOrder: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.createOrderValidator, req);
+
+            const userId = req.authAccount._id;
+            let { shippingAddressId, paymentMode, grandTotal } = input;
+
+            const orderDate = moment();
+            const orderId = `ORD-${orderDate.valueOf()}`;
+
+            const shippingAddress = await userShippingAddressService.getShippingAddressWithFilters({ _id: shippingAddressId }, {}, { lean: true });
+            if (!shippingAddress) {
+                throw new GraphQLError("Shipping Address not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const [paymentConfig, shippingConfig] = await Promise.all([
+                settingsService.getPaymentConfig({}, { sort: { _id: 1 } }),
+                settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+            ]);
+
+            if (!paymentConfig || !shippingConfig) {
+                throw new GraphQLError("Settings not found", {
+                    extensions: {
+                        code: "INTERNAL_SERVER_ERROR",
+                        errors: [],
+                    },
+                });
+            }
+
+            if (paymentMode == "COD") {
+                if (!paymentConfig.cod) {
+                    throw new GraphQLError("COD is disabled", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+            }
+
+            const cartItems = await cartService.getOrderCart(userId);
+
+            if (cartItems.length === 0) {
+                throw new GraphQLError("Cart is empty", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            let calculatedSellingPrice = 0, calculatedShippingCharge = shippingConfig.shippingCharge || 0, calculatedGrandTotal = 0;
+
+            for (let product of cartItems) {
+                if (
+                    !product.name ||
+                    product.isBlocked ||
+                    product.sellingPrice <= 0 ||
+                    product.stock <= 0 ||
+                    product.quantity > product.stock
+                ) {
+                    throw new GraphQLError("Cart changed, order failed", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+                calculatedSellingPrice += (product.quantity) * (product.sellingPrice);
+            }
+
+            const products: orderProductService.IOrderProduct[] = cartItems.map((product, index) => {
+                return {
+                    userId: userId,
+                    productId: product.productId,
+                    orderId: orderId,
+                    itemId: `${orderId}-${index + 1}`,
+                    productName: product.name,
+                    shortDescription: product.shortDescription,
+                    skuId: product.skuId,
+                    image: {
+                        fileType: product.image?.fileType,
+                        fileURL: product.image?.fileURL,
+                        originalName: product.image?.originalName,
+                        mimeType: product.image?.mimeType
+                    },
+                    returnPeriod: shippingConfig.returnPeriod || 0,
+                    mrp: product.mrp,
+                    sellingPrice: product.sellingPrice,
+                    shippingCharge: 0,
+                    paymentMode: paymentMode,
+                    paymentStatus: "PENDING",
+                    orderDate: orderDate.toDate(),
+                    shippingStatus: "PENDING",
+                }
+            });
+
+            if (calculatedSellingPrice < shippingConfig.freeShippingThreshold!) {
+                products[0].shippingCharge = calculatedShippingCharge;
+            }
+            else {
+                calculatedShippingCharge = 0;
+            }
+
+            calculatedGrandTotal = parseFloat((calculatedSellingPrice + calculatedShippingCharge).toFixed(2));
+
+            if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
+                throw new GraphQLError("Cart changed, order failed", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const order: orderService.IOrder = {
+                userId: userId,
+                orderId: orderId,
+                paymentMode: paymentMode,
+                orderDate: orderDate.toDate(),
+                shippingAddress: shippingAddress,
+                orderStatus: "PENDING"
+            }
+
+            await Promise.all([
+                orderService.createOrder(order),
+                orderProductService.createOrderProducts(products),
+            ]);
+
+            try {
+                let productStock = cartItems.map((product) => {
+                    return { _id: product.productId, quantity: product.quantity }
+                })
+                await Promise.all(
+                    [
+                        cartService.emptyUserCart(userId),
+                        productService.decreaseProductsStock(productStock),
+                        userShippingAddressService.updateDefaultShipingAddress(userId, shippingAddressId)
+                    ]
+                );
+            } catch (error) {
+                console.log(error);
+            }
+
+            let response = {
+                orderId: orderId
+            }
+
+            return response;
+
+        },
+        updateAdminOrderProduct: async (parent, { input, invoice }, { req }, info) => {
+            await verifyAdmin(req);
+            await validateInput(validators.updateAdminOrderProductValidator, req);
+
+            const _id = input._id;
+
+            const product = await orderProductService.getOrderProductWithId(_id);
+
+            if (!product) {
+                throw new GraphQLError("Product not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            if (input.paymentRemark) {
+                product.paymentRemark = input.paymentRemark;
+            }
+            if (input.shippingStatus) {
+                product.shippingStatus = input.shippingStatus;
+            }
+
+
+            if (product.shippingStatus == "CANCELED") {
+                if (input.cancelUserReason) {
+                    product.cancelUserReason = input.cancelUserReason;
+                }
+                if (input.cancelAdminComment) {
+                    product.cancelAdminComment = input.cancelAdminComment;
+                }
+                if (input.cancelledDate) {
+                    product.cancelledDate = input.cancelledDate;
+                }
+            }
+            else {
+                product.cancelUserReason = ''
+                product.cancelAdminComment = '';
+                product.cancelledDate = undefined;
+            }
+
+            if (product.shippingStatus == "DELIVERED") {
+                if (input.deliveryDate) {
+                    product.deliveryDate = input.deliveryDate;
+                }
+            }
+            else {
+                product.deliveryDate = undefined;
+            }
+
+            if (["SHIPPED", "DELIVERED", "CANCELED"].includes(product.shippingStatus || "")) {
+                if (input.shippedDate) {
+                    product.shippedDate = input.shippedDate;
+                }
+            }
+            else if (["PENDING", "PACKAGE_IN_PROGRESS"].includes(product.shippingStatus || "")) {
+                product.shippedDate = undefined;
+            }
+
+            if (input.returnStatus) {
+                product.returnStatus = input.returnStatus;
+            }
+
+            if (product.shippingStatus == "DELIVERED") {
+
+                if (product.returnStatus == "REJECTED") {
+                    if (input.returnRejectedDate) {
+                        product.returnRejectedDate = input.returnRejectedDate;
+                    }
+                }
+                else {
+                    product.returnRejectedDate = undefined;
+                }
+
+                if (product.returnStatus == "APPROVED") {
+                    if (input.returnDate) {
+                        product.returnDate = input.returnDate;
+                    }
+                }
+                else {
+                    product.returnDate = undefined;
+                }
+
+                if (input.returnAdminComment) {
+                    product.returnAdminComment = input.returnAdminComment;
+                }
+
+                if (input.returnUserReason) {
+                    product.returnUserReason = input.returnUserReason;
+                }
+
+                if (input.returnRequestDate) {
+                    product.returnRequestDate = input.returnRequestDate;
+                }
+            }
+            else {
+                product.returnStatus = "NA";
+                product.returnUserReason = "";
+                product.returnAdminComment = "";
+                product.returnRequestDate = undefined;
+                product.returnDate = undefined;
+                product.returnRejectedDate = undefined;
+            }
+
+            if (input.refundStatus) {
+                product.refundStatus = input.refundStatus;
+            }
+
+            if (["CANCELED", "DELIVERED"].includes(product.shippingStatus || "")) {
+
+                if (product.refundStatus == "PAID") {
+                    if (input.refundAmount) {
+                        product.refundAmount = input.refundAmount;
+                    }
+                    if (input.refundDate) {
+                        product.refundDate = input.refundDate;
+                    }
+                }
+                else {
+                    product.refundAmount = 0;
+                    product.refundDate = undefined;
+                }
+
+                if (input.refundComment) {
+                    product.refundComment = input.refundComment;
+                }
+                if (input.refundRequestDate) {
+                    product.refundRequestDate = input.refundRequestDate;
+                }
+            }
+            else {
+                product.refundAmount = 0;
+                product.refundStatus = "NA";
+                product.refundComment = "";
+                product.refundRequestDate = undefined;
+                product.refundDate = undefined;
+            }
+
+            if (input.courierId) {
+                product.courierId = input.courierId;
+            }
+            if (input.invoiceNumber) {
+                product.invoiceNumber = input.invoiceNumber;
+            }
+            if (input.paymentStatus) {
+                product.paymentStatus = input.paymentStatus;
+            }
+
+            if (invoice) {
+                const { createReadStream, filename, mimetype, encoding } = await invoice;
+                const key = spaceService.getFileKey(filePaths.invoices, filename, []);
+
+                const stream = createReadStream();
+
+                const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                product.invoice = {
+                    fileType: "PRIVATE",
+                    fileURL: file.location,
+                    mimeType: mimetype,
+                    originalName: filename
+                }
+            }
+
+            await product.save();
+
+            try {
+                let products = await orderProductService.getOrderProductsWithFilters({ orderId: product.orderId! }, { shippingStatus: 1 }, { lean: true });
+
+                let isPendingExists = products.some((item) => item.shippingStatus === "PENDING");
+                let isInProgressExists = products.some((item) => ["PACKAGE_IN_PROGRESS", "SHIPPED"].includes(item.shippingStatus || ""));
+                let status;
+                if (isPendingExists) {
+                    status = "PENDING"
+                }
+                else if (isInProgressExists) {
+                    status = "IN_PROGRESS"
+                }
+                else {
+                    status = "COMPLETED"
+                }
+                await orderService.updateOrderStatus(product.orderId!, status);
+            } catch (error) {
+                console.log(error);
+            }
+
+            const response = { _id: _id };
+
+            return response;
+        },
+        returnUserOrderProduct: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.returnUserOrderValidator, req);
+            const userId = req.authAccount._id;
+            let { _id, returnUserReason } = input;
+
+            const orderProduct = await orderProductService.getOrderProductWithFilters({ userId: userId, _id: _id });
+
+            if (!orderProduct) {
+                throw new GraphQLError("Order not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const isReturnable = moment(orderProduct.deliveryDate).diff(moment(), 'days') <= (orderProduct.returnPeriod || 0);
+
+            if (!isReturnable) {
+                throw new GraphQLError("Order can't be returned", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            orderProduct.returnUserReason = returnUserReason;
+            orderProduct.returnRequestDate = moment().toDate();
+            orderProduct.returnStatus = "PENDING";
+
+            await orderProduct.save();
+
+            const response = {
+                _id: _id
+            }
+
+            return response;
+        },
+        cancelUserOrderProduct: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.cancelUserOrderValidator, req);
+            const userId = req.authAccount._id;
+            let { _id } = input;
+
+            const orderProduct = await orderProductService.getOrderProductWithFilters({ userId: userId, _id: _id });
+
+            if (!orderProduct) {
+                throw new GraphQLError("Order not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            if (!["PENDING", "PACKAGE_IN_PROGRESS"].includes(orderProduct.shippingStatus || "")) {
+                throw new GraphQLError("Order can't be canceled", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            orderProduct.shippingStatus = "CANCELED";
+            orderProduct.cancelledDate = moment().toDate();
+
+            await orderProduct.save();
+
+            const response = {
+                _id: _id
+            }
+
+            return response;
+        }
+    },
+    Query: {
+        getAdminOrders: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getAdminOrdersValidator, req);
+
+            let filters: orderService.IOrdersOptions = { page: 0, size: 10 };
+
+
+
+            if (input._id) {
+                filters._id = input._id;
+            }
+            if (input.userId) {
+                filters.userId = input.userId;
+            }
+            if (input.orderId) {
+                filters.orderId = input.orderId;
+            }
+            if (input.paymentMode) {
+                filters.paymentMode = input.paymentMode;
+            }
+            if (input.orderStatus) {
+                filters.orderStatus = input.orderStatus;
+            }
+            if (input.postCode) {
+                filters.postCode = input.postCode;
+            }
+            if (input.startDate) {
+                filters.startDate = moment(input.startDate).toDate();
+            }
+            if (input.endDate) {
+                filters.endDate = moment(input.endDate).toDate();
+            }
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+
+            const response = await orderService.getAdminOrdersWithFilters(filters);
+
+            return response;
+        },
+        getAdminOrderDetails: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getAdminOrderDetailsValidator, req);
+
+            const response = await orderService.getAdminOrderDetails(input.orderId);
+
+            return response;
+        },
+        getAdminShippingProducts: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getAdminOrderShippingProductsValidator, req);
+
+            let filters: orderProductService.IShippingProductsOptions = { page: 0, size: 10, sort: "" };
+
+            if (input._id) {
+                filters._id = input._id;
+            }
+            if (input.userId) {
+                filters.userId = input.userId;
+            }
+            if (input.orderId) {
+                filters.orderId = input.orderId;
+            }
+            if (input.itemId) {
+                filters.itemId = input.itemId;
+            }
+            if (input.productId) {
+                filters.productId = input.productId;
+            }
+            if (input.skuId) {
+                filters.skuId = input.skuId;
+            }
+            if (input.paymentMode) {
+                filters.paymentMode = input.paymentMode;
+            }
+            if (input.paymentStatus) {
+                filters.paymentStatus = input.paymentStatus;
+            }
+            if (input.shippingStatus) {
+                filters.shippingStatus = input.shippingStatus;
+            }
+            if (input.orderStartDate) {
+                filters.orderStartDate = moment(input.orderStartDate).toDate();
+            }
+            if (input.orderEndDate) {
+                filters.orderEndDate = moment(input.orderEndDate).toDate();
+            }
+            if (input.shippingStartDate) {
+                filters.shippingStartDate = moment(input.shippingStartDate).toDate();
+            }
+            if (input.shippingEndDate) {
+                filters.shippingEndDate = moment(input.shippingEndDate).toDate();
+            }
+            if (input.deliveryStartDate) {
+                filters.deliveryStartDate = moment(input.deliveryStartDate).toDate();
+            }
+            if (input.deliveryEndDate) {
+                filters.deliveryEndDate = moment(input.deliveryEndDate).toDate();
+            }
+            if (input.cancelledStartDate) {
+                filters.cancelledStartDate = moment(input.cancelledStartDate).toDate();
+            }
+            if (input.cancelledEndDate) {
+                filters.cancelledEndDate = moment(input.cancelledEndDate).toDate();
+            }
+            if (input.courierId) {
+                filters.courierId = input.courierId;
+            }
+            if (input.invoiceNumber) {
+                filters.invoiceNumber = input.invoiceNumber;
+            }
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+            if (input.sort) {
+                filters.sort = input.sort;
+            }
+
+            const response = await orderProductService.getShippingProducts(filters);
+
+            return response;
+        },
+        getAdminReturnProducts: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getAdminOrderReturnProductsValidator, req);
+
+            let filters: orderProductService.IReturnProductsOptions = { page: 0, size: 10, sort: "" };
+
+            if (input._id) {
+                filters._id = input._id;
+            }
+            if (input.userId) {
+                filters.userId = input.userId;
+            }
+            if (input.itemId) {
+                filters.itemId = input.itemId;
+            }
+            if (input.orderId) {
+                filters.orderId = input.orderId;
+            }
+            if (input.productId) {
+                filters.productId = input.productId;
+            }
+            if (input.skuId) {
+                filters.skuId = input.skuId;
+            }
+            if (input.paymentMode) {
+                filters.paymentMode = input.paymentMode;
+            }
+            if (input.returnStatus) {
+                filters.returnStatus = input.returnStatus;
+            }
+            if (input.deliveryStartDate) {
+                filters.deliveryStartDate = moment(input.deliveryStartDate).toDate();
+            }
+            if (input.deliveryEndDate) {
+                filters.deliveryEndDate = moment(input.deliveryEndDate).toDate();
+            }
+            if (input.returnRequestStartDate) {
+                filters.returnRequestStartDate = moment(input.returnRequestStartDate).toDate();
+            }
+            if (input.returnRequestEndDate) {
+                filters.returnRequestEndDate = moment(input.returnRequestEndDate).toDate();
+            }
+            if (input.returnStartDate) {
+                filters.returnStartDate = moment(input.returnStartDate).toDate();
+            }
+            if (input.returnEndDate) {
+                filters.returnEndDate = moment(input.returnEndDate).toDate();
+            }
+            if (input.returnRejectStartDate) {
+                filters.returnRejectStartDate = moment(input.returnRejectStartDate).toDate();
+            }
+            if (input.returnRejectEndDate) {
+                filters.returnRejectEndDate = moment(input.returnRejectEndDate).toDate();
+            }
+            if (input.courierId) {
+                filters.courierId = input.courierId;
+            }
+            if (input.invoiceNumber) {
+                filters.invoiceNumber = input.invoiceNumber;
+            }
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+            if (input.sort) {
+                filters.sort = input.sort;
+            }
+
+            const response = await orderProductService.getReturnProducts(filters);
+
+            return response;
+        },
+        getAdminRefundProducts: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getAdminOrderRefundProductsValidator, req);
+
+            let filters: orderProductService.IRefundProductsOptions = { page: 0, size: 10, sort: "" };
+
+            if (input._id) {
+                filters._id = input._id;
+            }
+            if (input.userId) {
+                filters.userId = input.userId;
+            }
+            if (input.orderId) {
+                filters.orderId = input.orderId;
+            }
+            if (input.itemId) {
+                filters.itemId = input.itemId;
+            }
+            if (input.productId) {
+                filters.productId = input.productId;
+            }
+            if (input.skuId) {
+                filters.skuId = input.skuId;
+            }
+            if (input.paymentMode) {
+                filters.paymentMode = input.paymentMode;
+            }
+            if (input.refundStatus) {
+                filters.refundStatus = input.refundStatus;
+            }
+            if (input.refundRequestStartDate) {
+                filters.refundRequestStartDate = moment(input.refundRequestStartDate).toDate();
+            }
+            if (input.refundRequestEndDate) {
+                filters.refundRequestEndDate = moment(input.refundRequestEndDate).toDate();
+            }
+            if (input.refundStartDate) {
+                filters.refundStartDate = moment(input.refundStartDate).toDate();
+            }
+            if (input.refundEndDate) {
+                filters.refundEndDate = moment(input.refundEndDate).toDate();
+            }
+            if (input.courierId) {
+                filters.courierId = input.courierId;
+            }
+            if (input.invoiceNumber) {
+                filters.invoiceNumber = input.invoiceNumber;
+            }
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+            if (input.sort) {
+                filters.sort = input.sort;
+            }
+
+            const response = await orderProductService.getRefundProducts(filters);
+
+            return response;
+        },
+        getAdminOrderProduct: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getAdminOrderProductValidator, req);
+
+            const response = await orderProductService.getOrderProductWithId(input._id);
+
+            if (!response) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            return response;
+        },
+        getAdminOrderProducts: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getAdminOrderProductsValidator, req);
+
+            const result = await orderProductService.getOrderProductsWithFilters({ orderId: input.orderId });
+
+            const response = {
+                products: result
+            }
+
+            return response;
+        },
+        getUserOrderProduct: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.getUserOrderProductValidator, req);
+
+            const userId = req.authAccount._id;
+
+            const result = await orderProductService.getOrderProductWithFilters(
+                { _id: input._id, userId: userId },
+                {
+                    _id: 1,
+                    productId: 1,
+                    orderId: 1,
+                    productName: 1,
+                    shortDescription: 1,
+                    skuId: 1,
+                    image: 1,
+                    returnPeriod: 1,
+                    mrp: 1,
+                    sellingPrice: 1,
+                    shippingCharge: 1,
+                    paymentMode: 1,
+                    paymentStatus: 1,
+                    orderDate: 1,
+                    shippingStatus: 1,
+                    shippedDate: 1,
+                    deliveryDate: 1,
+                    returnStatus: 1,
+                    returnDate: 1,
+                    returnRejectedDate: 1,
+                    refundStatus: 1,
+                    refundAmount: 1,
+                    refundDate: 1,
+                    cancelledDate: 1,
+                    courierId: 1,
+                    invoiceNumber: 1,
+                    invoice: 1
+                },
+                { lean: true });
+
+            if (!result) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const response = result;
+
+            return response;
+        },
+        getUserOrderDetails: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.getUserOrderDetailsValidator, req);
+
+            const userId = req.authAccount._id;
+
+            const result = await orderService.getOrderWithFilters(
+                { orderId: input.orderId, userId: userId },
+                {
+                    _id: 1,
+                    orderId: 1,
+                    paymentMode: 1,
+                    orderDate: 1,
+                    orderStatus: 1,
+                    shippingAddress: 1
+                },
+                {
+                    lean: true
+                }
+            );
+
+            if (!result) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const response = result;
+
+            return response;
+        },
+        getUserOrderProducts: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.getUserOrderProductsValidator, req);
+
+            const userId = req.authAccount._id;
+
+            let filters: orderProductService.IUserOrderProductsOptions = { page: 0, size: 10, userId: userId }
+
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+
+            const result = await orderProductService.getUserOrderProducts(filters);
+
+            const response = result;
+
+            return response;
+        },
+    }
+};
+

@@ -15,7 +15,8 @@ import { wishListModel } from "./wishlistModel";
 import { userShippingAddressModel } from "./userShippingAddressModel";
 import { paymentConfigModel } from "./paymentConfigModel";
 import { shippingConfigModel } from "./shippingConfigModel";
-
+import { orderModel } from "./orderModel";
+import { orderProductModel } from "./orderProductModel";
 
 export {
     productModel,
@@ -35,4 +36,6 @@ export {
     userShippingAddressModel,
     paymentConfigModel,
     shippingConfigModel,
+    orderModel,
+    orderProductModel,
 }

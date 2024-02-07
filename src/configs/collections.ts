@@ -16,4 +16,6 @@ export const collections = {
     USER_SHIPPING_ADDRESS: "user_shipping_address",
     SHIPPING_CONFIGS: "shipping_configs",
     PAYMENT_CONFIGS: "payment_configs",
+    ORDERS: "orders",
+    ORDER_PRODUCTS: "order_products",
 }

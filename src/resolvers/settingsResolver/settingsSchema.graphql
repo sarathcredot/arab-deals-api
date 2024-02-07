@@ -1,0 +1,65 @@
+scalar Upload
+scalar ObjectId
+scalar Date
+
+
+# Update settings mutations
+
+type Mutation {
+    updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
+    updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
+}
+
+# Get settings  queries
+
+type Query {
+    getPaymentSettings: GetPaymentSettingsResponse!
+    getShippingSettings: GetShippingSettingsResponse!
+}
+
+
+
+input UpdatePaymentSettingsInput {
+    onlinePayment: Boolean
+    cod: Boolean
+}
+
+input UpdateShippingSettingsInput {
+    shippingCharge: Int
+    freeShippingThreshold: Int 
+    returnPeriod: Int
+}
+
+type UpdatePaymentSettingsResponse {
+    onlinePayment: Boolean
+    cod: Boolean
+}
+
+type UpdateShippingSettingsResponse{
+    shippingCharge: Int
+    freeShippingThreshold: Int 
+    returnPeriod: Int
+}
+
+type GetPaymentSettingsResponse{
+    onlinePayment: Boolean
+    cod: Boolean
+}
+
+type GetShippingSettingsResponse {
+    shippingCharge: Int
+    freeShippingThreshold: Int 
+    returnPeriod: Int
+}
+
+
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query: Query
+}
+
+

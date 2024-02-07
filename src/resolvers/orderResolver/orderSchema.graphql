@@ -1,0 +1,464 @@
+scalar Upload
+scalar ObjectId
+scalar Date
+
+
+# User Order  Mutations
+
+type Mutation {
+    createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
+    updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice:Upload): UpdateAdminOrderProductResponse!
+    returnUserOrderProduct(input: ReturnUserOrderProductInput!): ReturnUserOrderProductResponse!
+    cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
+
+}
+
+
+# Create Order Input
+
+input CreateUserOrderInput {
+    shippingAddressId: ObjectId!
+    paymentMode: String!
+    grandTotal: Float!
+}
+
+input UpdateAdminOrderProductInput {
+   _id: ObjectId!
+   paymentRemark: String
+   paymentStatus: String
+   shippingStatus: String
+   shippedDate: Date
+   deliveryDate: Date
+   returnStatus: String
+   returnUserReason: String
+   returnAdminComment: String
+   returnRequestDate: Date
+   returnDate: Date
+   returnRejectedDate: Date
+   refundStatus: String
+   refundAmount: Float
+   refundRequestDate: Date
+   refundDate: Date
+   refundComment: String
+   cancelUserReason: String
+   cancelAdminComment: String
+   cancelledDate: Date
+   courierId: String
+   invoiceNumber: String
+}
+
+input ReturnUserOrderProductInput {
+    _id: ObjectId!
+    returnUserReason: String!
+}
+
+input CancelUserOrderProductInput {
+    _id: ObjectId!
+}
+
+type CreateUserOrderResponse {
+    orderId:String!
+}
+
+type UpdateAdminOrderProductResponse {
+   _id: ObjectId
+}
+
+type ReturnUserOrderProductResponse {
+   _id: ObjectId
+}
+
+type CancelUserOrderProductResponse {
+    _id: ObjectId
+}
+
+
+
+
+# User Order  Queries
+
+type Query {
+    getAdminOrders(input:GetAdminOrdersInput!): GetAdminOrdersResponse!
+    getAdminOrderDetails(input:GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
+    getAdminShippingProducts(input:GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
+    getAdminReturnProducts(input:GetAdminReturnProductsInput!): GetAdminReturnProductsResponse!
+    getAdminRefundProducts(input:GetAdminRefundProductsInput!): GetAdminRefundProductsResponse!
+    getAdminOrderProduct(input:GetAdminOrderProductInput!): GetAdminOrderProductResponse!
+    getAdminOrderProducts(input:GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
+
+
+    getUserOrderProducts (input:GetUserOrderProductsInput!): GetUserOrderProductsResponse!
+    getUserOrderProduct(input:GetUserOrderProductInput!): GetUserOrderProductResponse!
+    getUserOrderDetails(input:GetUserOrderDetailsInput!): GetUserOrderDetailsResponse!
+}
+
+
+input GetAdminOrdersInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    paymentMode: String
+    orderStatus: String
+    startDate: Date
+    endDate: Date
+    postCode: String
+    page: Int
+    size: Int
+}
+
+input GetAdminOrderDetailsInput {
+    orderId: String!
+}
+
+input GetAdminShippingProductsInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    productId: ObjectId
+    itemId: String
+    skuId: String
+    paymentMode: String
+    paymentStatus: String
+    shippingStatus: String
+    orderStartDate: Date
+    orderEndDate: Date
+    shippingStartDate: Date
+    shippingEndDate: Date
+    deliveryStartDate: Date
+    deliveryEndDate: Date
+    cancelledStartDate: Date
+    cancelledEndDate: Date
+    courierId: String
+    invoiceNumber: String
+    page: Int
+    size: Int
+    sort: String
+}
+
+input GetAdminReturnProductsInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    productId: ObjectId
+    itemId: String
+    skuId: String
+    paymentMode: String
+    returnStatus: String
+    deliveryStartDate: Date
+    deliveryEndDate: Date
+    returnRequestStartDate: Date
+    returnRequestEndDate: Date
+    returnStartDate: Date
+    returnEndDate: Date
+    returnRejectStartDate: Date
+    returnRejectEndDate: Date
+    courierId: String
+    invoiceNumber: String
+    page: Int
+    size: Int
+    sort: String
+}
+
+input GetAdminRefundProductsInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    itemId: String
+    productId: ObjectId
+    skuId: String
+    paymentMode: String
+    refundStatus: String
+    refundRequestStartDate: Date
+    refundRequestEndDate: Date
+    refundStartDate: Date
+    refundEndDate: Date
+    courierId: String
+    invoiceNumber: String
+    page: Int
+    size: Int
+    sort: String
+}
+
+input GetAdminOrderProductInput {
+    _id: ObjectId!
+}
+
+input GetAdminOrderProductsInput {
+    orderId: String!
+}
+
+
+input GetUserOrderProductInput {
+    _id: ObjectId!
+}
+
+input GetUserOrderDetailsInput {
+    orderId: String!
+}
+
+input GetUserOrderProductsInput {
+    page: Int
+    size: Int
+}
+
+
+
+
+type OrderShippingAddress {
+    _id: ObjectId
+    fullname: String
+    email: String
+    mobile: String
+    country: String
+    state: String
+    city: String
+    address: String
+    address2: String
+    postCode: String
+    landmark: String
+    alternateMobile: String
+}
+
+
+type OrderPriceInfo {
+    totalMRP: Float
+    totalSellingPrice: Float
+    totalShippingCharge: Float
+    totalRefundAmount: Float
+}
+
+
+type AdminOrder {
+    _id: ObjectId
+    orderId: String
+    userId: ObjectId
+    paymentMode: String
+    orderDate: Date
+    orderStatus: String
+    username: String
+    shippingAddress: OrderShippingAddress
+    orderPriceInfo: OrderPriceInfo
+}
+
+type FileData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+}
+
+
+
+type UserOrderProduct {
+    _id: ObjectId
+    productId: ObjectId
+    orderId: String
+    itemId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnDate: Date
+    returnRequestDate: Date
+    returnRejectedDate: Date
+    returnUserReason: String
+    refundStatus: String
+    refundAmount: Float
+    refundDate: Date
+    cancelledDate: Date
+    cancelUserReason: String
+    courierId: String
+    invoiceNumber: String
+    invoice: FileData
+}
+
+type AdminOrderProduct {
+    _id: ObjectId
+    userId: ObjectId
+    productId: ObjectId
+    orderId: String
+    itemId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    paymentRemark: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnUserReason: String
+    returnAdminComment: String
+    returnRequestDate: Date
+    returnRejectedDate: Date
+    returnDate: Date
+    refundStatus: String
+    refundAmount: Float
+    refundRequestDate: Date
+    refundDate: Date
+    refundComment: String
+    cancelUserReason: String
+    cancelAdminComment: String
+    cancelledDate: Date
+    courierId: String
+    invoiceNumber: String
+    invoice: FileData
+    username: String
+}
+
+
+
+type GetAdminOrdersResponse {
+    maxRecords: Int!
+    records: [AdminOrder]!
+}
+
+
+type GetAdminOrderDetailsResponse {
+    _id: ObjectId
+    orderId: String
+    userId: ObjectId
+    paymentMode: String
+    orderDate: Date
+    orderStatus: String
+    username: String
+    shippingAddress: OrderShippingAddress
+    orderPriceInfo: OrderPriceInfo
+}
+
+
+type GetAdminShippingProductsResponse {
+    maxRecords: Int!
+    records: [AdminOrderProduct]!
+}
+
+type GetAdminReturnProductsResponse {
+    maxRecords: Int!
+    records: [AdminOrderProduct]!
+}
+
+type GetAdminRefundProductsResponse {
+    maxRecords: Int!
+    records: [AdminOrderProduct]!
+}
+
+type GetAdminOrderProductResponse {
+     _id: ObjectId
+    userId: ObjectId
+    productId: ObjectId
+    itemId: String
+    orderId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    paymentRemark: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnUserReason: String
+    returnAdminComment: String
+    returnRequestDate: Date
+    returnRejectedDate: Date
+    returnDate: Date
+    refundStatus: String
+    refundAmount: Float
+    refundRequestDate: Date
+    refundDate: Date
+    refundComment: String
+    cancelUserReason: String
+    cancelAdminComment: String
+    cancelledDate: Date
+    courierId: String
+    invoiceNumber: String
+    invoice: FileData
+}
+
+
+type GetUserOrderProductsResponse {
+    maxRecords: Int!
+    records: [UserOrderProduct!]
+}
+
+
+type GetAdminOrderProductsResponse {
+    products: [AdminOrderProduct!]
+}
+
+
+type GetUserOrderProductResponse {
+    _id: ObjectId
+    productId: ObjectId
+    orderId: String
+    itemId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnDate: Date
+    returnRejectedDate: Date
+    refundStatus: String
+    refundAmount: Float
+    refundDate: Date
+    cancelledDate: Date
+    courierId: String
+    invoiceNumber: String
+    invoice:FileData
+}
+
+
+type GetUserOrderDetailsResponse {
+     _id: ObjectId
+    orderId: String
+    paymentMode: String
+    orderDate: Date
+    orderStatus: String
+    shippingAddress: OrderShippingAddress
+}
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query: Query
+}
+
+

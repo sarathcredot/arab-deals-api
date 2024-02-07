@@ -15,6 +15,7 @@ import { cartResolver } from "./cartResolver/cartResolver";
 import { cmsResolver } from "./cmsResolver/cmsResolver";
 import { wishListResolver } from "./wishListResolver/wishListResolver";
 import { userShippingAddressResolver } from "./userShipingAddressResolver/userShippingAddressResolver";
+import { orderResolver } from "./orderResolver/orderResolver";
 
 
 export const resolvers: Resolvers = mergeResolvers(
@@ -34,5 +35,6 @@ export const resolvers: Resolvers = mergeResolvers(
         cmsResolver,
         wishListResolver,
         userShippingAddressResolver,
+        orderResolver,
     ]
 );

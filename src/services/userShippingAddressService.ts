@@ -66,4 +66,21 @@ export const deleteShipingAddress = async (filter: FilterQuery<IShippingAddress>
     return await userShippingAddressModel.findOneAndDelete(filter);
 };
 
+export const updateDefaultShipingAddress = async (userId: Types.ObjectId, _id: Types.ObjectId): Promise<void> => {
+
+    let updatePipeline = [
+        {
+            $set: {
+                isDefault: {
+                    $cond: [
+                        { $eq: ["$_id", _id] },
+                        true,
+                        false
+                    ]
+                }
+            }
+        }
+    ]
+    await userShippingAddressModel.updateMany({ userId: userId }, updatePipeline);
+}
 

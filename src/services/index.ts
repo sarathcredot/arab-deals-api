@@ -17,7 +17,8 @@ import * as cmsService from "./cmsService";
 import * as wishListService from "./wishListService";
 import * as userShippingAddressService from "./userShippingAddressService";
 import * as settingsService from "./settingsService";
-
+import * as orderService from "./orderService";
+import * as orderProductService from "./orderProductService";
 
 export {
     productService,
@@ -39,4 +40,6 @@ export {
     wishListService,
     userShippingAddressService,
     settingsService,
+    orderService,
+    orderProductService,
 }
