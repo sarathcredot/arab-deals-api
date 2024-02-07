@@ -18,6 +18,33 @@ export interface ICartDocument extends Document {
     // userId?: Types.ObjectId
 }
 
+export interface FileData {
+    _id?: string,
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string,
+    createdAt?: string
+}
+
+
+export interface ICartProduct {
+    productId: Types.ObjectId;
+    quantity: number;
+    name: string;
+    shortDescription: string;
+    stock: number;
+    isBlocked?: boolean;
+    color: string;
+    size: string;
+    price: number;
+    image: FileData;
+    skuId: string;
+    sellingPrice: number;
+    mrp: number;
+}
+
+
 export const createCart = async (productId: string, userId: string, quantity: number): Promise<any> => {
     return await cartModel.create({
         userId: userId,
@@ -69,7 +96,7 @@ export const addItem = async (productId: Types.ObjectId, userId: string, quantit
     );
 }
 
-export const getCart = async (userId: Types.ObjectId) => {
+export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> => {
     let pipeline: any = []
     pipeline.push(
         {
@@ -107,9 +134,14 @@ export const getCart = async (userId: Types.ObjectId) => {
                             productName: 1,
                             stock: 1,
                             isBlocked: 1,
-                            attributes: 1,
+                            color: 1,
+                            size: 1,
                             price: 1,
-                            images: 1
+                            images: { $arrayElemAt: ["$images", 0] },
+                            skuId: 1,
+                            shortDescription: 1,
+                            sellingPrice: 1,
+                            mrp: 1
                         }
                     }
                 ],
@@ -130,15 +162,109 @@ export const getCart = async (userId: Types.ObjectId) => {
                 name: "$productData.productName",
                 stock: "$productData.stock",
                 isBlocked: "$productData.isBlocked",
-                attributes: "$productData.attributes",
+                color: "$productData.color",
+                size: "$productData.size",
                 price: "$productData.price",
-                image: "$productData.images"
+                image: "$productData.images",
+                skuId: "$productData.skuId",
+                shortDescription: "$productData.shortDescription",
+                sellingPrice: "$productData.sellingPrice",
+                mrp: "$productData.mrp",
             }
         }
 
     )
 
-    return await cartModel.aggregate(pipeline)
+    return await cartModel.aggregate(pipeline);
 
 
+}
+
+
+
+export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> => {
+    let pipeline: any = []
+    pipeline.push(
+        {
+            $match: {
+                userId: userId
+            }
+        },
+        {
+            $project: {
+                userId: 1,
+                "products.productId": 1,
+                "products.quantity": 1,
+            }
+        },
+        {
+            $unwind: "$products"
+
+        },
+        {
+            $lookup: {
+                from: collections.PRODUCTS,
+                let: { productId: "$products.productId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$productId"],
+                            },
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            productName: 1,
+                            stock: 1,
+                            isBlocked: 1,
+                            color: 1,
+                            size: 1,
+                            price: 1,
+                            images: { $arrayElemAt: ["$images", 0] },
+                            skuId: 1,
+                            shortDescription: 1,
+                            sellingPrice: 1,
+                            mrp: 1
+                        }
+                    }
+                ],
+                as: "productData"
+            }
+        },
+        {
+            $unwind: {
+                path: "$productData",
+                preserveNullAndEmptyArrays: true,
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                productId: "$productData._id",
+                quantity: "$products.quantity",
+                name: "$productData.productName",
+                stock: "$productData.stock",
+                isBlocked: "$productData.isBlocked",
+                color: "$productData.color",
+                size: "$productData.size",
+                price: "$productData.price",
+                image: "$productData.images",
+                skuId: "$productData.skuId",
+                shortDescription: "$productData.shortDescription",
+                sellingPrice: "$productData.sellingPrice",
+                mrp: "$productData.mrp",
+            }
+        }
+
+    )
+
+    return await cartModel.aggregate(pipeline);
+
+
+}
+
+export const emptyUserCart = async (userId: Types.ObjectId) => {
+    return await cartModel.findOneAndUpdate({ userId: userId }, { products: [] })
 }

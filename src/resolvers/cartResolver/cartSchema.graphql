@@ -1,3 +1,6 @@
+scalar ObjectId
+
+
 # cart Mutations
 
  type Mutation {
@@ -38,37 +41,30 @@ type updateCartQuantityResponse{
   message:String
 }
 
+
+
+
+
 type cartProduct{
-    _id:String
-    productId:String
+    _id: ObjectId
+    productId: ObjectId
     quantity:Int
     name: String
+    shortDescription: String
     stock: Int
-    attributes: [ProductAttribute]
-    price: Int
-    image:[ProductImage]
+    color: String
+    size: String
+    price: Float
+    image: String
+    sellingPrice: Float
+    mrp: Float
 }
 
 type getCartResponse{
-    products:[cartProduct]
-    grandTotal:Int
-    subTotal:Int
-    deliveryCharge:Int
-}
-
- type ProductAttribute {
-    attributeId: String
-    attributeName: String
-    attributeValueId: String
-    attributeValue: String
-    attributeDescription: String
-}
-
-  type ProductImage {
-    fileType: String
-    fileURL: String
-    mimeType: String
-    originalName: String
+  products:[cartProduct]
+  grandTotal:Int
+  subTotal:Int
+  deliveryCharge:Int
 }
 
 

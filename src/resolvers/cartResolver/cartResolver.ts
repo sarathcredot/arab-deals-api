@@ -1,4 +1,4 @@
-import { jwtService, productService, cartService } from "../../services";
+import { jwtService, productService, cartService, settingsService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./cartValidator";
@@ -223,13 +223,24 @@ export const cartResolver: Resolvers = {
             try {
                 await verifyUser(req);
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
-                const cart = await cartService.getCart(userId)
+                const cart = await cartService.getCart(userId);
                 const user_Id = userId.toString()
+
+                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+
+                if (!shippingConfig) {
+                    throw new GraphQLError("Settings not found", {
+                        extensions: {
+                            code: "INTERNAL_SERVER_ERROR",
+                            errors: [],
+                        },
+                    });
+                }
 
                 let subTotal = 0;
                 let grandTotal = 0;
-                // let discount = 0;
-                let deliveryCharge = 0;
+                let discount = 0;
+                let deliveryCharge = shippingConfig.shippingCharge || 0;
                 let validList = [];
                 let updateList = [];
 
@@ -239,21 +250,27 @@ export const cartResolver: Resolvers = {
                             !product.name ||
                             product.isBlocked ||
                             product.stock <= 0) {
-                            updateList.push(cartService.removeItem(product.productId, user_Id,));
+                            updateList.push(cartService.removeItem(product.productId, user_Id));
                             continue;
                         }
                         if (product.quantity > product.stock) {
                             product.quantity = product.stock;
                             updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
                         }
-                        subTotal += product.quantity * product.price;
+                        subTotal += product.quantity * product.sellingPrice;
                         delete product.isBlocked;
-                        validList.push(product);
+                        validList.push({ ...product, image: product.image.fileURL });
                     }
 
                     await Promise.all(updateList);
                 }
-                grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2))
+
+                if (subTotal >= shippingConfig.freeShippingThreshold!) {
+                    deliveryCharge = 0;
+                }
+
+
+                grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
 
 
 

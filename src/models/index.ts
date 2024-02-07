@@ -13,6 +13,8 @@ import { cartModel } from "./cartModel";
 import { cmsModel } from "./cmsModel";
 import { wishListModel } from "./wishlistModel";
 import { userShippingAddressModel } from "./userShippingAddressModel";
+import { paymentConfigModel } from "./paymentConfigModel";
+import { shippingConfigModel } from "./shippingConfigModel";
 
 
 export {
@@ -31,4 +33,6 @@ export {
     cmsModel,
     wishListModel,
     userShippingAddressModel,
+    paymentConfigModel,
+    shippingConfigModel,
 }

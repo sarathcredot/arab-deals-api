@@ -15,7 +15,8 @@ import * as userService from "./userService";
 import * as cartService from "./cartService";
 import * as cmsService from "./cmsService";
 import * as wishListService from "./wishListService";
-import * as  userShippingAddressService from "./userShippingAddressService";
+import * as userShippingAddressService from "./userShippingAddressService";
+import * as settingsService from "./settingsService";
 
 
 export {
@@ -36,5 +37,6 @@ export {
     cartService,
     cmsService,
     wishListService,
-    userShippingAddressService
+    userShippingAddressService,
+    settingsService,
 }
