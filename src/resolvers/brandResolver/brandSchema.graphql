@@ -84,13 +84,15 @@
   type Query {
     getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
     getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
-    getAllTopBrandRecordsInMobile(input: BrandRecordsFilter): BrandRecordsResponse!
     getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
     getAllBrandRecordsWithVendorByAdmin(input:  getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
     getAllBrandRecordsWithVendorByVendor(input:  getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
     getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!):BrandsDetailsWithCategoryResponse!
     getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!):BrandsDetailsWithCategoryInMobileResponse!
     getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!):CategoriesDetailsWithBrandResponse!
+
+    # Mobile API
+    getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
   }   
 
     # Input
@@ -113,6 +115,12 @@
 
 
   input BrandRecordsFilter {
+    page: Int
+    size: Int
+    isBlocked: Boolean
+  }
+
+   input BrandRecordsInMobileFilter {
     page: Int
     size: Int
     isBlocked: Boolean
@@ -146,6 +154,12 @@
   }
 
   type BrandRecordsResponse {
+    maxRecords: Int!
+    records: [BrandRecord!]
+    message: String
+  }
+
+  type BrandRecordsInMobileResponse {
     maxRecords: Int!
     records: [BrandRecord!]
     message: String
