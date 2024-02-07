@@ -7,6 +7,7 @@ scalar ObjectId
 type Mutation {
     createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
     editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
+    removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
 }
 
 
@@ -48,6 +49,12 @@ input UserEditShippingAddressInput {
     vatNumber: String
 }
 
+# Shipping Address Remove Input
+
+input UserRemoveShippingAddressInput {
+    _id: ObjectId!
+}
+
 # Shipping Address Create Output
 
 type UserCreateShippingAddressResponse {
@@ -61,7 +68,12 @@ type UserEditShippingAddressResponse {
 }
 
 
+# Shipping Address Remove Output
 
+type UserRemoveShippingAddressResponse {
+    _id: ObjectId!
+    message: String
+}
 
 
 # User Shipping Address  Queries
