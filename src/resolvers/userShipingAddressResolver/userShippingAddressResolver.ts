@@ -118,6 +118,39 @@ export const userShippingAddressResolver: Resolvers = {
 
         },
 
+        removeUserShippingAddress: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.userShippingAddressUpdateValidator, req);
+
+            const filters = {
+                _id: new Types.ObjectId(input._id),
+                userId: req.authAccount._id
+            }
+
+            const shippingAddress = await userShippingAddressService.getShippingAddressWithFilters(filters, {}, {});
+
+            if (!shippingAddress) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const result = await userShippingAddressService.deleteShipingAddress(filters);
+
+
+            let response = {
+                _id: result?._id?.toString(),
+                message: "Shipping address deleted"
+            }
+
+            return response;
+
+        },
+
     },
 
     Query: {

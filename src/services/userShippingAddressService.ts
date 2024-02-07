@@ -62,4 +62,8 @@ export const updateShipingAddress = async (_id: Types.ObjectId, updateQuery: Upd
     return await userShippingAddressModel.findByIdAndUpdate(_id, updateQuery, options);
 }
 
+export const deleteShipingAddress = async (filter: FilterQuery<IShippingAddress>): Promise<IShippingAddressDocument | null> => {
+    return await userShippingAddressModel.findOneAndDelete(filter);
+};
+
 
