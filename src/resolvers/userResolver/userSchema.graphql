@@ -5,6 +5,11 @@
   userVerifyOtp(input:userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input:userBlockInput!):userBlockResponse!
   updateUserProfile(input:updateUserProfileInput!):updateUserProfileResponse!
+
+  # Mobile API
+    userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
+    userVerifyOtpInMobile(input:userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
+    updateUserProfileInMobile(input:updateUserProfileInMobileInput!):updateUserProfileInMobileResponse!
 }
 
 # user auth query
@@ -13,6 +18,9 @@ type Query{
   getUsersByAdmin(input:userFilters):usersResponse!
   getUserRecordByAdmin(input:userInput!):userResponse!
   getUserRecord(input:userInput!):userResponse!
+
+  # Mobile API
+  getUserRecordInMobile(input:userInMobileInput!):userInMobileResponse!
 }
 
 # user auth Input
@@ -20,6 +28,11 @@ type Query{
 input userLoginOtpInput {
   mobileNumber: String!
 }
+
+input userLoginOtpInMobileInput {
+  mobileNumber: String!
+}
+
 input userBlockInput {
   _id: String!
   isBlocked:Boolean!
@@ -35,6 +48,11 @@ input userFilters{
 input userVerifyOtpInput {
   code: String!
 }
+
+input userVerifyOtpInMobileInput {
+  code: String!
+}
+
 
 input updateUserProfileInput {
   _id: String!
@@ -54,9 +72,32 @@ input updateUserProfileInput {
   country: String
 }
 
+input updateUserProfileInMobileInput {
+  _id: String!
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+  address: String
+  countryCode: String
+  mobileNumber: String
+  # password: String
+  isBlocked: Boolean
+  houseNumber: String
+  streetName: String
+  city: String
+  pincode: String
+  country: String
+}
+
+
 input userInput{
   _id: String!
-}    
+} 
+
+input userInMobileInput{
+  _id: String!
+} 
 
 # user auth Output
 
@@ -68,11 +109,23 @@ type userLoginOtpResponse {
   message: String!
   mobileNumber:String!
   }
+
+type userLoginOtpInMobileResponse {
+  message: String!
+  mobileNumber:String!
+  }
+
 type userVerifyOtpResponse {
   userId: String
   token: String
   message:String
   }
+
+ type userVerifyOtpInMobileResponse {
+  userId: String
+  token: String
+  message:String
+  } 
 type userSignUpResponse {
     _id: String
     message: String
@@ -108,7 +161,17 @@ type updateUserProfileResponse {
    message: String
 }
 
+type updateUserProfileInMobileResponse {
+   updatedRecord: user
+   message: String
+}
+
 type userResponse{
+  record: user
+  message: String
+}
+
+type userInMobileResponse{
   record: user
   message: String
 }
