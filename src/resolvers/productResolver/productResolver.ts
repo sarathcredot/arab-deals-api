@@ -1265,6 +1265,49 @@ export const productResolver: Resolvers = {
             }
         },
 
+        async getVariantsInMobile(parent, { input }, { req }, info) {
+            try {
+
+                //Validate Input
+                await validateInput(validators.variantsQueryValidator, req);
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+
+                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
+                if (!product) {
+                    throw new GraphQLError("product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+                let result: productService.IProduct = product;
+                if (!result.productCode) {
+                    throw new GraphQLError("variants not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+                let variants = await productService.getProductVariantsInMobile(result.productCode);
+
+                // variants.sort((a, b) => {
+                //     return a.size.localeCompare(b.size)
+                // });
+
+                let response = {
+                    variants: variants
+                }
+
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
+
         // Variants table for admin
         async getVariantsTableByAdmin(parent, { input }, { req }, info) {
             try {

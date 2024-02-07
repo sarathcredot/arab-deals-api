@@ -885,6 +885,58 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
     return result;
 };
 
+export const getProductVariantsInMobile = async (productCode: number): Promise<any> => {
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                productCode: productCode
+            }
+        },
+        {
+            $unwind: '$attributes' // Assuming 'attributes' is the array containing attribute information
+        },
+        {
+            $lookup: {
+                from: collections.ATTRIBUTES,
+                localField: 'attributes.attributeId',
+                foreignField: '_id',
+                as: 'attribute'
+            }
+        },
+        {
+            $unwind: '$attribute'
+        },
+        {
+            $lookup: {
+                from: collections.ATTRIBUTE_VALUES, // Assuming 'ATTRIBUTE_VALUES' is the collection for attribute values
+                localField: 'attributes.attributeValueId',
+                foreignField: '_id',
+                as: 'attributeValue'
+            }
+        },
+        {
+            $unwind: '$attributeValue'
+        },
+        {
+            $project: {
+                _id: 0,
+                productId: '$_id',
+                attributeId: '$attribute._id',
+                attributeName: '$attribute.name',
+                attributeDescription: {
+                    $ifNull: ['$attribute.description', null]
+                },
+                attributeValueId: '$attributes.attributeValueId',
+                attributeValue: '$attributes.attributeValue',
+                colorCode: '$attributes.colorCode'
+            }
+        }
+    ];
+
+    const result = await productModel.aggregate(pipeline); // Assuming 'productModel' is the model for products
+    return result;
+};
+
 
 export const getProductVariantsByAdminTable = async (options: QueryOptions): Promise<any> => {
     let pipeline: PipelineStage[] = [];

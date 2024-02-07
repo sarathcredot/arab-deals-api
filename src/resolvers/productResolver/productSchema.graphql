@@ -145,6 +145,7 @@ type Query {
     getProducts(input:ProductFilters):ProductsResponse!
     getProduct(input: ProductId!): ProductResponse!
     getVariants(input:VariantsInput!) : VariantsResponse!
+    getVariantsInMobile(input:VariantsInMobileInput!) : VariantsInMobileResponse!
     getProductsAutoComplete(input:GetProductsAutoCompleteInput!) : GetProductsAutoCompleteResponse
     getRelatedProducts(input: RelatedProductsFilters!):RelatedProductsResponse!
     getVariantsTableByAdmin(input:ProductVariantsByAdminFilter!) : VariantsTableByAdminResponse!
@@ -154,6 +155,7 @@ type Query {
  # MOBILE SIDE APIS
     getProductsInMobile(input:ProductsInMobileFilters):ProductsInMobileResponse!
     getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
+    getVariantsInMobile(input:VariantsInMobileInput!) : VariantsInMobileResponse!
 
 }
 
@@ -216,6 +218,10 @@ type Query {
     }
 
     input VariantsInput {
+        _id: String!
+    }
+
+    input VariantsInMobileInput {
         _id: String!
     }
 
@@ -352,6 +358,10 @@ type Query {
     }
 
     type VariantsResponse {
+       variants: [Variant]
+    }
+
+    type VariantsInMobileResponse {
        variants: [Variant]
     }
     
