@@ -2,6 +2,7 @@
 
  type Mutation {
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
+  userResendLoginOtp(input: userResendLoginOtpInput!): userResendLoginOtpResponse!
   userVerifyOtp(input:userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input:userBlockInput!):userBlockResponse!
   updateUserProfile(input:updateUserProfileInput!):updateUserProfileResponse!
@@ -26,6 +27,10 @@ type Query{
 # user auth Input
 
 input userLoginOtpInput {
+  mobileNumber: String!
+}
+
+input userResendLoginOtpInput {
   mobileNumber: String!
 }
 
@@ -106,6 +111,11 @@ type userBlockResponse{
 }
 
 type userLoginOtpResponse {
+  message: String!
+  mobileNumber:String!
+  }
+
+  type userResendLoginOtpResponse {
   message: String!
   mobileNumber:String!
   }

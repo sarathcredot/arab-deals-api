@@ -69,6 +69,63 @@ export const userResolver: Resolvers = {
       return response;
     },
 
+    userResendLoginOtp: async (parent, { input }, { req }, info) => {
+      await validateInput(validators.userNumberValidator, req);
+      const mobileNumber: string = input.mobileNumber;
+      const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
+      // let authname = "";
+      // if (user) {
+      //   authname = "USER_LOGIN_MOBILE_OTP";
+      // }
+
+      if (user?.isBlocked) {
+        throw new GraphQLError("User is Blocked", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+      const mobileOtp = await otpService.generateOtp();
+      if (!mobileOtp) {
+        throw new GraphQLError('OTP generation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let options = {
+        name: "USER_LOGIN_MOBILE_OTP",
+        metadata: {
+          code: mobileOtp.code,
+          expiresAt: mobileOtp.expiresAt,
+          mobileNumber,
+        },
+        isVerified: false
+      };
+
+      const otpCreation = await otpService.createOtp(options);
+      if (!otpCreation) {
+        throw new GraphQLError('OTP Db creation failed', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      // integrate msg91 here
+
+
+      const response = {
+        message: "OTP generated",
+        mobileNumber: mobileNumber
+      }
+      return response;
+    },
+
     // Mobile user login
     userLoginOtpInMobile: async (parent, { input }, { req }, info) => {
       await validateInput(validators.userNumberValidator, req);
