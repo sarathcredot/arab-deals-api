@@ -8,6 +8,7 @@ type Mutation {
     createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
     editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
     removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
+    updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
 }
 
 
@@ -22,12 +23,10 @@ input UserCreateShippingAddressInput {
     houseNumber: String!
     country: String
     postCode: String!
-    landmark: String
     apartment: String
     suite: String
     unit: String
-    companyName: String
-    vatNumber: String
+    isDefault: Boolean
 }
 
 # Shipping Address Edit Input
@@ -45,14 +44,19 @@ input UserEditShippingAddressInput {
     postCode: String
     houseNumber: String
     country: String
-    companyName: String
-    vatNumber: String
+ 
 }
 
 # Shipping Address Remove Input
 
 input UserRemoveShippingAddressInput {
     _id: ObjectId!
+}
+
+# Shipping Address set as default Input
+
+input updateUserShippingAddressAsDefaultInput {
+    addressId: ObjectId!
 }
 
 # Shipping Address Create Output
@@ -75,6 +79,11 @@ type UserRemoveShippingAddressResponse {
     message: String
 }
 
+# set as default response
+type updateUserShippingAddressAsDefaultResponse {
+    _id: ObjectId!
+    message: String
+}
 
 # User Shipping Address  Queries
 
@@ -103,8 +112,7 @@ type UserShippingAddress {
     postCode: String
     houseNumber: String
     country: String
-    companyName: String
-    vatNumber: String
+
 }
 
 type GetUserShippingAddressesResponse {
@@ -124,8 +132,7 @@ type GetUserShippingAddressResponse {
     postCode: String
     houseNumber: String
     country: String
-    companyName: String
-    vatNumber: String
+ 
 }
 
 

@@ -30,6 +30,7 @@ export interface FileData {
 
 export interface ICartProduct {
     productId: Types.ObjectId;
+    vendorId: Types.ObjectId;
     quantity: number;
     name: string;
     shortDescription: string;
@@ -101,7 +102,7 @@ export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> =
     pipeline.push(
         {
             $match: {
-                userId: userId
+                userId: new Types.ObjectId(userId)
             }
         },
         {
@@ -187,7 +188,7 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
     pipeline.push(
         {
             $match: {
-                userId: userId
+                userId: new Types.ObjectId(userId)
             }
         },
         {
@@ -216,11 +217,10 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                     {
                         $project: {
                             _id: 1,
+                            vendorId: 1,
                             productName: 1,
                             stock: 1,
                             isBlocked: 1,
-                            color: 1,
-                            size: 1,
                             price: 1,
                             images: { $arrayElemAt: ["$images", 0] },
                             skuId: 1,
@@ -242,13 +242,12 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
         {
             $project: {
                 _id: 0,
+                vendorId: "$productData.vendorId",
                 productId: "$productData._id",
                 quantity: "$products.quantity",
                 name: "$productData.productName",
                 stock: "$productData.stock",
                 isBlocked: "$productData.isBlocked",
-                color: "$productData.color",
-                size: "$productData.size",
                 price: "$productData.price",
                 image: "$productData.images",
                 skuId: "$productData.skuId",

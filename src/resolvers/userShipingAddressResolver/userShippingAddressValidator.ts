@@ -13,13 +13,15 @@ export const userShippingAddressCreateValidator = [
     body('variables.input.unit').trim().optional({ checkFalsy: true }),
     body('variables.input.country').trim().optional({ checkFalsy: true }),
     body('variables.input.houseNumber').trim().optional({ checkFalsy: true }),
-    body('variables.input.companyName').trim().optional({ checkFalsy: true }),
-    body('variables.input.vatNumber').trim().optional({ checkFalsy: true }),
 ];
 
 
 export const userShippingAddressQueryValidator = [
     body('variables.input._id').trim().isMongoId()
+];
+
+export const userDeafultShippingAddressUpdateValidator = [
+    body('variables.input.addressId').trim().isMongoId()
 ];
 
 
@@ -36,7 +38,6 @@ export const userShippingAddressUpdateValidator = [
     body('variables.input.suite').trim().optional({ checkFalsy: true }),
     body('variables.input.unit').trim().optional({ checkFalsy: true }),
     body('variables.input.houseNumber').trim().optional({ checkFalsy: true }),
-    body('variables.input.companyName').trim().optional({ checkFalsy: true }),
-    body('variables.input.vatNumber').trim().optional({ checkFalsy: true }),
+
 ];
 

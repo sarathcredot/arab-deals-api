@@ -49,12 +49,6 @@ const userShippingAddressSchema = new Schema(
             type: String,
             required: true,
         },
-        companyName: {
-            type: String,
-        },
-        vatNumber: {
-            type: String,
-        },
         postCode: {
             type: String,
             required: true,

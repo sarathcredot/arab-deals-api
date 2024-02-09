@@ -4,7 +4,13 @@ import { collections } from "../configs";
 
 const shippingAddressSchema = new Schema(
     {
-        fullname: {
+        userId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            index: true,
+            ref: collections.USERS
+        },
+        firstname: {
             type: String,
             required: true,
         },
@@ -20,32 +26,32 @@ const shippingAddressSchema = new Schema(
         country: {
             type: String,
             required: true,
-            default: "india",
+            default: "India", //TODO default need to change
         },
-        state: {
+        houseNumber: {
             type: String,
             required: true,
+        },
+        streetName: {
+            type: String,
+            required: true,
+        },
+        apartment: {
+            type: String,
+        },
+        suite: {
+            type: String,
+        },
+        unit: {
+            type: String,
         },
         city: {
             type: String,
             required: true,
         },
-        address: {
-            type: String,
-            required: true,
-        },
-        address2: {
-            type: String,
-        },
         postCode: {
             type: String,
             required: true,
-        },
-        landmark: {
-            type: String,
-        },
-        alternateMobile: {
-            type: String,
         },
     },
     { _id: false, timestamps: true }

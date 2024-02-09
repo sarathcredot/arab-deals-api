@@ -17,8 +17,6 @@ export interface IShippingAddress {
     unit?: string;
     city?: string;
     postCode?: string;
-    companyName?: string;
-    vatNumber?: string;
     isDefault?: boolean;
 }
 
@@ -38,8 +36,6 @@ export interface IShippingAddressDocument extends Document {
     city?: string;
     postCode?: string;
     isDefault?: boolean;
-    companyName?: string;
-    vatNumber?: string;
 }
 
 
@@ -64,6 +60,10 @@ export const updateShipingAddress = async (_id: Types.ObjectId, updateQuery: Upd
 
 export const deleteShipingAddress = async (filter: FilterQuery<IShippingAddress>): Promise<IShippingAddressDocument | null> => {
     return await userShippingAddressModel.findOneAndDelete(filter);
+};
+
+export const updateManyShippingAddresses = async (filters: FilterQuery<IShippingAddress>, updateQuery: UpdateQuery<IShippingAddress>, options: QueryOptions = {}): Promise<any> => {
+    return await userShippingAddressModel.updateMany(filters, updateQuery, options);
 };
 
 export const updateDefaultShipingAddress = async (userId: Types.ObjectId, _id: Types.ObjectId): Promise<void> => {

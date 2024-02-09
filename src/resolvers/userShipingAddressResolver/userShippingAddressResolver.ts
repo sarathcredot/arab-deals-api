@@ -31,12 +31,10 @@ export const userShippingAddressResolver: Resolvers = {
                 streetName: input.streetName,
                 apartment: input.apartment || "",
                 suite: input.suite || "",
-                companyName: input.companyName || "",
-                vatNumber: input.vatNumber || "",
                 unit: input.unit || "",
                 city: input.city,
                 postCode: input.postCode,
-                isDefault: isExists ? false : true
+                isDefault: input.isDefault || (isExists ? false : true) // Set isDefault from input if provided, otherwise check if address exists
             };
 
 
@@ -101,12 +99,6 @@ export const userShippingAddressResolver: Resolvers = {
             if (input.suite) {
                 shippingAddress.suite = input.suite;
             }
-            if (input.companyName) {
-                shippingAddress.companyName = input.companyName;
-            }
-            if (input.vatNumber) {
-                shippingAddress.vatNumber = input.vatNumber;
-            }
 
             await shippingAddress.save();
 
@@ -150,6 +142,43 @@ export const userShippingAddressResolver: Resolvers = {
             return response;
 
         },
+
+        updateUserShippingAddressAsDefault: async (parent, { input }, { req }, info) => {
+            try {
+                // Verify user authentication
+                await verifyUser(req);
+
+                await validateInput(validators.userDeafultShippingAddressUpdateValidator, req);
+
+                const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+                const addressId: Types.ObjectId = new Types.ObjectId(input.addressId);
+
+                // Update all addresses to non-default
+                await userShippingAddressService.updateManyShippingAddresses({ userId }, { isDefault: false });
+
+                // Update the specified address to default
+                const updatedAddress = await userShippingAddressService.updateShipingAddress(
+                    addressId,
+                    { isDefault: true },
+                    { new: true }
+                );
+
+                if (!updatedAddress) {
+                    throw new Error('Shipping address not found');
+                }
+
+                let response = {
+                    _id: updatedAddress?._id?.toString(),
+                    message: "Default shipping address updated"
+                }
+
+                return response;
+
+            } catch (error) {
+                console.error('Error updating shipping address:', error);
+                throw new Error('Failed to update shipping address');
+            }
+        }
 
     },
 

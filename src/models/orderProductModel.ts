@@ -45,6 +45,12 @@ const orderProductSchema = new Schema(
             required: true,
             index: true,
         },
+        vendorId: {
+            type: Schema.Types.ObjectId,
+            ref: collections.VENDORS,
+            required: true,
+            index: true,
+        },
         productId: {
             type: Schema.Types.ObjectId,
             required: true,

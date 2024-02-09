@@ -7,14 +7,11 @@ const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
 // Vendor JWT Services
 
 export const getVendorAuthTokenFromHeaders = (req: Request): string => {
-    console.log(req)
     try {
         const { headers: { authorization } } = req;
-        console.log("authorization ", authorization)
 
         if (authorization && authorization.split(" ")[0] === "Bearer") {
             const token = authorization.split(" ")[1];
-            console.log("token ", token)
             return token;
         } else {
             throw new GraphQLError("Unauthorized", {

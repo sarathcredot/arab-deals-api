@@ -13,7 +13,7 @@ export const settingsResolver: Resolvers = {
     Mutation: {
 
         updatePaymentSettings: async (parent, { input }, { req }, info) => {
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.updatePaymentConfigValidator, req);
 
             let paymentSettings = await settingsService.getPaymentConfig({}, { sort: { _id: 1 } });
@@ -40,7 +40,7 @@ export const settingsResolver: Resolvers = {
         },
         updateShippingSettings: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.updateShippingConfigValidator, req);
 
 

@@ -177,6 +177,11 @@ const productSchema = new Schema(
             enum: ["PENDING" ,"UNDER_VERIFICATION", "APPROVED", "REJECTED"],
             default: "PENDING"
         },
+        IsReturnEnabled: {
+            type: Boolean,
+            required: true,
+            default: false
+        }
     },
     {
         timestamps: true
