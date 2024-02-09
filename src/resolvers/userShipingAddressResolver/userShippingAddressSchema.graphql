@@ -132,7 +132,7 @@ type GetUserShippingAddressResponse {
     postCode: String
     houseNumber: String
     country: String
- 
+    isDefault: Boolean
 }
 
 
