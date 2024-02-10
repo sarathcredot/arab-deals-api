@@ -378,6 +378,7 @@ type AdminOrderProduct {
     _id: ObjectId
     userId: ObjectId
     vendorId: ObjectId
+    vendorName: String
     productId: ObjectId
     orderId: String
     itemId: String

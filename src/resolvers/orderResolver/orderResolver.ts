@@ -480,9 +480,6 @@ export const orderResolver: Resolvers = {
             if (input.size) {
                 filters.size = input.size;
             }
-            if (input.vendorId) {
-                filters.vendorId = input.vendorId;
-            }
 
             const response = await orderService.getAdminOrdersWithFilters(filters);
 
@@ -961,7 +958,7 @@ export const orderResolver: Resolvers = {
         },
         getAdminOrderProduct: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductValidator, req);
 
             const response = await orderProductService.getOrderProductWithId(input._id);
