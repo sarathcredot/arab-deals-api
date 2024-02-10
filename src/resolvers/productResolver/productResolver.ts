@@ -114,18 +114,6 @@ export const productResolver: Resolvers = {
 
                 const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 
-                // const transformedOutput = {};
-
-                // for (const item of attributeData) {
-                //     const { attribute } = item;
-                //     const { attributeDescription } = attribute;
-
-                //     (transformedOutput as any)[attributeDescription] = {
-                //         attributeValueId: item.attributeValueId,
-                //         attributeValue: item.value,
-                //         colorCode: item.colorCode
-                //     };
-                // }
 
                 newProduct = {
                     vendorId: input.vendorId,
@@ -288,7 +276,7 @@ export const productResolver: Resolvers = {
         updateProduct: async (parent, { input, images }, { req }, info) => {
             try {
                 await validateInput(validators.productUpdateValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -888,10 +876,6 @@ export const productResolver: Resolvers = {
                 const options = { page, size, productCode }
                 const variants = await productService.getAllProductVariantsByAdminWithProductCode(options);
 
-                // variants.sort((a, b) => {
-                //     return a.size.localeCompare(b.size)
-                // });
-
 
                 let response = {
                     maxRecords: variants.maxRecords,
@@ -956,13 +940,10 @@ export const productResolver: Resolvers = {
                         }
                     });
                 }
-                // const categoryId: Types.ObjectId = (result as categoryService.CategoryDocument).categoryId;
-
-                // const lowestCategoryTreeData = await categoryService.findCategoryWithFilters({ _id: categoryId }, { _id: 1, path: 1, sizeChart: 1 }, { lean: true });
+                
 
                 const response = {
                     product: result,
-                    // sizeChartUrl: (lowestCategoryTreeData as categoryService.CategoryDocument).sizeChart?.fileURL
                 }
 
                 return response;
@@ -1024,13 +1005,10 @@ export const productResolver: Resolvers = {
                         }
                     });
                 }
-                // const categoryId: Types.ObjectId = (result as categoryService.CategoryDocument).categoryId;
-
-                // const lowestCategoryTreeData = await categoryService.findCategoryWithFilters({ _id: categoryId }, { _id: 1, path: 1, sizeChart: 1 }, { lean: true });
+            
 
                 const response = {
                     product: result,
-                    // sizeChartUrl: (lowestCategoryTreeData as categoryService.CategoryDocument).sizeChart?.fileURL
                 }
 
                 return response;
@@ -1250,10 +1228,6 @@ export const productResolver: Resolvers = {
                 }
                 let variants = await productService.getProductVariants(result.productCode);
 
-                // variants.sort((a, b) => {
-                //     return a.size.localeCompare(b.size)
-                // });
-
                 let response = {
                     variants: variants
                 }
@@ -1293,9 +1267,6 @@ export const productResolver: Resolvers = {
                 }
                 let variants = await productService.getProductVariantsInMobile(result.productCode);
 
-                // variants.sort((a, b) => {
-                //     return a.size.localeCompare(b.size)
-                // });
 
                 let response = {
                     variants: variants
@@ -1373,26 +1344,7 @@ export const productResolver: Resolvers = {
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const productCode: number = input.productCode;
-
-                // const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
-                // if (!product) {
-                //     throw new GraphQLError("product not found", {
-                //         extensions: {
-                //             code: "BAD_REQUEST",
-                //             errors: []
-                //         }
-                //     });
-                // }
-
-                // let result: productService.IProduct = product;
-                // if (!result.productCode) {
-                //     throw new GraphQLError("variants not found", {
-                //         extensions: {
-                //             code: "BAD_REQUEST",
-                //             errors: []
-                //         }
-                //     });
-                // }
+          
 
                 const product = await productService.getProductWithFilters({ productCode: productCode }, { productCode: 1 }, { lean: true });
                 console.log("product: ", product)
@@ -1406,15 +1358,9 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                // let productCode = result.productCode
-
                 let options = { page, size, productCode };
 
                 let variants = await productService.getProductVariantsByVendorTable(options);
-
-                // variants.sort((a, b) => {
-                //     return a.size.localeCompare(b.size)
-                // });
 
                 let response = {
                     records: variants.records,

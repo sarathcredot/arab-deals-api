@@ -356,7 +356,7 @@ export const userResolver: Resolvers = {
     },
 
 
-    // Edit vendor profile
+    // Edit user profile
     updateUserProfile: async (parent, { input }, { req }, info) => {
 
       try {
@@ -414,10 +414,6 @@ export const userResolver: Resolvers = {
           user.mobileNumber = input.mobileNumber;
         }
 
-        if (input.isBlocked !== null && input.isBlocked !== undefined) {
-          user.isBlocked = input.isBlocked;
-        }
-
 
         const result = await user.save();
 
@@ -433,7 +429,7 @@ export const userResolver: Resolvers = {
       }
     },
 
-    //Mobile Edit vendor profile
+    //Mobile Edit user profile
     updateUserProfileInMobile: async (parent, { input }, { req }, info) => {
 
       try {
@@ -489,10 +485,6 @@ export const userResolver: Resolvers = {
 
         if (input.mobileNumber) {
           user.mobileNumber = input.mobileNumber;
-        }
-
-        if (input.isBlocked !== null && input.isBlocked !== undefined) {
-          user.isBlocked = input.isBlocked;
         }
 
         const result = await user.save();
