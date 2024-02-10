@@ -16,10 +16,7 @@ export const userResolver: Resolvers = {
       await validateInput(validators.userNumberValidator, req);
       const mobileNumber: string = input.mobileNumber;
       const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
-      // let authname = "";
-      // if (user) {
-      //   authname = "USER_LOGIN_MOBILE_OTP";
-      // }
+  
 
       if (user?.isBlocked) {
         throw new GraphQLError("User is Blocked", {
@@ -73,10 +70,6 @@ export const userResolver: Resolvers = {
       await validateInput(validators.userNumberValidator, req);
       const mobileNumber: string = input.mobileNumber;
       const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
-      // let authname = "";
-      // if (user) {
-      //   authname = "USER_LOGIN_MOBILE_OTP";
-      // }
 
       if (user?.isBlocked) {
         throw new GraphQLError("User is Blocked", {
@@ -417,14 +410,6 @@ export const userResolver: Resolvers = {
           user.displayName = input.displayName;
         }
 
-        if (input.address) {
-          user.address = input.address;
-        }
-
-        if (input.countryCode) {
-          user.countryCode = input.countryCode;
-        }
-
         if (input.mobileNumber) {
           user.mobileNumber = input.mobileNumber;
         }
@@ -433,29 +418,6 @@ export const userResolver: Resolvers = {
           user.isBlocked = input.isBlocked;
         }
 
-        if (input.houseNumber) {
-          user.houseNumber = input.houseNumber;
-        }
-
-        if (input.streetName) {
-          user.streetName = input.streetName;
-        }
-
-        if (input.city) {
-          user.city = input.city;
-        }
-
-        if (input.pincode) {
-          user.pincode = input.pincode;
-        }
-
-        if (input.country) {
-          user.country = input.country;
-        }
-
-        // if (input.password) {
-        //   await user.setHash!(input.password);
-        // }
 
         const result = await user.save();
 
@@ -525,14 +487,6 @@ export const userResolver: Resolvers = {
           user.displayName = input.displayName;
         }
 
-        if (input.address) {
-          user.address = input.address;
-        }
-
-        if (input.countryCode) {
-          user.countryCode = input.countryCode;
-        }
-
         if (input.mobileNumber) {
           user.mobileNumber = input.mobileNumber;
         }
@@ -540,30 +494,6 @@ export const userResolver: Resolvers = {
         if (input.isBlocked !== null && input.isBlocked !== undefined) {
           user.isBlocked = input.isBlocked;
         }
-
-        if (input.houseNumber) {
-          user.houseNumber = input.houseNumber;
-        }
-
-        if (input.streetName) {
-          user.streetName = input.streetName;
-        }
-
-        if (input.city) {
-          user.city = input.city;
-        }
-
-        if (input.pincode) {
-          user.pincode = input.pincode;
-        }
-
-        if (input.country) {
-          user.country = input.country;
-        }
-
-        // if (input.password) {
-        //   await user.setHash!(input.password);
-        // }
 
         const result = await user.save();
 

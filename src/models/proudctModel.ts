@@ -36,7 +36,6 @@ const attributeSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: collections.ATTRIBUTES,
             required: true,
-            // unique: true 
         },
         attributeName: {
             type: String,
@@ -46,7 +45,6 @@ const attributeSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: collections.ATTRIBUTE_VALUES, 
             required: true,
-            // unique: true 
         },
         attributeValue: {
             type: Schema.Types.Mixed,

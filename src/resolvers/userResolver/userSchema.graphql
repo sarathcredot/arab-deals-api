@@ -65,16 +65,9 @@ input updateUserProfileInput {
   firstName: String
   lastName: String
   displayName: String
-  address: String
-  countryCode: String
+
   mobileNumber: String
-  # password: String
   isBlocked: Boolean
-  houseNumber: String
-  streetName: String
-  city: String
-  pincode: String
-  country: String
 }
 
 input updateUserProfileInMobileInput {
@@ -83,16 +76,8 @@ input updateUserProfileInMobileInput {
   firstName: String
   lastName: String
   displayName: String
-  address: String
-  countryCode: String
   mobileNumber: String
-  # password: String
   isBlocked: Boolean
-  houseNumber: String
-  streetName: String
-  city: String
-  pincode: String
-  country: String
 }
 
 
@@ -148,17 +133,9 @@ type user{
   firstName: String
   lastName: String
   displayName: String
-  address: String
-  countryCode: String
   mobileNumber: String
-  # hash: String
   isBlocked: Boolean
   token: String
-  houseNumber: String
-  streetName: String
-  city: String
-  pincode: String
-  country: String
 }
 
 type usersResponse {

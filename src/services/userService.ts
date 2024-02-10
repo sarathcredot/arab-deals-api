@@ -8,17 +8,9 @@ export interface IUser {
   firstName?: string;
   lastName?: string;
   displayName?: string;
-  address?: string;
-  countryCode?: string;
   mobileNumber?: string;
-  // hash?: string;
   isBlocked?: boolean;
   token?: string;
-  houseNumber?: string;
-  streetName?: string;
-  city?: string;
-  pincode?: string;
-  country?: string;
 }
 
 export interface IUserDocument extends Document {
@@ -27,19 +19,9 @@ export interface IUserDocument extends Document {
   firstName?: string;
   lastName?: string;
   displayName?: string;
-  address?: string;
-  countryCode?: string;
   mobileNumber?: string;
-  // hash?: string;
   isBlocked?: boolean;
   token?: string;
-  // verifyHash?(password: string): Promise<boolean>;
-  // setHash?(password: string): Promise<void>;
-  houseNumber?: string;
-  streetName?: string;
-  city?: string;
-  pincode?: string;
-  country?: string;
 }
 
 export interface IGeneralResponse {
@@ -64,15 +46,9 @@ export interface IUsersProjection {
   firstName: 1,
   lastName: 1,
   displayName: 1,
-  address: 1,
-  countryCode: 1,
   mobileNumber: 1,
   isBlocked: 1,
-  houseNumber: 1,
-  streetName: 1,
-  city: 1,
-  pincode: 1,
-  country: 1,
+
 }
 
 
@@ -81,21 +57,12 @@ export const findUserWithFilters = async (filters: FilterQuery<IUser>, projectio
   return await userModel.findOne(filters, projection, options);
 }
 
-// export const getUserWithId = async (id: Types.ObjectId, projection: IUsersProjection = {}, options: QueryOptions = {}): Promise<Document | null> => {
-//   const result = await userModel.findById(id, projection, options);
-//   return result;
-// }
 
 export const createUser = async (userData: IUser): Promise<IUserDocument | null> => {
   let user: IUserDocument = new userModel(userData);
   return await user.save();
 };
 
-// export const createUserWithPassword = async (userData: IUser,  password: string): Promise<IUserDocument | null> => {
-//   let user: IUserDocument = new userModel(userData);
-//   await user.setHash!(password);
-//   return await user.save();
-// };
 
 export const findOneAndUpdateUser = async (filters: FilterQuery<IUser>, update: UpdateQuery<IUser>, options: QueryOptions): Promise<IGeneralResponse | null> => {
   return await userModel.findOneAndUpdate(filters, update, options);

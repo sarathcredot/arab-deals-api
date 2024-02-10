@@ -17,7 +17,7 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.brandCreateValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 let brandLogo;
 
@@ -61,7 +61,7 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.brandUpdateValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -150,7 +150,7 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.brandDeleteValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const result = await brandService.deleteBrandRecord(_id);
@@ -384,7 +384,7 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.getAllBrandsWithVendorByVendorValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
@@ -412,7 +412,7 @@ export const brandResolver: Resolvers = {
         // Fetch brand by id
         async getBrandRecordByAdmin(parent, { input }, { req }, info) {
             try {
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
                 // Validate Input
                 await validateInput(validators.brandQueryValidator, req);
 
@@ -443,7 +443,7 @@ export const brandResolver: Resolvers = {
 
         // Fetch each brand records  and each record values with category in vendor portal
         async getBrandDetailsWithCategory(parent, { input }, { req }, info) {
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
 
             try {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
@@ -502,7 +502,7 @@ export const brandResolver: Resolvers = {
 
         // Fetch each brand records  and each record values with category in mobile
         async getBrandDetailsWithCategoryInMobile(parent, { input }, { req }, info) {
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
 
             try {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
@@ -561,7 +561,7 @@ export const brandResolver: Resolvers = {
 
         // Fetch each brand records  and each record values with category in vendor portal
         async getCategoryDetailsWithBrand(parent, { input }, { req }, info) {
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
 
             try {
                 await validateInput(validators.getCategoriesWithbrandValidator, req);
