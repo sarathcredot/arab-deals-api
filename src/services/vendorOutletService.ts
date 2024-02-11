@@ -12,28 +12,6 @@ export interface FileData {
 }
 
 
-// export interface IVendorCompany {
-//     _id?: string;
-//     vendorId?: Types.ObjectId;
-//     companyName?: string;
-//     companyType?: string;
-//     crLicense?: {
-//       fileType?: string,
-//       fileURL?: string,
-//       mimeType?: string,
-//       originalName?: string
-//     };
-//     cooCertificate?: {
-//       fileType?: string,
-//       fileURL?: string,
-//       mimeType?: string,
-//       originalName?: string
-//     };
-//     crNumber?: string,
-//     status?: string;
-//     remarks?: string[];
-// }
-
 export interface IVendorOutlet {
   _id?: string;
   vendorId?: Types.ObjectId;

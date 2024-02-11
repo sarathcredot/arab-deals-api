@@ -388,6 +388,15 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
             }
         )
     }
+    else {
+        pipeline.push(
+            {
+                $match: {
+                    shippingStatus: { $ne: "NA" }
+                }
+            }
+        )
+    }
     if (options.orderStartDate) {
         pipeline.push(
             {
@@ -484,6 +493,7 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
             {
                 $match: {
                     vendorId: options.vendorId
+
                 }
             }
         )
@@ -732,6 +742,15 @@ export const getVendorShippingProducts = async (options: IShippingProductsOption
             {
                 $match: {
                     shippingStatus: options.shippingStatus
+                }
+            }
+        )
+    }
+    else {
+        pipeline.push(
+            {
+                $match: {
+                    shippingStatus: { $ne: "NA" }
                 }
             }
         )
@@ -1038,6 +1057,15 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
             {
                 $match: {
                     returnStatus: options.returnStatus
+                }
+            }
+        )
+    }
+    else {
+        pipeline.push(
+            {
+                $match: {
+                    returnStatus: { $ne: "NA" }
                 }
             }
         )
@@ -1367,6 +1395,15 @@ export const getVendorReturnProducts = async (options: IReturnProductsOptions): 
             {
                 $match: {
                     returnStatus: options.returnStatus
+                }
+            }
+        )
+    }
+    else {
+        pipeline.push(
+            {
+                $match: {
+                    returnStatus: { $ne: "NA" }
                 }
             }
         )

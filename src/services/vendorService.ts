@@ -193,10 +193,6 @@ export interface IVendorsRecordsResponse {
   maxRecords: number
 }
 
-// export interface IVendorsWithKycRecordsResponse {
-//   records: Array<IVendorKYCData>,
-//   maxRecords: number
-// }
 
 export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument | null> => {
   let vendor: IVendorDocument = new vendorModel(vendorData);

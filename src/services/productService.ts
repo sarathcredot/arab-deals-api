@@ -778,64 +778,6 @@ export const getProductsByVendorWithFilters = async (options: IProductsByVendorO
     return response;
 }
 
-// export const getProductVariants = async (productCode: number): Promise<IVariant[]> => {
-//     let pipeline: PipelineStage[] = [];
-//     pipeline.push(
-//         {
-//             $match: {
-//                 isBlocked: false,
-//                 productCode: productCode
-//             }
-//         },
-//         {
-//             $lookup: {
-//                 from: collections.COLORS,
-//                 let: { color: "$color", categoryId: "$categoryId" },
-//                 pipeline: [
-//                     {
-//                         $match: {
-//                             $expr: {
-//                                 $and: [
-//                                     {
-//                                         $eq: ["$colorName", "$$color"]
-//                                     },
-//                                     {
-//                                         $eq: ["$categoryId", "$$categoryId"]
-//                                     }
-//                                 ]
-//                             }
-//                         }
-//                     },
-//                     {
-//                         $limit: 1
-//                     },
-//                     {
-//                         $project: {
-//                             _id: 0,
-//                             colorCode: 1
-//                         }
-//                     }
-//                 ],
-//                 as: "colorData"
-//             }
-//         },
-//         {
-//             $unwind: "$colorData"
-//         },
-//         {
-//             $project: {
-//                 _id: 1,
-//                 color: 1,
-//                 size: 1,
-//                 colorCode: "$colorData.colorCode",
-//                 stock: 1,
-//                 isBlocked: 1,
-//             }
-//         }
-//     );
-//     let result: IVariant[] = await productModel.aggregate(pipeline);
-//     return result;
-// }
 
 // GET ALL PRODUCTS MATCHING THAT PRODUCT AND PROJECT ALL ITS ATTRIBUTES IDS AND VALUES
 export const getProductVariants = async (productCode: number): Promise<any> => {

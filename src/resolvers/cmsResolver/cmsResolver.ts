@@ -106,25 +106,14 @@ export const cmsResolver: Resolvers = {
                 let update: cmsService.ICmsRecord = {};
 
 
-                // if (input.title) {
-                //     update.title = input?.title;
-                // }
-
                 if (input.pageName) {
                     update.pageName = input?.pageName;
                 }
 
-                // if (input.subTitle) {
-                //     update.subTitle = input?.subTitle;
-                // }
 
                 if (cmsImages.length > 0) {
                     update.images = cmsImages;
                 }
-
-                // if (input.description) {
-                //     update.description = (input.description || []).filter(Boolean) as [];
-                // }
 
                 if (input.buttons != null) {
                     update.buttons = (input.buttons || []).filter(Boolean) as [];
