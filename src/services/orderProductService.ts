@@ -483,7 +483,7 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
         pipeline.push(
             {
                 $match: {
-                    vendorId: new Types.ObjectId(options.vendorId)
+                    vendorId: options.vendorId
                 }
             }
         )
@@ -830,7 +830,7 @@ export const getVendorShippingProducts = async (options: IShippingProductsOption
     pipeline.push(
         {
             $match: {
-                vendorId: new Types.ObjectId(options.vendorId)
+                vendorId: options.vendorId
             }
         }
     )
@@ -1252,7 +1252,7 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
                             orderId: 1,
                             userId: 1,
                             vendorId: "$vendorInfo._id",
-                            vendorName: "$vendorInfo.fullName",                            productId: 1,
+                            vendorName: "$vendorInfo.fullName", productId: 1,
                             itemId: 1,
                             username: "$userInfo.fullname",
                             productName: 1,
@@ -1465,7 +1465,7 @@ export const getVendorReturnProducts = async (options: IReturnProductsOptions): 
         pipeline.push(
             {
                 $match: {
-                    vendorId: new Types.ObjectId(options.vendorId)
+                    vendorId: options.vendorId
                 }
             }
         )
@@ -1828,7 +1828,7 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
                             _id: 1,
                             orderId: 1,
                             vendorId: "$vendorInfo._id",
-                            vendorName: "$vendorInfo.fullName",                              productId: 1,
+                            vendorName: "$vendorInfo.fullName", productId: 1,
                             itemId: 1,
                             userId: 1,
                             username: "$userInfo.fullname",
@@ -1878,7 +1878,7 @@ export const getVendorRefundProducts = async (options: IRefundProductsOptions): 
     pipeline.push(
         {
             $match: {
-                vendorId: new Types.ObjectId(options.vendorId)
+                vendorId: options.vendorId
             }
         }
     )
