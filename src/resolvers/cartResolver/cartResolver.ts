@@ -16,7 +16,7 @@ export const cartResolver: Resolvers = {
                 await verifyUser(req);
                 await validateInput(validators.addToCartValidator, req);
                 const quantity: number = input.quantity;
-                const userId: string = req.authAccount._id;
+                const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
 
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
@@ -48,20 +48,21 @@ export const cartResolver: Resolvers = {
 
                 const cart = await cartService.checkCartExist(userId)
                 if (cart) {
-                    const itemExist = await cartService.checkItemExists(productId);
-                    if (itemExist) {
-                        try {
-                            await cartService.editQuantityOfItem(productId, userId, quantity);
 
-                        } catch (error) {
-                            console.log(error);
+                    let itemExist = false;
+
+                    for (let item of cart.products) {
+                        if (item.productId.equals(productId)) {
+                            itemExist = true;
+                            break;
                         }
-                    } else {
-                        try {
-                            await cartService.addItem(productId, userId, quantity);
-                        } catch (error) {
-                            console.log(error);
-                        }
+                    }
+
+                    if (itemExist) {
+                        await cartService.editQuantityOfItem(productId, userId, quantity);
+                    }
+                    else {
+                        await cartService.addItem(productId, userId, quantity);
                     }
                 } else {
                     try {
@@ -70,6 +71,7 @@ export const cartResolver: Resolvers = {
                         console.log(error);
                     }
                 }
+
                 const response = {
                     message: "Items added to cart",
 
@@ -87,7 +89,7 @@ export const cartResolver: Resolvers = {
             try {
                 await verifyUser(req);
                 await validateInput(validators.removeFromCartValidator, req);
-                const userId: string = req.authAccount._id;
+                const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
 
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
@@ -151,7 +153,7 @@ export const cartResolver: Resolvers = {
             try {
                 await verifyUser(req);
                 await validateInput(validators.removeFromCartValidator, req);
-                const userId: string = req.authAccount._id;
+                const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
 
@@ -224,7 +226,7 @@ export const cartResolver: Resolvers = {
                 await verifyUser(req);
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
                 const cart = await cartService.getCart(userId);
-                const user_Id = userId.toString()
+                const user_Id = userId;
 
                 const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 

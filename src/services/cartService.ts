@@ -3,9 +3,9 @@ import { cartModel } from "../models";
 import { collections } from "../configs";
 
 export interface Icart {
-    productId: string,
+    productId: Types.ObjectId,
     quantity: number,
-    userId: string
+    userId: Types.ObjectId
 }
 export interface IaddItem {
     productId: Types.ObjectId,
@@ -18,8 +18,20 @@ export interface ICartDocument extends Document {
     // userId?: Types.ObjectId
 }
 
+export interface IUserCartProduct {
+    productId: Types.ObjectId;
+    quantity: number;
+}
+
+export interface IUserCartDocument extends Document {
+    _id?: Types.ObjectId;
+    products: IUserCartProduct[];
+    userId: Types.ObjectId;
+}
+
+
 export interface FileData {
-    _id?: string,
+    _id?: Types.ObjectId,
     fileType?: string,
     fileURL?: string,
     mimeType?: string,
@@ -46,7 +58,7 @@ export interface ICartProduct {
 }
 
 
-export const createCart = async (productId: string, userId: string, quantity: number): Promise<any> => {
+export const createCart = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
     return await cartModel.create({
         userId: userId,
         products: [
@@ -57,32 +69,32 @@ export const createCart = async (productId: string, userId: string, quantity: nu
         ],
     });
 }
-export const checkCartExist = async (userId: String): Promise<any> => {
+export const checkCartExist = async (userId: Types.ObjectId): Promise<IUserCartDocument | null> => {
     return await cartModel.findOne({ userId: userId });
 }
 export const checkItemExists = async (productId: Types.ObjectId): Promise<any> => {
     return await cartModel.exists({ "products.productId": productId });
 }
-export const editQuantityOfItem = async (productId: Types.ObjectId, userId: string, quantity: number): Promise<any> => {
+export const editQuantityOfItem = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
     const filter = { "products.productId": productId, userId };
     const update: UpdateQuery<any> = { $inc: { "products.$.quantity": quantity } };
     return await cartModel.updateOne(filter, update);
 }
-export const removeItem = async (productId: Types.ObjectId, userId: string): Promise<any> => {
+export const removeItem = async (productId: Types.ObjectId, userId: Types.ObjectId): Promise<any> => {
     return await cartModel.findOneAndUpdate(
         { userId: userId },
         { $pull: { products: { productId: productId } } },
         { new: true }
     );
 }
-export const updateQuantity = async (productId: Types.ObjectId, userId: string, newQuantity: number): Promise<any> => {
+export const updateQuantity = async (productId: Types.ObjectId, userId: Types.ObjectId, newQuantity: number): Promise<any> => {
     return await cartModel.findOneAndUpdate(
         { userId: userId, "products.productId": productId },
         { $set: { "products.$.quantity": newQuantity } },
         { new: true }
     );
 }
-export const addItem = async (productId: Types.ObjectId, userId: string, quantity: number): Promise<any> => {
+export const addItem = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
     return await cartModel.findOneAndUpdate(
         { userId: userId },
         {
@@ -102,7 +114,7 @@ export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> =
     pipeline.push(
         {
             $match: {
-                userId: new Types.ObjectId(userId)
+                userId: userId
             }
         },
         {
@@ -188,7 +200,7 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
     pipeline.push(
         {
             $match: {
-                userId: new Types.ObjectId(userId)
+                userId: userId
             }
         },
         {
@@ -221,6 +233,8 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                             productName: 1,
                             stock: 1,
                             isBlocked: 1,
+                            color: 1,
+                            size: 1,
                             price: 1,
                             images: { $arrayElemAt: ["$images", 0] },
                             skuId: 1,
@@ -248,6 +262,8 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                 name: "$productData.productName",
                 stock: "$productData.stock",
                 isBlocked: "$productData.isBlocked",
+                color: "$productData.color",
+                size: "$productData.size",
                 price: "$productData.price",
                 image: "$productData.images",
                 skuId: "$productData.skuId",

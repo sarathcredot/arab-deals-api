@@ -336,6 +336,8 @@ export const vendorResolver: Resolvers = {
 
       await vendor.save();
 
+      await otpService.deleteOtpRecord(otpVerification._id);
+
       const loginResponse = vendorService.loginVendor(vendor);
 
       const response = {

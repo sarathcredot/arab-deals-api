@@ -18,7 +18,7 @@ scalar ObjectId
 # cart Input
 
 input addToCartInput {
-    productId:String!
+    productId:ObjectId!
     quantity:Int!
 }
 input removeFromCartInput {
