@@ -15,7 +15,7 @@ export const attributeValueResolver: Resolvers = {
 
     // Attribute creation from admin side
     createAttributeValue: async (parent, { input }, { req }, info) => {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
       await validateInput(validators.CreateAttributeValueValidator, req);
 
       let attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
@@ -56,7 +56,7 @@ export const attributeValueResolver: Resolvers = {
     // Attribute values edit from admin side
     editAttributeValue: async (parent, { input }, { req }, info) => {
       try {
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
         await validateInput(validators.EditAttributeValueValidator, req);
 
         const attributeValueId: Types.ObjectId = new Types.ObjectId(input.attributeValueId);

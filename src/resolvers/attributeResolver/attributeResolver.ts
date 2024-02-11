@@ -15,7 +15,7 @@ export const attributeResolver: Resolvers = {
 
     // Attribute creation from admin side
     createAttribute: async (parent, { input }, { req }, info) => {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
       await validateInput(validators.CreateAttributeValidator, req);
 
       let attributeType: string = input.attributeType;
@@ -54,7 +54,7 @@ export const attributeResolver: Resolvers = {
     // Attribute edit from admin side
     editAttribute: async (parent, { input }, { req }, info) => {
       try {
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
         await validateInput(validators.EditAttributeValidator, req);
 
         const attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
@@ -113,7 +113,7 @@ export const attributeResolver: Resolvers = {
     async getAllAttributeRecordsByAdmin(parent, { input }, { req }, info) {
       try {
         await validateInput(validators.getAllAttributeRecordsValidator, req);
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
@@ -170,7 +170,7 @@ export const attributeResolver: Resolvers = {
 
     // Fetch each attribute record by admin
     async getAttributeRecordByAdmin(parent, { input }, { req }, info) {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
 
       try {
         await validateInput(validators.getAttributeRecordValidator, req);
@@ -213,7 +213,7 @@ export const attributeResolver: Resolvers = {
 
     // Fetch each attribute record by vendor
     async getAttributeRecordByVendor(parent, { input }, { req }, info) {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
 
       try {
         await validateInput(validators.getAttributeRecordValidator, req);
@@ -379,7 +379,7 @@ export const attributeResolver: Resolvers = {
 
     // Fetch each attribute records  and each record values with category in admin portal
     async getAttributesDetailsWithCategoryByAdmin(parent, { input }, { req }, info) {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
 
       try {
         await validateInput(validators.getCategoryWithAttributeValidator, req);
