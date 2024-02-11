@@ -1,6 +1,7 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
 import { adminModel, vendorModel, authUtilityModel } from '../models';
-import moment from 'moment';
+import moment, { MomentInput } from 'moment';
+import otpGenerator from 'otp-generator';
 
 export interface IOtpFile {
   code?: string,
@@ -30,29 +31,23 @@ export interface IAuthUtilityProjection {
   updatedAt?: 1,
 }
 
-export const generateOtp = async function (): Promise<IOtpFile | null> {
-  try {
-    const otpLength = 6;
-    const minOtpValue = Math.pow(10, otpLength - 1);
-    const maxOtpValue = Math.pow(10, otpLength) - 1;
-    const otp = Math.floor(Math.random() * (maxOtpValue - minOtpValue + 1)) + minOtpValue;
+export const generateOtp = async function (): Promise<IOtpFile> {
 
-    // Get the current timestamp and set OTP expiration (e.g., 5 minutes)
-    const currentTime = new Date();
-    const expirationTime = new Date(currentTime.getTime() + 5 * 60 * 1000); // 5 minutes
+  const otp = otpGenerator.generate(5, {
+    lowerCaseAlphabets: false,
+    upperCaseAlphabets: false,
+    specialChars: false,
+  });
 
-    let response = {
-      code: otp.toString(),
-      expiresAt: expirationTime.toISOString(),
-    };
+  const expiresAt = moment().add(5, "minutes");
 
-    return response;
+  let response = {
+    code: otp.toString(),
+    expiresAt: expiresAt.toISOString()
+  };
 
-  } catch (error) {
-    throw new Error("Error sending OTP");
-  }
+  return response;
 };
-
 
 export const createOtp = async (options: QueryOptions): Promise<Document | null> => {
   let otpData = new authUtilityModel(options);
@@ -79,16 +74,17 @@ export const createOtp = async (options: QueryOptions): Promise<Document | null>
 // }
 
 
-export const isOtpExpired = async function (expiryTimestamp: Date): Promise<boolean> {
-  const currentTimestamp = moment();
-  const expiryMoment = moment(expiryTimestamp);
-  return currentTimestamp.isAfter(expiryMoment);
+export const isOtpExpired = async function (expiryTimestamp: MomentInput): Promise<boolean> {
+  return moment().isAfter(moment(expiryTimestamp));
 };
-
 
 
 export const findOtpRecordWithFilters = async (filters: FilterQuery<IAuthUtility>, projection: IAuthUtilityProjection = {}, options: QueryOptions): Promise<IAuthUtility | null> => {
   return await authUtilityModel.findOne(filters, projection, options);
+}
+
+export const deleteOtpRecord = async (_id: Types.ObjectId): Promise<void> => {
+  await authUtilityModel.findByIdAndDelete(_id);
 }
 
 

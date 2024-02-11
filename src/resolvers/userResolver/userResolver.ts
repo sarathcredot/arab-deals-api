@@ -268,6 +268,7 @@ export const userResolver: Resolvers = {
 
         // Save the user object
         await user.save();
+        await otpService.deleteOtpRecord(otpVerification._id);
 
       } else {
         token = await jwtService.createUserJWT(existingUser._id!.toString());
