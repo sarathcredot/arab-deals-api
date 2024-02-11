@@ -1,41 +1,64 @@
+scalar ObjectId
+
 # wishList Mutations
 
- type Mutation {
-  addToWishList(input: addToWishListtInput!): addToWishListResponse!
-  removeFromWishList(input: removeFromWishListInput!):removeFromWishListResponse!
-  }
+type Mutation {
+  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
+  removeFromWishList(input: RemoveFromWishListInput!):RemoveFromWishListResponse!
+}
 
-  type Query{
-    getWishList:getWishListResponse
-  }
+type Query{
+  getWishListProducts:GetWishListProductsResponse!
+  getWishListProductStatus(input: GetWishListProductStatusInput!):GetWishListProductStatusResponse!
+}
 
 
 # wishList Input
 
-input addToWishListtInput {
-    productId:String!
+input AddToWishListInput {
+  productId:ObjectId!
 }
-input removeFromWishListInput {
-    productId:String!
+input RemoveFromWishListInput {
+  productId:ObjectId!
+}
+
+input GetWishListProductStatusInput {
+  productId: ObjectId!
 }
 
 # wishList Output
 
-type addToWishListResponse{
+type AddToWishListResponse {
   message:String
 }
-type removeFromWishListResponse{
+type RemoveFromWishListResponse {
   message:String
-}
-type getWishListResponse{
-  products:[String]
 }
 
+
+
+type WishListProduct {
+  productId: ObjectId!
+  productName: String!
+  shortDescription: String
+  sellingPrice: Float!
+  image: String
+}
+
+
+type GetWishListProductsResponse {
+  products:[WishListProduct]
+}
+
+type GetWishListProductStatusResponse {
+  isExist:Boolean!
+}
 
 # Schema
 
 schema {
-mutation: Mutation,
+  mutation: Mutation,
+  query: Query
 }
 
 

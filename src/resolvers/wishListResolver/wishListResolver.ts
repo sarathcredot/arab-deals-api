@@ -15,10 +15,10 @@ export const wishListResolver: Resolvers = {
 
                 await verifyUser(req);
                 await validateInput(validators.addToWishListValidator, req);
-                const userId: string = req.authAccount._id;
-                const productId: Types.ObjectId = new Types.ObjectId(input.productId);
+                const userId = req.authAccount._id;
+                const productId = input.productId;
 
-                const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
+                const product = await productService.getProductWithFilters({ _id: productId }, { _id: 1 }, { lean: true });
 
                 if (!product) {
                     throw new GraphQLError("Product not found", {
@@ -37,30 +37,22 @@ export const wishListResolver: Resolvers = {
                     });
                 }
 
-
-                const wishlist = await wishListService.checkWishlistExist(userId)
+                const wishlist = await wishListService.getWishList(userId)
                 if (wishlist) {
-                    const itemExist = await wishListService.checkItemExists(productId);
-                    if (itemExist) {
-                        throw new GraphQLError("Product already added to wishlist", {
-                            extensions: {
-                                code: "INTERNAL_SERVER_ERROR",
-                                errors: []
-                            }
-                        });
-                    } else {
-                        try {
-                            await wishListService.addItem(productId, userId);
-                        } catch (error) {
-                            console.log(error);
+                    let flag = false;
+                    for (let item of wishlist.products || []) {
+                        if (item.productId.equals(productId)) {
+                            flag = true;
+                            break;
                         }
                     }
-                } else {
-                    try {
-                        await wishListService.createWishlist(productId, userId);
-                    } catch (error) {
-                        console.log(error);
+                    if (!flag) {
+                        wishlist.products?.push({ productId: productId });
                     }
+                    await wishlist.save();
+
+                } else {
+                    await wishListService.createWishlist(productId, userId);
                 }
                 const response = {
                     message: "Product added to wishlist",
@@ -75,84 +67,65 @@ export const wishListResolver: Resolvers = {
 
         removeFromWishList: async (parent, { input }, { req }, info) => {
             await verifyUser(req);
-            await validateInput(validators.addToWishListValidator, req);
-            const userId: string = req.authAccount._id;
+            await validateInput(validators.removeFromWishListValidator, req);
+            const userId: Types.ObjectId = req.authAccount._id;
             const productId: Types.ObjectId = new Types.ObjectId(input.productId);
 
-            const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
+            await wishListService.removeItemFromWishList(productId, userId);
 
-            if (!product) {
-                throw new GraphQLError("Product not found", {
-                    extensions: {
-                        code: "INTERNAL_SERVER_ERROR",
-                        errors: []
-                    }
-                });
-            }
-            if (product.isBlocked) {
-                throw new GraphQLError("Product is blocked", {
-                    extensions: {
-                        code: "INTERNAL_SERVER_ERROR",
-                        errors: []
-                    }
-                });
-            }
-
-
-            const wishlist = await wishListService.checkWishlistExist(userId)
-            if (wishlist) {
-                const itemExist = await wishListService.checkItemExists(productId);
-                if (itemExist) {
-
-                    try {
-                        await wishListService.removeItem(productId, userId);
-                    } catch (error) {
-                        console.log(error);
-                    }
-
-                } else {
-                    throw new GraphQLError("Product not exist in wishlist", {
-                        extensions: {
-                            code: "INTERNAL_SERVER_ERROR",
-                            errors: []
-                        }
-                    });
-                }
-            } else {
-                throw new GraphQLError("User Wishlist does not exist", {
-                    extensions: {
-                        code: "INTERNAL_SERVER_ERROR",
-                        errors: []
-                    }
-                });
-            }
             const response = {
                 message: "Product removed from wishlist",
 
             }
+
             return response;
         },
     },
     Query: {
-        async getWishList(parent, { }, { req }, info) {
+        getWishListProducts: async (parent, { }, { req }, info) => {
             await verifyUser(req);
-            const userId: string = req.authAccount._id;
-            const wishlist = await wishListService.checkWishlistExist(userId)
-            if (wishlist) {
-                const products = wishlist.products.map((product: any) => product.productId.toString())
-                return {products}
-            } else {
-                throw new GraphQLError("User Wishlist does not exist", {
-                    extensions: {
-                        code: "INTERNAL_SERVER_ERROR",
-                        errors: []
+            const userId: Types.ObjectId = req.authAccount._id;
+
+            const products = await wishListService.getWishListProducts(userId);
+
+            const removeProducts = products.filter((product) => {
+                return product.isBlocked || !product.productName
+            });
+
+            if (removeProducts.length) {
+                try {
+                    let promiseChain = [];
+                    for (let product of removeProducts) {
+                        promiseChain.push(
+                            wishListService.removeItemFromWishList(product.productId, userId)
+                        );
                     }
-                });
+                    await Promise.all(promiseChain);
+                } catch (error) {
+                    console.log(error);
+                }
             }
 
+            const response = {
+                products: products.filter((product) => !product.isBlocked && product.productName)
+            }
+
+            return response;
+        },
+        getWishListProductStatus: async (parent, { input }, { req }, info) => {
+            await verifyUser(req);
+            await validateInput(validators.wishListItemExistsValidator, req);
+            const userId: Types.ObjectId = req.authAccount._id;
+            const productId = input.productId;
+
+            const product = await wishListService.checkItemExists(productId);
+
+            const response = {
+                isExist: product ? true : false
+            }
+            return response;
         }
     }
-
 
 };
 

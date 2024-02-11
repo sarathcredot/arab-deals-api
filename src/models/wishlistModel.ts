@@ -14,13 +14,13 @@ const productSchema = new Schema(
 
 const wishListSchema = new Schema(
     {
-        products: {
-            type: [productSchema],
-        },
         userId: {
             type: Types.ObjectId,
             ref: collections.USERS,
             unique: true
+        },
+        products: {
+            type: [productSchema],
         },
     },
 
