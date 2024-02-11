@@ -13,9 +13,8 @@ export const vendorResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
 
-    // Vendor creation from vendor side
+    // Vendor creation 
     createVendor: async (parent, { input, image }, { req }, info) => {
-      // await verifyVendor(req);
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input?.email?.toLowerCase() || "";
 
@@ -587,7 +586,7 @@ export const vendorResolver: Resolvers = {
     async getAllVendorsRecordsByAdmin(parent, { input }, { req }, info) {
       try {
         await validateInput(validators.getAllVendorsRecordsByAdminValidator, req);
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
@@ -614,7 +613,7 @@ export const vendorResolver: Resolvers = {
 
     // Fetch each vendor record by admin
     async getVendorRecordByAdmin(parent, { input }, { req }, info) {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
 
       try {
         await validateInput(validators.getVendorRecordValidator, req);
@@ -654,7 +653,6 @@ export const vendorResolver: Resolvers = {
     async getAllVendorsRecordsByVendor(parent, { input }, { req }, info) {
       try {
         await validateInput(validators.getAllVendorsRecordsByVendorValidator, req);
-        // await verifyAdmin(req);
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
@@ -681,7 +679,7 @@ export const vendorResolver: Resolvers = {
 
     // Fetch each vendor record by vendor
     async getVendorRecordByVendor(parent, { input }, { req }, info) {
-      // await verifyVendor(req);
+      await verifyVendor(req);
 
       try {
         await validateInput(validators.getVendorRecordValidator, req);
@@ -721,7 +719,7 @@ export const vendorResolver: Resolvers = {
 
      // Fetch each vendor all kycrecord by vendor
      async getVendorAllKycRecordByVendor(parent, { input }, { req }, info) {
-      // await verifyVendor(req);
+      await verifyVendor(req);
 
       try {
         await validateInput(validators.getVendorRecordValidator, req);

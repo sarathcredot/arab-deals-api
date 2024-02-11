@@ -206,7 +206,6 @@ export const vendorOutletResolver: Resolvers = {
 
         // Vendor KYC of outlet details status updation
         vendorOutletStatusUpdation: async (parent, { input }, { req }, info) => {
-            // await verifyAdmin(req);
             await validateInput(validators.vendorOutletStatusUpdationValidator, req);
 
             const _id: Types.ObjectId = new Types.ObjectId(input._id);
