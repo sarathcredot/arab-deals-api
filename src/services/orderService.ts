@@ -46,7 +46,6 @@ export interface IOrderDocument extends Document {
 export interface IOrdersOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
-    vendorId?: Types.ObjectId;
     orderId?: string;
     paymentMode?: string;
     orderStatus?: string;
@@ -63,7 +62,6 @@ export interface IOrderDetails {
     _id: Types.ObjectId;
     orderId: string;
     userId: Types.ObjectId;
-    vendorId: Types.ObjectId;
     paymentMode: string;
     orderDate: Date;
     orderStatus: string;
@@ -180,15 +178,6 @@ export const getAdminOrdersWithFilters = async (options: IOrdersOptions): Promis
             }
         )
     }
-    if (options.vendorId) {
-        pipeline.push(
-            {
-                $match: {
-                    vendorId: options.vendorId
-                }
-            }
-        )
-    }
 
     pipeline.push(
         {
@@ -257,7 +246,6 @@ export const getAdminOrdersWithFilters = async (options: IOrdersOptions): Promis
                                 {
                                     $project: {
                                         _id: 1,
-                                        vendorId: 1,
                                         sellingPrice: 1,
                                         shippingCharge: 1,
                                         mrp: 1,
@@ -302,7 +290,6 @@ export const getAdminOrdersWithFilters = async (options: IOrdersOptions): Promis
                             _id: 1,
                             orderId: 1,
                             userId: 1,
-                            vendorId: "$orderProductInfo.vendorId",
                             paymentMode: 1,
                             orderDate: 1,
                             orderStatus: 1,
@@ -426,7 +413,6 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                 orderId: 1,
                 userId: 1,
                 paymentMode: 1,
-                vendorId: 1,
                 orderDate: 1,
                 orderStatus: 1,
                 username: "$userInfo.fullname",

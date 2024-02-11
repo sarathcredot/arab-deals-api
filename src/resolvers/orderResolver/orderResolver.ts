@@ -88,30 +88,38 @@ export const orderResolver: Resolvers = {
                 calculatedSellingPrice += (product.quantity) * (product.sellingPrice);
             }
 
-            const products: orderProductService.IOrderProduct[] = cartItems.map((product, index) => {
-                return {
-                    userId: userId,
-                    vendorId: product.vendorId,
-                    productId: product.productId,
-                    orderId: orderId,
-                    itemId: `${orderId}-${index + 1}`,
-                    productName: product.name,
-                    shortDescription: product.shortDescription,
-                    skuId: product.skuId,
-                    image: {
-                        fileType: product.image?.fileType,
-                        fileURL: product.image?.fileURL,
-                        originalName: product.image?.originalName,
-                        mimeType: product.image?.mimeType
-                    },
-                    returnPeriod: shippingConfig.returnPeriod || 0,
-                    mrp: product.mrp,
-                    sellingPrice: product.sellingPrice,
-                    shippingCharge: 0,
-                    paymentMode: paymentMode,
-                    paymentStatus: "PENDING",
-                    orderDate: orderDate.toDate(),
-                    shippingStatus: "PENDING",
+            const products: orderProductService.IOrderProduct[] = [];
+
+            let itemCount = 0;
+
+            cartItems.forEach((product, index) => {
+                for (let i = 0; i < product.quantity; i++) {
+                    itemCount++;
+                    products.push(
+                        {
+                            userId: userId,
+                            productId: product.productId,
+                            orderId: orderId,
+                            itemId: `${orderId}-${itemCount}`,
+                            productName: product.name,
+                            shortDescription: product.shortDescription,
+                            skuId: product.skuId,
+                            image: {
+                                fileType: product.image?.fileType,
+                                fileURL: product.image?.fileURL,
+                                originalName: product.image?.originalName,
+                                mimeType: product.image?.mimeType
+                            },
+                            returnPeriod: shippingConfig.returnPeriod || 0,
+                            mrp: product.mrp,
+                            sellingPrice: product.sellingPrice,
+                            shippingCharge: 0,
+                            paymentMode: paymentMode,
+                            paymentStatus: "PENDING",
+                            orderDate: orderDate.toDate(),
+                            shippingStatus: "PENDING",
+                        }
+                    )
                 }
             });
 
@@ -433,6 +441,21 @@ export const orderResolver: Resolvers = {
 
             await orderProduct.save();
 
+            try {
+
+                let product = [
+                    {
+                        _id: _id,
+                        quantity: 1
+                    }
+                ]
+
+                await productService.increaseProductsStock(product);
+
+            } catch (error) {
+                console.log(error);
+            }
+            
             const response = {
                 _id: _id
             }
@@ -443,7 +466,7 @@ export const orderResolver: Resolvers = {
     Query: {
         getAdminOrders: async (parent, { input }, { req }, info) => {
 
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
             await validateInput(validators.getAdminOrdersValidator, req);
 
             let filters: orderService.IOrdersOptions = { page: 0, size: 10 };
@@ -480,9 +503,6 @@ export const orderResolver: Resolvers = {
             if (input.size) {
                 filters.size = input.size;
             }
-            if (input.vendorId) {
-                filters.vendorId = input.vendorId;
-            }
 
             const response = await orderService.getAdminOrdersWithFilters(filters);
 
@@ -490,7 +510,7 @@ export const orderResolver: Resolvers = {
         },
         getAdminOrderDetails: async (parent, { input }, { req }, info) => {
 
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
             await validateInput(validators.getAdminOrderDetailsValidator, req);
 
             const response = await orderService.getAdminOrderDetails(input.orderId);
@@ -499,7 +519,7 @@ export const orderResolver: Resolvers = {
         },
         getAdminShippingProducts: async (parent, { input }, { req }, info) => {
 
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
             await validateInput(validators.getAdminOrderShippingProductsValidator, req);
 
             let filters: orderProductService.IShippingProductsOptions = { page: 0, size: 10, sort: "" };

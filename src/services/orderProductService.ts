@@ -17,6 +17,7 @@ export interface IOrderProduct {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
+    vendorName?: string;
     productId?: Types.ObjectId;
     orderId?: string;
     itemId?: string;
@@ -59,6 +60,7 @@ export interface IOrderProductDocument extends Document {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
+    vendorName?: string;
     productId?: Types.ObjectId;
     orderId?: string;
     itemId?: string;
@@ -129,6 +131,7 @@ export interface IShippingProductsOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
+    vendorName?: string;
     orderId?: string;
     productId?: Types.ObjectId;
     itemId?: string;
@@ -180,6 +183,7 @@ export interface IReturnProductsOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
+    vendorName?: string;
     orderId?: string;
     productId?: Types.ObjectId;
     itemId?: string;
@@ -205,6 +209,7 @@ export interface IVendorReturnProductsOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
+    vendorName?: string;
     orderId?: string;
     productId?: Types.ObjectId;
     itemId?: string;
@@ -230,6 +235,7 @@ export interface IRefundProductsOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
+    vendorName?: string;
     orderId?: string;
     productId?: Types.ObjectId;
     itemId?: string;
@@ -564,11 +570,43 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
                         }
                     },
                     {
+                        $lookup: {
+                            from: collections.VENDORS,
+                            let: { vendorId: "$vendorId" },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $eq: ["$_id", "$$vendorId"]
+                                        }
+                                    }
+                                },
+                                {
+                                    $limit: 1
+                                },
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        fullName: 1
+                                    }
+                                }
+                            ],
+                            as: "vendorInfo"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$vendorInfo",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
                         $project: {
                             _id: 1,
                             orderId: 1,
                             userId: 1,
-                            vendorId: 1,
+                            vendorId: "$vendorInfo._id",
+                            vendorName: "$vendorInfo.fullName",
                             productId: 1,
                             itemId: 1,
                             username: "$userInfo.fullname",
@@ -612,7 +650,7 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
     return response;
 }
 
-// vendor side shipping products
+// VENDOR SIDE SHIPPING PRODUCTS
 export const getVendorShippingProducts = async (options: IShippingProductsOptions): Promise<IOrderProducts> => {
 
     let pipeline: PipelineStage[] = [];
@@ -1178,12 +1216,43 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
                         }
                     },
                     {
+                        $lookup: {
+                            from: collections.VENDORS,
+                            let: { vendorId: "$vendorId" },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $eq: ["$_id", "$$vendorId"]
+                                        }
+                                    }
+                                },
+                                {
+                                    $limit: 1
+                                },
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        fullName: 1
+                                    }
+                                }
+                            ],
+                            as: "vendorInfo"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$vendorInfo",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
                         $project: {
                             _id: 1,
                             orderId: 1,
                             userId: 1,
-                            vendorId: 1,
-                            productId: 1,
+                            vendorId: "$vendorInfo._id",
+                            vendorName: "$vendorInfo.fullName",                            productId: 1,
                             itemId: 1,
                             username: "$userInfo.fullname",
                             productName: 1,
@@ -1225,7 +1294,7 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
     return response;
 }
 
-// vendor return product
+// VENDOR RETURN PRODUCTS
 export const getVendorReturnProducts = async (options: IReturnProductsOptions): Promise<IOrderProducts> => {
 
     let pipeline: PipelineStage[] = [];
@@ -1724,11 +1793,42 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
                         }
                     },
                     {
+                        $lookup: {
+                            from: collections.VENDORS,
+                            let: { vendorId: "$vendorId" },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $eq: ["$_id", "$$vendorId"]
+                                        }
+                                    }
+                                },
+                                {
+                                    $limit: 1
+                                },
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        fullName: 1
+                                    }
+                                }
+                            ],
+                            as: "vendorInfo"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$vendorInfo",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
                         $project: {
                             _id: 1,
                             orderId: 1,
-                            vendorId: 1,
-                            productId: 1,
+                            vendorId: "$vendorInfo._id",
+                            vendorName: "$vendorInfo.fullName",                              productId: 1,
                             itemId: 1,
                             userId: 1,
                             username: "$userInfo.fullname",
@@ -1771,7 +1871,7 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
     return response;
 }
 
-// vendor refund products
+// VENDOR REFUND PRODUCTS
 export const getVendorRefundProducts = async (options: IRefundProductsOptions): Promise<IOrderProducts> => {
 
     let pipeline: PipelineStage[] = [];

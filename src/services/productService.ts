@@ -1526,3 +1526,22 @@ export const decreaseProductsStock = async (products: ProductStock[]): Promise<v
 
     const result = await productModel.bulkWrite(writes);
 }
+
+export const increaseProductsStock = async (products: ProductStock[]): Promise<void> => {
+    let writes: any[] = [];
+
+    for (let product of products) {
+        writes.push(
+            {
+                updateOne: {
+                    filter: { _id: product._id },
+                    update: {
+                        $inc: { stock: product.quantity }
+                    }
+                }
+            }
+        );
+    }
+
+    const result = await productModel.bulkWrite(writes);
+}
