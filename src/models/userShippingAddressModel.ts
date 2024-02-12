@@ -26,7 +26,7 @@ const userShippingAddressSchema = new Schema(
         country: {
             type: String,
             required: true,
-            default: "India", //TODO default need to change
+            default: "Kuwait", 
         },
         houseNumber: {
             type: String,
