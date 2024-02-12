@@ -11,12 +11,22 @@ type Mutation {
     returnUserOrderProduct(input: ReturnUserOrderProductInput!): ReturnUserOrderProductResponse!
     cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
 
+    # Mobile side api's
+    createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
+    returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
+    cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductResponse!
 }
 
 
 # Create Order Input
 
 input CreateUserOrderInput {
+    shippingAddressId: ObjectId!
+    paymentMode: String!
+    grandTotal: Float!
+}
+
+input CreateUserOrderInMobileInput {
     shippingAddressId: ObjectId!
     paymentMode: String!
     grandTotal: Float!
@@ -47,7 +57,37 @@ input UpdateAdminOrderProductInput {
    invoiceNumber: String
 }
 
+input UpdateAdminOrderProductInMobileInput {
+   _id: ObjectId!
+   paymentRemark: String
+   paymentStatus: String
+   shippingStatus: String
+   shippedDate: Date
+   deliveryDate: Date
+   returnStatus: String
+   returnUserReason: String
+   returnAdminComment: String
+   returnRequestDate: Date
+   returnDate: Date
+   returnRejectedDate: Date
+   refundStatus: String
+   refundAmount: Float
+   refundRequestDate: Date
+   refundDate: Date
+   refundComment: String
+   cancelUserReason: String
+   cancelAdminComment: String
+   cancelledDate: Date
+   courierId: String
+   invoiceNumber: String
+}
+
 input ReturnUserOrderProductInput {
+    _id: ObjectId!
+    returnUserReason: String!
+}
+
+input ReturnUserOrderProductInMobileInput {
     _id: ObjectId!
     returnUserReason: String!
 }
@@ -56,11 +96,22 @@ input CancelUserOrderProductInput {
     _id: ObjectId!
 }
 
+input CancelUserOrderProductInMobileInput {
+    _id: ObjectId!
+}
+
 type CreateUserOrderResponse {
     orderId:String!
 }
 
+type CreateUserOrderInMobileResponse {
+    orderId:String!
+}
+
 type UpdateAdminOrderProductResponse {
+   _id: ObjectId
+}
+type UpdateAdminOrderProductInMobileResponse {
    _id: ObjectId
 }
 
@@ -68,11 +119,19 @@ type ReturnUserOrderProductResponse {
    _id: ObjectId
 }
 
+type ReturnUserOrderProductInMobileResponse {
+   _id: ObjectId
+}
+type CancelUserOrderProductResponse {
+    _id: ObjectId
+}
 type CancelUserOrderProductResponse {
     _id: ObjectId
 }
 
-
+type CancelUserOrderProductInMobileResponse {
+    _id: ObjectId
+}
 
 
 # User Order  Queries
@@ -90,6 +149,13 @@ type Query {
     getUserOrderProducts (input:GetUserOrderProductsInput!): GetUserOrderProductsResponse!
     getUserOrderProduct(input:GetUserOrderProductInput!): GetUserOrderProductResponse!
     getUserOrderDetails(input:GetUserOrderDetailsInput!): GetUserOrderDetailsResponse!
+
+    # USER RELATED GET APIS IN MOBILE
+    getUserOrderProductsInMobile (input:GetUserOrderProductsInMobileInput!): GetUserOrderProductsInMobileResponse!
+    getUserOrderProductInMobile(input:GetUserOrderProductInMobileInput!): GetUserOrderProductInMobileResponse!
+    getUserOrderDetailsInMobile(input:GetUserOrderDetailsInMobileInput!): GetUserOrderDetailsInMobileResponse!
+
+    
 
     # VENDOR PORTAL ORDER RELATED GET APIS
     getVendorShippingProducts(input:GetVendorShippingProductsInput!): GetVendorShippingProductsResponse!
@@ -281,7 +347,15 @@ input GetUserOrderProductInput {
     _id: ObjectId!
 }
 
+input GetUserOrderProductInMobileInput {
+    _id: ObjectId!
+}
+
 input GetUserOrderDetailsInput {
+    orderId: String!
+}
+
+input GetUserOrderDetailsInMobileInput {
     orderId: String!
 }
 
@@ -290,6 +364,10 @@ input GetUserOrderProductsInput {
     size: Int
 }
 
+input GetUserOrderProductsInMobileInput {
+    page: Int
+    size: Int
+}
 
 
 
@@ -308,6 +386,20 @@ type OrderShippingAddress {
     unit: String
 }
 
+type OrderShippingAddressInMobile {
+    _id: ObjectId
+    firstname: String
+    email: String
+    mobile: String
+    streetName: String
+    city: String
+    houseNumber: String
+    country: String
+    postCode: String
+    apartment: String
+    suite: String
+    unit: String
+}
 
 type OrderPriceInfo {
     totalMRP: Float
@@ -340,6 +432,41 @@ type FileData {
 
 
 type UserOrderProduct {
+    _id: ObjectId
+    productId: ObjectId
+    vendorId: ObjectId
+    orderId: String
+    itemId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnDate: Date
+    returnRequestDate: Date
+    returnRejectedDate: Date
+    returnUserReason: String
+    refundStatus: String
+    refundAmount: Float
+    refundDate: Date
+    cancelledDate: Date
+    cancelUserReason: String
+    courierId: String
+    invoiceNumber: String
+    invoice: FileData
+}
+
+type UserOrderProductInMobile {
     _id: ObjectId
     productId: ObjectId
     vendorId: ObjectId
@@ -600,6 +727,11 @@ type GetUserOrderProductsResponse {
     records: [UserOrderProduct!]
 }
 
+type GetUserOrderProductsInMobileResponse {
+    maxRecords: Int!
+    records: [UserOrderProductInMobile!]
+}
+
 
 type GetAdminOrderProductsResponse {
     products: [AdminOrderProduct!]
@@ -643,6 +775,38 @@ type GetUserOrderProductResponse {
     invoice:FileData
 }
 
+type GetUserOrderProductInMobileResponse {
+    _id: ObjectId
+    productId: ObjectId
+    orderId: String
+    vendorId: ObjectId
+    itemId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnDate: Date
+    returnRejectedDate: Date
+    refundStatus: String
+    refundAmount: Float
+    refundDate: Date
+    cancelledDate: Date
+    courierId: String
+    invoiceNumber: String
+    invoice:FileData
+}
+
 
 type GetUserOrderDetailsResponse {
      _id: ObjectId
@@ -651,6 +815,15 @@ type GetUserOrderDetailsResponse {
     orderDate: Date
     orderStatus: String
     shippingAddress: OrderShippingAddress
+}
+
+type GetUserOrderDetailsInMobileResponse {
+     _id: ObjectId
+    orderId: String
+    paymentMode: String
+    orderDate: Date
+    orderStatus: String
+    shippingAddress: OrderShippingAddressInMobile
 }
 
 

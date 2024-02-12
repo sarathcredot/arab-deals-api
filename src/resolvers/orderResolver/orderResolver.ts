@@ -177,6 +177,172 @@ export const orderResolver: Resolvers = {
             return response;
 
         },
+        // User order creation in APP
+        createUserOrderInMobile: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.createOrderInMobileValidator, req);
+
+            const userId = req.authAccount._id;
+            let { shippingAddressId, paymentMode, grandTotal } = input;
+
+            const orderDate = moment();
+            const orderId = `ORD-${orderDate.valueOf()}`;
+
+            const shippingAddress = await userShippingAddressService.getShippingAddressWithFilters({ _id: shippingAddressId }, {}, { lean: true });
+            if (!shippingAddress) {
+                throw new GraphQLError("Shipping Address not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const [paymentConfig, shippingConfig] = await Promise.all([
+                settingsService.getPaymentConfig({}, { sort: { _id: 1 } }),
+                settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+            ]);
+
+            if (!paymentConfig || !shippingConfig) {
+                throw new GraphQLError("Settings not found", {
+                    extensions: {
+                        code: "INTERNAL_SERVER_ERROR",
+                        errors: [],
+                    },
+                });
+            }
+
+            if (paymentMode == "COD") {
+                if (!paymentConfig.cod) {
+                    throw new GraphQLError("COD is disabled", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+            }
+
+            const cartItems = await cartService.getOrderCart(userId);
+            if (cartItems.length === 0) {
+                throw new GraphQLError("Cart is empty", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            let calculatedSellingPrice = 0, calculatedShippingCharge = shippingConfig.shippingCharge || 0, calculatedGrandTotal = 0;
+
+            for (let product of cartItems) {
+                if (
+                    !product.name ||
+                    product.isBlocked ||
+                    product.sellingPrice <= 0 ||
+                    product.stock <= 0 ||
+                    product.quantity > product.stock
+                ) {
+                    throw new GraphQLError("Cart changed, order failed", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+                calculatedSellingPrice += (product.quantity) * (product.sellingPrice);
+            }
+
+            const products: orderProductService.IOrderProduct[] = [];
+
+            let itemCount = 0;
+
+            cartItems.forEach((product, index) => {
+                for (let i = 0; i < product.quantity; i++) {
+                    itemCount++;
+                    products.push(
+                        {
+                            userId: userId,
+                            productId: product.productId,
+                            orderId: orderId,
+                            itemId: `${orderId}-${itemCount}`,
+                            productName: product.name,
+                            shortDescription: product.shortDescription,
+                            skuId: product.skuId,
+                            image: {
+                                fileType: product.image?.fileType,
+                                fileURL: product.image?.fileURL,
+                                originalName: product.image?.originalName,
+                                mimeType: product.image?.mimeType
+                            },
+                            returnPeriod: shippingConfig.returnPeriod || 0,
+                            mrp: product.mrp,
+                            sellingPrice: product.sellingPrice,
+                            shippingCharge: 0,
+                            paymentMode: paymentMode,
+                            paymentStatus: "PENDING",
+                            orderDate: orderDate.toDate(),
+                            shippingStatus: "PENDING",
+                        }
+                    )
+                }
+            });
+
+            if (calculatedSellingPrice < shippingConfig.freeShippingThreshold!) {
+                products[0].shippingCharge = calculatedShippingCharge;
+            }
+            else {
+                calculatedShippingCharge = 0;
+            }
+
+            calculatedGrandTotal = parseFloat((calculatedSellingPrice + calculatedShippingCharge).toFixed(2));
+
+            if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
+                throw new GraphQLError("Cart changed, order failed", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const order: orderService.IOrder = {
+                userId: userId,
+                orderId: orderId,
+                paymentMode: paymentMode,
+                orderDate: orderDate.toDate(),
+                shippingAddress: shippingAddress,
+                orderStatus: "PENDING"
+            }
+
+            await Promise.all([
+                orderService.createOrder(order),
+                orderProductService.createOrderProducts(products),
+            ]);
+
+            try {
+                let productStock = cartItems.map((product) => {
+                    return { _id: product.productId, quantity: product.quantity }
+                })
+                await Promise.all(
+                    [
+                        cartService.emptyUserCart(userId),
+                        productService.decreaseProductsStock(productStock),
+                        userShippingAddressService.updateDefaultShipingAddress(userId, shippingAddressId)
+                    ]
+                );
+            } catch (error) {
+                console.log(error);
+            }
+
+            let response = {
+                orderId: orderId
+            }
+
+            return response;
+
+        },
         updateAdminOrderProduct: async (parent, { input, invoice }, { req }, info) => {
             await verifyAdmin(req);
             await validateInput(validators.updateAdminOrderProductValidator, req);
@@ -409,10 +575,106 @@ export const orderResolver: Resolvers = {
 
             return response;
         },
+        //User return in APP
+        returnUserOrderProductInMobile: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.returnUserOrderInMobileValidator, req);
+            const userId = req.authAccount._id;
+            let { _id, returnUserReason } = input;
+
+            const orderProduct = await orderProductService.getOrderProductWithFilters({ userId: userId, _id: _id });
+
+            if (!orderProduct) {
+                throw new GraphQLError("Order not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const isReturnable = moment(orderProduct.deliveryDate).diff(moment(), 'days') <= (orderProduct.returnPeriod || 0);
+
+            if (!isReturnable) {
+                throw new GraphQLError("Order can't be returned", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            orderProduct.returnUserReason = returnUserReason;
+            orderProduct.returnRequestDate = moment().toDate();
+            orderProduct.returnStatus = "PENDING";
+
+            await orderProduct.save();
+
+            const response = {
+                _id: _id
+            }
+
+            return response;
+        },
         cancelUserOrderProduct: async (parent, { input }, { req }, info) => {
 
             await verifyUser(req);
             await validateInput(validators.cancelUserOrderValidator, req);
+            const userId = req.authAccount._id;
+            let { _id } = input;
+
+            const orderProduct = await orderProductService.getOrderProductWithFilters({ userId: userId, _id: _id });
+
+            if (!orderProduct) {
+                throw new GraphQLError("Order not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            if (!["PENDING", "PACKAGE_IN_PROGRESS"].includes(orderProduct.shippingStatus || "")) {
+                throw new GraphQLError("Order can't be canceled", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            orderProduct.shippingStatus = "CANCELED";
+            orderProduct.cancelledDate = moment().toDate();
+
+            await orderProduct.save();
+
+            try {
+
+                let product = [
+                    {
+                        _id: _id,
+                        quantity: 1
+                    }
+                ]
+
+                await productService.increaseProductsStock(product);
+
+            } catch (error) {
+                console.log(error);
+            }
+            
+            const response = {
+                _id: _id
+            }
+
+            return response;
+        },
+        //User cancel order in APP
+        cancelUserOrderProductInMobile: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.cancelUserOrderInMobileValidator, req);
             const userId = req.authAccount._id;
             let { _id } = input;
 
@@ -1100,10 +1362,66 @@ export const orderResolver: Resolvers = {
 
             return response;
         },
-        getUserOrderDetails: async (parent, { input }, { req }, info) => {
+
+        // User order product in APP
+        getUserOrderProductInMobile: async (parent, { input }, { req }, info) => {
 
             await verifyUser(req);
-            await validateInput(validators.getUserOrderDetailsValidator, req);
+            await validateInput(validators.getUserOrderProductInMobileValidator, req);
+
+            const userId = req.authAccount._id;
+
+            const result = await orderProductService.getOrderProductWithFilters(
+                { _id: input._id, userId: userId },
+                {
+                    _id: 1,
+                    productId: 1,
+                    orderId: 1,
+                    productName: 1,
+                    shortDescription: 1,
+                    skuId: 1,
+                    image: 1,
+                    returnPeriod: 1,
+                    mrp: 1,
+                    sellingPrice: 1,
+                    shippingCharge: 1,
+                    paymentMode: 1,
+                    paymentStatus: 1,
+                    orderDate: 1,
+                    shippingStatus: 1,
+                    shippedDate: 1,
+                    deliveryDate: 1,
+                    returnStatus: 1,
+                    returnDate: 1,
+                    returnRejectedDate: 1,
+                    refundStatus: 1,
+                    refundAmount: 1,
+                    refundDate: 1,
+                    cancelledDate: 1,
+                    courierId: 1,
+                    invoiceNumber: 1,
+                    invoice: 1
+                },
+                { lean: true });
+
+            if (!result) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const response = result;
+
+            return response;
+        },
+        
+        getUserOrderDetailsInMobile: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.getUserOrderDetailsInMobileValidator, req);
 
             const userId = req.authAccount._id;
 
@@ -1139,6 +1457,30 @@ export const orderResolver: Resolvers = {
 
             await verifyUser(req);
             await validateInput(validators.getUserOrderProductsValidator, req);
+
+            const userId = req.authAccount._id;
+
+            let filters: orderProductService.IUserOrderProductsOptions = { page: 0, size: 10, userId: userId }
+
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+
+            const result = await orderProductService.getUserOrderProducts(filters);
+
+            const response = result;
+
+            return response;
+        },
+
+        // User order products in APP
+        getUserOrderProductsInMobile: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.getUserOrderProductsInMobileValidator, req);
 
             const userId = req.authAccount._id;
 

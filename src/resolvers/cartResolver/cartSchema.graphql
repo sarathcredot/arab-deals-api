@@ -8,11 +8,16 @@ scalar ObjectId
   removeFromCart(input: removeFromCartInput!):removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!):updateCartQuantityResponse!
   
+  # MOBILE SIDE APIS
+    addToCartInMobile(input: addToCartInMobileInput!): addToCartInMObileResponse!
+    removeFromCartInMobile(input: removeFromCartInMobileInput!):removeFromCartInMobileResponse!
+    updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!):updateCartQuantityInMobileResponse!
 }
 
 # cart query
  type Query{
   getCart:getCartResponse!
+  getCartInMobile:getCartInMobileResponse!
  }
 
 # cart Input
@@ -21,10 +26,22 @@ input addToCartInput {
     productId:ObjectId!
     quantity:Int!
 }
+
+input addToCartInMobileInput {
+    productId:ObjectId!
+    quantity:Int!
+}
 input removeFromCartInput {
     productId:String!
 }
+input removeFromCartInMobileInput {
+    productId:String!
+}
 input updateCartQuantityInput {
+    productId:String!
+    quantity:Int!
+}
+input updateCartQuantityInMobileInput {
     productId:String!
     quantity:Int!
 }
@@ -34,15 +51,22 @@ input updateCartQuantityInput {
 type addToCartResponse{
   message:String
 }
+
+type addToCartInMObileResponse{
+  message:String
+}
 type removeFromCartResponse{
+  message:String
+}
+type removeFromCartInMobileResponse{
   message:String
 }
 type updateCartQuantityResponse{
   message:String
 }
-
-
-
+type updateCartQuantityInMobileResponse{
+  message:String
+}
 
 
 type cartProduct{
@@ -61,6 +85,13 @@ type cartProduct{
 }
 
 type getCartResponse{
+  products:[cartProduct]
+  grandTotal:Int
+  subTotal:Int
+  deliveryCharge:Int
+}
+
+type getCartInMobileResponse{
   products:[cartProduct]
   grandTotal:Int
   subTotal:Int
