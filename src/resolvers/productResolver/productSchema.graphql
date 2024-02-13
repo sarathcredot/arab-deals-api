@@ -163,6 +163,7 @@ type Query {
     input ProductFilters {
         page: Int
         size: Int
+        tags: [String]
         minPrice: Float
         maxPrice: Float
         newest: Boolean

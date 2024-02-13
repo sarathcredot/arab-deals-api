@@ -178,6 +178,7 @@ export interface IProductsOptions {
     parentCategory?: string,
     brands?: string[],
     attributes?: Array<{ id: string, values: string[] }>,
+    tags?: string[],
 }
 
 export interface IProductsPriceRangeOptions {
@@ -358,6 +359,14 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
         pipeline.push({
             $match: {
                 $or: regexExpressions
+            }
+        });
+    }
+
+    if (options.tags?.length) {
+        pipeline.push({
+            $match: {
+                tags: { $in: options.tags }
             }
         });
     }

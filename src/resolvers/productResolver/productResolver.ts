@@ -940,7 +940,7 @@ export const productResolver: Resolvers = {
                         }
                     });
                 }
-                
+
 
                 const response = {
                     product: result,
@@ -1005,7 +1005,7 @@ export const productResolver: Resolvers = {
                         }
                     });
                 }
-            
+
 
                 const response = {
                     product: result,
@@ -1050,6 +1050,7 @@ export const productResolver: Resolvers = {
                     };
                 }).filter((attribute) => attribute.id && attribute.values.length > 0);
 
+                const tags: string[] = (input?.tags || []).filter(Boolean) as [];
 
                 let projection: productService.IProductsProjection = { _id: 1 };
 
@@ -1093,8 +1094,10 @@ export const productResolver: Resolvers = {
                     parentCategory,
                     categories,
                     brands,
-                    attributes
+                    attributes,
+                    tags,
                 }
+
 
                 const result = await productService.getProductsWithFilters(options);
 
@@ -1344,7 +1347,7 @@ export const productResolver: Resolvers = {
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const productCode: number = input.productCode;
-          
+
 
                 const product = await productService.getProductWithFilters({ productCode: productCode }, { productCode: 1 }, { lean: true });
                 console.log("product: ", product)
@@ -1461,22 +1464,22 @@ export const productResolver: Resolvers = {
         // Fetch max price
         async getProductsMaxPrice(parent, { input }, { req }, info) {
             try {
-    
+
                 //Validate Input
                 await validateInput(validators.productsQueryValidator, req);
-    
+
                 const categories: string[] = (input?.categories || []).map((item: string | null) => {
                     return item ? new Types.ObjectId(item).toString() : '';
                 }).filter((item: any) => item ? true : false);
-    
-    
-    
+
+
+
                 const options: productService.IProductsPriceRangeOptions = {
                     categories,
                 }
-    
+
                 const result = await productService.getProductsMaxPriceRangeWithCategories(options);
-    
+
                 const response = {
                     maxPrice: result,
                     message: "Products max price fetched successfully"
@@ -1485,7 +1488,7 @@ export const productResolver: Resolvers = {
             } catch (error) {
                 throw error;
             }
-    
+
         },
 
     },
