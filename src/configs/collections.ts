@@ -18,4 +18,5 @@ export const collections = {
     PAYMENT_CONFIGS: "payment_configs",
     ORDERS: "orders",
     ORDER_PRODUCTS: "order_products",
+    COUNTRIES: "countries"
 }

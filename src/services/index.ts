@@ -19,6 +19,7 @@ import * as userShippingAddressService from "./userShippingAddressService";
 import * as settingsService from "./settingsService";
 import * as orderService from "./orderService";
 import * as orderProductService from "./orderProductService";
+import * as countryService from "./countryService";
 
 export {
     productService,
@@ -42,4 +43,5 @@ export {
     settingsService,
     orderService,
     orderProductService,
+    countryService,
 }

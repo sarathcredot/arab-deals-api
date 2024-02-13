@@ -16,6 +16,7 @@ import { cmsResolver } from "./cmsResolver/cmsResolver";
 import { wishListResolver } from "./wishListResolver/wishListResolver";
 import { userShippingAddressResolver } from "./userShipingAddressResolver/userShippingAddressResolver";
 import { orderResolver } from "./orderResolver/orderResolver";
+import { countryResolver } from "./countryResolver/countryResolver";
 
 
 export const resolvers: Resolvers = mergeResolvers(
@@ -36,5 +37,6 @@ export const resolvers: Resolvers = mergeResolvers(
         wishListResolver,
         userShippingAddressResolver,
         orderResolver,
+        countryResolver,
     ]
 );

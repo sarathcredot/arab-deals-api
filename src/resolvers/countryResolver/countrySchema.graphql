@@ -1,0 +1,122 @@
+  scalar Upload
+
+# Brand Mutations
+
+
+  type Mutation {
+    addCountry(input: AddCountryInput!, image:Upload): AddCountryResponse!
+    updateCountry(input: updateCountryInput!, , image:Upload): updateCountryResponse!
+    deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  }
+
+ type ImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }  
+
+   input ImageDataInput {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  } 
+
+    # Input
+
+    input AddCountryInput {
+        name:String
+        isBlocked: Boolean
+        countryCode: String
+        countryLogo: ImageDataInput
+    }   
+
+    input updateCountryInput {
+        _id: String!
+        name:String
+        isBlocked: Boolean
+        countryCode: String
+        countryLogo: ImageDataInput
+    }
+
+    # Output
+
+    type AddCountryResponse {
+        _id: String!
+        message: String
+    }  
+
+    type updateCountryResponse {
+        _id: String!
+        message: String
+    }
+
+    type CountryDeleteRecordResponse {
+      _id: String!
+      message: String
+    }
+     
+    type BrandRecordId {
+      _id: String
+    }
+ 
+
+
+# Brand Queries
+
+  type Query {
+    getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+    getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
+  }   
+
+    # Input
+   
+  input CountryIdInput {
+    _id: String!
+  }
+
+
+  input CountryRecordsFilter {
+    page: Int
+    size: Int
+    isBlocked: Boolean
+  }
+
+
+    # Output
+
+    type ImageData {
+    fileType: String
+    fileURL: String
+    mimeType: String
+    originalName: String
+  }    
+
+  type CountryRecord {
+    _id: String
+    name:String
+    isBlocked: Boolean
+    countryCode: String
+    countryLogo: ImageData
+  }  
+  
+  type CountryRecordResponse {
+    record: CountryRecord!
+    message: String
+  }
+
+  type CountryRecordsResponse {
+    maxRecords: Int!
+    records: [CountryRecord!]
+    message: String
+  }
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    query:Query
+}
+

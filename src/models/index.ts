@@ -17,6 +17,7 @@ import { paymentConfigModel } from "./paymentConfigModel";
 import { shippingConfigModel } from "./shippingConfigModel";
 import { orderModel } from "./orderModel";
 import { orderProductModel } from "./orderProductModel";
+import { countriesModel } from "./countriesModel";
 
 export {
     productModel,
@@ -38,4 +39,5 @@ export {
     shippingConfigModel,
     orderModel,
     orderProductModel,
+    countriesModel
 }
