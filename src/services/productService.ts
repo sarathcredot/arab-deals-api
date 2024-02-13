@@ -875,7 +875,7 @@ export const getProductVariantsInMobile = async (productCode: number): Promise<a
                 },
                 attributeValueId: '$attributes.attributeValueId',
                 attributeValue: '$attributes.attributeValue',
-                colorCode: '$attributes.colorCode'
+                colorCode: '$attributeValue.colorCode'
             }
         }
     ];
