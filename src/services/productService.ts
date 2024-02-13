@@ -1421,7 +1421,8 @@ export const getProductsAttributesData = async (attributeValueIds: Types.ObjectI
                 },
                 attributeValueId: '$_id',
                 attributeValue: '$value',
-
+                colorCode: '$colorCode'
+                
             }
         }
     ];
