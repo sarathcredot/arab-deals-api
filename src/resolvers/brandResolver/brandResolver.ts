@@ -1,6 +1,6 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./brandValidator";
-import { validateInput, verifyAdmin } from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
 import { Types } from "mongoose";
@@ -384,7 +384,7 @@ export const brandResolver: Resolvers = {
             try {
                 // Validate Input
                 await validateInput(validators.getAllBrandsWithVendorByVendorValidator, req);
-                await verifyAdmin(req);
+                await verifyVendor(req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
@@ -443,7 +443,6 @@ export const brandResolver: Resolvers = {
 
         // Fetch each brand records  and each record values with category in vendor portal
         async getBrandDetailsWithCategory(parent, { input }, { req }, info) {
-            await verifyAdmin(req);
 
             try {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
@@ -502,7 +501,6 @@ export const brandResolver: Resolvers = {
 
         // Fetch each brand records  and each record values with category in mobile
         async getBrandDetailsWithCategoryInMobile(parent, { input }, { req }, info) {
-            await verifyAdmin(req);
 
             try {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
@@ -561,7 +559,6 @@ export const brandResolver: Resolvers = {
 
         // Fetch each brand records  and each record values with category in vendor portal
         async getCategoryDetailsWithBrand(parent, { input }, { req }, info) {
-            await verifyAdmin(req);
 
             try {
                 await validateInput(validators.getCategoriesWithbrandValidator, req);
