@@ -7,6 +7,12 @@ export const createOrderValidator = [
     body('variables.input.grandTotal').trim().isNumeric().custom(val => val >= 0)
 ];
 
+export const createOrderInMobileValidator = [
+    body('variables.input.shippingAddressId').trim().isMongoId(),
+    body('variables.input.paymentMode').trim().isIn(["COD"]),
+    body('variables.input.grandTotal').trim().isNumeric().custom(val => val >= 0)
+];
+
 export const getAdminOrdersValidator = [
     body('variables.input._id').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.userId').trim().optional({ checkFalsy: true }).isMongoId(),
@@ -28,6 +34,10 @@ export const getUserOrderDetailsValidator = [
     body('variables.input.orderId').trim().isString().notEmpty(),
 ];
 
+
+export const getUserOrderDetailsInMobileValidator = [
+    body('variables.input.orderId').trim().isString().notEmpty(),
+];
 
 
 
@@ -193,7 +203,9 @@ export const getUserOrderProductValidator = [
     body('variables.input._id').trim().isMongoId()
 ];
 
-
+export const getUserOrderProductInMobileValidator = [
+    body('variables.input._id').trim().isMongoId()
+];
 
 export const updateAdminOrderProductValidator = [
     body('variables.input._id').trim().isMongoId(),
@@ -226,14 +238,25 @@ export const getUserOrderProductsValidator = [
     body('variables.input.size').trim().optional({ checkFalsy: true }).isInt().custom(val => val > 0),
 ];
 
+export const getUserOrderProductsInMobileValidator = [
+    body('variables.input.page').trim().optional({ checkFalsy: true }).isInt().custom(val => val >= 0),
+    body('variables.input.size').trim().optional({ checkFalsy: true }).isInt().custom(val => val > 0),
+];
 
 export const returnUserOrderValidator = [
     body('variables.input._id').trim().isMongoId(),
     body('variables.input.returnUserReason').trim().notEmpty(),
 ];
 
-
+export const returnUserOrderInMobileValidator = [
+    body('variables.input._id').trim().isMongoId(),
+    body('variables.input.returnUserReason').trim().notEmpty(),
+];
 
 export const cancelUserOrderValidator = [
+    body('variables.input._id').trim().isMongoId(),
+];
+
+export const cancelUserOrderInMobileValidator = [
     body('variables.input._id').trim().isMongoId(),
 ];
