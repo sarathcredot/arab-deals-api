@@ -899,37 +899,11 @@ export const productResolver: Resolvers = {
                 await validateInput(validators.productQueryValidator, req);
 
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
-                const options: QueryOptions = { lean: true };
-                const projection: productService.IProductProjection = {};
-                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-                for (const selection of selectedFields) {
-                    if (selection.kind === "Field" && selection.name.value == "product") {
 
-                        let selectionSet = selection.selectionSet || { selections: [] };
-                        for (let item of selectionSet.selections) {
-                            if (item.kind === "Field") {
-                                const fieldName = item.name.value;
-                                if (["images"].includes(fieldName)) {
-                                    let selectionSet = item.selectionSet || { selections: [] };
-                                    for (let item2 of selectionSet.selections) {
-                                        if (item2.kind === "Field") {
-                                            const subField = item2.name.value;
-                                            const path = `${fieldName}.${subField}`;
-                                            projection[path as keyof productService.IProductProjection] = 1;
-                                        }
-                                    }
-                                }
-                                else {
-                                    projection[fieldName as keyof productService.IProductProjection] = 1;
-                                }
-                            }
-                        }
-                    }
-                }
 
-                const result = await productService.getProductWithId(productId, projection, options);
+                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false }, {  }, { lean: true });
 
-                console.log(result)
+                // console.log(result)
 
 
                 if (!result) {
@@ -941,9 +915,8 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-
                 const response = {
-                    product: result,
+                    product: { ...result, _id: result._id ? result._id.toString() : "" },
                 }
 
                 return response;

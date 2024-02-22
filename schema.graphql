@@ -1217,6 +1217,7 @@ type Product {
   status: String
   offerPrice: Int
   attributes: [IProductAttribute]
+  productDetailImages: [ProductFileData]
 }
 
 type IProductAttribute {

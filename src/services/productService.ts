@@ -1,4 +1,4 @@
-import { Types, PipelineStage, QueryOptions, Document, FilterQuery, UpdateQuery, ObjectId, Model } from "mongoose";
+import { Types, PipelineStage, QueryOptions, Document, FilterQuery, UpdateQuery, ObjectId, Model, ProjectionFields } from "mongoose";
 import mongoose from 'mongoose';
 import { collections } from "../configs";
 import { attributeValueModel, productModel } from "../models";
@@ -58,11 +58,11 @@ export interface IProduct {
 
 
 export interface IProductAttribute {
-    attributeId: Types.ObjectId;
-    attributeName: string;
-    attributeValueId: Types.ObjectId;
-    attributeValue: string;
-    attributeDescription: string;
+    attributeId?: Types.ObjectId;
+    attributeName?: string;
+    attributeValueId?: Types.ObjectId;
+    attributeValue?: string;
+    attributeDescription?: string;
 }
 
 export interface IProductDocument extends Document {
@@ -96,6 +96,7 @@ export interface IProductDocument extends Document {
     status?: string,
     attributes?: [IProductAttribute];
     remarks?: string[];
+    productDetailImages?: FileData[];
 }
 
 export interface IProductsProjection {
@@ -271,7 +272,7 @@ export const getProductWithId = async (id: Types.ObjectId, projection: IProducts
     return result;
 }
 
-export const getProductWithFilters = async (filters: FilterQuery<IProduct>, projection: IProductsProjection = {}, options: QueryOptions = {}): Promise<IProductDocument | null> => {
+export const getProductWithFilters = async (filters: FilterQuery<IProduct>, projection: ProjectionFields<IProduct>, options: QueryOptions = {}): Promise<any | null> => {
     return await productModel.findOne(filters, projection, options);
 }
 
@@ -832,7 +833,7 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
                 },
                 attributeValueId: '$attributes.attributeValueId',
                 attributeValue: '$attributes.attributeValue',
-                colorCode: '$attributes.colorCode'
+                colorCode: '$attributeValue.colorCode'
             }
         }
     ];
@@ -1431,7 +1432,7 @@ export const getProductsAttributesData = async (attributeValueIds: Types.ObjectI
                 attributeValueId: '$_id',
                 attributeValue: '$value',
                 colorCode: '$colorCode'
-                
+
             }
         }
     ];

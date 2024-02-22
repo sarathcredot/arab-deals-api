@@ -4,6 +4,7 @@
 
   scalar JSONObject
   scalar Upload
+  scalar ObjectId
 
   type File {
     filename: String!
@@ -300,6 +301,7 @@ type Query {
         status: String
         offerPrice: Int
         attributes: [IProductAttribute]
+        productDetailImages: [ProductFileData]
     }
 
     type IProductAttribute {

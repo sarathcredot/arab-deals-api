@@ -118,6 +118,7 @@ export const orderResolver: Resolvers = {
                             paymentStatus: "PENDING",
                             orderDate: orderDate.toDate(),
                             shippingStatus: "PENDING",
+                            vendorId: product.vendorId
                         }
                     )
                 }

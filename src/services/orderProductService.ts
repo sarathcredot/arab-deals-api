@@ -2169,7 +2169,7 @@ export const getUserOrderProducts = async (options: IUserOrderProductsOptions): 
     pipeline.push(
         {
             $match: {
-                userId: options.userId
+                userId: new Types.ObjectId(options.userId)
             }
         },
         {

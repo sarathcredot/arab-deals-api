@@ -43,7 +43,7 @@ const attributeSchema = new Schema(
         },
         attributeValueId: {
             type: Schema.Types.ObjectId,
-            ref: collections.ATTRIBUTE_VALUES, 
+            ref: collections.ATTRIBUTE_VALUES,
             required: true,
         },
         attributeValue: {
@@ -172,14 +172,18 @@ const productSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ["PENDING" ,"UNDER_VERIFICATION", "APPROVED", "REJECTED"],
+            enum: ["PENDING", "UNDER_VERIFICATION", "APPROVED", "REJECTED"],
             default: "PENDING"
         },
         IsReturnEnabled: {
             type: Boolean,
             required: true,
             default: false
-        }
+        },
+        productDetailImages: {
+            type: [fileSchema],
+            default: []
+        },
     },
     {
         timestamps: true

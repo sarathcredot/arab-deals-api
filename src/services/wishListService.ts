@@ -86,7 +86,7 @@ export const getWishListProducts = async (userId: Types.ObjectId): Promise<IWish
     pipeline.push(
         {
             $match: {
-                userId: userId
+                userId: new Types.ObjectId(userId),
             }
         },
         {
@@ -127,7 +127,7 @@ export const getWishListProducts = async (userId: Types.ObjectId): Promise<IWish
         {
             $project: {
                 userId: 1,
-                productId: "$products.productId",
+                productId: "$productData._id",
                 productName: "$productData.productName",
                 shortDescription: "$productData.shortDescription",
                 sellingPrice: "$productData.sellingPrice",
