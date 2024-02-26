@@ -1459,7 +1459,7 @@ export const orderResolver: Resolvers = {
             await verifyUser(req);
             await validateInput(validators.getUserOrderDetailsValidator, req);
 
-            const userId = req.authAccount._id;
+            const userId = new Types.ObjectId(req.authAccount._id);
 
             const result = await orderService.getUserOrderDetails(input.orderId, userId);
 
