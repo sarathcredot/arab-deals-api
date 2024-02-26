@@ -278,6 +278,10 @@ export interface IUserOrderProducts {
     records: IOrderProduct[];
 }
 
+export interface IBestSellingProduct {
+    _id: Types.ObjectId;
+    count: number;
+}
 
 export const createOrderProducts = async (records: IOrderProduct[]): Promise<IOrderProductDocument[] | null> => {
     return await orderProductModel.insertMany(records);
@@ -2251,3 +2255,29 @@ export const getUserOrderProducts = async (options: IUserOrderProductsOptions): 
     return response;
 }
 
+
+export const getBestSellingProducts = async (): Promise<IBestSellingProduct[]> => {
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $group: {
+                _id: "$productId",
+                count: { $sum: 1 }
+            }
+        },
+        {
+            $sort: { count: -1 }
+        },
+        {
+            $limit: 100
+        },
+        {
+            $project: {
+                _id: 1,
+                count: 1
+            }
+        }
+    )
+    return await orderProductModel.aggregate(pipeline);
+}

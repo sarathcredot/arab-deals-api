@@ -3,6 +3,7 @@ import { body, query } from "express-validator";
 export const productsQueryValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
     body('variables.input.productSize').optional({ checkFalsy: true }).isArray({ min: 0 }),
+    body('variables.input.bestSeller').optional({ checkFalsy: true }).isIn([true, false]),
     body('variables.input.maxPrice').optional({ checkFalsy: true }).custom(val => val > 0),
     body('variables.input.minPrice').optional({ checkFalsy: true }).custom(val => val >= 0),
     body('variables.input.discount').optional({ checkFalsy: true }).custom(val => val >= 0),

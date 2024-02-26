@@ -20,14 +20,14 @@ type Mutation {
   updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
   vendorOutletStatusUpdation(input: VendorOutletStatusUpdationInput!): VendorOutletStatusUpdationResponse!
   deleteVendorOutlet(input: DeleteVendorOutletIdInput!): DeleteVendorOutletRecordResponse!
-  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
-  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
-  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
-  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   vendorCompanyStatusUpdation(input: VendorCompanyStatusUpdationInput!): VendorCompanyStatusUpdationResponse!
   deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
+  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
+  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
+  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
+  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
   userResendLoginOtp(input: userResendLoginOtpInput!): userResendLoginOtpResponse!
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
@@ -48,9 +48,6 @@ type Mutation {
   sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
   verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
   reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
-  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
-  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
-  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
   returnUserOrderProduct(input: ReturnUserOrderProductInput!): ReturnUserOrderProductResponse!
@@ -58,6 +55,9 @@ type Mutation {
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductResponse!
+  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
+  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
+  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   deleteCmsRecord(input: CmsRecordId!): DeleteCmsResponse!
@@ -96,11 +96,11 @@ type Query {
   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
   getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
   getVendorOutletRecordByAdmin(input: VendorOutletIdInput!): VendorOutletRecordResponse!
+  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
-  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
-  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getUsersByAdmin(input: userFilters): usersResponse!
   getUserRecordByAdmin(input: userInput!): userResponse!
   getUserRecord(input: userInput!): userResponse!
@@ -123,8 +123,6 @@ type Query {
   getProductsMaxPrice(input: categoriesInput!): getProductsMaxPriceResponse!
   getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
   getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -143,6 +141,8 @@ type Query {
   getVendorRefundProducts(input: GetVendorRefundProductsInput!): GetVendorRefundProductsResponse!
   getVendorOrderProduct(input: GetVendorOrderProductInput!): GetVendorOrderProductResponse!
   getVendorOrderProducts(input: GetVendorOrderProductsInput!): GetVendorOrderProductsResponse!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
@@ -631,6 +631,91 @@ type VendorOutletStatusUpdationResponse {
   message: String
 }
 
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
+}
+
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
+  _id: String
+  fullName: String
+  isKycCompleted: String
+  companyName: String
+  status: String
+  outletId: String
+  outletName: String
+  outletStatus: String
+}
+
+input AddVendorCompanyInput {
+  vendorId: String!
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+input UpdateVendorCompanyInput {
+  vendorId: String!
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+input VendorCompanyStatusUpdationInput {
+  _id: String!
+  status: String!
+  remarks: [String]
+}
+
+type AddVendorCompanyResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+input VendorCompanyIdInput {
+  _id: String!
+}
+
+input VendorCompanyRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+}
+
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorCompanyRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorCompanyRecordsWithKycData!]
+  message: String
+}
+
+type VendorCompanyStatusUpdationResponse {
+  _id: String
+  message: String
+}
+
 input UserCreateShippingAddressInput {
   firstname: String!
   email: String
@@ -725,91 +810,6 @@ type GetUserShippingAddressResponse {
   houseNumber: String
   country: String
   isDefault: Boolean
-}
-
-type VendorCompany {
-  _id: String
-  vendorId: String
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  crLicense: ImageData
-  cooCertificate: ImageData
-  remarks: [String]
-}
-
-type vendorCompanyRecordsWithKycData {
-  vendorId: String
-  _id: String
-  fullName: String
-  isKycCompleted: String
-  companyName: String
-  status: String
-  outletId: String
-  outletName: String
-  outletStatus: String
-}
-
-input AddVendorCompanyInput {
-  vendorId: String!
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-input UpdateVendorCompanyInput {
-  vendorId: String!
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-input VendorCompanyStatusUpdationInput {
-  _id: String!
-  status: String!
-  remarks: [String]
-}
-
-type AddVendorCompanyResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyResponse {
-  record: VendorCompany!
-  message: String
-}
-
-type VendorCompanyDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-input VendorCompanyIdInput {
-  _id: String!
-}
-
-input VendorCompanyRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-}
-
-type VendorCompanyRecordResponse {
-  record: VendorCompany!
-  message: String
-}
-
-type VendorCompanyRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorCompanyRecordsWithKycData!]
-  message: String
-}
-
-type VendorCompanyStatusUpdationResponse {
-  _id: String
-  message: String
 }
 
 input userLoginOtpInput {
@@ -1100,6 +1100,7 @@ input ProductFilters {
   brands: [String]
   attributes: [AttributeInput]
   discount: Int
+  bestSeller: Boolean
 }
 
 input AttributeInput {
@@ -1121,6 +1122,7 @@ input ProductsInMobileFilters {
   brands: [String]
   attributes: [AttributeInput]
   discount: Int
+  bestSeller: Boolean
 }
 
 input ProductByVendorFilters {
@@ -1384,76 +1386,6 @@ type VerifyVendorOtpResponse {
 
 type ReSendVendorMobileOtpResponse {
   _id: String
-  message: String
-}
-
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
   message: String
 }
 
@@ -2212,6 +2144,76 @@ type GetUserOrderDetailsInMobileResponse {
   orderDate: Date
   orderStatus: String
   shippingAddress: OrderShippingAddressInMobile
+}
+
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
 }
 
 input AddCmsInput {

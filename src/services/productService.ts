@@ -164,11 +164,10 @@ export interface IProductProjection {
 }
 
 export interface IProductsOptions {
+    ids?: Types.ObjectId[]
     page: number,
     size: number,
     projection: IProductsProjection,
-    color?: string[],
-    productSize?: string[],
     minPrice?: number | null,
     maxPrice?: number | null,
     newest?: boolean,
@@ -300,14 +299,8 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
         });
     }
 
-    if (options.query || options.color?.length || options.productSize?.length) {
+    if (options.query) {
         let query = options.query || '';
-        if (options.productSize?.length) {
-            query = query.concat(" ", options.productSize.join(" "));
-        }
-        if (options.color?.length) {
-            query = query.concat(" ", options.color.join(" "));
-        }
         query = query.trim();
         pipeline.push(
             { $match: { $text: { $search: query } } },
@@ -337,6 +330,12 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
                 sellingPrice: { $gte: options.minPrice }
             }
         });
+    }
+
+    if (options.ids?.length) {
+        pipeline.push(
+            { $match: { _id: { $in: options.ids } } },
+        );
     }
 
     if (options.maxPrice) {
@@ -385,6 +384,44 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
     }
 
 
+    if (options.ids?.length) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: collections.ORDER_PRODUCTS,
+                    let: { productId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$productId", "$$productId"]
+                                }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: null,
+                                count: { $sum: 1 }
+                            }
+                        },
+                        {
+                            $project: {
+                                count: 1
+                            }
+                        }
+                    ],
+                    as: "orderCount"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$orderCount",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+        );
+    }
+
     if (options.newest) {
         sort = { createdAt: -1 }
     }
@@ -396,6 +433,9 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
 
     else if (options.priceHighToLow) {
         sort = { sellingPrice: -1 }
+    }
+    else if (options.ids?.length) {
+        sort = { orderCount: -1 }
     }
 
     sort["_id"] = -1;
@@ -521,14 +561,8 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
 
 
 
-    if (options.query || options.color?.length || options.productSize?.length) {
+    if (options.query) {
         let query = options.query || '';
-        if (options.productSize?.length) {
-            query = query.concat(" ", options.productSize.join(" "));
-        }
-        if (options.color?.length) {
-            query = query.concat(" ", options.color.join(" "));
-        }
         query = query.trim();
         pipeline.push(
             { $match: { $text: { $search: query } } },

@@ -1,5 +1,5 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
-import { categoryService, productService, spaceService } from "../../services";
+import { categoryService, orderProductService, productService, spaceService } from "../../services";
 import * as validators from "./productValidator";
 import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { createWriteStream } from 'fs';
@@ -1007,6 +1007,7 @@ export const productResolver: Resolvers = {
                 const newest: boolean = input?.newest || false;
                 const priceLowToHigh: boolean = input?.priceLowToHigh || false;
                 const priceHighToLow: boolean = input?.priceHighToLow || false;
+                const bestSeller: boolean = input?.bestSeller || false;
                 const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
                 const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
                 const categories: string[] = (input?.categories || []).map((item: string | null) => {
@@ -1054,8 +1055,15 @@ export const productResolver: Resolvers = {
                     }
                 }
 
+                let ids: Types.ObjectId[] = [];
+
+                if (bestSeller) {
+                    let result = await orderProductService.getBestSellingProducts();
+                    ids = result.map((item) => item._id);
+                }
 
                 const options: productService.IProductsOptions = {
+                    ids,
                     page,
                     size,
                     minPrice,
@@ -1103,6 +1111,7 @@ export const productResolver: Resolvers = {
                 const newest: boolean = input?.newest || false;
                 const priceLowToHigh: boolean = input?.priceLowToHigh || false;
                 const priceHighToLow: boolean = input?.priceHighToLow || false;
+                const bestSeller: boolean = input?.bestSeller || false;
                 const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
                 const parentCategory: string = input?.parentCategory ? (new Types.ObjectId(input.parentCategory)).toString() : "";
                 const categories: string[] = (input?.categories || []).map((item: string | null) => {
@@ -1148,8 +1157,15 @@ export const productResolver: Resolvers = {
                     }
                 }
 
+                let ids: Types.ObjectId[] = [];
+
+                if (bestSeller) {
+                    let result = await orderProductService.getBestSellingProducts();
+                    ids = result.map((item) => item._id);
+                }
 
                 const options: productService.IProductsOptions = {
+                    ids,
                     page,
                     size,
                     minPrice,

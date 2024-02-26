@@ -176,6 +176,7 @@ type Query {
         brands:[String]
         attributes: [AttributeInput]
         discount: Int
+        bestSeller: Boolean
     }
 
     input AttributeInput {
@@ -197,6 +198,7 @@ type Query {
         brands:[String]
         attributes: [AttributeInput]
         discount: Int
+        bestSeller: Boolean
     }
 
     input ProductByVendorFilters {
