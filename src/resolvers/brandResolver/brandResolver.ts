@@ -447,27 +447,14 @@ export const brandResolver: Resolvers = {
             try {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
 
-                const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
 
-                const categoryRecord = await categoryService.findCategoryWithFilters(
-                    { _id: categoryId },
-                    {},
-                    {}
-                );
+                let filter: any = {};
 
-                if (!categoryRecord) {
-                    throw new GraphQLError("Category not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
+                if (input.categoryId) {
+                    filter["categories"] = input.categoryId;
                 }
 
-                const options = { categoryId };
-
-                // const result = await brandService.getCategoryWithBrandsBycategoryId(options);
-                const result = await brandService.getBrandsWithFilter({ categories: options.categoryId }, "_id brandName logo isPopular priority", {});
+                const result = await brandService.getBrandsWithFilter(filter, "_id brandName logo isPopular priority", {});
                 if (!result) {
                     throw new GraphQLError("Record not found", {
                         extensions: {
@@ -505,27 +492,14 @@ export const brandResolver: Resolvers = {
             try {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
 
-                const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
 
-                const categoryRecord = await categoryService.findCategoryWithFilters(
-                    { _id: categoryId },
-                    {},
-                    {}
-                );
+                let filter: any = {};
 
-                if (!categoryRecord) {
-                    throw new GraphQLError("Category not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
+                if (input.categoryId) {
+                    filter["categories"] = input.categoryId;
                 }
 
-                const options = { categoryId };
-
-                // const result = await brandService.getCategoryWithBrandsBycategoryId(options);
-                const result = await brandService.getBrandsWithFilter({ categories: options.categoryId }, "_id brandName logo isPopular priority", {});
+                const result = await brandService.getBrandsWithFilter(filter, "_id brandName logo isPopular priority", {});
                 if (!result) {
                     throw new GraphQLError("Record not found", {
                         extensions: {

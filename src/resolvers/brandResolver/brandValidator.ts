@@ -41,7 +41,7 @@ export const brandDeleteValidator = [
 ]
 
 export const getBrandsWithCategoryValidator = [
-    body('variables.input.categoryId').notEmpty().isMongoId(),
+    body('variables.input.categoryId').optional({ checkFalsy: true }).isMongoId(),
 ]
 
 export const getCategoriesWithbrandValidator = [

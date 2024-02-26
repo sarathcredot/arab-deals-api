@@ -1,4 +1,5 @@
   scalar Upload
+  scalar ObjectId
 
 # Brand Mutations
 
@@ -33,11 +34,11 @@
     }
 
     input BrandsDetailsWithCategoryIdInput {
-      categoryId: String!
+      categoryId: ObjectId
     }
 
     input BrandsDetailsWithCategoryIdInMobileInput {
-      categoryId: String!
+      categoryId: ObjectId
     }
 
     # Output

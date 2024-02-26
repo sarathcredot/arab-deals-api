@@ -57,7 +57,7 @@ const categorySchema = new Schema(
             type: [
                 {
                     type: Schema.Types.ObjectId,
-                    ref: collections.CATEGORIES,
+                    ref: collections.ATTRIBUTES,
                 }
             ],
         },

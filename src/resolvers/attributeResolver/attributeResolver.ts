@@ -211,49 +211,6 @@ export const attributeResolver: Resolvers = {
 
     },
 
-    // Fetch each attribute record by vendor
-    async getAttributeRecordByVendor(parent, { input }, { req }, info) {
-      await verifyAdmin(req);
-
-      try {
-        await validateInput(validators.getAttributeRecordValidator, req);
-
-        const attributeId: Types.ObjectId = new Types.ObjectId(input.attributeId);
-
-        const options = { attributeId };
-
-        const result = await attributeService.getAttributeRecordByVendorWithAttributeId(options);
-
-        if (!result) {
-          throw new GraphQLError("Record not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: []
-            }
-          });
-        }
-
-
-        const response = {
-          record: {
-            _id: result?.record?._id?.toString(),
-            attributeType: result?.record?.attributeType,
-            name: result?.record?.name,
-            description: result?.record?.description,
-            attributeValues: result?.record?.attributeValues || [],
-            isBlocked: result?.record?.isBlocked,
-          },
-          message: "Vendor record fetched successfully",
-        }
-
-        return response;
-
-      } catch (error) {
-        throw error;
-      }
-
-    },
-
     // Fetch each attribute records  and each record values with category in vendor portal
     async getAttributesDetailsWithCategory(parent, { input }, { req }, info) {
       await verifyVendor(req);
@@ -261,24 +218,12 @@ export const attributeResolver: Resolvers = {
       try {
         await validateInput(validators.getCategoryWithAttributeValidator, req);
 
-        const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
 
-        const categoryRecord = await categoryService.findCategoryWithFilters(
-          { _id: categoryId },
-          {},
-          {}
-        );
+        let options: attributeService.ICategoryWithAttributesOptions = {};
 
-        if (!categoryRecord) {
-          throw new GraphQLError("Category not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: [],
-            },
-          });
+        if (input.categoryId) {
+          options.categoryId = new Types.ObjectId(input.categoryId);
         }
-
-        const options = { categoryId };
 
         const result = await attributeService.getCategoryWithAttributesBycategoryId(options);
 
@@ -294,8 +239,6 @@ export const attributeResolver: Resolvers = {
 
         const response = {
           record: {
-            _id: result?.record?._id?.toString(),
-            categoryName: result?.record?.categoryName,
             attributes: result?.record?.attributes.map((attribute: any) => ({
               _id: attribute?._id?.toString(),
               attributeType: attribute?.attributeType,
@@ -316,190 +259,134 @@ export const attributeResolver: Resolvers = {
 
     },
 
-      // Fetch each attribute records  and each record values with category in mobile side
-      async getAttributesDetailsWithCategoryInMobile(parent, { input }, { req }, info) {
-  
-        try {
-          await validateInput(validators.getCategoryWithAttributeValidator, req);
-  
-          const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
-  
-          const categoryRecord = await categoryService.findCategoryWithFilters(
-            { _id: categoryId },
-            {},
-            {}
-          );
-  
-          if (!categoryRecord) {
-            throw new GraphQLError("Category not found", {
-              extensions: {
-                code: "BAD_REQUEST",
-                errors: [],
-              },
-            });
-          }
-  
-          const options = { categoryId };
-  
-          const result = await attributeService.getCategoryWithAttributesBycategoryIdInMobile(options);
-  
-          if (!result) {
-            throw new GraphQLError("Record not found", {
-              extensions: {
-                code: "BAD_REQUEST",
-                errors: []
-              }
-            });
-          }
-  
-  
-          const response = {
-            record: {
-              _id: result?.record?._id?.toString(),
-              categoryName: result?.record?.categoryName,
-              attributes: result?.record?.attributes.map((attribute: any) => ({
-                _id: attribute?._id?.toString(),
-                attributeType: attribute?.attributeType,
-                name: attribute?.name,
-                description: attribute?.description,
-                attributeValues: attribute?.attributeValues || [],
-                isBlocked: attribute?.isBlocked,
-              })),
-            },
-            message: "Vendor record fetched successfully",
-          }
-  
-          return response;
-  
-        } catch (error) {
-          throw error;
+    // Fetch each attribute records  and each record values with category in mobile side
+    async getAttributesDetailsWithCategoryInMobile(parent, { input }, { req }, info) {
+
+      try {
+        await validateInput(validators.getCategoryWithAttributeValidator, req);
+
+        let options: attributeService.ICategoryWithAttributesOptions = {};
+
+        if (input.categoryId) {
+          options.categoryId = new Types.ObjectId(input.categoryId);
         }
-  
-      },
+
+
+        const result = await attributeService.getCategoryWithAttributesBycategoryIdInMobile(options);
+
+        if (!result) {
+          throw new GraphQLError("Record not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: []
+            }
+          });
+        }
+
+
+        const response = {
+          record: {
+            attributes: result?.record?.attributes.map((attribute: any) => ({
+              _id: attribute?._id?.toString(),
+              attributeType: attribute?.attributeType,
+              name: attribute?.name,
+              description: attribute?.description,
+              attributeValues: attribute?.attributeValues || [],
+              isBlocked: attribute?.isBlocked,
+            })),
+          },
+          message: "category record fetched successfully",
+        }
+
+        return response;
+
+      } catch (error) {
+        throw error;
+      }
+
+    },
 
     // Fetch each attribute records  and each record values with category in admin portal
     async getAttributesDetailsWithCategoryByAdmin(parent, { input }, { req }, info) {
       await verifyAdmin(req);
 
-      try {
-        await validateInput(validators.getCategoryWithAttributeValidator, req);
-
-        const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
-
-        const categoryRecord = await categoryService.findCategoryWithFilters(
-          { _id: categoryId },
-          {},
-          {}
-        );
-
-        if (!categoryRecord) {
-          throw new GraphQLError("Category not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: [],
-            },
-          });
-        }
-
-        const options = { categoryId };
-
-        const result = await attributeService.getCategoryWithAttributesBycategoryId(options);
-
-        if (!result) {
-          throw new GraphQLError("Record not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: []
-            }
-          });
-        }
+      await validateInput(validators.getCategoryWithAttributeValidator, req);
 
 
-        const response = {
-          record: {
-            _id: result?.record?._id?.toString(),
-            categoryName: result?.record?.categoryName,
-            attributes: result?.record?.attributes.map((attribute: any) => ({
-              _id: attribute?._id?.toString(),
-              attributeType: attribute?.attributeType,
-              name: attribute?.name,
-              description: attribute?.description,
-              attributeValues: attribute?.attributeValues || [],
-              isBlocked: attribute?.isBlocked,
-            })),
-          },
-          message: "Vendor record fetched successfully",
-        }
+      let options: attributeService.ICategoryWithAttributesOptions = {};
 
-        return response;
-
-      } catch (error) {
-        throw error;
+      if (input.categoryId) {
+        options.categoryId = new Types.ObjectId(input.categoryId);
       }
 
-    },
+      const result = await attributeService.getCategoryWithAttributesBycategoryId(options);
 
-     // Fetch each attribute records and each record values with category in web portal
-     async getAttributesDetailsByCategory(parent, { input }, { req }, info) {
-
-      try {
-        await validateInput(validators.getCategoryWithAttributeValidator, req);
-
-        const categoryId: Types.ObjectId = new Types.ObjectId(input.categoryId);
-
-        const categoryRecord = await categoryService.findCategoryWithFilters(
-          { _id: categoryId },
-          {},
-          {}
-        );
-
-        if (!categoryRecord) {
-          throw new GraphQLError("Category not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: [],
-            },
-          });
-        }
-
-        const options = { categoryId };
-
-        const result = await attributeService.getAllAttributesBycategoryId(options);
-
-        if (!result) {
-          throw new GraphQLError("Record not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: []
-            }
-          });
-        }
-
-
-        const response = {
-          record: {
-            _id: result?.record?._id?.toString(),
-            categoryName: result?.record?.categoryName,
-            attributes: result?.record?.attributes.map((attribute: any) => ({
-              _id: attribute?._id?.toString(),
-              attributeType: attribute?.attributeType,
-              name: attribute?.name,
-              description: attribute?.description,
-              attributeValues: attribute?.attributeValues || [],
-              isBlocked: attribute?.isBlocked,
-            })),
-          },
-          message: "Vendor record fetched successfully",
-        }
-
-        return response;
-
-      } catch (error) {
-        throw error;
+      if (!result) {
+        throw new GraphQLError("Record not found", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
       }
 
+
+      const response = {
+        record: {
+          attributes: result?.record?.attributes.map((attribute: any) => ({
+            _id: attribute?._id?.toString(),
+            attributeType: attribute?.attributeType,
+            name: attribute?.name,
+            description: attribute?.description,
+            attributeValues: attribute?.attributeValues || [],
+            isBlocked: attribute?.isBlocked,
+          })),
+        },
+        message: "Vendor record fetched successfully",
+      }
+
+      return response;
     },
 
+    // Fetch each attribute records and each record values with category in web portal
+    async getAttributesDetailsByCategory(parent, { input }, { req }, info) {
+
+      await validateInput(validators.getCategoryWithAttributeValidator, req);
+
+      let options: attributeService.ICategoryWithAttributesOptions = {};
+
+      if (input.categoryId) {
+        options.categoryId = new Types.ObjectId(input.categoryId);
+      }
+
+      const result = await attributeService.getCategoryWithAttributesBycategoryId(options);
+
+      if (!result) {
+        throw new GraphQLError("Record not found", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+
+
+      const response = {
+        record: {
+          attributes: result?.record?.attributes.map((attribute: any) => ({
+            _id: attribute?._id?.toString(),
+            attributeType: attribute?.attributeType,
+            name: attribute?.name,
+            description: attribute?.description,
+            attributeValues: attribute?.attributeValues || [],
+            isBlocked: attribute?.isBlocked,
+          })),
+        },
+        message: "Vendor record fetched successfully",
+      }
+
+      return response;
+    }
   },
 };
 

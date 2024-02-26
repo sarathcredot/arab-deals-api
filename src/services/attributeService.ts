@@ -41,8 +41,6 @@ export interface IAttributeWithValues {
 }
 
 interface ICategoryWithAttributes {
-  _id: string;
-  categoryName: string;
   attributes: IAttribute[];
 }
 
@@ -87,7 +85,7 @@ export interface IAttributeRecordOptions {
 }
 
 export interface ICategoryWithAttributesOptions {
-  categoryId: Types.ObjectId;
+  categoryId?: Types.ObjectId;
 }
 
 
@@ -283,27 +281,30 @@ export const getAttributeRecordByVendorWithAttributeId = async (options: IAttrib
 export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<ICategoryWithAttributesResponse> => {
   let pipeline: PipelineStage[] = [];
 
+
+  if (options.categoryId) {
+    pipeline.push(
+      {
+        $match: {
+          _id: options.categoryId,
+        },
+      },
+    )
+  }
+
   pipeline.push(
     {
-      $match: {
-        _id: options.categoryId,
-      },
+      $unwind: "$attributes"
     },
     {
-      $lookup: {
-        from: collections.CATEGORIES,
-        localField: "_id",
-        foreignField: "_id",
-        as: "categoryAttributes",
-      },
-    },
-    {
-      $unwind: "$categoryAttributes",
+      $group: {
+        _id: "$attributes"
+      }
     },
     {
       $lookup: {
         from: collections.ATTRIBUTES,
-        localField: "categoryAttributes.attributes",
+        localField: "_id",
         foreignField: "_id",
         as: "attributeDetails",
       },
@@ -321,8 +322,7 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
     },
     {
       $group: {
-        _id: "$_id",
-        categoryName: { $first: "$categoryName" },
+        _id: null,
         attributes: {
           $push: {
             _id: "$attributeDetails._id",
@@ -337,8 +337,7 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
     },
     {
       $project: {
-        _id: 1,
-        categoryName: 1,
+        _id: 0,
         attributes: 1,
       },
     },
@@ -347,8 +346,6 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
   const result = await categoryModel.aggregate(pipeline);
   let response = {
     record: {
-      _id: '',
-      categoryName: '',
       attributes: [],
     },
   };
@@ -362,27 +359,30 @@ export const getCategoryWithAttributesBycategoryId = async (options: ICategoryWi
 export const getCategoryWithAttributesBycategoryIdInMobile = async (options: ICategoryWithAttributesOptions): Promise<ICategoryWithAttributesResponse> => {
   let pipeline: PipelineStage[] = [];
 
+
+  if (options.categoryId) {
+    pipeline.push(
+      {
+        $match: {
+          _id: options.categoryId,
+        },
+      },
+    )
+  }
+
   pipeline.push(
     {
-      $match: {
-        _id: options.categoryId,
-      },
+      $unwind: "$attributes"
     },
     {
-      $lookup: {
-        from: collections.CATEGORIES,
-        localField: "_id",
-        foreignField: "_id",
-        as: "categoryAttributes",
-      },
-    },
-    {
-      $unwind: "$categoryAttributes",
+      $group: {
+        _id: "$attributes"
+      }
     },
     {
       $lookup: {
         from: collections.ATTRIBUTES,
-        localField: "categoryAttributes.attributes",
+        localField: "_id",
         foreignField: "_id",
         as: "attributeDetails",
       },
@@ -400,8 +400,7 @@ export const getCategoryWithAttributesBycategoryIdInMobile = async (options: ICa
     },
     {
       $group: {
-        _id: "$_id",
-        categoryName: { $first: "$categoryName" },
+        _id: null,
         attributes: {
           $push: {
             _id: "$attributeDetails._id",
@@ -416,8 +415,7 @@ export const getCategoryWithAttributesBycategoryIdInMobile = async (options: ICa
     },
     {
       $project: {
-        _id: 1,
-        categoryName: 1,
+        _id: 0,
         attributes: 1,
       },
     },
@@ -426,8 +424,6 @@ export const getCategoryWithAttributesBycategoryIdInMobile = async (options: ICa
   const result = await categoryModel.aggregate(pipeline);
   let response = {
     record: {
-      _id: '',
-      categoryName: '',
       attributes: [],
     },
   };
@@ -442,27 +438,30 @@ export const getCategoryWithAttributesBycategoryIdInMobile = async (options: ICa
 export const getAllAttributesBycategoryId = async (options: ICategoryWithAttributesOptions): Promise<ICategoryWithAttributesResponse> => {
   let pipeline: PipelineStage[] = [];
 
+
+  if (options.categoryId) {
+    pipeline.push(
+      {
+        $match: {
+          _id: options.categoryId,
+        },
+      },
+    )
+  }
+
   pipeline.push(
     {
-      $match: {
-        _id: options.categoryId,
-      },
+      $unwind: "$attributes"
     },
     {
-      $lookup: {
-        from: collections.CATEGORIES,
-        localField: "_id",
-        foreignField: "_id",
-        as: "categoryAttributes",
-      },
-    },
-    {
-      $unwind: "$categoryAttributes",
+      $group: {
+        _id: "$attributes"
+      }
     },
     {
       $lookup: {
         from: collections.ATTRIBUTES,
-        localField: "categoryAttributes.attributes",
+        localField: "_id",
         foreignField: "_id",
         as: "attributeDetails",
       },
@@ -480,8 +479,7 @@ export const getAllAttributesBycategoryId = async (options: ICategoryWithAttribu
     },
     {
       $group: {
-        _id: "$_id",
-        categoryName: { $first: "$categoryName" },
+        _id: null,
         attributes: {
           $push: {
             _id: "$attributeDetails._id",
@@ -496,8 +494,7 @@ export const getAllAttributesBycategoryId = async (options: ICategoryWithAttribu
     },
     {
       $project: {
-        _id: 1,
-        categoryName: 1,
+        _id: 0,
         attributes: 1,
       },
     },
@@ -506,8 +503,6 @@ export const getAllAttributesBycategoryId = async (options: ICategoryWithAttribu
   const result = await categoryModel.aggregate(pipeline);
   let response = {
     record: {
-      _id: '',
-      categoryName: '',
       attributes: [],
     },
   };

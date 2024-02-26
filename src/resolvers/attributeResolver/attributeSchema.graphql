@@ -1,5 +1,6 @@
 scalar Upload
 scalar JSONObject
+scalar ObjectId
 
 # attribute  Mutations
 
@@ -100,11 +101,11 @@ input AttributeRecordByVendorInput {
 }
 
 input AttributesDetailsWithCategoryIdInput {
-  categoryId: String!
+  categoryId: ObjectId
 }
 
 input AttributesDetailsWithCategoryIdInMobileInput {
-  categoryId: String!
+  categoryId: ObjectId
 }
 
 type AttributeRecordsByAdminResponse {

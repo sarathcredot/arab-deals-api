@@ -28,5 +28,5 @@ export const getAttributeRecordValidator = [
 ];
 
 export const getCategoryWithAttributeValidator = [
-  body('variables.input.categoryId').isMongoId(),
+  body('variables.input.categoryId').optional({ checkFalsy: true }).isMongoId(),
 ];
