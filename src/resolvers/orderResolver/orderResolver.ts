@@ -664,7 +664,7 @@ export const orderResolver: Resolvers = {
             } catch (error) {
                 console.log(error);
             }
-            
+
             const response = {
                 _id: _id
             }
@@ -718,7 +718,7 @@ export const orderResolver: Resolvers = {
             } catch (error) {
                 console.log(error);
             }
-            
+
             const response = {
                 _id: _id
             }
@@ -1418,7 +1418,7 @@ export const orderResolver: Resolvers = {
 
             return response;
         },
-        
+
         getUserOrderDetailsInMobile: async (parent, { input }, { req }, info) => {
 
             await verifyUser(req);
@@ -1440,6 +1440,28 @@ export const orderResolver: Resolvers = {
                     lean: true
                 }
             );
+
+            if (!result) {
+                throw new GraphQLError("Record not found", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+            }
+
+            const response = result;
+
+            return response;
+        },
+        getUserOrderDetails: async (parent, { input }, { req }, info) => {
+
+            await verifyUser(req);
+            await validateInput(validators.getUserOrderDetailsValidator, req);
+
+            const userId = req.authAccount._id;
+
+            const result = await orderService.getUserOrderDetails(input.orderId, userId);
 
             if (!result) {
                 throw new GraphQLError("Record not found", {

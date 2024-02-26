@@ -88,8 +88,6 @@ const vendorSchema = new Schema(
     }
 );
 
-// Create compound index on brands and categories
-vendorSchema.index({ brands: 1, categories: 1 }, { unique: true });
 
 const vendorModel = model(collections.VENDORS, vendorSchema);
 

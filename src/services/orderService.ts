@@ -435,3 +435,76 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
 export const updateOrderStatus = async (orderId: string, status: String): Promise<IOrderDocument | null> => {
     return await orderModel.findOneAndUpdate({ orderId: orderId }, { orderStatus: status });
 }
+
+
+export const getUserOrderDetails = async (orderId: string, userId: Types.ObjectId): Promise<IOrderDetails | null> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                orderId: orderId,
+                userId: userId
+            }
+        },
+        {
+            $lookup: {
+                from: collections.ORDER_PRODUCTS,
+                let: { orderId: "$orderId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$orderId", "$$orderId"]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalSellingPrice: { $sum: "$sellingPrice" },
+                            totalShippingCharge: { $sum: "$shippingCharge" },
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            totalSellingPrice: 1,
+                            totalShippingCharge: 1,
+                        }
+                    }
+                ],
+                as: "orderPriceInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$orderPriceInfo",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                orderId: 1,
+                userId: 1,
+                paymentMode: 1,
+                orderDate: 1,
+                orderStatus: 1,
+                orderPriceInfo: 1,
+                shippingAddress: 1
+            }
+        },
+    );
+
+    const result = await orderModel.aggregate(pipeline);
+    let response;
+    if (result.length) {
+        response = result[0];
+    }
+
+    return response;
+}
+
