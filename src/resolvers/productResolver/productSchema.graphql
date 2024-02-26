@@ -175,6 +175,7 @@ type Query {
         parentCategory:String
         brands:[String]
         attributes: [AttributeInput]
+        discount: Int
     }
 
     input AttributeInput {
@@ -195,6 +196,7 @@ type Query {
         parentCategory:String
         brands:[String]
         attributes: [AttributeInput]
+        discount: Int
     }
 
     input ProductByVendorFilters {

@@ -180,6 +180,7 @@ export interface IProductsOptions {
     brands?: string[],
     attributes?: Array<{ id: string, values: string[] }>,
     tags?: string[],
+    discount?: number
 }
 
 export interface IProductsPriceRangeOptions {
@@ -317,6 +318,17 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
             }
         );
         sort = { score: -1 }
+    }
+
+    if (options.discount && options.discount > 0) {
+        let multiplier = options.discount / 100;
+        pipeline.push({
+            $match: {
+                $expr: {
+                    $lte: ["$sellingPrice", { $subtract: ["$mrp", { $multiply: ["$mrp", multiplier] }] }]
+                }
+            }
+        });
     }
 
     if (options.minPrice) {

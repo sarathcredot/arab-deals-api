@@ -5,6 +5,7 @@ export const productsQueryValidator = [
     body('variables.input.productSize').optional({ checkFalsy: true }).isArray({ min: 0 }),
     body('variables.input.maxPrice').optional({ checkFalsy: true }).custom(val => val > 0),
     body('variables.input.minPrice').optional({ checkFalsy: true }).custom(val => val >= 0),
+    body('variables.input.discount').optional({ checkFalsy: true }).custom(val => val >= 0),
     body('variables.input.newest').optional({ checkFalsy: true }).toBoolean(true),
     body('variables.input.priceLowToHigh').optional({ checkFalsy: true }).toBoolean(true),
     body('variables.input.priceHighToLow').optional({ checkFalsy: true }).toBoolean(true),

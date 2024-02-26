@@ -901,7 +901,7 @@ export const productResolver: Resolvers = {
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
 
 
-                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false }, {  }, { lean: true });
+                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false }, {}, { lean: true });
 
                 // console.log(result)
 
@@ -1001,6 +1001,7 @@ export const productResolver: Resolvers = {
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const discount: number = input?.discount || 0;
                 const minPrice: number | null = input?.minPrice || null;
                 const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
                 const newest: boolean = input?.newest || false;
@@ -1069,6 +1070,7 @@ export const productResolver: Resolvers = {
                     brands,
                     attributes,
                     tags,
+                    discount
                 }
 
 
@@ -1095,6 +1097,7 @@ export const productResolver: Resolvers = {
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const discount: number = input?.discount || 0;
                 const minPrice: number | null = input?.minPrice || null;
                 const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
                 const newest: boolean = input?.newest || false;
@@ -1159,7 +1162,8 @@ export const productResolver: Resolvers = {
                     parentCategory,
                     categories,
                     brands,
-                    attributes
+                    attributes,
+                    discount
                 }
 
                 const result = await productService.getProductsWithFilters(options);
