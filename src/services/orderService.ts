@@ -466,13 +466,17 @@ export const getUserOrderDetails = async (orderId: string, userId: Types.ObjectI
                             _id: null,
                             totalSellingPrice: { $sum: "$sellingPrice" },
                             totalShippingCharge: { $sum: "$shippingCharge" },
+                            totalMRP: { $sum: "$mrp" },
+                            totalRefundAmount: { $sum: "$refundAmount" }
                         }
                     },
                     {
                         $project: {
                             _id: 0,
+                            totalMRP: 1,
                             totalSellingPrice: 1,
                             totalShippingCharge: 1,
+                            totalRefundAmount: 1
                         }
                     }
                 ],
