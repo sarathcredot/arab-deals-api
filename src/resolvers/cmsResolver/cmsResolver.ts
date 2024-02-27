@@ -40,8 +40,8 @@ export const cmsResolver: Resolvers = {
                 });
             }
 
-
-            const sectionsCount = await cmsService.getLatestSection();
+            const pageName = input.pageName;
+            const sectionsCount = await cmsService.getLatestSection(pageName);
             // Generate a unique sectionName
             const sectionName = `SECTION-${sectionsCount + 1}`;
 
@@ -177,6 +177,7 @@ export const cmsResolver: Resolvers = {
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const pageName: string = input?.pageName || "";
                 let projection: cmsService.ICmsRecordsProjection = { _id: 1 };
 
                 const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
@@ -210,6 +211,7 @@ export const cmsResolver: Resolvers = {
                     page,
                     size,
                     projection,
+                    pageName
                 }
 
                 // Fetch all CMS records
@@ -235,8 +237,9 @@ export const cmsResolver: Resolvers = {
                 await validateInput(validators.cmsSectionQueryValidator, req);
 
                 const sectionName: string = input?.sectionName;
+                const pageName: string = input.pageName;
 
-                const result = await cmsService.getCmsRecordWithSectionName(sectionName);
+                const result = await cmsService.getCmsRecordWithSectionName(sectionName, pageName);
 
                 if (!result) {
                     throw new GraphQLError("Record not found", {

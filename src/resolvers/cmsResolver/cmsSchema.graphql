@@ -72,6 +72,7 @@
    
   input cmsRecordFilter {
     sectionName: String!
+    pageName: String!
   }
 
   input CmsRecordsFilter {

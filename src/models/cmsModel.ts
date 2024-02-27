@@ -84,6 +84,7 @@ const cmsSchema = new Schema(
     }
 );
 
+cmsSchema.index({ pageName: 1, sectionName: 1 }, { unique: true });
 
 const cmsModel = model(collections.CMS, cmsSchema);
 

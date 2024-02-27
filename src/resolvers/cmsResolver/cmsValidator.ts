@@ -24,7 +24,9 @@ export const cmsCreateValidator = [
 ]
 
 export const cmsSectionQueryValidator = [
-    body('variables.input.sectionName').notEmpty()
+    body('variables.input.sectionName').notEmpty(),
+    body('variables.input.pageName').notEmpty()
+
 ]
 
 export const cmsUpdateValidator = [
@@ -58,6 +60,7 @@ export const cmsDeleteValidator = [
 export const getAllCmsRecordsValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
     body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
+    body('variables.input.pageName').optional({ checkFalsy: true }),
     body('variables.input.projection').optional().isArray().custom((value, { req }) => {
         if (!Array.isArray(value)) {
             throw new Error('Projection must be an array.');

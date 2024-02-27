@@ -41,7 +41,7 @@ export interface ICmsRecordsProjection {
     "buttons._id"?: 1,
     "buttons.buttonText"?: 1,
     "buttons.redirectionURL"?: 1,
-    isBlocked?:1,
+    isBlocked?: 1,
     createdAt?: 1,
     updatedAt?: 1,
 }
@@ -49,7 +49,8 @@ export interface ICmsRecordsProjection {
 export interface ICmsRecordsOptions {
     page: number,
     size: number,
-    projection: ICmsRecordsProjection
+    projection: ICmsRecordsProjection,
+    pageName?: string;
 }
 
 
@@ -71,6 +72,15 @@ export const getCmsRecordsWithFilters = async (options: ICmsRecordsOptions): Pro
 
     let pipeline: PipelineStage[] = [];
 
+    if (options.pageName) {
+        pipeline.push(
+            {
+                $match: {
+                    pageName: options.pageName
+                }
+            }
+        )
+    }
     pipeline.push(
         {
             $match: {
@@ -78,7 +88,7 @@ export const getCmsRecordsWithFilters = async (options: ICmsRecordsOptions): Pro
             }
         },
         {
-            $sort: { _id: -1 }
+            $sort: { pageName: 1, _id: 1 }
         },
         {
             $facet: {
@@ -124,10 +134,15 @@ export const getCmsRecordsWithFilters = async (options: ICmsRecordsOptions): Pro
     return response;
 }
 
-export const getLatestSection = async (): Promise<number> => {
+export const getLatestSection = async (pageName: string): Promise<number> => {
 
     let count = 0;
     const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                pageName: pageName
+            }
+        },
         {
             $project: {
                 count: {
@@ -163,8 +178,8 @@ export const getLatestSection = async (): Promise<number> => {
     return count;
 }
 
-export const getCmsRecordWithSectionName = async (sectionNameField: string): Promise<Document | null> => {
-    const query = { sectionName: sectionNameField };
+export const getCmsRecordWithSectionName = async (sectionNameField: string, pageName: string): Promise<Document | null> => {
+    const query = { sectionName: sectionNameField, pageName: pageName };
     const result = await cmsModel.findOne(query);
     return result;
 }
@@ -192,7 +207,7 @@ export const getAllCmsRecordsWithFilters = async (options: ICmsRecordsOptions): 
 
     pipeline.push(
         {
-            $sort: { _id: 1 }
+            $sort: { pageName: 1, _id: 1 }
         },
         {
             $facet: {
@@ -240,6 +255,6 @@ export const getAllCmsRecordsWithFilters = async (options: ICmsRecordsOptions): 
 
 export const getCmsRecordByAdminWithId = async (id: Types.ObjectId): Promise<Document | null> => {
     const result = await cmsModel.findById(id)
-;
+        ;
     return result;
 }
