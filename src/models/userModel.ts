@@ -22,6 +22,7 @@ const userSchema = new Schema(
     mobileNumber: {
       type: String,
       unique: true,
+      required: true
     },
     isBlocked: {
       type: Boolean,

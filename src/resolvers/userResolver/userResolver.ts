@@ -16,7 +16,7 @@ export const userResolver: Resolvers = {
       await validateInput(validators.userNumberValidator, req);
       const mobileNumber: string = input.mobileNumber;
       const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
-  
+
 
       if (user?.isBlocked) {
         throw new GraphQLError("User is Blocked", {
@@ -61,60 +61,8 @@ export const userResolver: Resolvers = {
 
       const response = {
         message: "OTP generated",
-        mobileNumber: mobileNumber
-      }
-      return response;
-    },
-
-    userResendLoginOtp: async (parent, { input }, { req }, info) => {
-      await validateInput(validators.userNumberValidator, req);
-      const mobileNumber: string = input.mobileNumber;
-      const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
-
-      if (user?.isBlocked) {
-        throw new GraphQLError("User is Blocked", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: []
-          }
-        });
-      }
-      const mobileOtp = await otpService.generateOtp();
-      if (!mobileOtp) {
-        throw new GraphQLError('OTP generation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-      let options = {
-        name: "USER_LOGIN_MOBILE_OTP",
-        metadata: {
-          code: mobileOtp.code,
-          expiresAt: mobileOtp.expiresAt,
-          mobileNumber,
-        },
-        isVerified: false
-      };
-
-      const otpCreation = await otpService.createOtp(options);
-      if (!otpCreation) {
-        throw new GraphQLError('OTP Db creation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-      // integrate msg91 here
-
-
-      const response = {
-        message: "OTP generated",
-        mobileNumber: mobileNumber
+        mobileNumber: mobileNumber,
+        _id: otpCreation._id
       }
       return response;
     },
@@ -172,11 +120,97 @@ export const userResolver: Resolvers = {
 
       const response = {
         message: "OTP generated",
-        mobileNumber: mobileNumber
+        mobileNumber: mobileNumber,
+        _id: otpCreation._id
       }
       return response;
     },
 
+
+    userVerifyOtp: async (parent, { input }, { req }, info) => {
+      await validateInput(validators.userOtpValidator, req);
+      const code: string = input.code;
+      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code, _id: input._id }, {}, {});
+      if (!otpVerification) {
+        throw new GraphQLError('Verification failed. Invalid OTP.', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
+      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt) {
+        throw new Error('Invalid OTP metadata');
+      }
+
+      let checkOtpExpired = await otpService.isOtpExpired(otpVerification.metadata.expiresAt)
+
+      if (checkOtpExpired) {
+        throw new Error("Expired OTP");
+      }
+
+      let user = await userService.findUserWithFilters({ mobileNumber: otpVerification?.metadata?.mobileNumber }, {}, {})
+
+      if (!user) {
+        user = await userService.createUser({ mobileNumber: otpVerification?.metadata?.mobileNumber });
+      }
+      let token = await jwtService.createUserJWT(user._id!.toString());
+      user.token = token;
+
+      await user.save();
+
+      await otpService.deleteOtpRecord(otpVerification._id);
+
+      const response = {
+        userId: user._id?.toString(),
+        message: "OTP verified",
+        token: token
+      }
+      return response;
+    },
+
+    // Mobile user verfy
+    userVerifyOtpInMobile: async (parent, { input }, { req }, info) => {
+      await validateInput(validators.userOtpValidator, req);
+      const code: string = input.code;
+      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code, _id: input._id }, {}, {});
+      if (!otpVerification) {
+        throw new GraphQLError('Verification failed. Invalid OTP.', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
+      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt) {
+        throw new Error('Invalid OTP metadata');
+      }
+
+      let checkOtpExpired = await otpService.isOtpExpired(otpVerification.metadata.expiresAt)
+
+      if (checkOtpExpired) {
+        throw new Error("Expired OTP");
+      }
+
+      let user = await userService.findUserWithFilters({ mobileNumber: otpVerification?.metadata?.mobileNumber }, {}, {})
+
+      if (!user) {
+        user = await userService.createUser({ mobileNumber: otpVerification?.metadata?.mobileNumber });
+      }
+      let token = await jwtService.createUserJWT(user._id!.toString());
+      user.token = token;
+
+      await user.save();
+
+      await otpService.deleteOtpRecord(otpVerification._id);
+
+      const response = {
+        userId: user._id?.toString(),
+        message: "OTP verified",
+        token: token
+      }
+      return response;
+    },
 
     userBlock: async (parent, { input }, { req }, info) => {
       try {
@@ -210,161 +244,14 @@ export const userResolver: Resolvers = {
       }
     },
 
-    userVerifyOtp: async (parent, { input }, { req }, info) => {
-      await validateInput(validators.userOtpValidator, req);
-      const code: string = input.code;
-      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code }, {}, {});
-      if (!otpVerification) {
-        throw new GraphQLError('Verification failed. Invalid OTP.', {
-          extensions: {
-            code: "",
-            errors: [],
-          },
-        });
-      }
-      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt) {
-        throw new Error('Invalid OTP metadata');
-      }
-      let expirationTime: Date = new Date(otpVerification?.metadata.expiresAt);
-      let checkOtpExpired = await otpService.isOtpExpired(expirationTime)
-
-      if (checkOtpExpired) {
-        throw new Error("Expired OTP");
-      }
-      otpVerification.isVerified = true;
-
-      const result = await otpVerification.save();
-
-      let token = "";
-      let userId;
-
-      const existingUser = await userService.findUserWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, { lean: true })
-
-      if (!existingUser) {
-        const user = await userService.createUser({ mobileNumber: result?.metadata?.mobileNumber });
-        if (!user) {
-          throw new GraphQLError('User Db creation failed', {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              errors: []
-            }
-          });
-        }
-
-        token = await jwtService.createUserJWT(user._id!.toString());
-
-        if (!token) {
-          throw new GraphQLError('Token generation failed', {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              errors: []
-            }
-          });
-        }
-
-        user.token = token;
-        user.isBlocked = false;
-        userId = user._id;
-
-        // Save the user object
-        await user.save();
-        await otpService.deleteOtpRecord(otpVerification._id);
-
-      } else {
-        token = await jwtService.createUserJWT(existingUser._id!.toString());
-        userId = existingUser._id;
-      }
-
-      const response = {
-        userId: userId?.toString(),
-        message: "OTP verified",
-        token: token
-      }
-      return response;
-    },
-
-    // Mobile user verfy
-    userVerifyOtpInMobile: async (parent, { input }, { req }, info) => {
-      await validateInput(validators.userOtpValidator, req);
-      const code: string = input.code;
-      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code }, {}, {});
-      if (!otpVerification) {
-        throw new GraphQLError('Verification failed. Invalid OTP.', {
-          extensions: {
-            code: "",
-            errors: [],
-          },
-        });
-      }
-      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt) {
-        throw new Error('Invalid OTP metadata');
-      }
-      let expirationTime: Date = new Date(otpVerification?.metadata.expiresAt);
-      let checkOtpExpired = await otpService.isOtpExpired(expirationTime)
-
-      if (checkOtpExpired) {
-        throw new Error("Expired OTP");
-      }
-      otpVerification.isVerified = true;
-
-      const result = await otpVerification.save();
-
-      let token = "";
-      let userId;
-
-      const existingUser = await userService.findUserWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, { lean: true })
-
-      if (!existingUser) {
-        const user = await userService.createUser({ mobileNumber: result?.metadata?.mobileNumber });
-        if (!user) {
-          throw new GraphQLError('User Db creation failed', {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              errors: []
-            }
-          });
-        }
-
-        token = await jwtService.createUserJWT(user._id!.toString());
-
-        if (!token) {
-          throw new GraphQLError('Token generation failed', {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              errors: []
-            }
-          });
-        }
-
-        user.token = token;
-        user.isBlocked = false;
-        userId = user._id;
-
-        // Save the user object
-        await user.save();
-
-      } else {
-        token = await jwtService.createUserJWT(existingUser._id!.toString());
-        userId = existingUser._id;
-      }
-
-      const response = {
-        userId: userId?.toString(),
-        message: "OTP verified",
-        token: token
-      }
-      return response;
-    },
-
-
     // Edit user profile
     updateUserProfile: async (parent, { input }, { req }, info) => {
 
       try {
-        // await verifyUser(req);
+        await verifyUser(req);
         await validateInput(validators.userUpdateProfileValidator, req);
 
-        const userId: Types.ObjectId = new Types.ObjectId(input._id);
+        const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
         const user = await userService.findUserWithFilters({ _id: userId }, {}, {});
         if (!user) {
@@ -411,16 +298,11 @@ export const userResolver: Resolvers = {
           user.displayName = input.displayName;
         }
 
-        if (input.mobileNumber) {
-          user.mobileNumber = input.mobileNumber;
-        }
 
-
-        const result = await user.save();
+        await user.save();
 
         const response = {
-          updatedRecord: result.toObject(),
-          message: 'Vendor successfully updated',
+          message: 'user successfully updated',
         };
 
         return response;
@@ -434,10 +316,10 @@ export const userResolver: Resolvers = {
     updateUserProfileInMobile: async (parent, { input }, { req }, info) => {
 
       try {
-        // await verifyUser(req);
+        await verifyUser(req);
         await validateInput(validators.userUpdateProfileValidator, req);
 
-        const userId: Types.ObjectId = new Types.ObjectId(input._id);
+        const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
         const user = await userService.findUserWithFilters({ _id: userId }, {}, {});
         if (!user) {
@@ -484,15 +366,11 @@ export const userResolver: Resolvers = {
           user.displayName = input.displayName;
         }
 
-        if (input.mobileNumber) {
-          user.mobileNumber = input.mobileNumber;
-        }
 
-        const result = await user.save();
+        await user.save();
 
         const response = {
-          updatedRecord: result.toObject(),
-          message: 'Vendor successfully updated',
+          message: 'user successfully updated',
         };
 
         return response;
@@ -572,11 +450,17 @@ export const userResolver: Resolvers = {
 
       try {
         await verifyUser(req);
-        await validateInput(validators.userQueryValidator, req);
 
-        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-        const result = await userService.findUserWithFilters({ _id }, {}, {});
+        const result = await userService.findUserWithFilters(
+          { _id },
+          {
+            email: 1, firstName: 1,
+            lastName: 1, displayName: 1,
+            mobileNumber: 1, _id: 1,
+          },
+          {});
         if (!result) {
           throw new GraphQLError("INTERNAL_SERVER_ERROR", {
             extensions: {
@@ -605,11 +489,17 @@ export const userResolver: Resolvers = {
 
       try {
         await verifyUser(req);
-        await validateInput(validators.userQueryValidator, req);
 
-        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-        const result = await userService.findUserWithFilters({ _id }, {}, {});
+        const result = await userService.findUserWithFilters(
+          { _id },
+          {
+            email: 1, firstName: 1,
+            lastName: 1, displayName: 1,
+            mobileNumber: 1, _id: 1,
+          },
+          {});
         if (!result) {
           throw new GraphQLError("INTERNAL_SERVER_ERROR", {
             extensions: {

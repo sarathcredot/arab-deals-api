@@ -58,7 +58,7 @@ export const findUserWithFilters = async (filters: FilterQuery<IUser>, projectio
 }
 
 
-export const createUser = async (userData: IUser): Promise<IUserDocument | null> => {
+export const createUser = async (userData: IUser): Promise<IUserDocument> => {
   let user: IUserDocument = new userModel(userData);
   return await user.save();
 };

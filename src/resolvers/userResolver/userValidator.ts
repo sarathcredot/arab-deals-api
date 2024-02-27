@@ -4,7 +4,8 @@ export const userNumberValidator = [
   body('variables.input.mobileNumber').notEmpty(),
 ];
 export const userOtpValidator = [
-  body('variables.input.code').notEmpty().isLength({ min: 5 })
+  body('variables.input.code').notEmpty().isLength({ min: 5 }),
+  body('variables.input._id').notEmpty().isMongoId()
 ];
 export const userBlockValidator = [
   body('variables.input._id').notEmpty(),
@@ -22,16 +23,11 @@ export const userQueryValidator = [
 ]
 
 export const userUpdateProfileValidator = [
-  body('variables.input._id').notEmpty().isMongoId(),
   body('variables.input.email').optional({ checkFalsy: true }).trim().isEmail(),
   body('variables.input.firstName').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.lastName').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.displayName').optional({ checkFalsy: true }).notEmpty(),
-  body('variables.input.address').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.countryCode').optional({ checkFalsy: true }).notEmpty(),
-  body('variables.input.mobileNumber').optional({ checkFalsy: true }).notEmpty(),
-  body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
-  // body('variables.input.password').optional({ checkFalsy: true }).isLength({ min: 6 }),
 ];
 
 
