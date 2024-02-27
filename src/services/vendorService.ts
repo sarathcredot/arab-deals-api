@@ -131,14 +131,14 @@ export interface IVendorWithKycDetails {
     originalName?: string;
     createdAt?: number;
   };
-  companyRemarks?: [string]; 
+  companyRemarks?: [string];
   outletId?: string;
   outletName?: string;
   outletStatus?: string;
-  outletCountry?: string; 
-  outletDistrict?: string; 
-  outletVillage?: string; 
-  outletAddress?: string; 
+  outletCountry?: string;
+  outletDistrict?: string;
+  outletVillage?: string;
+  outletAddress?: string;
   outletLicense?: {
     _id?: string;
     fileType?: string;
@@ -194,9 +194,8 @@ export interface IVendorsRecordsResponse {
 }
 
 
-export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument | null> => {
+export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument> => {
   let vendor: IVendorDocument = new vendorModel(vendorData);
-  // await vendor.setHash!(password);
   return await vendor.save();
 };
 
@@ -326,8 +325,9 @@ export const getVendorRecordByVendorWithId = async (vendorId: Types.ObjectId): P
       $project: {
         _id: 1,
         fullName: 1,
-        profilePic:1,
+        profilePic: 1,
         email: 1,
+        countryCode: 1,
         mobileNumber: 1,
         isBlocked: 1,
         isKycCompleted: 1,
@@ -336,7 +336,7 @@ export const getVendorRecordByVendorWithId = async (vendorId: Types.ObjectId): P
         companyStatus: '$company.status',
         outletId: '$outlet._id',
         outletName: '$outlet.outletName',
-        outletStatus: '$outlet.status'
+        outletStatus: '$outlet.status',
       }
     }
   ];
@@ -444,7 +444,7 @@ export const getVendorAllKycRecordByVendorWithId = async (vendorId: Types.Object
         outletStatus: '$outlet.status',
         outletRemarks: '$outlet.remark',
       }
-      
+
     }
   ];
 

@@ -49,7 +49,7 @@ export const generateOtp = async function (): Promise<IOtpFile> {
   return response;
 };
 
-export const createOtp = async (options: QueryOptions): Promise<Document | null> => {
+export const createOtp = async (options: QueryOptions): Promise<Document> => {
   let otpData = new authUtilityModel(options);
   return await otpData.save();
 };

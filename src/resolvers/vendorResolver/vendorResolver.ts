@@ -13,115 +13,18 @@ export const vendorResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
 
-    // Vendor creation 
-    createVendor: async (parent, { input, image }, { req }, info) => {
-      await validateInput(validators.VendorCreateValidator, req);
-      let email: string = input?.email?.toLowerCase() || "";
-
-      const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
-      if (isEmailExists) {
-        throw new GraphQLError('This email already exists', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-      let fullName: string = input.fullName;
-      let countryCode: string = input.countryCode;
-      let mobileNumber: string = input.mobileNumber;
-      let profilePic: vendorService.FileData | null = null;
-      let brands: Types.ObjectId[] = (input.brands || []).filter(Boolean) as [];
-      let categories: Types.ObjectId[] = (input.categories || []).filter(Boolean) as [];
-
-
-      if (image) {
-        const { createReadStream, filename, mimetype, encoding } = await image;
-        const key = spaceService.getFileKey(filePaths.vendorProfilePic, filename, []);
-        const stream = createReadStream();
-        const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
-
-        profilePic = {
-          fileType: "PRIVATE",
-          fileURL: file.location,
-          mimeType: mimetype,
-          originalName: filename
-        }
-      }
-
-
-      let newVendorData: vendorService.IVendor = {
-        fullName,
-        mobileNumber,
-        brands,
-        categories,
-        countryCode
-      };
-
-      if(input.email && input.email != ""){
-        newVendorData.email = email;
-      }
-
-      if (profilePic) {
-        newVendorData.profilePic = profilePic;
-      }
-
-
-      const result = await vendorService.createVendor(newVendorData);
-
-      if (!result) {
-        throw new GraphQLError("Unable to create vendor", {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-      let token = await vendorJwtService.createVendorJWT(result._id!.toString());
-
-      result.token = token;
-
-      await result.save();
-
-      const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
-
-      if (!createVendorCompanyRecord) {
-        throw new GraphQLError("Unable to create vendor company record", {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-      const createVendorOutletRecord = await vendorOutletService.createVendorOutletRecord({ vendorId: result.id });
-
-      if (!createVendorOutletRecord) {
-        throw new GraphQLError("Unable to create vendor outlet record", {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
-
-
-      let response = {
-        _id: result._id!.toString(),
-        token: result.token,
-        message: "Vendor created successfully and logined",
-      };
-
-      return response;
-    },
-
     // Vendor creation from admin side
     createVendorByAdmin: async (parent, { input, image }, { req }, info) => {
       await verifyAdmin(req);
       await validateInput(validators.VendorCreateValidator, req);
       let email: string = input?.email?.toLowerCase() || "";
+      let fullName: string = input.fullName;
+      let mobileNumber: string = input.mobileNumber;
+      let countryCode: string = input.countryCode;
+      let profilePic: vendorService.FileData | null = null;
+      let isBlocked: boolean = input?.isBlocked || false;
+      let isKycCompleted: boolean = input?.isKycCompleted || false;
+
 
       const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
       if (isEmailExists) {
@@ -133,14 +36,16 @@ export const vendorResolver: Resolvers = {
         });
       }
 
-      let fullName: string = input.fullName;
-      let mobileNumber: string = input.mobileNumber;
-      let profilePic: vendorService.FileData | null = null;
-      let isBlocked: boolean = input?.isBlocked || false;
-      let isKycCompleted: boolean = input?.isKycCompleted || false;
-      let brands: Types.ObjectId[] = (input.brands || []).filter(Boolean) as [];
-      let categories: Types.ObjectId[] = (input.categories || []).filter(Boolean) as [];
+      const existingUserPhoneNumber = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber, countryCode: countryCode }, {}, { lean: true });
 
+      if (existingUserPhoneNumber) {
+        throw new GraphQLError("Phone number already taken", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
 
       if (image) {
         const { createReadStream, filename, mimetype, encoding } = await image;
@@ -163,8 +68,7 @@ export const vendorResolver: Resolvers = {
         mobileNumber,
         isBlocked,
         isKycCompleted,
-        brands,
-        categories,
+        countryCode
       };
 
       if (profilePic) {
@@ -182,12 +86,6 @@ export const vendorResolver: Resolvers = {
           }
         });
       }
-
-      let token = await vendorJwtService.createVendorJWT(result._id!.toString());
-
-      result.token = token;
-
-      await result.save();
 
       const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
 
@@ -213,8 +111,7 @@ export const vendorResolver: Resolvers = {
 
       let response = {
         _id: result._id!.toString(),
-        token: result.token,
-        message: "Vendor created successfully and logined",
+        message: "Vendor successfully created",
       };
 
       return response;
@@ -228,9 +125,9 @@ export const vendorResolver: Resolvers = {
       const countryCode: string = input.countryCode;
       const mobileNumber: string = input.mobileNumber;
 
-      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber, countryCode: countryCode }, {mobileNumber: 1}, {lean: true});
-      if (!vendor) {
-        throw new GraphQLError("The vendor does not have an account with this number. Please sign up", {
+      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber, countryCode: countryCode }, { mobileNumber: 1 }, { lean: true });
+      if (vendor?.isBlocked) {
+        throw new GraphQLError("Account blocked", {
           extensions: {
             code: "BAD_REQUEST",
             errors: []
@@ -238,18 +135,12 @@ export const vendorResolver: Resolvers = {
         });
       }
 
+      let authname = vendor ? "VENDOR_LOGIN_MOBILE_OTP" : "VENDOR_SIGNUP_MOBILE_OTP"
+
       const mobileOtp = await otpService.generateOtp();
-      if (!mobileOtp) {
-        throw new GraphQLError('OTP generation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
 
       let options = {
-        name: "VENDOR_LOGIN_MOBILE_OTP",
+        name: authname,
         metadata: {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
@@ -259,19 +150,13 @@ export const vendorResolver: Resolvers = {
         isVerified: false
       };
 
-      const result = await otpService.createOtp(options);
-      if (!result) {
-        throw new GraphQLError('OTP Db creation failed', {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: []
-          }
-        });
-      }
+      const otpRecord = await otpService.createOtp(options);
 
       let response = {
-        _id: result?._id.toString(),
-        message: "Login OTP send successfully"
+        message: "OTP generated",
+        phoneNumber: mobileNumber,
+        countryCode: countryCode,
+        _id: otpRecord._id
       }
 
       return response;
@@ -283,7 +168,7 @@ export const vendorResolver: Resolvers = {
       await validateInput(validators.loginOtpVerificationValidator, req);
 
       const code: String = input.code;
-      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code }, {}, {});
+      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code, _id: input._id }, {}, {});
 
       if (!otpVerification) {
         throw new GraphQLError('Verification failed. Invalid OTP.', {
@@ -294,71 +179,165 @@ export const vendorResolver: Resolvers = {
         });
       }
 
-      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt) {
+      if (!otpVerification.metadata || !otpVerification.metadata.expiresAt || !otpVerification.metadata.mobileNumber) {
         throw new Error('Invalid OTP metadata');
       }
 
-      let expirationTime: Date = new Date(otpVerification?.metadata.expiresAt);
-
-      let checkOtpExpired = await otpService.isOtpExpired(expirationTime)
+      let checkOtpExpired = await otpService.isOtpExpired(otpVerification.metadata.expiresAt)
 
       if (checkOtpExpired) {
-        throw new Error("Expired OTP");
+        throw new GraphQLError('Expired OTP', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
       }
 
-      otpVerification.isVerified = true;
+      const response = {
+        message: "OTP verified",
+        token: '',
+        type: 'LOGIN',
+        mobileNumber: otpVerification.metadata.mobileNumber,
+        countryCode: otpVerification.metadata.countryCode,
+      }
 
-      const result = await otpVerification.save();
 
-      const vendor = await vendorService.findVendorWithFilters({ mobileNumber: result?.metadata?.mobileNumber }, {}, {});
-      if (!vendor) {
-        throw new GraphQLError("Invalid Account", {
+      if (otpVerification.name == "VENDOR_SIGNUP_MOBILE_OTP") {
+
+        otpVerification.isVerified = true;
+        await otpVerification.save();
+
+        response.type = "SIGNUP";
+        response.token = await jwtService.createVendorSignupJWT(otpVerification._id!.toString());
+      }
+      else if (otpVerification.name == "VENDOR_LOGIN_MOBILE_OTP") {
+
+        const vendor = await vendorService.findVendorWithFilters({ mobileNumber: otpVerification.metadata.mobileNumber, countryCode: otpVerification.metadata.countryCode }, {}, {});
+        if (!vendor) {
+          throw new GraphQLError('Expired OTP', {
+            extensions: {
+              code: "",
+              errors: [],
+            },
+          });
+        }
+        let token = await jwtService.createVendorJWT(vendor._id!.toString());
+        vendor.token = token;
+        await vendor.save();
+        await otpService.deleteOtpRecord(otpVerification._id);
+        response.token = token;
+      }
+      else {
+
+        throw new GraphQLError('Expired OTP', {
           extensions: {
-            code: "BAD_REQUEST",
+            code: "",
+            errors: [],
+          },
+        });
+      }
+
+      return response;
+
+    },
+
+    // Vendor creation 
+    createVendor: async (parent, { input, image }, { req }, info) => {
+      await validateInput(validators.VendorCreateValidator, req);
+
+      let email: string = input?.email?.toLowerCase() || "";
+      let jwtToken: string = input.token;
+      let fullName: string = input.fullName;
+      let profilePic: vendorService.FileData | null = null;
+
+      if (image) {
+        const { createReadStream, filename, mimetype, encoding } = await image;
+        const key = spaceService.getFileKey(filePaths.vendorProfilePic, filename, []);
+        const stream = createReadStream();
+        const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+        profilePic = {
+          fileType: "PUBLIC",
+          fileURL: file.location,
+          mimeType: mimetype,
+          originalName: filename
+        }
+      }
+
+      const decoded = await jwtService.verifyVendorSignupJWT(jwtToken);
+
+      if (!decoded || !decoded.id) {
+        throw new GraphQLError('Invalid Token', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
+
+      let otpVerification = await otpService.findOtpRecordWithFilters({ _id: decoded.id }, {}, {});
+      if (!otpVerification || !otpVerification.isVerified || !otpVerification.metadata.mobileNumber) {
+        throw new GraphQLError('Registration failed.', {
+          extensions: {
+            code: "",
+            errors: [],
+          },
+        });
+      }
+
+      let mobileNumber: string = otpVerification.metadata.mobileNumber;
+      let countryCode: string = otpVerification.metadata.countryCode || "+91";
+
+      const existingUserPhoneNumber = await vendorService.findVendorWithFilters({ mobileNumber: mobileNumber, countryCode: countryCode }, {}, { lean: true });
+
+      if (existingUserPhoneNumber) {
+        throw new GraphQLError("Phone number already taken", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
             errors: []
           }
         });
       }
 
-      else if (vendor.isBlocked) {
-        throw new GraphQLError("Vendor Blocked", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: []
-          }
-        });
+      if (input.email) {
+        const existingUserEmail = await vendorService.findVendorWithFilters({ email: email }, {}, { lean: true });
+
+        if (existingUserEmail) {
+          throw new GraphQLError("Email already taken", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+        }
       }
 
-      let token = await jwtService.createVendorJWT(vendor._id!.toString());
+      let newVendorData: vendorService.IVendor = {
+        fullName,
+        mobileNumber,
+        countryCode,
+        email,
+      };
 
-      vendor.token = token;
+      if (profilePic) {
+        newVendorData.profilePic = profilePic;
+      }
 
-      await vendor.save();
+      const result = await vendorService.createVendor(newVendorData);
+
+      let token = await vendorJwtService.createVendorJWT(result._id!.toString());
+
+      result.token = token;
+
+      await result.save();
 
       await otpService.deleteOtpRecord(otpVerification._id);
 
-      const loginResponse = vendorService.loginVendor(vendor);
+      const createVendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: result.id });
 
-      const response = {
-        _id: loginResponse?._id?.toString(),
-        token: loginResponse?.token,
-        message: 'Vendor otp verifed and logined successfully',
-      };
-
-      return response;
-    },
-
-    // Vendor re send login otp
-    reSendloginVendorWithOtp: async (parent, { input }, { req }, info) => {
-
-      await validateInput(validators.vendorLoginValidator, req);
-
-      const mobileNumber: string = input.mobileNumber;
-
-
-      const mobileOtp = await otpService.generateOtp();
-      if (!mobileOtp) {
-        throw new GraphQLError('OTP generation failed', {
+      if (!createVendorCompanyRecord) {
+        throw new GraphQLError("Unable to create vendor company record", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: []
@@ -366,41 +345,33 @@ export const vendorResolver: Resolvers = {
         });
       }
 
-      let options = {
-        name: "VENDOR_LOGIN_MOBILE_OTP",
-        metadata: {
-          code: mobileOtp.code,
-          expiresAt: mobileOtp.expiresAt,
-          mobileNumber,
-        },
-        isVerified: false
-      };
+      const createVendorOutletRecord = await vendorOutletService.createVendorOutletRecord({ vendorId: result.id });
 
-      const result = await otpService.createOtp(options);
-      if (!result) {
-        throw new GraphQLError('OTP Db creation failed', {
+      if (!createVendorOutletRecord) {
+        throw new GraphQLError("Unable to create vendor outlet record", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: []
           }
         });
       }
+
 
       let response = {
-        _id: result?._id.toString(),
-        message: "Login OTP send successfully"
-      }
+        _id: result._id!.toString(),
+        token: result.token,
+        message: "Vendor created",
+      };
 
       return response;
     },
-
     // Edit vendor profile
     updateVendorProfile: async (parent, { input, image }, { req }, info) => {
       try {
         await verifyVendor(req);
         await validateInput(validators.VendorUpdateValidator, req);
 
-        const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
+        const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
         const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
         if (!vendor) {
@@ -436,18 +407,10 @@ export const vendorResolver: Resolvers = {
           vendor.fullName = input.fullName;
         }
 
-        if (input.mobileNumber) {
-          vendor.mobileNumber = input.mobileNumber;
-        }
-
-        if (input.isKycCompleted) {
-          vendor.isKycCompleted = input.isKycCompleted;
-        }
 
         if (profilePic) {
           vendor.profilePic = profilePic;
         }
-
 
         await vendor.save();
 
@@ -466,10 +429,11 @@ export const vendorResolver: Resolvers = {
     // Edit vendor profile by admin
     updateVendorProfileByAdmin: async (parent, { input, image }, { req }, info) => {
       try {
-        // await verifyAdmin(req);
-        await validateInput(validators.VendorUpdateValidator, req);
+        await verifyAdmin(req);
+        await validateInput(validators.VendorUpdateByAdminValidator, req);
 
         const vendorId: Types.ObjectId = new Types.ObjectId(input._id);
+        let email: string = input?.email?.toLowerCase() || "";
 
         const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
         if (!vendor) {
@@ -497,16 +461,35 @@ export const vendorResolver: Resolvers = {
           }
         }
 
-        if (input.email) {
-          vendor.email = input.email.toLowerCase();
+        if (email && vendor.email != email) {
+          const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+          if (isEmailExists) {
+            throw new GraphQLError('This email already exists', {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: []
+              }
+            });
+          }
+          vendor.email = email;
         }
 
         if (input.fullName) {
           vendor.fullName = input.fullName;
         }
 
-        if (input.mobileNumber) {
-          vendor.mobileNumber = input.mobileNumber;
+        if ((input.countryCode && input.countryCode != vendor.countryCode) || (input.mobileNumber && input.mobileNumber !== vendor.mobileNumber)) {
+          vendor.countryCode = input.countryCode || "";
+          vendor.mobileNumber = input.mobileNumber || "";
+          const existingUserPhoneNumber = await vendorService.findVendorWithFilters({ mobileNumber: vendor.mobileNumber, countryCode: vendor.countryCode }, {}, { lean: true });
+          if (existingUserPhoneNumber) {
+            throw new GraphQLError("Phone number already taken", {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: []
+              }
+            });
+          }
         }
 
         if (input.isKycCompleted) {
@@ -549,7 +532,7 @@ export const vendorResolver: Resolvers = {
 
     // Vendor Kyc approval
     vendorKycApproval: async (parent, { input }, { req }, info) => {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
       await validateInput(validators.vendorKycStatusValidator, req);
 
       const _id: Types.ObjectId = new Types.ObjectId(input._id);
@@ -649,82 +632,43 @@ export const vendorResolver: Resolvers = {
 
     },
 
-    // Fetch all vendors records by vendor
-    async getAllVendorsRecordsByVendor(parent, { input }, { req }, info) {
-      try {
-        await validateInput(validators.getAllVendorsRecordsByVendorValidator, req);
-
-        const page: number = input?.page || 0;
-        const size: number = input?.size || 10;
-        const isKycCompleted: boolean | null = input?.isKycCompleted ?? null;
-
-        const options: vendorService.IVendorsRecordsByVendorOptions = {
-          page,
-          size,
-          isKycCompleted,
-        }
-
-        // Fetch all vendors records
-        const result = await vendorService.getVendorRecordsByVendorWithFilters(options);
-        const response = {
-          records: result.records,
-          maxRecords: result.maxRecords,
-          message: "Vendors records fetched successfully",
-        };
-        return response;
-      } catch (error) {
-        throw error;
-      }
-    },
-
     // Fetch each vendor record by vendor
-    async getVendorRecordByVendor(parent, { input }, { req }, info) {
+    async getVendorRecordByVendor(parent, { }, { req }, info) {
       await verifyVendor(req);
 
-      try {
-        await validateInput(validators.getVendorRecordValidator, req);
+      const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+      const result = await vendorService.getVendorRecordByVendorWithId(_id);
 
-        const result = await vendorService.getVendorRecordByVendorWithId(_id);
-
-        if (!result) {
-          throw new GraphQLError("Record not found", {
-            extensions: {
-              code: "BAD_REQUEST",
-              errors: []
-            }
-          });
-        }
-
-
-        const response = {
-          record: {
-            ...result,
-            brands: (result?.brands || []).map(brandId => brandId.toString()),
-            categories: (result?.categories || []).map(categoryId => categoryId.toString()),
-            vendorId: result?._id?.toString(),
-          },
-          message: "Vendor record fetched successfully",
-        }
-        console.log("response ", response)
-
-        return response;
-
-      } catch (error) {
-        throw error;
+      if (!result) {
+        throw new GraphQLError("Record not found", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
       }
+
+      const response = {
+        record: {
+          ...result,
+          brands: (result?.brands || []).map(brandId => brandId.toString()),
+          categories: (result?.categories || []).map(categoryId => categoryId.toString()),
+          vendorId: result?._id?.toString(),
+        },
+        message: "Vendor record fetched successfully",
+      }
+
+      return response;
 
     },
 
-     // Fetch each vendor all kycrecord by vendor
-     async getVendorAllKycRecordByVendor(parent, { input }, { req }, info) {
+    // Fetch each vendor all kycrecord by vendor
+    async getVendorAllKycRecordByVendor(parent, { input }, { req }, info) {
       await verifyVendor(req);
 
       try {
-        await validateInput(validators.getVendorRecordValidator, req);
-
-        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
         const result = await vendorService.getVendorAllKycRecordByVendorWithId(_id);
 
@@ -761,9 +705,8 @@ export const vendorResolver: Resolvers = {
       await verifyVendor(req);
 
       try {
-        await validateInput(validators.getVendorRecordValidator, req);
 
-        const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
         const result = await vendorService.getVendorRecordKycStatusById(_id);
 

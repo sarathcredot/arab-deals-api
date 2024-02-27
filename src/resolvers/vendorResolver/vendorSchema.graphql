@@ -33,6 +33,7 @@ input VendorLoginInput {
 
 input VerifyVendorLoginOtpInput {
     code: String!
+    _id: String!
 }
 
 # Vendor  Type
@@ -61,6 +62,7 @@ type VendorWithKycData {
   _id: String
   fullName: String
   email: String
+  countryCode: String
   mobileNumber: String
   profilePic:ImageData
   isBlocked: String
@@ -134,12 +136,7 @@ type ContactPersonData {
 input VendorSignUpInput {
   fullName: String!
   email: String
-  countryCode: String!
-  mobileNumber: String!
-  isBlocked: Boolean
-  isKycCompleted: Boolean
-  brands: [String]
-  categories: [String]
+  token: String!
 }
 
 input VendorSignUpByAdminInput {
@@ -150,6 +147,7 @@ input VendorSignUpByAdminInput {
   isKycCompleted: Boolean
   brands: [String]
   categories: [String]
+  countryCode: String!
 }
 
 
@@ -157,18 +155,15 @@ input VendorEditProfileInput {
    _id: String!
   fullName: String
   email: String
-  mobileNumber: String
-  isKycCompleted: Boolean
-  password: String
 }
 
 input VendorEditProfileByAdminInput {
    _id: String!
   fullName: String
   email: String
+  countryCode: String
   mobileNumber: String
   isKycCompleted: Boolean
-  password: String
   brands: [String]
   categories: [String]
 }
@@ -241,8 +236,7 @@ type VerifyVendorLoginOtpResponse {
 type Query {
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
-  getAllVendorsRecordsByVendor(input: VendorsRecordsByVendorFilter): VendorsRecordsByVendorResponse!
-  getVendorRecordByVendor(input: VendorRecordByVendorInput!): VendorsRecordByVendorResponse!
+  getVendorRecordByVendor: VendorsRecordByVendorResponse!
   getVendorAllKycRecordByVendor(input: VendorAllKycRecordByVendorInput!): VendorAllKycRecordByVendorResponse!
   getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
 }
@@ -258,7 +252,6 @@ type CreateVendorResponse{
 type CreateVendorByAdminResponse{
     _id: String
     message: String
-    token: String
 }
 
 # Vendor  input
@@ -269,21 +262,11 @@ type CreateVendorByAdminResponse{
     isKycCompleted: Boolean
   }
 
-  
- input VendorsRecordsByVendorFilter {
-    page: Int
-    size: Int
-    isKycCompleted: Boolean
-  }
-
 
  input VendorRecordByAdminInput {
     _id: String!
   }
 
-  input VendorRecordByVendorInput {
-    _id: String!
-  } 
 
    input VendorRecordKycStatusInput {
     _id: String!
@@ -294,13 +277,6 @@ type CreateVendorByAdminResponse{
   } 
 
   type VendorsRecordsByAdminResponse {
-    maxRecords: Int!
-    records: [VendorWithKycData]
-    message: String
-  }   
-
-  
-  type VendorsRecordsByVendorResponse {
     maxRecords: Int!
     records: [VendorWithKycData]
     message: String

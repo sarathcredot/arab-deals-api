@@ -5,6 +5,10 @@ import { Request, Response, NextFunction } from "express";
 const adminSecretKey: string = process.env.ADMIN_JWT_SECRET || "";
 const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
 const userSecretKey: string = process.env.USER_JWT_SECRET || "";
+const vendorSignUpSecretKey: string = process.env.VENDOR_SIGNUP_JWT_SECRET || "";
+const fileDownloadSecretKey: string = process.env.FILE_DOWNLOAD_TOKEN_JWT_SECRET || "";
+
+
 
 // Admin JWT Services
 export const getAuthTokenFromHeaders = (req: Request): string => {
@@ -129,3 +133,72 @@ export const verifyUserJWT = (token: string): JwtPayload => {
 }
 
 
+
+export const createVendorSignupJWT = (id: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        try {
+            const token = jwt.sign({ id }, vendorSignUpSecretKey, { expiresIn: '1h' });
+            resolve(token);
+        } catch (e) {
+            reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+};
+
+export const verifyVendorSignupJWT = (token: string): JwtPayload => {
+    return new Promise((resolve, reject) => {
+        try {
+            const decoded = jwt.verify(token, vendorSignUpSecretKey, { ignoreExpiration: false });
+            resolve(decoded);
+        } catch (e) {
+            reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+}
+
+
+export const createFileDownloadJWT = (filePath: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        try {
+            let token = jwt.sign({ filePath: filePath }, fileDownloadSecretKey, {
+                expiresIn: 30 * 60,
+            });
+            return resolve(token);
+        } catch (error) {
+            return reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+};
+
+export const verifyFileDownloadJWT = (token: string, ignoreExpiration = false): JwtPayload => {
+    return new Promise((resolve, reject) => {
+        try {
+            let decoded = jwt.verify(token, fileDownloadSecretKey, {
+                ignoreExpiration: ignoreExpiration,
+            });
+            return resolve(decoded);
+        } catch (error) {
+            return reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+};
