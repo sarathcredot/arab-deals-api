@@ -231,6 +231,9 @@ type VerifyVendorLoginOtpResponse {
   _id: String
   token: String
   message: String
+  type: String
+  mobileNumber: String
+  countryCode: String
 }
 
 type Query {
