@@ -17,6 +17,9 @@ import { wishListResolver } from "./wishListResolver/wishListResolver";
 import { userShippingAddressResolver } from "./userShipingAddressResolver/userShippingAddressResolver";
 import { orderResolver } from "./orderResolver/orderResolver";
 import { countryResolver } from "./countryResolver/countryResolver";
+import { fileResolver } from "./fileResolver/fileResolver";
+import { dashboardResolver } from "./dashboardResolver/dashboardResolver";
+import { jobResolver } from "./jobResolver/jobResolver";
 
 
 export const resolvers: Resolvers = mergeResolvers(
@@ -38,5 +41,8 @@ export const resolvers: Resolvers = mergeResolvers(
         userShippingAddressResolver,
         orderResolver,
         countryResolver,
+        fileResolver,
+        dashboardResolver,
+        jobResolver
     ]
 );

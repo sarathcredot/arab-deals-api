@@ -9,14 +9,15 @@ export const collections = {
     BRANDS: "brands",
     ATTRIBUTES: "attributes",
     ATTRIBUTE_VALUES: "attribute_values",
-    USERS:"users",
-    CARTS:"carts",
-    CMS:"cms",
+    USERS: "users",
+    CARTS: "carts",
+    CMS: "cms",
     WISHLISTS: "wishlists",
     USER_SHIPPING_ADDRESS: "user_shipping_address",
     SHIPPING_CONFIGS: "shipping_configs",
     PAYMENT_CONFIGS: "payment_configs",
     ORDERS: "orders",
     ORDER_PRODUCTS: "order_products",
-    COUNTRIES: "countries"
+    COUNTRIES: "countries",
+    JOBS: "jobs"
 }

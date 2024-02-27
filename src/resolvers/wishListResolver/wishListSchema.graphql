@@ -5,19 +5,11 @@ scalar ObjectId
 type Mutation {
   addToWishList(input: AddToWishListInput!): AddToWishListResponse!
   removeFromWishList(input: RemoveFromWishListInput!):RemoveFromWishListResponse!
-
-  # Mobile side apis
-  addToWishListInMobile(input: AddToWishListInMobileInput!): AddToWishListInMobileResponse!
-  removeFromWishListInMobile(input: RemoveFromWishListInMobileInput!):RemoveFromWishListInMobileResponse!
 }
 
 type Query{
   getWishListProducts:GetWishListProductsResponse!
   getWishListProductStatus(input: GetWishListProductStatusInput!):GetWishListProductStatusResponse!
-
-  # Mobile side apis
-  getWishListProductsInMobile:GetWishListProductsInMobileResponse!
-  getWishListProductStatusInMobile(input: GetWishListProductStatusInMobileInput!):GetWishListProductStatusInMobileResponse!
 }
 
 
@@ -26,33 +18,20 @@ type Query{
 input AddToWishListInput {
   productId:ObjectId!
 }
-input AddToWishListInMobileInput {
-  productId:ObjectId!
-}
 input RemoveFromWishListInput {
   productId:ObjectId!
 }
-input RemoveFromWishListInMobileInput {
-  productId:ObjectId!
-}
+
 input GetWishListProductStatusInput {
   productId: ObjectId!
 }
-input GetWishListProductStatusInMobileInput {
-  productId: ObjectId!
-}
+
 # wishList Output
 
 type AddToWishListResponse {
   message:String
 }
-type AddToWishListInMobileResponse {
-  message:String
-}
 type RemoveFromWishListResponse {
-  message:String
-}
-type RemoveFromWishListInMobileResponse {
   message:String
 }
 
@@ -66,29 +45,15 @@ type WishListProduct {
   image: String
 }
 
-type WishListProductInMobile {
-  productId: ObjectId!
-  productName: String!
-  shortDescription: String
-  sellingPrice: Float!
-  image: String
-}
-
 
 type GetWishListProductsResponse {
   products:[WishListProduct]
 }
 
-type GetWishListProductsInMobileResponse {
-  products:[WishListProductInMobile]
-}
-
 type GetWishListProductStatusResponse {
   isExist:Boolean!
 }
-type GetWishListProductStatusInMobileResponse {
-  isExist:Boolean!
-}
+
 # Schema
 
 schema {

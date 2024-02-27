@@ -1,0 +1,102 @@
+scalar ObjectId
+scalar Date
+
+
+
+input ExportAdminOrdersInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    paymentMode: String
+    orderStatus: String
+    startDate: Date
+    endDate: Date
+    postCode: String
+    page: Int
+    size: Int
+}
+
+input GetJobQueueInput {
+    page: Int
+    size: Int
+    name: String
+}
+
+input GetAdminDownloadTokenInput {
+    _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    productId: ObjectId
+    itemId: String
+    skuId: String
+    paymentMode: String
+    paymentStatus: String
+    shippingStatus: String
+    orderStartDate: Date
+    orderEndDate: Date
+    shippingStartDate: Date
+    shippingEndDate: Date
+    deliveryStartDate: Date
+    deliveryEndDate: Date
+    cancelledStartDate: Date
+    cancelledEndDate: Date
+    courierId: String
+    invoiceNumber: String
+    page: Int
+    size: Int
+    sort: String
+}
+
+type ExportAdminOrdersResponse {
+    message: String
+}
+
+type ExportAdminShippingProductsResponse {
+    message: String
+}
+
+
+type JobRecord {
+    _id:ObjectId
+    name: String
+    status:String
+    isExpired: Boolean
+    createdAt: Date
+}
+
+
+type GetJobQueueResponse {
+    maxRecords: Int
+    records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+    url: String!
+}
+
+
+type Mutation {
+    exportAdminOrders(input:ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+    exportAdminShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+
+}
+
+
+type Query {
+    getJobsQueue(input:GetJobQueueInput!):GetJobQueueResponse!
+    getAdminDownloadToken(input:GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+}
+
+
+# Schema
+
+schema {
+    mutation: Mutation
+    query: Query
+}
+
+

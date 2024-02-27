@@ -1,0 +1,48 @@
+scalar Upload
+scalar ObjectId
+scalar Date
+
+
+#  mutations
+
+type Mutation {
+    getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+    getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
+}
+
+# queries
+
+# type Query {
+  
+# }
+
+
+input GetAdminSignedFileUrlInput {
+    fileURL: String!
+    mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+    _id: ObjectId!
+}
+
+
+type GetAdminSignedFileUrlResponse {
+    url: String
+}
+
+
+type GetUserIvoiceUrlResponse {
+    url: String
+}
+
+
+
+# Schema
+
+schema {
+    mutation: Mutation,
+    # query: Query
+}
+
+

@@ -18,6 +18,8 @@ import { shippingConfigModel } from "./shippingConfigModel";
 import { orderModel } from "./orderModel";
 import { orderProductModel } from "./orderProductModel";
 import { countriesModel } from "./countriesModel";
+import { jobQueueModel } from "./jobQueueModel";
+
 
 export {
     productModel,
@@ -39,5 +41,6 @@ export {
     shippingConfigModel,
     orderModel,
     orderProductModel,
-    countriesModel
+    countriesModel,
+    jobQueueModel
 }

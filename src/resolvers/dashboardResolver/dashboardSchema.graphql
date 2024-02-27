@@ -1,0 +1,157 @@
+scalar ObjectId
+scalar Date
+
+
+
+
+input GetDashboardUsersGraphInput {
+    startDate: Date
+    endDate: Date
+    graphType: String
+}
+
+
+input GetDashboardOrdersGraphInput {
+    startDate: Date
+    endDate: Date
+    graphType: String
+}
+
+
+
+input GetDashboardOrdersPieChartDataInput {
+    startDate: Date
+    endDate: Date
+}
+
+input GetDashboardReturnedOrdersPieChartDataInput {
+    startDate: Date
+    endDate: Date
+}
+
+input GetDashboardRefundOrdersPieChartDataInput {
+    startDate: Date
+    endDate: Date
+}
+
+input GetDashboardOrdersAmountPieChartDataInput{
+    startDate: Date
+    endDate: Date
+}
+
+input GetDashboardShippingChargePieChartDataInput{
+    startDate: Date
+    endDate: Date
+}
+
+
+type GetDashboardlUsersSummaryResponse {
+    totalUsers: Int 
+    activeUsers: Int
+    blockedUsers: Int
+    todayUsers: Int
+    weekUsers: Int
+    monthUsers:Int
+    yearUsers:Int
+}
+
+
+type GetDashboardUsersGraphResposne {
+    y1:[Int],
+    x:[String]
+}
+
+
+type GetDashboardOrderSummaryResponse{
+    pendingOrders: Int
+    progressOrders: Int
+    shippedOrders: Int
+    deliveredOrders: Int
+    cancelledOrders: Int
+    returnedOrders: Int 
+}
+
+
+type GetDashboardOrdersGraphResposne {
+    y1:[Int],
+    x:[String]
+}
+
+type GetDashboardOrdersPieChartDataResponse {
+    deliveredOrders: Int
+    cancelledOrders:Int
+    returnedOrders: Int
+}
+
+
+type GetDashboardReturnedOrdersPieChartDataResponse{
+    pending: Int
+    approved:Int
+    rejected: Int
+}
+
+
+type GetDashboardReturnedOrderSummaryResponse{
+    pending: Int
+    approvedToday: Int
+    rejectedToday: Int
+}
+
+
+type GetDashboardRefundOrdersPieChartDataResponse{
+    pending: Float
+    paid:Float
+}
+
+
+type GetDashboardRefundOrderSummaryResponse{
+    pendingAmount: Int
+    paidToday: Int
+}
+
+type GetDashboardOrdersAmountPieChartDataResponse{
+    pending: Float
+    paid:Float
+}
+
+type GetDashboardShippingChargePieChartDataResponse{
+    pending: Float
+    paid:Float
+}
+
+
+
+# Mutations
+
+# type Mutation {
+# }
+
+
+
+# Queries
+
+type Query {
+    getDashboardlUsersSummary:GetDashboardlUsersSummaryResponse!
+    getDashboardUsersGraph(input:GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
+    getDashboardOrderSummary:GetDashboardOrderSummaryResponse!
+    getDashboardOrdersGraph(input:GetDashboardOrdersGraphInput!): GetDashboardOrdersGraphResposne!
+    getDashboardOrdersPieChartData(input:GetDashboardOrdersPieChartDataInput!):GetDashboardOrdersPieChartDataResponse!
+    getDashboardReturnedOrdersPieChartData(input:GetDashboardReturnedOrdersPieChartDataInput!):GetDashboardReturnedOrdersPieChartDataResponse!
+    getDashboardReturnedOrderSummary:GetDashboardReturnedOrderSummaryResponse!
+    getDashboardRefundOrdersPieChartData(input:GetDashboardRefundOrdersPieChartDataInput!):GetDashboardRefundOrdersPieChartDataResponse!
+    getDashboardRefundOrdersSummary:GetDashboardRefundOrderSummaryResponse!
+    getDashboardOrdersAmountPieChartData(input:GetDashboardOrdersAmountPieChartDataInput!):GetDashboardOrdersAmountPieChartDataResponse!
+    getDashboardShippingChargePieChartData(input:GetDashboardShippingChargePieChartDataInput!):GetDashboardShippingChargePieChartDataResponse!
+
+}
+
+
+
+
+# Schema
+
+
+schema {
+# mutation: Mutation,
+query: Query
+}

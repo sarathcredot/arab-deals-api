@@ -20,6 +20,9 @@ import * as settingsService from "./settingsService";
 import * as orderService from "./orderService";
 import * as orderProductService from "./orderProductService";
 import * as countryService from "./countryService";
+import * as dashboardService from "./dashboardService";
+import * as jobQueueService from "./jobQueueService";
+
 
 export {
     productService,
@@ -44,4 +47,6 @@ export {
     orderService,
     orderProductService,
     countryService,
+    dashboardService,
+    jobQueueService
 }
