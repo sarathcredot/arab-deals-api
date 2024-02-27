@@ -43,9 +43,6 @@ type Mutation {
   updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
-  sendVendorMobileOtp(input: sendVendorMobileOtpInput!): sendVendorMobileOtpResponse!
-  verifyVendorOtp(input: VerifyVendorOtpInput!): VerifyVendorOtpResponse!
-  reSendVendorMobileOtp(input: ReSendVendorMobileOtpInput!): ReSendVendorMobileOtpResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
   returnUserOrderProduct(input: ReturnUserOrderProductInput!): ReturnUserOrderProductResponse!
@@ -339,7 +336,6 @@ type VendorWithKycDataStatus {
 type MobileOtpData {
   code: String
   expiresAt: String
-  mobileNumber: String
 }
 
 type ContactPersonData {
@@ -1305,40 +1301,6 @@ type VariantsByAdminResponse {
 
 type getProductsMaxPriceResponse {
   maxPrice: Int
-  message: String
-}
-
-input sendVendorMobileOtpInput {
-  fullName: String
-  countryCode: String!
-  mobileNumber: String!
-}
-
-input ReSendVendorMobileOtpInput {
-  fullName: String
-  countryCode: String!
-  mobileNumber: String!
-}
-
-input VerifyVendorOtpInput {
-  code: String!
-}
-
-type sendVendorMobileOtpResponse {
-  _id: String
-  message: String
-}
-
-type VerifyVendorOtpResponse {
-  _id: String
-  fullName: String
-  countryCode: String
-  mobileNumber: String
-  message: String
-}
-
-type ReSendVendorMobileOtpResponse {
-  _id: String
   message: String
 }
 
