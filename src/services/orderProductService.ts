@@ -539,7 +539,8 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
                                 {
                                     $project: {
                                         _id: 0,
-                                        name: 1
+                                        firstName: 1,
+                                        lastName: 1
                                     }
                                 }
                             ],
@@ -592,7 +593,7 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
                             vendorName: "$vendorInfo.fullName",
                             productId: 1,
                             itemId: 1,
-                            username: "$userInfo.name",
+                            username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
                             productName: 1,
                             skuId: 1,
                             image: 1,
@@ -881,7 +882,8 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
                                 {
                                     $project: {
                                         _id: 0,
-                                        name: 1
+                                        firstName: 1,
+                                        lastName: 1
                                     }
                                 }
                             ],
@@ -934,7 +936,7 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
                             vendorName: "$vendorInfo.fullName",
                             productId: 1,
                             itemId: 1,
-                            username: "$userInfo.name",
+                            username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
                             productName: 1,
                             skuId: 1,
                             image: 1,
@@ -1180,7 +1182,8 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
                                 {
                                     $project: {
                                         _id: 0,
-                                        name: 1
+                                        firstName: 1,
+                                        lastName: 1
                                     }
                                 }
                             ],
@@ -1233,7 +1236,7 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
                             vendorId: "$vendorInfo._id",
                             vendorName: "$vendorInfo.fullName",
                             userId: 1,
-                            username: "$userInfo.name",
+                            username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
                             productName: 1,
                             skuId: 1,
                             image: 1,
@@ -1707,7 +1710,8 @@ export const exportShippingProducts = async (options: IShippingProductsOptions, 
                     {
                         $project: {
                             _id: 0,
-                            name: 1
+                            firstName: 1,
+                            lastName: 1
                         }
                     }
                 ],
@@ -1791,7 +1795,7 @@ export const exportShippingProducts = async (options: IShippingProductsOptions, 
                 itemId: 1,
                 vendorId: "$vendorInfo._id",
                 vendorName: "$vendorInfo.fullName",
-                username: "$userInfo.name",
+                username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
                 productName: 1,
                 skuId: 1,
                 image: 1,
