@@ -261,6 +261,7 @@ export const getVendorRecordByAdminWithId = async (vendorId: Types.ObjectId): Pr
         _id: 1,
         fullName: 1,
         email: 1,
+        countryCode:1,
         mobileNumber: 1,
         isBlocked: 1,
         isKycCompleted: 1,

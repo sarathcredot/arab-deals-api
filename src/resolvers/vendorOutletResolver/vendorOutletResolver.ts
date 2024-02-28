@@ -56,7 +56,7 @@ export const vendorOutletResolver: Resolvers = {
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
                     vendorOutetImages.push({
-                        fileType: "PRIVATE",
+                        fileType: "PUBLIC",
                         fileURL: file.location,
                         mimeType: mimetype,
                         originalName: filename
@@ -160,7 +160,7 @@ export const vendorOutletResolver: Resolvers = {
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
                     outletImages.push({
-                        fileType: "PRIVATE",
+                        fileType: "PUBLIC",
                         fileURL: file.location,
                         mimeType: mimetype,
                         originalName: filename
