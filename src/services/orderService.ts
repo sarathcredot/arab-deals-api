@@ -297,7 +297,7 @@ export const getAdminOrdersWithFilters = async (options: IOrdersOptions): Promis
                             paymentMode: 1,
                             orderDate: 1,
                             orderStatus: 1,
-                            username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
+                            username: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
                             orderPriceInfo: 1,
                             shippingAddress: 1
                         }
@@ -419,7 +419,7 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                 paymentMode: 1,
                 orderDate: 1,
                 orderStatus: 1,
-                username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
+                username: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
                 orderPriceInfo: 1,
                 shippingAddress: 1
             }
@@ -618,7 +618,7 @@ export const exportAdminOrdersWithFilters = async (options: IOrdersOptions, expo
                 paymentMode: 1,
                 orderDate: 1,
                 orderStatus: 1,
-                username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
+                username: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
                 orderPriceInfo: 1,
                 shippingAddress: 1
             }
