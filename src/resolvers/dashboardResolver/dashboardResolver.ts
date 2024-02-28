@@ -88,11 +88,14 @@ export const dashboardResolver: Resolvers = {
 
             return response;
         },
-        getDashboardOrderSummary: async (parent, { }, { req }, info) => {
+        getDashboardOrderSummary: async (parent, { input }, { req }, info) => {
 
             await verifyAdmin(req);
+            await validateInput(validators.getDashboardOrderSummaryValidator, req);
 
-            const result = await dashboardService.getDashboardOrderSummary();
+            const vendorId = input.vendorId;
+
+            const result = await dashboardService.getDashboardOrderSummary(vendorId);
 
             const response: dashboardService.IGetDashboardOrderSummary = result[0];
 
@@ -103,12 +106,13 @@ export const dashboardResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getDashboardOrdersGraphValidator, req);
 
-            let { startDate, endDate, graphType } = input;
+            let { startDate, endDate, graphType, vendorId } = input;
 
             let options: dashboardService.IGetDashboardOrdersGraphOptions = {
                 startDate,
                 endDate,
-                graphType: graphType || ""
+                graphType: graphType || "",
+                vendorId
             }
 
             const result = await dashboardService.getDashboardOrdersGraph(options);
@@ -130,12 +134,13 @@ export const dashboardResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getDashboardOrdersPieChartDataValidator, req);
 
-            let { startDate, endDate } = input;
+            let { startDate, endDate, vendorId } = input;
 
 
             let options: dashboardService.IGetDashboardOrdersPieChartDataOptions = {
                 startDate,
-                endDate
+                endDate,
+                vendorId
             }
 
             const result = await dashboardService.getDashboardOrderPieChartData(options);
@@ -153,12 +158,13 @@ export const dashboardResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getDashboardReturnedOrdersPieChartDataValidator, req);
 
-            let { startDate, endDate } = input;
+            let { startDate, endDate, vendorId } = input;
 
 
             let options: dashboardService.IGetDashboardReturnedOrdersPieChartDataOptions = {
                 startDate,
-                endDate
+                endDate,
+                vendorId
             }
 
             const result = await dashboardService.getDashboardReturnedOrdersPieChartData(options);
@@ -171,21 +177,27 @@ export const dashboardResolver: Resolvers = {
 
             return response;
         },
-        getDashboardReturnedOrderSummary: async (parent, { }, { req }, info) => {
+        getDashboardReturnedOrderSummary: async (parent, { input }, { req }, info) => {
 
             await verifyAdmin(req);
+            await validateInput(validators.getDashboardReturnedOrderSummaryValidator, req);
 
-            const result = await dashboardService.getDashboardReturnedOrderSummary();
+            const vendorId = input.vendorId;
+
+            const result = await dashboardService.getDashboardReturnedOrderSummary(vendorId);
 
             const response: dashboardService.IGetDashboardReturnedOrderSummary = result[0];
 
             return response;
         },
-        getDashboardRefundOrdersSummary: async (parent, { }, { req }, info) => {
+        getDashboardRefundOrdersSummary: async (parent, { input }, { req }, info) => {
 
             await verifyAdmin(req);
+            await validateInput(validators.getDashboardRefundOrdersSummaryValidator, req);
 
-            const result = await dashboardService.getDashboardRefundOrderSummary();
+            const vendorId = input.vendorId;
+
+            const result = await dashboardService.getDashboardRefundOrderSummary(vendorId);
 
             const response: dashboardService.IGetDashboardRefundOrderSummary = result[0];
 
@@ -196,12 +208,13 @@ export const dashboardResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getDashboardRefundOrdersPieChartDataValidator, req);
 
-            let { startDate, endDate } = input;
+            let { startDate, endDate, vendorId } = input;
 
 
             let options: dashboardService.IGetDashboardRefundOrdersPieChartDataOptions = {
                 startDate,
-                endDate
+                endDate,
+                vendorId
             }
 
             const result = await dashboardService.getDashboardRefundOrdersPieChartData(options);
@@ -219,12 +232,12 @@ export const dashboardResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getDashboardOrdersAmountPieChartDataValidator, req);
 
-            let { startDate, endDate } = input;
-
+            let { startDate, endDate, vendorId } = input;
 
             let options: dashboardService.IGetDashboardOrdersAmountPieChartDataOptions = {
                 startDate,
-                endDate
+                endDate,
+                vendorId
             }
 
             const result = await dashboardService.getDashboardOrderAmountPieChartData(options);
@@ -242,12 +255,12 @@ export const dashboardResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getDashboardShippingChargePieChartDataValidator, req);
 
-            let { startDate, endDate } = input;
-
+            let { startDate, endDate, vendorId } = input;
 
             let options: dashboardService.IGetDashboardShippingChargePieChartDataOptions = {
                 startDate,
-                endDate
+                endDate,
+                vendorId
             }
 
             const result = await dashboardService.getDashboardShippingChargePieChartData(options);

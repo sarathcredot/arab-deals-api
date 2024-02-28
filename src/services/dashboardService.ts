@@ -55,6 +55,7 @@ export interface IGetDashboardOrdersGraphOptions {
     startDate?: Date;
     endDate?: Date;
     graphType?: string;
+    vendorId?: Types.ObjectId;
 }
 
 
@@ -67,11 +68,13 @@ export interface IGetDashboardOrderPiechartData {
 export interface IGetDashboardOrdersPieChartDataOptions {
     startDate?: Date;
     endDate?: Date;
+    vendorId?: Types.ObjectId;
 }
 
 export interface IGetDashboardReturnedOrdersPieChartDataOptions {
     startDate?: Date;
     endDate?: Date;
+    vendorId?: Types.ObjectId;
 }
 
 
@@ -98,6 +101,7 @@ export interface IGetDashboardRefundOrderSummary {
 export interface IGetDashboardRefundOrdersPieChartDataOptions {
     startDate?: Date;
     endDate?: Date;
+    vendorId?: Types.ObjectId;
 }
 
 
@@ -109,11 +113,13 @@ export interface IGetDashboardRefundOrderPiechartData {
 export interface IGetDashboardOrdersAmountPieChartDataOptions {
     startDate?: Date;
     endDate?: Date;
+    vendorId?: Types.ObjectId;
 }
 
 export interface IGetDashboardShippingChargePieChartDataOptions {
     startDate?: Date;
     endDate?: Date;
+    vendorId?: Types.ObjectId;
 }
 
 export interface IGetDashboardOrderAmountPiechartData {
@@ -571,11 +577,23 @@ export const getDashboardVendorsGraph = async (options: IGetDashboardUsersGraphO
 
 
 
-export const getDashboardOrderSummary = async (): Promise<IGetDashboardOrderSummary[]> => {
+export const getDashboardOrderSummary = async (vendorId?: Types.ObjectId): Promise<IGetDashboardOrderSummary[]> => {
 
     const today = new Date(moment().startOf("day").toISOString());
 
     let pipeline: PipelineStage[] = [];
+
+
+    if (vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: vendorId
+                }
+            }
+        )
+    }
+
     pipeline.push(
         {
             $project: {
@@ -690,6 +708,17 @@ export const getDashboardOrderSummary = async (): Promise<IGetDashboardOrderSumm
 
 export const getDashboardOrdersGraph = async (options: IGetDashboardOrdersGraphOptions): Promise<{ [key: string]: number }[]> => {
     let pipeline: PipelineStage[] = [], facet: any = {}, project: any = {}, format = "DD MMM";
+
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
 
     let unit: unitOfTime.StartOf = "day";
 
@@ -888,6 +917,17 @@ export const getDashboardOrderPieChartData = async (options: IGetDashboardOrders
     }
 
     let pipeline: PipelineStage[] = [];
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
+
     pipeline.push(
         {
             $project: {
@@ -1016,6 +1056,17 @@ export const getDashboardReturnedOrdersPieChartData = async (options: IGetDashbo
     }
 
     let pipeline: PipelineStage[] = [];
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
+
     pipeline.push(
         {
             $project: {
@@ -1041,11 +1092,22 @@ export const getDashboardReturnedOrdersPieChartData = async (options: IGetDashbo
 
 
 
-export const getDashboardReturnedOrderSummary = async (): Promise<IGetDashboardReturnedOrderSummary[]> => {
+export const getDashboardReturnedOrderSummary = async (vendorId?: Types.ObjectId): Promise<IGetDashboardReturnedOrderSummary[]> => {
 
     const today = new Date(moment().startOf("day").toISOString());
 
     let pipeline: PipelineStage[] = [];
+
+    if (vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: vendorId
+                }
+            }
+        )
+    }
+
     pipeline.push(
         {
             $project: {
@@ -1113,11 +1175,22 @@ export const getDashboardReturnedOrderSummary = async (): Promise<IGetDashboardR
 
 
 
-export const getDashboardRefundOrderSummary = async (): Promise<IGetDashboardRefundOrderSummary[]> => {
+export const getDashboardRefundOrderSummary = async (vendorId?: Types.ObjectId): Promise<IGetDashboardRefundOrderSummary[]> => {
 
     const today = new Date(moment().startOf("day").toISOString());
 
     let pipeline: PipelineStage[] = [];
+
+    if (vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: vendorId
+                }
+            }
+        )
+    }
+
     pipeline.push(
         {
             $project: {
@@ -1246,6 +1319,18 @@ export const getDashboardRefundOrdersPieChartData = async (options: IGetDashboar
     }
 
     let pipeline: PipelineStage[] = [];
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
+
+
     pipeline.push(
         {
             $project: {
@@ -1344,6 +1429,17 @@ export const getDashboardOrderAmountPieChartData = async (options: IGetDashboard
     }
 
     let pipeline: PipelineStage[] = [];
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
+
     pipeline.push(
         {
             $facet: facet
@@ -1434,6 +1530,17 @@ export const getDashboardShippingChargePieChartData = async (options: IGetDashbo
     }
 
     let pipeline: PipelineStage[] = [];
+
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
     pipeline.push(
         {
             $facet: facet
