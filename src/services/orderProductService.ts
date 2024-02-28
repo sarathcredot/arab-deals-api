@@ -1,7 +1,15 @@
+
 import { orderProductModel } from "../models";
 import { Types, Document, QueryOptions, PipelineStage, ProjectionFields, FilterQuery, UpdateQuery, AnyObject } from "mongoose";
 import { collections } from "../configs";
+import excel from 'exceljs';
+import path from 'path';
 
+
+export interface IBestSellingProduct {
+    _id: Types.ObjectId;
+    count: number;
+}
 
 export interface FileData {
     _id?: string,
@@ -17,7 +25,6 @@ export interface IOrderProduct {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
-    vendorName?: string;
     productId?: Types.ObjectId;
     orderId?: string;
     itemId?: string;
@@ -59,9 +66,9 @@ export interface IOrderProduct {
 export interface IOrderProductDocument extends Document {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
+    productId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
     vendorName?: string;
-    productId?: Types.ObjectId;
     orderId?: string;
     itemId?: string;
     productName?: string;
@@ -130,9 +137,8 @@ export interface IOrderProductUpdateQuery {
 export interface IShippingProductsOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
-    vendorId?: Types.ObjectId;
-    vendorName?: string;
     orderId?: string;
+    vendorId?: Types.ObjectId;
     productId?: Types.ObjectId;
     itemId?: string;
     skuId?: string;
@@ -154,63 +160,12 @@ export interface IShippingProductsOptions {
     sort: string;
 }
 
-export interface IVendorShippingProductsOptions {
-    _id?: Types.ObjectId;
-    userId?: Types.ObjectId;
-    vendorId?: Types.ObjectId;
-    orderId?: string;
-    productId?: Types.ObjectId;
-    itemId?: string;
-    skuId?: string;
-    paymentMode?: string;
-    paymentStatus?: string;
-    shippingStatus?: string;
-    orderStartDate?: Date;
-    orderEndDate?: Date;
-    shippingStartDate?: Date;
-    shippingEndDate?: Date;
-    deliveryStartDate?: Date;
-    deliveryEndDate?: Date;
-    cancelledStartDate?: Date;
-    cancelledEndDate?: Date;
-    courierId?: string;
-    invoiceNumber?: string;
-    page: number;
-    size: number;
-    sort: string;
-}
+
 export interface IReturnProductsOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
-    vendorId?: Types.ObjectId;
-    vendorName?: string;
     orderId?: string;
-    productId?: Types.ObjectId;
-    itemId?: string;
-    skuId?: string;
-    paymentMode?: string;
-    returnStatus?: string;
-    deliveryStartDate?: Date;
-    deliveryEndDate?: Date;
-    returnRequestStartDate?: Date;
-    returnRequestEndDate?: Date;
-    returnStartDate?: Date;
-    returnEndDate?: Date;
-    returnRejectStartDate?: Date;
-    returnRejectEndDate?: Date;
-    courierId?: string;
-    invoiceNumber?: string;
-    page: number;
-    size: number;
-    sort: string;
-}
-
-export interface IVendorReturnProductsOptions {
-    _id?: Types.ObjectId;
-    userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
-    vendorName?: string;
-    orderId?: string;
     productId?: Types.ObjectId;
     itemId?: string;
     skuId?: string;
@@ -234,9 +189,8 @@ export interface IVendorReturnProductsOptions {
 export interface IRefundProductsOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
-    vendorId?: Types.ObjectId;
-    vendorName?: string;
     orderId?: string;
+    vendorId?: Types.ObjectId;
     productId?: Types.ObjectId;
     itemId?: string;
     skuId?: string;
@@ -258,6 +212,10 @@ export interface IOrderProductDetails extends IOrderProduct {
     username: string;
 }
 
+export interface IOrderExportProductDetails extends IOrderProduct {
+    username: string;
+    shippingAddress: {}
+}
 
 export interface IOrderProducts {
     maxRecords: number;
@@ -272,16 +230,22 @@ export interface IUserOrderProductsOptions {
     userId?: Types.ObjectId;
 }
 
+export interface IUserOrderProductsByAdminOptions {
+    page: number;
+    size: number;
+    userId: Types.ObjectId;
+}
 
 export interface IUserOrderProducts {
     maxRecords: number;
     records: IOrderProduct[];
 }
 
-export interface IBestSellingProduct {
-    _id: Types.ObjectId;
-    count: number;
+export interface IUserOrderProductsByAdmin {
+    maxRecords: number;
+    records: IOrderProduct[];
 }
+
 
 export const createOrderProducts = async (records: IOrderProduct[]): Promise<IOrderProductDocument[] | null> => {
     return await orderProductModel.insertMany(records);
@@ -423,7 +387,7 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
         pipeline.push(
             {
                 $match: {
-                    shippedDate: { $lgte: options.shippingStartDate }
+                    shippedDate: { $gte: options.shippingStartDate }
                 }
             }
         )
@@ -491,13 +455,11 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
             }
         )
     }
-
     if (options.vendorId) {
         pipeline.push(
             {
                 $match: {
                     vendorId: options.vendorId
-
                 }
             }
         )
@@ -570,7 +532,7 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
                                 {
                                     $project: {
                                         _id: 0,
-                                        fullname: 1
+                                        name: 1
                                     }
                                 }
                             ],
@@ -623,330 +585,7 @@ export const getShippingProducts = async (options: IShippingProductsOptions): Pr
                             vendorName: "$vendorInfo.fullName",
                             productId: 1,
                             itemId: 1,
-                            username: "$userInfo.fullname",
-                            productName: 1,
-                            skuId: 1,
-                            image: 1,
-                            sellingPrice: 1,
-                            shippingCharge: 1,
-                            paymentMode: 1,
-                            paymentStatus: 1,
-                            orderDate: 1,
-                            shippingStatus: 1,
-                            shippedDate: 1,
-                            deliveryDate: 1,
-                            courierId: 1,
-                            invoiceNumber: 1,
-                            cancelledDate: 1,
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            $project: {
-                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-                data: 1
-            }
-        }
-    );
-
-    const result = await orderProductModel.aggregate(pipeline);
-    let response = {
-        records: [],
-        maxRecords: 0
-    };
-    if (result.length) {
-        response.records = result[0].data || [];
-        response.maxRecords = result[0].maxRecords || 0;
-    }
-
-    return response;
-}
-
-// VENDOR SIDE SHIPPING PRODUCTS
-export const getVendorShippingProducts = async (options: IShippingProductsOptions): Promise<IOrderProducts> => {
-
-    let pipeline: PipelineStage[] = [];
-
-    if (options._id) {
-        pipeline.push(
-            {
-                $match: {
-                    _id: options._id
-                }
-            }
-        )
-    }
-    if (options.productId) {
-        pipeline.push(
-            {
-                $match: {
-                    productId: options.productId
-                }
-            }
-        )
-    }
-    if (options.orderId) {
-        pipeline.push(
-            {
-                $match: {
-                    orderId: options.orderId
-                }
-            }
-        )
-    }
-    if (options.itemId) {
-        pipeline.push(
-            {
-                $match: {
-                    itemId: options.itemId
-                }
-            }
-        )
-    }
-    if (options.userId) {
-        pipeline.push(
-            {
-                $match: {
-                    userId: options.userId
-                }
-            }
-        )
-    }
-    if (options.skuId) {
-        pipeline.push(
-            {
-                $match: {
-                    skuId: options.skuId
-                }
-            }
-        )
-    }
-    if (options.paymentStatus) {
-        pipeline.push(
-            {
-                $match: {
-                    paymentStatus: options.paymentStatus
-                }
-            }
-        )
-    }
-    if (options.paymentMode) {
-        pipeline.push(
-            {
-                $match: {
-                    paymentMode: options.paymentMode
-                }
-            }
-        )
-    }
-    if (options.shippingStatus) {
-        pipeline.push(
-            {
-                $match: {
-                    shippingStatus: options.shippingStatus
-                }
-            }
-        )
-    }
-    else {
-        pipeline.push(
-            {
-                $match: {
-                    shippingStatus: { $ne: "NA" }
-                }
-            }
-        )
-    }
-    if (options.orderStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    orderDate: { $gte: options.orderStartDate }
-                }
-            }
-        )
-    }
-    if (options.orderEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    orderDate: { $lte: options.orderEndDate }
-                }
-            }
-        )
-    }
-    if (options.shippingStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    shippedDate: { $lgte: options.shippingStartDate }
-                }
-            }
-        )
-    }
-    if (options.shippingEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    shippedDate: { $lte: options.shippingEndDate }
-                }
-            }
-        )
-    }
-    if (options.deliveryStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    deliveryDate: { $gte: options.deliveryStartDate }
-                }
-            }
-        )
-    }
-    if (options.deliveryEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    deliveryDate: { $lte: options.deliveryEndDate }
-                }
-            }
-        )
-    }
-    if (options.cancelledStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    cancelledDate: { $lte: options.cancelledStartDate }
-                }
-            }
-        )
-    }
-    if (options.cancelledEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    cancelledDate: { $gte: options.cancelledEndDate }
-                }
-            }
-        )
-    }
-    if (options.courierId) {
-        pipeline.push(
-            {
-                $match: {
-                    courierId: options.courierId
-                }
-            }
-        )
-    }
-    if (options.invoiceNumber) {
-        pipeline.push(
-            {
-                $match: {
-                    invoiceNumber: options.invoiceNumber
-                }
-            }
-        )
-    }
-
-    pipeline.push(
-        {
-            $match: {
-                vendorId: options.vendorId
-            }
-        }
-    )
-
-    switch (options.sort) {
-        case "Ship":
-            pipeline.push(
-                {
-                    $sort: { shippedDate: -1, _id: -1 }
-                }
-            )
-            break;
-        case "Delivery":
-            pipeline.push(
-                {
-                    $sort: { deliveryDate: -1, _id: -1 }
-                }
-            )
-            break;
-        case "Cancel":
-            pipeline.push(
-                {
-                    $sort: { cancelledDate: -1, _id: -1 }
-                }
-            )
-            break;
-        default:
-            pipeline.push(
-                {
-                    $sort: { orderDate: -1, _id: -1 }
-                }
-            )
-            break;
-    }
-
-    pipeline.push(
-        {
-            $facet: {
-                metadata: [
-                    {
-                        $group: {
-                            _id: null,
-                            total: { $sum: 1 }
-                        }
-                    }
-                ],
-                data: [
-                    {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
-                        $lookup: {
-                            from: collections.USERS,
-                            let: { userId: "$userId" },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $eq: ["$_id", "$$userId"]
-                                        }
-                                    }
-                                },
-                                {
-                                    $limit: 1
-                                },
-                                {
-                                    $project: {
-                                        _id: 0,
-                                        fullname: 1
-                                    }
-                                }
-                            ],
-                            as: "userInfo"
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$userInfo",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            orderId: 1,
-                            userId: 1,
-                            vendorId: 1,
-                            productId: 1,
-                            itemId: 1,
-                            username: "$userInfo.fullname",
+                            username: "$userInfo.name",
                             productName: 1,
                             skuId: 1,
                             image: 1,
@@ -1174,6 +813,7 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
         )
     }
 
+
     switch (options.sort) {
         case "Pending":
             pipeline.push(
@@ -1234,7 +874,7 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
                                 {
                                     $project: {
                                         _id: 0,
-                                        fullname: 1
+                                        name: 1
                                     }
                                 }
                             ],
@@ -1284,316 +924,10 @@ export const getReturnProducts = async (options: IReturnProductsOptions): Promis
                             orderId: 1,
                             userId: 1,
                             vendorId: "$vendorInfo._id",
-                            vendorName: "$vendorInfo.fullName", productId: 1,
-                            itemId: 1,
-                            username: "$userInfo.fullname",
-                            productName: 1,
-                            skuId: 1,
-                            image: 1,
-                            sellingPrice: 1,
-                            shippingCharge: 1,
-                            paymentMode: 1,
-                            deliveryDate: 1,
-                            returnStatus: 1,
-                            returnRequestDate: 1,
-                            returnDate: 1,
-                            returnRejectedDate: 1,
-                            courierId: 1,
-                            invoiceNumber: 1,
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            $project: {
-                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-                data: 1
-            }
-        }
-    );
-
-    const result = await orderProductModel.aggregate(pipeline);
-    let response = {
-        records: [],
-        maxRecords: 0
-    };
-    if (result.length) {
-        response.records = result[0].data || [];
-        response.maxRecords = result[0].maxRecords || 0;
-    }
-
-    return response;
-}
-
-// VENDOR RETURN PRODUCTS
-export const getVendorReturnProducts = async (options: IReturnProductsOptions): Promise<IOrderProducts> => {
-
-    let pipeline: PipelineStage[] = [];
-
-    if (options._id) {
-        pipeline.push(
-            {
-                $match: {
-                    _id: options._id
-                }
-            }
-        )
-    }
-    if (options.productId) {
-        pipeline.push(
-            {
-                $match: {
-                    productId: options.productId
-                }
-            }
-        )
-    }
-    if (options.orderId) {
-        pipeline.push(
-            {
-                $match: {
-                    orderId: options.orderId
-                }
-            }
-        )
-    }
-    if (options.itemId) {
-        pipeline.push(
-            {
-                $match: {
-                    itemId: options.itemId
-                }
-            }
-        )
-    }
-    if (options.userId) {
-        pipeline.push(
-            {
-                $match: {
-                    userId: options.userId
-                }
-            }
-        )
-    }
-    if (options.skuId) {
-        pipeline.push(
-            {
-                $match: {
-                    skuId: options.skuId
-                }
-            }
-        )
-    }
-    if (options.paymentMode) {
-        pipeline.push(
-            {
-                $match: {
-                    paymentMode: options.paymentMode
-                }
-            }
-        )
-    }
-    if (options.returnStatus) {
-        pipeline.push(
-            {
-                $match: {
-                    returnStatus: options.returnStatus
-                }
-            }
-        )
-    }
-    else {
-        pipeline.push(
-            {
-                $match: {
-                    returnStatus: { $ne: "NA" }
-                }
-            }
-        )
-    }
-    if (options.deliveryStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    deliveryDate: { $gte: options.deliveryStartDate }
-                }
-            }
-        )
-    }
-    if (options.deliveryEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    deliveryDate: { $lte: options.deliveryEndDate }
-                }
-            }
-        )
-    }
-    if (options.returnRequestStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    returnRequestDate: { $gte: options.returnRequestStartDate }
-                }
-            }
-        )
-    }
-    if (options.returnRequestEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    returnRequestDate: { $lte: options.returnRequestEndDate }
-                }
-            }
-        )
-    }
-    if (options.returnStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    returnDate: { $gte: options.returnStartDate }
-                }
-            }
-        )
-    }
-    if (options.returnEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    returnDate: { $lte: options.returnEndDate }
-                }
-            }
-        )
-    }
-    if (options.returnRejectStartDate) {
-        pipeline.push(
-            {
-                $match: {
-                    returnRejectedDate: { $gte: options.returnRejectStartDate }
-                }
-            }
-        )
-    }
-    if (options.returnRejectEndDate) {
-        pipeline.push(
-            {
-                $match: {
-                    returnRejectedDate: { $lte: options.returnRejectEndDate }
-                }
-            }
-        )
-    }
-    if (options.courierId) {
-        pipeline.push(
-            {
-                $match: {
-                    courierId: options.courierId
-                }
-            }
-        )
-    }
-    if (options.invoiceNumber) {
-        pipeline.push(
-            {
-                $match: {
-                    invoiceNumber: options.invoiceNumber
-                }
-            }
-        )
-    }
-    if (options.vendorId) {
-        pipeline.push(
-            {
-                $match: {
-                    vendorId: options.vendorId
-                }
-            }
-        )
-    }
-
-    switch (options.sort) {
-        case "Pending":
-            pipeline.push(
-                {
-                    $sort: { returnRequestDate: -1, _id: -1 }
-                }
-            )
-            break;
-        case "Approved":
-            pipeline.push(
-                {
-                    $sort: { returnDate: -1, _id: -1 }
-                }
-            )
-            break;
-        case "Rejected":
-            pipeline.push(
-                {
-                    $sort: { returnRejectedDate: -1, _id: -1 }
-                }
-            )
-            break;
-    }
-
-    pipeline.push(
-        {
-            $facet: {
-                metadata: [
-                    {
-                        $group: {
-                            _id: null,
-                            total: { $sum: 1 }
-                        }
-                    }
-                ],
-                data: [
-                    {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
-                        $lookup: {
-                            from: collections.USERS,
-                            let: { userId: "$userId" },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $eq: ["$_id", "$$userId"]
-                                        }
-                                    }
-                                },
-                                {
-                                    $limit: 1
-                                },
-                                {
-                                    $project: {
-                                        _id: 0,
-                                        fullname: 1
-                                    }
-                                }
-                            ],
-                            as: "userInfo"
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$userInfo",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            orderId: 1,
-                            userId: 1,
-                            vendorId: 1,
+                            vendorName: "$vendorInfo.fullName",
                             productId: 1,
                             itemId: 1,
-                            username: "$userInfo.fullname",
+                            username: "$userInfo.name",
                             productName: 1,
                             skuId: 1,
                             image: 1,
@@ -1712,6 +1046,15 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
             }
         )
     }
+    else {
+        pipeline.push(
+            {
+                $match: {
+                    refundStatus: { $ne: "NA" }
+                }
+            }
+        )
+    }
     if (options.refundRequestStartDate) {
         pipeline.push(
             {
@@ -1766,6 +1109,16 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
             }
         )
     }
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
+
 
     switch (options.sort) {
         case "Pending":
@@ -1820,7 +1173,7 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
                                 {
                                     $project: {
                                         _id: 0,
-                                        fullname: 1
+                                        name: 1
                                     }
                                 }
                             ],
@@ -1868,11 +1221,12 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
                         $project: {
                             _id: 1,
                             orderId: 1,
-                            vendorId: "$vendorInfo._id",
-                            vendorName: "$vendorInfo.fullName", productId: 1,
+                            productId: 1,
                             itemId: 1,
+                            vendorId: "$vendorInfo._id",
+                            vendorName: "$vendorInfo.fullName",
                             userId: 1,
-                            username: "$userInfo.fullname",
+                            username: "$userInfo.name",
                             productName: 1,
                             skuId: 1,
                             image: 1,
@@ -1912,17 +1266,192 @@ export const getRefundProducts = async (options: IRefundProductsOptions): Promis
     return response;
 }
 
-// VENDOR REFUND PRODUCTS
-export const getVendorRefundProducts = async (options: IRefundProductsOptions): Promise<IOrderProducts> => {
+
+export const getUserOrderProducts = async (options: IUserOrderProductsOptions): Promise<IUserOrderProducts> => {
 
     let pipeline: PipelineStage[] = [];
+
     pipeline.push(
         {
             $match: {
-                vendorId: options.vendorId
+                userId: options.userId
+            }
+        },
+        {
+            $sort: { _id: -1 }
+        },
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            orderId: 1,
+                            itemId: 1,
+                            vendorId: 1,
+                            productId: 1,
+                            productName: 1,
+                            shortDescription: 1,
+                            skuId: 1,
+                            image: 1,
+                            sellingPrice: 1,
+                            shippingCharge: 1,
+                            paymentMode: 1,
+                            paymentStatus: 1,
+                            orderDate: 1,
+                            shippingStatus: 1,
+                            shippedDate: 1,
+                            deliveryDate: 1,
+                            cancelledDate: 1,
+                            returnPeriod: 1,
+                            returnStatus: 1,
+                            returnUserReason: 1,
+                            returnRequestDate: 1,
+                            returnRejectedDate: 1,
+                            returnDate: 1,
+                            refundStatus: 1,
+                            refundAmount: 1,
+                            refundDate: 1,
+                            cancelUserReason: 1,
+                            invoice: 1,
+                            courierId: 1,
+                            invoiceNumber: 1,
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
             }
         }
-    )
+    );
+
+    const result = await orderProductModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
+
+export const getUserOrderProductsByAdmin = async (options: IUserOrderProductsByAdminOptions): Promise<IUserOrderProductsByAdmin> => {
+
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                userId: options.userId
+            }
+        },
+        {
+            $sort: { _id: -1 }
+        },
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            orderId: 1,
+                            itemId: 1,
+                            vendorId: 1,
+                            productId: 1,
+                            productName: 1,
+                            shortDescription: 1,
+                            skuId: 1,
+                            image: 1,
+                            sellingPrice: 1,
+                            shippingCharge: 1,
+                            paymentMode: 1,
+                            paymentStatus: 1,
+                            orderDate: 1,
+                            shippingStatus: 1,
+                            shippedDate: 1,
+                            deliveryDate: 1,
+                            cancelledDate: 1,
+                            returnPeriod: 1,
+                            returnStatus: 1,
+                            returnUserReason: 1,
+                            returnRequestDate: 1,
+                            returnRejectedDate: 1,
+                            returnDate: 1,
+                            refundStatus: 1,
+                            refundAmount: 1,
+                            refundDate: 1,
+                            cancelUserReason: 1,
+                            invoice: 1,
+                            courierId: 1,
+                            invoiceNumber: 1,
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result = await orderProductModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
+
+
+export const exportShippingProducts = async (options: IShippingProductsOptions, exportFolder: string): Promise<string> => {
+
+    let pipeline: PipelineStage[] = [];
+
     if (options._id) {
         pipeline.push(
             {
@@ -1977,6 +1506,15 @@ export const getVendorRefundProducts = async (options: IRefundProductsOptions): 
             }
         )
     }
+    if (options.paymentStatus) {
+        pipeline.push(
+            {
+                $match: {
+                    paymentStatus: options.paymentStatus
+                }
+            }
+        )
+    }
     if (options.paymentMode) {
         pipeline.push(
             {
@@ -1986,47 +1524,92 @@ export const getVendorRefundProducts = async (options: IRefundProductsOptions): 
             }
         )
     }
-    if (options.refundStatus) {
+    if (options.shippingStatus) {
         pipeline.push(
             {
                 $match: {
-                    refundStatus: options.refundStatus
+                    shippingStatus: options.shippingStatus
                 }
             }
         )
     }
-    if (options.refundRequestStartDate) {
+    else {
         pipeline.push(
             {
                 $match: {
-                    refundRequestDate: { $gte: options.refundRequestStartDate }
+                    shippingStatus: { $ne: "NA" }
                 }
             }
         )
     }
-    if (options.refundRequestEndDate) {
+    if (options.orderStartDate) {
         pipeline.push(
             {
                 $match: {
-                    refundRequestDate: { $lte: options.refundRequestEndDate }
+                    orderDate: { $gte: options.orderStartDate }
                 }
             }
         )
     }
-    if (options.refundStartDate) {
+    if (options.orderEndDate) {
         pipeline.push(
             {
                 $match: {
-                    refundDate: { $gte: options.refundStartDate }
+                    orderDate: { $lte: options.orderEndDate }
                 }
             }
         )
     }
-    if (options.refundEndDate) {
+    if (options.shippingStartDate) {
         pipeline.push(
             {
                 $match: {
-                    refundDate: { $lte: options.refundEndDate }
+                    shippedDate: { $gte: options.shippingStartDate }
+                }
+            }
+        )
+    }
+    if (options.shippingEndDate) {
+        pipeline.push(
+            {
+                $match: {
+                    shippedDate: { $lte: options.shippingEndDate }
+                }
+            }
+        )
+    }
+    if (options.deliveryStartDate) {
+        pipeline.push(
+            {
+                $match: {
+                    deliveryDate: { $gte: options.deliveryStartDate }
+                }
+            }
+        )
+    }
+    if (options.deliveryEndDate) {
+        pipeline.push(
+            {
+                $match: {
+                    deliveryDate: { $lte: options.deliveryEndDate }
+                }
+            }
+        )
+    }
+    if (options.cancelledStartDate) {
+        pipeline.push(
+            {
+                $match: {
+                    cancelledDate: { $lte: options.cancelledStartDate }
+                }
+            }
+        )
+    }
+    if (options.cancelledEndDate) {
+        pipeline.push(
+            {
+                $match: {
+                    cancelledDate: { $gte: options.cancelledEndDate }
                 }
             }
         )
@@ -2049,19 +1632,41 @@ export const getVendorRefundProducts = async (options: IRefundProductsOptions): 
             }
         )
     }
-
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
     switch (options.sort) {
-        case "Pending":
+        case "Ship":
             pipeline.push(
                 {
-                    $sort: { refundRequestDate: -1, _id: -1 }
+                    $sort: { shippedDate: 1, _id: 1 }
                 }
             )
             break;
-        case "Paid":
+        case "Delivery":
             pipeline.push(
                 {
-                    $sort: { refundDate: -1, _id: -1 }
+                    $sort: { deliveryDate: 1, _id: 1 }
+                }
+            )
+            break;
+        case "Cancel":
+            pipeline.push(
+                {
+                    $sort: { cancelledDate: 1, _id: 1 }
+                }
+            )
+            break;
+        default:
+            pipeline.push(
+                {
+                    $sort: { orderDate: 1, _id: 1 }
                 }
             )
             break;
@@ -2069,190 +1674,182 @@ export const getVendorRefundProducts = async (options: IRefundProductsOptions): 
 
     pipeline.push(
         {
-            $facet: {
-                metadata: [
+            $lookup: {
+                from: collections.USERS,
+                let: { userId: "$userId" },
+                pipeline: [
                     {
-                        $group: {
-                            _id: null,
-                            total: { $sum: 1 }
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$userId"]
+                            }
+                        }
+                    },
+                    {
+                        $limit: 1
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            name: 1
                         }
                     }
                 ],
-                data: [
+                as: "userInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$userInfo",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: collections.VENDORS,
+                let: { vendorId: "$vendorId" },
+                pipeline: [
                     {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
-                        $lookup: {
-                            from: collections.USERS,
-                            let: { userId: "$userId" },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $eq: ["$_id", "$$userId"]
-                                        }
-                                    }
-                                },
-                                {
-                                    $limit: 1
-                                },
-                                {
-                                    $project: {
-                                        _id: 0,
-                                        fullname: 1
-                                    }
-                                }
-                            ],
-                            as: "userInfo"
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$vendorId"]
+                            }
                         }
                     },
                     {
-                        $unwind: {
-                            path: "$userInfo",
-                            preserveNullAndEmptyArrays: true
-                        }
+                        $limit: 1
                     },
                     {
                         $project: {
                             _id: 1,
-                            orderId: 1,
-                            vendorId: 1,
-                            productId: 1,
-                            itemId: 1,
-                            userId: 1,
-                            username: "$userInfo.fullname",
-                            productName: 1,
-                            skuId: 1,
-                            image: 1,
-                            sellingPrice: 1,
-                            shippingCharge: 1,
-                            paymentMode: 1,
-                            refundStatus: 1,
-                            refundAmount: 1,
-                            refundRequestDate: 1,
-                            refundDate: 1,
-                            refundComment: 1,
-                            courierId: 1,
-                            invoiceNumber: 1,
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            $project: {
-                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-                data: 1
-            }
-        }
-    );
-
-    const result = await orderProductModel.aggregate(pipeline);
-    let response = {
-        records: [],
-        maxRecords: 0
-    };
-    if (result.length) {
-        response.records = result[0].data || [];
-        response.maxRecords = result[0].maxRecords || 0;
-    }
-
-    return response;
-}
-
-
-
-export const getUserOrderProducts = async (options: IUserOrderProductsOptions): Promise<IUserOrderProducts> => {
-
-    let pipeline: PipelineStage[] = [];
-
-    pipeline.push(
-        {
-            $match: {
-                userId: new Types.ObjectId(options.userId)
-            }
-        },
-        {
-            $sort: { _id: -1 }
-        },
-        {
-            $facet: {
-                metadata: [
-                    {
-                        $group: {
-                            _id: null,
-                            total: { $sum: 1 }
+                            fullName: 1
                         }
                     }
                 ],
-                data: [
+                as: "vendorInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$vendorInfo",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: collections.ORDERS,
+                let: { orderId: "$orderId" },
+                pipeline: [
                     {
-                        $skip: options.page * options.size
+                        $match: {
+                            $expr: {
+                                $eq: ["$orderId", "$$orderId"]
+                            }
+                        }
                     },
                     {
-                        $limit: options.size
+                        $limit: 1
                     },
                     {
                         $project: {
-                            _id: 1,
-                            orderId: 1,
-                            vendorId: 1,
-                            itemId: 1,
-                            productId: 1,
-                            productName: 1,
-                            shortDescription: 1,
-                            skuId: 1,
-                            image: 1,
-                            sellingPrice: 1,
-                            shippingCharge: 1,
-                            paymentMode: 1,
-                            paymentStatus: 1,
-                            orderDate: 1,
-                            shippingStatus: 1,
-                            shippedDate: 1,
-                            deliveryDate: 1,
-                            cancelledDate: 1,
-                            returnPeriod: 1,
-                            returnStatus: 1,
-                            returnUserReason: 1,
-                            returnRequestDate: 1,
-                            returnRejectedDate: 1,
-                            returnDate: 1,
-                            refundStatus: 1,
-                            refundAmount: 1,
-                            refundDate: 1,
-                            cancelUserReason: 1,
-                            invoice: 1,
-                            courierId: 1,
-                            invoiceNumber: 1,
+                            _id: 0,
+                            shippingAddress: 1
                         }
                     }
-                ]
+                ],
+                as: "shippingInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$shippingInfo",
+                preserveNullAndEmptyArrays: true
             }
         },
         {
             $project: {
-                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-                data: 1
+                _id: 1,
+                orderId: 1,
+                userId: 1,
+                productId: 1,
+                itemId: 1,
+                vendorId: "$vendorInfo._id",
+                vendorName: "$vendorInfo.fullName",
+                username: "$userInfo.name",
+                productName: 1,
+                skuId: 1,
+                image: 1,
+                sellingPrice: 1,
+                shippingCharge: 1,
+                paymentMode: 1,
+                paymentStatus: 1,
+                orderDate: 1,
+                shippingStatus: 1,
+                shippedDate: 1,
+                deliveryDate: 1,
+                courierId: 1,
+                invoiceNumber: 1,
+                cancelledDate: 1,
+                shippingAddress: "$shippingInfo.shippingAddress"
             }
         }
     );
 
-    const result = await orderProductModel.aggregate(pipeline);
-    let response = {
-        records: [],
-        maxRecords: 0
-    };
-    if (result.length) {
-        response.records = result[0].data || [];
-        response.maxRecords = result[0].maxRecords || 0;
+    let orders = await orderProductModel.aggregate(pipeline);
+
+    let filename = '';
+
+    if (orders && orders.length) {
+        orders = orders.map((order: IOrderExportProductDetails) => {
+            return {
+                ...order,
+                userId: order.userId?.toString(),
+                productId: order.productId?.toString(),
+                shippingAddress: JSON.stringify(order.shippingAddress)
+            }
+        })
+
+        let workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet("Orders");
+        worksheet.columns = [
+            { header: "Order Date", key: "orderDate", width: 20 },
+            { header: "Order ID", key: "orderId", width: 25 },
+            { header: "Item ID", key: "itemId", width: 25 },
+            { header: "SKU ID", key: "skuId", width: 25 },
+            { header: "Product ID", key: "productId", width: 25 },
+            { header: "Product Name", key: "productName", width: 25 },
+            { header: "Vendor ID", key: "vendorId", width: 25 },
+            { header: "Vendor Name", key: "vendorName", width: 25 },
+            { header: "User ID", key: "userId", width: 25 },
+            { header: "User Name", key: "username", width: 25 },
+            { header: "Selling Price ", key: "sellingPrice", width: 20 },
+            { header: "Shipping Charge ", key: "shippingCharge", width: 20 },
+            { header: "Shipping Status", key: "shippingStatus", width: 20 },
+            { header: "Payment Mode", key: "paymentMode", width: 20 },
+            { header: "Payment Status", key: "paymentStatus", width: 20 },
+            { header: "Shipped Date", key: "shippedDate", width: 20 },
+            { header: "Cancelled Date", key: "cancelledDate", width: 20 },
+            { header: "Delivery Date", key: "deliveryDate", width: 20 },
+            { header: "Courier ID", key: "courierId", width: 25 },
+            { header: "Invoice number", key: "invoiceNumber", width: 25 },
+            { header: "Shipping Address", key: "shippingAddress", width: 200 },
+
+        ];
+        let firstRow = worksheet.getRow(1);
+        firstRow.eachCell((cell) => {
+            cell.font = { bold: true };
+        });
+
+        worksheet.addRows(orders);
+
+        filename = `order-shipping-${Date.now()}.xlsx`;
+        let filePath = path.join(exportFolder, filename);
+        await workbook.xlsx.writeFile(filePath).then(() => {
+            console.log("FILE SAVED!");
+        });
     }
 
-    return response;
+    return filename;
 }
 
 

@@ -1,10 +1,11 @@
 import { Request } from "express";
 import { GraphQLError } from "graphql";
 import { vendorJwtService, vendorService } from "../services";
+import { Types } from "mongoose";
 
 interface CustomRequest extends Request {
     authAccount?: {
-        _id: string,
+        _id: Types.ObjectId,
         accType: string
     };
 }
@@ -32,7 +33,7 @@ export const verifyVendor = async (req: CustomRequest) => {
         }
 
         req.authAccount = {
-            _id: tempVendor._id?.toString() || "",
+            _id: tempVendor._id!,
             accType: "VENDOR"
         };
 

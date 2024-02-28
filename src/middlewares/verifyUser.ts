@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { GraphQLError } from "graphql";
 import { jwtService, adminService, userService } from "../services";
+import { Types } from "mongoose";
 
 interface CustomRequest extends Request {
     authAccount?: {
-        _id: string;
+        _id: Types.ObjectId;
       
         // Add other properties as needed
     };
@@ -34,7 +35,7 @@ export const verifyUser = async (req: CustomRequest) => {
         }
 
         req.authAccount = {
-            _id: user._id?.toString() || "",
+            _id: user._id!
            
         };
 
