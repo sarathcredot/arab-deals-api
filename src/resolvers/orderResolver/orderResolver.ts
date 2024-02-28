@@ -1068,19 +1068,21 @@ export const orderResolver: Resolvers = {
                 });
             }
 
-            const response = { ...product, vendorId: product.vendorId._id, vendorName: product.vendorId.fullName }
+            const response = { ...product.toObject(), vendorId: product.vendorId._id, vendorName: product.vendorId.fullName }
             return response;
         },
         getAdminOrderProducts: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductsValidator, req);
 
             const result = await orderProductService.getOrderProductsWithFiltersIncludeVendor({ orderId: input.orderId });
 
             const response = {
-                products: result.map((item: any) => { return { ...item, vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
+                products: result.map((item: any) => { return { ...item.toObject(), vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
             }
+
+            console.log(response);
 
             return response;
         },

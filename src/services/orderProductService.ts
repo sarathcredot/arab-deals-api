@@ -256,7 +256,7 @@ export const getOrderProductsWithFilters = async (filters: FilterQuery<IOrderPro
     return await orderProductModel.find(filters, projection, options);
 }
 
-export const getOrderProductsWithFiltersIncludeVendor = async (filters: FilterQuery<IOrderProduct>, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<IOrderProductDocument[] | []> => {
+export const getOrderProductsWithFiltersIncludeVendor = async (filters: FilterQuery<IOrderProduct>, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<any[] | []> => {
     return await orderProductModel.find(filters, projection, options).populate({ path: "vendorId", select: "_id fullName" });
 }
 
