@@ -26,6 +26,7 @@ export const exportAdminOrderShippingProductsValidator = [
     body('variables.input._id').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.userId').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.orderId').trim().optional({ checkFalsy: true }).isString(),
+    body('variables.input.vendorId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.itemId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.productId').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.skuId').trim().optional({ checkFalsy: true }).isString(),

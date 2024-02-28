@@ -149,6 +149,9 @@ export const jobResolver: Resolvers = {
             if (input.orderId) {
                 filters.orderId = input.orderId;
             }
+            if (input.vendorId) {
+                filters.vendorId = input.vendorId;
+            }
             if (input.itemId) {
                 filters.itemId = input.itemId;
             }

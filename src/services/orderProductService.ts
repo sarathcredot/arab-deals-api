@@ -1497,6 +1497,15 @@ export const exportShippingProducts = async (options: IShippingProductsOptions, 
             }
         )
     }
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            }
+        )
+    }
     if (options.skuId) {
         pipeline.push(
             {

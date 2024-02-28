@@ -1835,6 +1835,7 @@ input GetAdminDownloadTokenInput {
 input ExportAdminShippingProductsInput {
   _id: ObjectId
   userId: ObjectId
+  vendorId: ObjectId
   orderId: String
   productId: ObjectId
   itemId: String

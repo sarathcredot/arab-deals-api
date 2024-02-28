@@ -8,6 +8,7 @@ import path from 'path';
 export interface IShippingAddress {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
+    vendorId?: Types.ObjectId;
     firstname?: string;
     email?: string;
     mobile?: string;
