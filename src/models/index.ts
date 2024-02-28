@@ -4,7 +4,7 @@ import { adminModel } from "./adminModel";
 import { vendorModel } from "./vendorModel";
 import { authUtilityModel } from "./authUtilityModel";
 import { vendorCompanyModel } from "./vendorCompanyModel";
-import { vendorOutletModel } from "./vendorOutletSchema";
+import { vendorOutletModel } from "./vendorOutletModel";
 import { brandModel } from "./brandModel";
 import { attributeModel } from "./attributeModel";
 import { attributeValueModel } from "./attributeValueModel";
