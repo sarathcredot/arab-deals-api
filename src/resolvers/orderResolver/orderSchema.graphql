@@ -349,6 +349,7 @@ type AdminOrderProduct {
     userId: ObjectId
     productId: ObjectId
     vendorId: ObjectId
+    vendorName: String
     orderId: String
     itemId: String
     productName: String
@@ -397,7 +398,6 @@ type GetAdminOrdersResponse {
 type GetAdminOrderDetailsResponse {
     _id: ObjectId
     orderId: String
-    vendorId: ObjectId
     userId: ObjectId
     paymentMode: String
     orderDate: Date

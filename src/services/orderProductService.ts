@@ -210,6 +210,7 @@ export interface IRefundProductsOptions {
 
 export interface IOrderProductDetails extends IOrderProduct {
     username: string;
+    vendorName: string;
 }
 
 export interface IOrderExportProductDetails extends IOrderProduct {
