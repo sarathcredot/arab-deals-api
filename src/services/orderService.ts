@@ -221,7 +221,8 @@ export const getAdminOrdersWithFilters = async (options: IOrdersOptions): Promis
                                 {
                                     $project: {
                                         _id: 0,
-                                        name: 1
+                                        firstName: 1,
+                                        lastName: 1
                                     }
                                 }
                             ],
@@ -296,7 +297,7 @@ export const getAdminOrdersWithFilters = async (options: IOrdersOptions): Promis
                             paymentMode: 1,
                             orderDate: 1,
                             orderStatus: 1,
-                            username: "$userInfo.name",
+                            username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
                             orderPriceInfo: 1,
                             shippingAddress: 1
                         }
@@ -356,7 +357,8 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                     {
                         $project: {
                             _id: 0,
-                            name: 1
+                            firstName: 1,
+                            lastName: 1
                         }
                     }
                 ],
@@ -417,7 +419,7 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                 paymentMode: 1,
                 orderDate: 1,
                 orderStatus: 1,
-                username: "$userInfo.name",
+                username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
                 orderPriceInfo: 1,
                 shippingAddress: 1
             }
@@ -540,7 +542,8 @@ export const exportAdminOrdersWithFilters = async (options: IOrdersOptions, expo
                     {
                         $project: {
                             _id: 0,
-                            name: 1
+                            firstName: 1,
+                            lastName: 1
                         }
                     }
                 ],
@@ -615,7 +618,7 @@ export const exportAdminOrdersWithFilters = async (options: IOrdersOptions, expo
                 paymentMode: 1,
                 orderDate: 1,
                 orderStatus: 1,
-                username: "$userInfo.name",
+                username: { $concat: ["$userInfo.firstName", "", "$userInfo.lastName"] },
                 orderPriceInfo: 1,
                 shippingAddress: 1
             }
