@@ -144,9 +144,6 @@ input VendorSignUpByAdminInput {
   email: String
   mobileNumber: String!
   isBlocked: Boolean
-  isKycCompleted: Boolean
-  brands: [String]
-  categories: [String]
   countryCode: String!
 }
 

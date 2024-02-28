@@ -27,6 +27,16 @@ export const VendorCreateValidator = [
   body('variables.input.countryCode').trim().notEmpty(),
 ];
 
+
+export const VendorCreateByAdminValidator = [
+  body('variables.input.fullName').trim().notEmpty(),
+  body('variables.input.email').optional({ checkFalsy: true }).trim().isEmail(),
+  body('variables.input.mobileNumber').trim().notEmpty(),
+  body('variables.input.countryCode').trim().notEmpty(),
+  body('variables.input.isBlocked').trim().isIn([true, false]),
+];
+
+
 export const VendorSignupValidator = [
   body('variables.input.fullName').trim().notEmpty(),
   body('variables.input.email').optional({ checkFalsy: true }).trim().isEmail(),

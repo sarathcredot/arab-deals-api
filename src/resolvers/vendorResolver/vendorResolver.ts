@@ -16,14 +16,13 @@ export const vendorResolver: Resolvers = {
     // Vendor creation from admin side
     createVendorByAdmin: async (parent, { input, image }, { req }, info) => {
       await verifyAdmin(req);
-      await validateInput(validators.VendorCreateValidator, req);
+      await validateInput(validators.VendorCreateByAdminValidator, req);
       let email: string = input?.email?.toLowerCase() || "";
       let fullName: string = input.fullName;
       let mobileNumber: string = input.mobileNumber;
       let countryCode: string = input.countryCode;
       let profilePic: vendorService.FileData | null = null;
       let isBlocked: boolean = input?.isBlocked || false;
-      let isKycCompleted: boolean = input?.isKycCompleted || false;
 
 
       const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
@@ -67,7 +66,6 @@ export const vendorResolver: Resolvers = {
         email,
         mobileNumber,
         isBlocked,
-        isKycCompleted,
         countryCode
       };
 
