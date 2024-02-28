@@ -1057,9 +1057,9 @@ export const orderResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductValidator, req);
 
-            const response = await orderProductService.getOrderProductWithId(input._id);
+            const product = await orderProductService.getOrderProductByIdIncludeVendor(input._id);
 
-            if (!response) {
+            if (!product) {
                 throw new GraphQLError("Record not found", {
                     extensions: {
                         code: "BAD_REQUEST",
@@ -1068,6 +1068,7 @@ export const orderResolver: Resolvers = {
                 });
             }
 
+            const response = { ...product, vendorId: product.vendorId._id, vendorName: product.vendorId.fullName }
             return response;
         },
         getAdminOrderProducts: async (parent, { input }, { req }, info) => {
@@ -1075,10 +1076,10 @@ export const orderResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductsValidator, req);
 
-            const result = await orderProductService.getOrderProductsWithFilters({ orderId: input.orderId });
+            const result = await orderProductService.getOrderProductsWithFiltersIncludeVendor({ orderId: input.orderId });
 
             const response = {
-                products: result
+                products: result.map((item: any) => { return { ...item, vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
             }
 
             return response;

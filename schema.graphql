@@ -43,8 +43,6 @@ type Mutation {
   updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
   deleteProduct(input: ProductId!): DeleteProductResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
-  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
@@ -52,6 +50,8 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
+  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
@@ -119,8 +119,6 @@ type Query {
   getProductsMaxPrice(input: categoriesInput!): getProductsMaxPriceResponse!
   getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
   getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
-  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -135,6 +133,8 @@ type Query {
   getUserOrderProductInMobile(input: GetUserOrderProductInMobileInput!): GetUserOrderProductInMobileResponse!
   getUserOrderDetails(input: GetUserOrderDetailsInput!): GetUserOrderDetailsResponse!
   getUserOrderDetailsInMobile(input: GetUserOrderDetailsInMobileInput!): GetUserOrderDetailsInMobileResponse!
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -1302,80 +1302,6 @@ type getProductsMaxPriceResponse {
   message: String
 }
 
-input ExportAdminOrdersInput {
-  _id: ObjectId
-  userId: ObjectId
-  orderId: String
-  paymentMode: String
-  orderStatus: String
-  startDate: Date
-  endDate: Date
-  postCode: String
-  page: Int
-  size: Int
-}
-
-input GetJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-}
-
-input GetAdminDownloadTokenInput {
-  _id: ObjectId!
-}
-
-input ExportAdminShippingProductsInput {
-  _id: ObjectId
-  userId: ObjectId
-  vendorId: ObjectId
-  orderId: String
-  productId: ObjectId
-  itemId: String
-  skuId: String
-  paymentMode: String
-  paymentStatus: String
-  shippingStatus: String
-  orderStartDate: Date
-  orderEndDate: Date
-  shippingStartDate: Date
-  shippingEndDate: Date
-  deliveryStartDate: Date
-  deliveryEndDate: Date
-  cancelledStartDate: Date
-  cancelledEndDate: Date
-  courierId: String
-  invoiceNumber: String
-  page: Int
-  size: Int
-  sort: String
-}
-
-type ExportAdminOrdersResponse {
-  message: String
-}
-
-type ExportAdminShippingProductsResponse {
-  message: String
-}
-
-type JobRecord {
-  _id: ObjectId
-  name: String
-  status: String
-  isExpired: Boolean
-  createdAt: Date
-}
-
-type GetJobQueueResponse {
-  maxRecords: Int
-  records: [JobRecord]
-}
-
-type GetAdminDownloadTokenResponse {
-  url: String!
-}
-
 input CreateUserOrderInput {
   shippingAddressId: ObjectId!
   paymentMode: String!
@@ -1671,6 +1597,7 @@ type AdminOrderProduct {
   userId: ObjectId
   productId: ObjectId
   vendorId: ObjectId
+  vendorName: String
   orderId: String
   itemId: String
   productName: String
@@ -1716,7 +1643,6 @@ type GetAdminOrdersResponse {
 type GetAdminOrderDetailsResponse {
   _id: ObjectId
   orderId: String
-  vendorId: ObjectId
   userId: ObjectId
   paymentMode: String
   orderDate: Date
@@ -1883,6 +1809,80 @@ type GetUserOrderDetailsInMobileResponse {
 type GetUserOrderProductsByAdminResponse {
   maxRecords: Int!
   records: [UserOrderProduct!]
+}
+
+input ExportAdminOrdersInput {
+  _id: ObjectId
+  userId: ObjectId
+  orderId: String
+  paymentMode: String
+  orderStatus: String
+  startDate: Date
+  endDate: Date
+  postCode: String
+  page: Int
+  size: Int
+}
+
+input GetJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+}
+
+input GetAdminDownloadTokenInput {
+  _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+  _id: ObjectId
+  userId: ObjectId
+  vendorId: ObjectId
+  orderId: String
+  productId: ObjectId
+  itemId: String
+  skuId: String
+  paymentMode: String
+  paymentStatus: String
+  shippingStatus: String
+  orderStartDate: Date
+  orderEndDate: Date
+  shippingStartDate: Date
+  shippingEndDate: Date
+  deliveryStartDate: Date
+  deliveryEndDate: Date
+  cancelledStartDate: Date
+  cancelledEndDate: Date
+  courierId: String
+  invoiceNumber: String
+  page: Int
+  size: Int
+  sort: String
+}
+
+type ExportAdminOrdersResponse {
+  message: String
+}
+
+type ExportAdminShippingProductsResponse {
+  message: String
+}
+
+type JobRecord {
+  _id: ObjectId
+  name: String
+  status: String
+  isExpired: Boolean
+  createdAt: Date
+}
+
+type GetJobQueueResponse {
+  maxRecords: Int
+  records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+  url: String!
 }
 
 input GetAdminSignedFileUrlInput {

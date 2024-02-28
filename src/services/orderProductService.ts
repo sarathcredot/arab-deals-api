@@ -256,15 +256,21 @@ export const getOrderProductsWithFilters = async (filters: FilterQuery<IOrderPro
     return await orderProductModel.find(filters, projection, options);
 }
 
+export const getOrderProductsWithFiltersIncludeVendor = async (filters: FilterQuery<IOrderProduct>, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<IOrderProductDocument[] | []> => {
+    return await orderProductModel.find(filters, projection, options).populate({ path: "vendorId", select: "_id fullName" });
+}
+
 export const getOrderProductWithId = async (_id: Types.ObjectId, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<IOrderProductDocument | null> => {
     return await orderProductModel.findById(_id, projection, options);
 }
 
+export const getOrderProductByIdIncludeVendor = async (_id: Types.ObjectId, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<any> => {
+    return await orderProductModel.findById(_id, projection, options).populate({ path: "vendorId", select: "_id fullName" });
+}
 
 export const getOrderProductWithFilters = async (filters: FilterQuery<IOrderProduct>, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<IOrderProductDocument | null> => {
     return await orderProductModel.findOne(filters, projection, options);
 }
-
 
 
 export const updateOrderProduct = async (_id: Types.ObjectId, updateQuery: UpdateQuery<IOrderProductUpdateQuery>): Promise<IOrderProductDocument | null> => {
