@@ -1082,8 +1082,6 @@ export const orderResolver: Resolvers = {
                 products: result.map((item: any) => { return { ...item.toObject(), vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
             }
 
-            console.log(response);
-
             return response;
         },
         getUserOrderProduct: async (parent, { input }, { req }, info) => {

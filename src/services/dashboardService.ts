@@ -1331,7 +1331,7 @@ export const getDashboardOrderAmountPieChartData = async (options: IGetDashboard
             ...paid,
             {
                 $match: {
-                    shippingStatus: "DELIVERED"
+                    paymentStatus: "COMPLETED"
                 }
             },
             {
@@ -1421,7 +1421,7 @@ export const getDashboardShippingChargePieChartData = async (options: IGetDashbo
             ...paid,
             {
                 $match: {
-                    shippingStatus: "DELIVERED"
+                    paymentStatus: "COMPLETED"
                 }
             },
             {
