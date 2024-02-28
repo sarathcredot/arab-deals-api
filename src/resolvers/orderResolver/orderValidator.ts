@@ -34,6 +34,7 @@ export const getUserOrderDetailsValidator = [
 export const getAdminOrderShippingProductsValidator = [
     body('variables.input._id').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.userId').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.vendorId').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.orderId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.itemId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.productId').trim().optional({ checkFalsy: true }).isMongoId(),
@@ -59,6 +60,7 @@ export const getAdminOrderShippingProductsValidator = [
 export const getAdminOrderReturnProductsValidator = [
     body('variables.input._id').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.userId').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.vendorId').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.orderId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.itemId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.productId').trim().optional({ checkFalsy: true }).isMongoId(),
@@ -83,6 +85,7 @@ export const getAdminOrderReturnProductsValidator = [
 export const getAdminOrderRefundProductsValidator = [
     body('variables.input._id').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.userId').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.vendorId').trim().optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.orderId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.itemId').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.productId').trim().optional({ checkFalsy: true }).isMongoId(),

@@ -110,20 +110,20 @@ export const jobResolver: Resolvers = {
                     metadata: {
                     }
                 }
-                // const record = await jobQueueService.createJob(job);
+                const record = await jobQueueService.createJob(job);
 
-                // const filename = await orderService.exportAdminOrdersWithFilters(filters, EXPORT_FOLDER);
+                const filename = await orderService.exportAdminOrdersWithFilters(filters, EXPORT_FOLDER);
 
-                // if (filename) {
-                //     record.status = "COMPLETED";
-                //     record.metadata = {
-                //         filePath: `exports/${filename}`
-                //     }
-                // }
-                // else {
-                //     record.status = "FAILED";
-                // }
-                // await record.save();
+                if (filename) {
+                    record.status = "COMPLETED";
+                    record.metadata = {
+                        filePath: `exports/${filename}`
+                    }
+                }
+                else {
+                    record.status = "FAILED";
+                }
+                await record.save();
 
             }, 1000);
 
@@ -216,20 +216,20 @@ export const jobResolver: Resolvers = {
                     metadata: {
                     }
                 }
-                // const record = await jobQueueService.createJob(job);
+                const record = await jobQueueService.createJob(job);
 
-                // const filename = await orderProductService.exportShippingProducts(filters, EXPORT_FOLDER);
+                const filename = await orderProductService.exportShippingProducts(filters, EXPORT_FOLDER);
 
-                // if (filename) {
-                //     record.status = "COMPLETED";
-                //     record.metadata = {
-                //         filePath: `exports/${filename}`
-                //     }
-                // }
-                // else {
-                //     record.status = "FAILED";
-                // }
-                // await record.save();
+                if (filename) {
+                    record.status = "COMPLETED";
+                    record.metadata = {
+                        filePath: `exports/${filename}`
+                    }
+                }
+                else {
+                    record.status = "FAILED";
+                }
+                await record.save();
 
             }, 1000);
 

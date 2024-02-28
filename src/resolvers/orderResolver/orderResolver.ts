@@ -840,6 +840,9 @@ export const orderResolver: Resolvers = {
             if (input.userId) {
                 filters.userId = input.userId;
             }
+            if (input.vendorId) {
+                filters.vendorId = input.vendorId;
+            }
             if (input.orderId) {
                 filters.orderId = input.orderId;
             }
@@ -918,6 +921,9 @@ export const orderResolver: Resolvers = {
             if (input.userId) {
                 filters.userId = input.userId;
             }
+            if (input.vendorId) {
+                filters.vendorId = input.vendorId;
+            }
             if (input.itemId) {
                 filters.itemId = input.itemId;
             }
@@ -992,6 +998,9 @@ export const orderResolver: Resolvers = {
             }
             if (input.userId) {
                 filters.userId = input.userId;
+            }
+            if (input.vendorId) {
+                filters.vendorId = input.vendorId;
             }
             if (input.orderId) {
                 filters.orderId = input.orderId;
