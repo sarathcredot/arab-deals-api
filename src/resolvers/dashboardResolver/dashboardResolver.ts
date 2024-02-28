@@ -14,7 +14,7 @@ export const dashboardResolver: Resolvers = {
 
     },
     Query: {
-        getDashboardlUsersSummary: async (parent, { }, { req }, info) => {
+        getDashboardUsersSummary: async (parent, { }, { req }, info) => {
 
             await verifyAdmin(req);
 
@@ -38,6 +38,43 @@ export const dashboardResolver: Resolvers = {
             }
 
             const result = await dashboardService.getDashboardUsersGraph(options);
+
+            let response: { x: string[], y1: number[] } = {
+                y1: [],
+                x: []
+            };
+
+            if (result && result.length && result[0] && typeof result[0] === 'object') {
+                response.y1 = Object.values(result[0]);
+                response.x = Object.keys(result[0]);
+            }
+
+            return response;
+        },
+        getDashboardVendorsSummary: async (parent, { }, { req }, info) => {
+
+            await verifyAdmin(req);
+
+            const result = await dashboardService.getDashboardVendorsSummary();
+
+            const response: dashboardService.IGetDashboardVendorsSummary = result[0];
+
+            return response;
+        },
+        getDashboardVendorsGraph: async (parent, { input }, { req }, info) => {
+
+            await verifyAdmin(req);
+            await validateInput(validators.getDashboardVendorsGraphValidator, req);
+
+            let { startDate, endDate, graphType } = input;
+
+            let options: dashboardService.IGetDashboardVendorsGraphOptions = {
+                startDate,
+                endDate,
+                graphType: graphType || ""
+            }
+
+            const result = await dashboardService.getDashboardVendorsGraph(options);
 
             let response: { x: string[], y1: number[] } = {
                 y1: [],

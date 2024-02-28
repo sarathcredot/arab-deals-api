@@ -10,6 +10,13 @@ input GetDashboardUsersGraphInput {
     graphType: String
 }
 
+input GetDashboardVendorsGraphInput {
+    startDate: Date
+    endDate: Date
+    graphType: String
+}
+
+
 
 input GetDashboardOrdersGraphInput {
     startDate: Date
@@ -45,7 +52,7 @@ input GetDashboardShippingChargePieChartDataInput{
 }
 
 
-type GetDashboardlUsersSummaryResponse {
+type GetDashboardUsersSummaryResponse {
     totalUsers: Int 
     activeUsers: Int
     blockedUsers: Int
@@ -55,8 +62,22 @@ type GetDashboardlUsersSummaryResponse {
     yearUsers:Int
 }
 
+type GetDashboardVendorsSummaryResponse {
+    totalVendors: Int 
+    activeVendors: Int
+    blockedVendors: Int
+    todayVendors: Int
+    weekVendors: Int
+    monthVendors:Int
+    yearVendors:Int
+}
 
 type GetDashboardUsersGraphResposne {
+    y1:[Int],
+    x:[String]
+}
+
+type GetDashboardVendorsGraphResposne {
     y1:[Int],
     x:[String]
 }
@@ -131,8 +152,10 @@ type GetDashboardShippingChargePieChartDataResponse{
 # Queries
 
 type Query {
-    getDashboardlUsersSummary:GetDashboardlUsersSummaryResponse!
+    getDashboardUsersSummary:GetDashboardUsersSummaryResponse!
     getDashboardUsersGraph(input:GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
+    getDashboardVendorsSummary:GetDashboardVendorsSummaryResponse!
+    getDashboardVendorsGraph(input:GetDashboardVendorsGraphInput!): GetDashboardVendorsGraphResposne!
     getDashboardOrderSummary:GetDashboardOrderSummaryResponse!
     getDashboardOrdersGraph(input:GetDashboardOrdersGraphInput!): GetDashboardOrdersGraphResposne!
     getDashboardOrdersPieChartData(input:GetDashboardOrdersPieChartDataInput!):GetDashboardOrdersPieChartDataResponse!

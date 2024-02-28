@@ -1,4 +1,4 @@
-import { userModel, orderModel, orderProductModel } from "../models";
+import { userModel, orderModel, orderProductModel, vendorModel } from "../models";
 import { Types, Document, QueryOptions, PipelineStage, ProjectionFields, FilterQuery, UpdateQuery, AnyObject } from "mongoose";
 import { collections } from "../configs";
 import moment, { unitOfTime } from "moment";
@@ -11,6 +11,14 @@ export interface IGetDashboardUsersGraphOptions {
 }
 
 
+export interface IGetDashboardVendorsGraphOptions {
+    startDate?: Date;
+    endDate?: Date;
+    graphType?: string;
+}
+
+
+
 export interface IGetDashboardUsersSummary {
     totalUsers?: number;
     activeUsers?: number;
@@ -20,6 +28,17 @@ export interface IGetDashboardUsersSummary {
     monthUsers?: number;
     yearUsers?: number;
 }
+
+export interface IGetDashboardVendorsSummary {
+    totalVendors?: number;
+    activeVendors?: number;
+    blockedVendors?: number;
+    todayVendors?: number;
+    weekVendors?: number;
+    monthVendors?: number;
+    yearVendors?: number;
+}
+
 
 
 export interface IGetDashboardOrderSummary {
@@ -327,6 +346,227 @@ export const getDashboardUsersGraph = async (options: IGetDashboardUsersGraphOpt
         }
     );
     return await userModel.aggregate(pipeline);
+}
+
+
+
+export const getDashboardVendorsSummary = async (): Promise<IGetDashboardVendorsSummary[]> => {
+    const today = new Date(moment().format("YYYY-MM-DD"));
+    const week = new Date(moment().startOf("week").format("YYYY-MM-DD"));
+    const month = new Date(moment().startOf("month").format("YYYY-MM-DD"));
+    const year = new Date(moment().startOf("year").format("YYYY-MM-DD"));
+
+
+    let pipeline: PipelineStage[] = [];
+    pipeline.push(
+        {
+            $project: {
+                _id: 1,
+                isBlocked: 1,
+                createdAt: 1
+            }
+        },
+        {
+            $facet: {
+                totalVendors: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                        }
+                    },
+                ],
+                activeVendors: [
+                    {
+                        $match: {
+                            isBlocked: false
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                        }
+                    },
+                ],
+                blockedVendors: [
+                    {
+                        $match: {
+                            isBlocked: true
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                        }
+                    },
+                ],
+                todayVendors: [
+                    {
+                        $match: {
+                            createdAt: { $gte: today }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                        }
+                    },
+                ],
+                weekVendors: [
+                    {
+                        $match: {
+                            createdAt: { $gte: week }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                        }
+                    },
+                ],
+                monthVendors: [
+                    {
+                        $match: {
+                            createdAt: { $gte: month }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                        }
+                    },
+                ],
+                yearVendors: [
+                    {
+                        $match: {
+                            createdAt: { $gte: year }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                        }
+                    },
+                ]
+            }
+        },
+        {
+            $project: {
+                totalVendors: { $ifNull: [{ $arrayElemAt: ["$totalVendors.total", 0] }, 0] },
+                activeVendors: { $ifNull: [{ $arrayElemAt: ["$activeVendors.total", 0] }, 0] },
+                blockedVendors: { $ifNull: [{ $arrayElemAt: ["$blockedVendors.total", 0] }, 0] },
+                todayVendors: { $ifNull: [{ $arrayElemAt: ["$todayVendors.total", 0] }, 0] },
+                weekVendors: { $ifNull: [{ $arrayElemAt: ["$weekVendors.total", 0] }, 0] },
+                monthVendors: { $ifNull: [{ $arrayElemAt: ["$monthVendors.total", 0] }, 0] },
+                yearVendors: { $ifNull: [{ $arrayElemAt: ["$yearVendors.total", 0] }, 0] },
+            }
+        }
+    )
+    return await vendorModel.aggregate(pipeline);
+}
+
+export const getDashboardVendorsGraph = async (options: IGetDashboardUsersGraphOptions): Promise<{ [key: string]: number }[]> => {
+    let pipeline: PipelineStage[] = [], facet: any = {}, project: any = {}, format = "DD MMM";
+
+    let unit: unitOfTime.StartOf = "day";
+
+    switch (options.graphType) {
+        case "DAY":
+            format = "DD MMM";
+            unit = "day";
+            break;
+        case "WEEK":
+            format = "DD MMM";
+            unit = "week";
+            break;
+        case "MONTH":
+            format = "MMM YYYY";
+            unit = "month";
+            break;
+        case "YEAR":
+            format = "YYYY";
+            unit = "year";
+            break;
+        default:
+            format = "DD MMM";
+            unit = "day";
+            break;
+    }
+
+    const sDate = options.startDate ? moment(options.startDate).startOf("day") : moment().startOf(unit);
+    const eDate = options.endDate ? moment(options.endDate).endOf("day") : moment().add(1, unit).endOf(unit);
+    const startDate = options.startDate ? moment(options.startDate).startOf(unit) : moment().startOf(unit);
+    const endDate = options.endDate ? moment(options.endDate).endOf(unit) : moment().add(1, unit).endOf(unit);
+    const loopCounter = endDate.diff(startDate, unit);
+
+    for (let i = 0; i <= loopCounter; i++) {
+        let label = moment(startDate).endOf(unit).format(format);
+        let dayStart = new Date(startDate.toISOString());
+        let dayEnd = new Date(startDate.add(1, unit).toISOString());
+        let match = {
+            createdAt: {
+                $gte: dayStart,
+                $lt: dayEnd,
+            },
+        };
+        facet[label] = [
+            {
+                $match: match,
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: 1 }
+                },
+            },
+        ];
+        project[label] = {
+            $ifNull: [{ $arrayElemAt: ["$" + label + ".total", 0] }, 0]
+        };
+    }
+    pipeline.push(
+        {
+            $match: {
+                $and: [
+                    {
+                        createdAt: {
+                            $gte: new Date(sDate.toISOString())
+                        },
+                    },
+                    {
+                        createdAt: {
+                            $lte: new Date(eDate.toISOString())
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                createdAt: 1,
+            }
+        },
+        {
+            $sort: {
+                createdAt: 1
+            }
+        },
+        {
+            $facet: facet
+
+        },
+        {
+            $project: project
+        }
+    );
+    return await vendorModel.aggregate(pipeline);
 }
 
 

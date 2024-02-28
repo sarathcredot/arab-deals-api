@@ -7,6 +7,12 @@ export const getDashboardUsersGraphValidator = [
     body('variables.input.graphType').optional({ checkFalsy: true }).isIn(["DAY", "WEEK", "MONTH", "YEAR"]),
 ]
 
+export const getDashboardVendorsGraphValidator = [
+    body('variables.input.startDate').optional({ checkFalsy: true }).isDate(),
+    body('variables.input.endDate').optional({ checkFalsy: true }).isDate(),
+    body('variables.input.graphType').optional({ checkFalsy: true }).isIn(["DAY", "WEEK", "MONTH", "YEAR"]),
+]
+
 export const getDashboardOrdersGraphValidator = [
     body('variables.input.startDate').optional({ checkFalsy: true }).isDate(),
     body('variables.input.endDate').optional({ checkFalsy: true }).isDate(),
