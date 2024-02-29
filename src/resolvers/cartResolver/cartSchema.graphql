@@ -5,6 +5,7 @@ scalar ObjectId
 
  type Mutation {
   addToCart(input: addToCartInput!): addToCartResponse!
+  bulkAddToCart(input: BulkAddToCartInput!): BulkAddToCartResponse!
   removeFromCart(input: removeFromCartInput!):removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!):updateCartQuantityResponse!
   
@@ -46,9 +47,21 @@ input updateCartQuantityInMobileInput {
     quantity:Int!
 }
 
+input CartItem {
+  productId:ObjectId!
+  quantity:Int!  
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
 # cart Output
 
 type addToCartResponse{
+  message:String
+}
+type BulkAddToCartResponse{
   message:String
 }
 

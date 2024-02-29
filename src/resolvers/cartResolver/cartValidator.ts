@@ -23,6 +23,17 @@ export const updateCartInMobileValidator = [
 ];
 
 
+export const bulkAddToCartValidator = [
+  body('variables.input.products').custom(products => {
+    for (let product of products) {
+      if (product.productId && product.quantity > 0 && product.quantity <= 10) {
+        return true;
+      }
+      return false;
+    }
+  }),
+];
+
 
 
 

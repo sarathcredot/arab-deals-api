@@ -69,6 +69,13 @@ export const createCart = async (productId: Types.ObjectId, userId: Types.Object
         ],
     });
 }
+
+export const createBulkCart = async (userId: Types.ObjectId, products: IUserCartProduct[]): Promise<any> => {
+    return await cartModel.create({
+        userId: userId,
+        products: products
+    });
+}
 export const checkCartExist = async (userId: Types.ObjectId): Promise<IUserCartDocument | null> => {
     return await cartModel.findOne({ userId: userId });
 }

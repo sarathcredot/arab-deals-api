@@ -83,6 +83,49 @@ export const cartResolver: Resolvers = {
             }
 
         },
+        bulkAddToCart: async (parent, { input }, { req }, info) => {
+
+            try {
+                await verifyUser(req);
+                await validateInput(validators.bulkAddToCartValidator, req);
+
+                const products: cartService.IUserCartProduct[] = input.products || [];
+                const userId: Types.ObjectId = req.authAccount._id;
+
+                const cart = await cartService.checkCartExist(userId)
+                if (cart) {
+                    let temp = [];
+                    for (let item of cart.products) {
+                        for (let product of products) {
+                            if (item.productId.equals(product.productId)) {
+                                item.quantity += product.quantity;
+                            }
+                        }
+                        temp.push(item);
+                    }
+
+                    cart.products = temp;
+                    await cart.save();
+
+                } else {
+                    try {
+                        await cartService.createBulkCart(userId, products);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+
+                const response = {
+                    message: "Items added to cart",
+
+                }
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+
+        },
 
         // Add to cart in mobile
         addToCartInMobile: async (parent, { input }, { req }, info) => {
@@ -428,7 +471,6 @@ export const cartResolver: Resolvers = {
             }
         }
     },
-
     Query: {
         getCart: async (parent, { }, { req }, info) => {
             try {
@@ -464,7 +506,11 @@ export const cartResolver: Resolvers = {
                             updateList.push(cartService.removeItem(product.productId, user_Id));
                             continue;
                         }
-                        if (product.quantity > product.stock) {
+                        if (product.quantity > 10) {
+                            product.quantity = product.stock < 10 ? product.stock : 10;
+                            updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
+                        }
+                        else if (product.quantity > product.stock) {
                             product.quantity = product.stock;
                             updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
                         }
@@ -532,7 +578,11 @@ export const cartResolver: Resolvers = {
                             updateList.push(cartService.removeItem(product.productId, user_Id));
                             continue;
                         }
-                        if (product.quantity > product.stock) {
+                        if (product.quantity > 10) {
+                            product.quantity = product.stock < 10 ? product.stock : 10;
+                            updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
+                        }
+                        else if (product.quantity > product.stock) {
                             product.quantity = product.stock;
                             updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
                         }
