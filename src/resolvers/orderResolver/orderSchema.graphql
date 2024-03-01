@@ -127,6 +127,10 @@ type Query {
     getUserOrderDetails(input:GetUserOrderDetailsInput!): GetUserOrderDetailsResponse!
     getUserOrderDetailsInMobile(input:GetUserOrderDetailsInMobileInput!): GetUserOrderDetailsInMobileResponse!
 
+    getVendorShippingProducts(input:GetVendorShippingProductsInput!): GetVendorShippingProductsResponse!
+    getVendorReturnProducts(input:GetVendorReturnProductsInput!): GetVendorReturnProductsResponse!
+    getVendorRefundProducts(input:GetVendorRefundProductsInput!): GetVendorRefundProductsResponse!
+    getVendorOrderProduct(input:GetVendorOrderProductInput!): GetVendorOrderProductResponse!
 }
 
 
@@ -220,6 +224,10 @@ input GetAdminRefundProductsInput {
 }
 
 input GetAdminOrderProductInput {
+    _id: ObjectId!
+}
+
+input GetVendorOrderProductInput {
     _id: ObjectId!
 }
 
@@ -464,6 +472,47 @@ type GetAdminOrderProductResponse {
     invoice: FileData
 }
 
+type GetVendorOrderProductResponse {
+    _id: ObjectId
+    userId: ObjectId
+    vendorId: ObjectId
+    productId: ObjectId
+    itemId: String
+    orderId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    paymentRemark: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnUserReason: String
+    returnAdminComment: String
+    returnRequestDate: Date
+    returnRejectedDate: Date
+    returnDate: Date
+    refundStatus: String
+    refundAmount: Float
+    refundRequestDate: Date
+    refundDate: Date
+    refundComment: String
+    cancelUserReason: String
+    cancelAdminComment: String
+    cancelledDate: Date
+    courierId: String
+    invoiceNumber: String
+    invoice: FileData
+    shippingAddress: OrderShippingAddress
+}
 
 type GetUserOrderProductsResponse {
     maxRecords: Int!
@@ -580,3 +629,86 @@ schema {
 }
 
 
+input GetVendorShippingProductsInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    productId: ObjectId
+    itemId: String
+    skuId: String
+    paymentMode: String
+    paymentStatus: String
+    shippingStatus: String
+    orderStartDate: Date
+    orderEndDate: Date
+    shippingStartDate: Date
+    shippingEndDate: Date
+    deliveryStartDate: Date
+    deliveryEndDate: Date
+    cancelledStartDate: Date
+    cancelledEndDate: Date
+    courierId: String
+    invoiceNumber: String
+    page: Int
+    size: Int
+    sort: String
+}
+
+input GetVendorReturnProductsInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    productId: ObjectId
+    itemId: String
+    skuId: String
+    paymentMode: String
+    returnStatus: String
+    deliveryStartDate: Date
+    deliveryEndDate: Date
+    returnRequestStartDate: Date
+    returnRequestEndDate: Date
+    returnStartDate: Date
+    returnEndDate: Date
+    returnRejectStartDate: Date
+    returnRejectEndDate: Date
+    courierId: String
+    invoiceNumber: String
+    page: Int
+    size: Int
+    sort: String
+}
+
+input GetVendorRefundProductsInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    itemId: String
+    productId: ObjectId
+    skuId: String
+    paymentMode: String
+    refundStatus: String
+    refundRequestStartDate: Date
+    refundRequestEndDate: Date
+    refundStartDate: Date
+    refundEndDate: Date
+    courierId: String
+    invoiceNumber: String
+    page: Int
+    size: Int
+    sort: String
+}
+
+type GetVendorShippingProductsResponse {
+    maxRecords: Int!
+    records: [AdminOrderProduct]!
+}
+
+type GetVendorReturnProductsResponse {
+    maxRecords: Int!
+    records: [AdminOrderProduct]!
+}
+
+type GetVendorRefundProductsResponse {
+    maxRecords: Int!
+    records: [AdminOrderProduct]!
+}

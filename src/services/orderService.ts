@@ -45,7 +45,6 @@ export interface IOrderDocument extends Document {
 }
 
 
-
 export interface IOrdersOptions {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
@@ -434,6 +433,7 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
 
     return response;
 }
+
 
 
 export const updateOrderStatus = async (orderId: string, status: String): Promise<IOrderDocument | null> => {
