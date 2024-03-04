@@ -671,7 +671,7 @@ export const vendorResolver: Resolvers = {
     },
 
     // Fetch each vendor all kycrecord by vendor
-    async getVendorAllKycRecordByVendor(parent, { input }, { req }, info) {
+    async getVendorAllKycRecordByVendor(parent, { }, { req }, info) {
       await verifyVendor(req);
 
       try {
@@ -708,7 +708,7 @@ export const vendorResolver: Resolvers = {
     },
 
     // Fetch each vendor record KYC status
-    async getKycStatus(parent, { input }, { req }, info) {
+    async getKycStatus(parent, { }, { req }, info) {
       await verifyVendor(req);
 
       try {

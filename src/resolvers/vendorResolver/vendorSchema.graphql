@@ -1,5 +1,6 @@
 scalar Upload
 scalar JSONObject
+scalar ObjectId
 
 # Vendor  Mutations
 
@@ -270,9 +271,6 @@ type CreateVendorByAdminResponse{
    input VendorRecordKycStatusInput {
     _id: String!
   }
-
-   input VendorAllKycRecordByVendorInput{
-  } 
 
   type VendorsRecordsByAdminResponse {
     maxRecords: Int!
