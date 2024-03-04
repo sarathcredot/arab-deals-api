@@ -16,22 +16,13 @@ export const vendorOutletResolver: Resolvers = {
 
         addVendorOutlet: async (parent, { input, images, fileMap }, { req }, info) => {
             try {
-                // Validate Input
-                await validateInput(validators.addVendorOutletValidatior, req);
+
                 await verifyVendor(req);
 
-                let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
-                const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
+                // Validate Input
+                await validateInput(validators.addVendorOutletValidatior, req);
 
-                if (!vendorRecord) {
-                    throw new GraphQLError("Vendor record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
-
+                let vendorId: Types.ObjectId = req.authAccount._id;
                 let outletName: string = input?.outletName || "";
                 let country: string = input?.country || "";
                 let district: string = input?.district || "";
@@ -45,6 +36,14 @@ export const vendorOutletResolver: Resolvers = {
                 images = images || [];
                 let vendorOutetImages: vendorCompanyService.FileData[] = [];
 
+                if (images.length !== 3) {
+                    throw new GraphQLError("Documents not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
@@ -53,10 +52,10 @@ export const vendorOutletResolver: Resolvers = {
 
                     const stream = createReadStream();
 
-                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+                    const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
                     vendorOutetImages.push({
-                        fileType: "PUBLIC",
+                        fileType: "PRIVATE",
                         fileURL: file.location,
                         mimeType: mimetype,
                         originalName: filename

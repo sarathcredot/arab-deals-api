@@ -22,10 +22,13 @@ export const vendorCompanyResolver: Resolvers = {
 
                 const vendorId = req.authAccount._id;
 
-                const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
+                let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ vendorId: vendorId }, {}, {});
 
-                if (!vendorRecord) {
-                    throw new GraphQLError("Vendor record not found", {
+                if (!vendorCompanyRecord) {
+                    vendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: vendorId });
+                }
+                else if (vendorCompanyRecord && vendorCompanyRecord.status !== "PENDING") {
+                    throw new GraphQLError("Company details cant be updated", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: [],
@@ -69,24 +72,22 @@ export const vendorCompanyResolver: Resolvers = {
                 }
 
                 fileMap = fileMap || {};
-                const vendorCompanyRecord: vendorCompanyService.IVendorCompany = {
-                    vendorId,
-                    companyName,
-                    companyType,
-                    crNumber,
-                    status,
-                };
+
+                vendorCompanyRecord.companyName = companyName;
+                vendorCompanyRecord.companyType = companyType;
+                vendorCompanyRecord.crNumber = crNumber;
+                vendorCompanyRecord.status = status;
 
                 let vendorCompanyImagesKeys = Object.keys(fileMap);
                 vendorCompanyImagesKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
                             case "crLicense":
-                                vendorCompanyRecord.crLicense = vendorCompanyImages[fileMap[imageName]];
+                                vendorCompanyRecord!.crLicense = vendorCompanyImages[fileMap[imageName]];
                                 break;
 
                             case "cooCertificate":
-                                vendorCompanyRecord.cooCertificate = vendorCompanyImages[fileMap[imageName]];
+                                vendorCompanyRecord!.cooCertificate = vendorCompanyImages[fileMap[imageName]];
                                 break;
 
                             default:
@@ -94,9 +95,9 @@ export const vendorCompanyResolver: Resolvers = {
                     }
                 });
 
+                await vendorCompanyRecord.save();
 
-                const result = await vendorCompanyService.createVendorCompanyRecord(vendorCompanyRecord);
-                const response = { _id: result?._id.toString() || "", message: "Vendor company record added successfully" };
+                const response = { _id: vendorCompanyRecord._id?.toString() || "", message: "Vendor company record added successfully" };
                 return response;
 
             } catch (error) {

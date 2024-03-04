@@ -101,7 +101,7 @@ export interface IVendorCompanyRecordsResponse {
   maxRecords: number
 }
 
-export const createVendorCompanyRecord = async (record: IVendorCompany): Promise<Document | null> => {
+export const createVendorCompanyRecord = async (record: IVendorCompany): Promise<Document> => {
   return await vendorCompanyModel.create(record);
 }
 
