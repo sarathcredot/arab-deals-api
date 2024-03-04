@@ -396,9 +396,18 @@ export const vendorResolver: Resolvers = {
             originalName: filename
           }
         }
-
-        if (input.email) {
-          vendor.email = input.email.toLowerCase();
+        let email = input.email?.toLowerCase();
+        if (email && vendor.email != email) {
+          const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+          if (isEmailExists) {
+            throw new GraphQLError('This email already exists', {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: []
+              }
+            });
+          }
+          vendor.email = email;
         }
 
         if (input.fullName) {
