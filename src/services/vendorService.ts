@@ -217,8 +217,7 @@ export const loginVendor = (vendor: IVendorDocument): IVendorLoginResponse => {
 }
 
 export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<IVendorDocument | null> => {
-  const result = await vendorModel.findById(id);
-  return result;
+  return await vendorModel.findById(id);
 }
 
 export const getVendorRecordByAdminWithId = async (vendorId: Types.ObjectId): Promise<IVendorWithKycDetails> => {

@@ -1,5 +1,8 @@
   scalar Upload
   scalar JSONObject
+  scalar ObjectId
+
+
 
 # Vendor company Mutations
 
@@ -7,8 +10,16 @@
   type Mutation {
     addVendorCompany(input: AddVendorCompanyInput!, images:[Upload], fileMap: JSONObject): AddVendorCompanyResponse!
     updateVendorCompany(input: UpdateVendorCompanyInput!, images:[Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
-    vendorCompanyStatusUpdation(input: VendorCompanyStatusUpdationInput!): VendorCompanyStatusUpdationResponse!
-    deleteVendorCompany(input: VendorCompanyIdInput!): VendorCompanyDeleteRecordResponse!
+    updateVendorCompanyByAdmin (input: UpdateVendorCompanyByAdminInput!, crLicense:Upload, cooCertificate:Upload) : UpdateVendorCompanyByAdminResponse!
+  }
+
+  input UpdateVendorCompanyByAdminInput {
+    _id: ObjectId!
+    companyName: String
+    companyType: String
+    crNumber: String
+    status: String
+    remarks: [String]
   }
 
    # Type
@@ -41,23 +52,15 @@
     # Input
 
     input AddVendorCompanyInput {
-        vendorId: String!
-        companyName:String
-        companyType: String
-        crNumber: String
+        companyName:String!
+        companyType: String!
+        crNumber: String!
     }   
 
     input UpdateVendorCompanyInput {
-        vendorId: String!
         companyName:String
         companyType: String
         crNumber: String
-    } 
-
-    input VendorCompanyStatusUpdationInput {
-      _id: String!
-      status: String!
-      remarks: [String]
     } 
 
 
@@ -69,12 +72,15 @@
     }  
 
     type UpdateVendorCompanyResponse {
-        record: VendorCompany!
         message: String
     }  
 
     type VendorCompanyDeleteRecordResponse {
       _id: String!
+      message: String
+    }
+
+    type UpdateVendorCompanyByAdminResponse {
       message: String
     }
 
