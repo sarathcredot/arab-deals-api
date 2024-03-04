@@ -273,8 +273,8 @@ export const vendorCompanyResolver: Resolvers = {
         // Fetch all vendor company
         async getAllVendorCompanyRecordsByAdmin(parent, { input }, { req }, info) {
             try {
-                await validateInput(validators.getAllVendorCompanyValidator, req);
                 await verifyAdmin(req);
+                await validateInput(validators.getAllVendorCompanyValidator, req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
@@ -301,9 +301,9 @@ export const vendorCompanyResolver: Resolvers = {
         // Fetch vendor company record by id
         async getVendorCompanyRecordByAdmin(parent, { input }, { req }, info) {
             try {
-                // Validate Input
-                await validateInput(validators.vendorCompanyQueryValidator, req);
                 await verifyAdmin(req);
+                await validateInput(validators.vendorCompanyQueryValidator, req);
+
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -325,6 +325,39 @@ export const vendorCompanyResolver: Resolvers = {
                     },
                     message: "Vendor company record fetched successfully",
                 };
+
+                return response;
+
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async getVendorCompanyRecord(parent, { }, { req }, info) {
+            try {
+                await verifyVendor(req);
+
+                const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+                const result = await vendorCompanyService.getVendorCompanyRecordWithId(_id);
+
+                if (!result) {
+                    throw new GraphQLError("Company record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                const response = {
+                    record: {
+                        ...result.toObject(),  // Convert Mongoose document to plain JavaScript object
+                        vendorId: result?.vendorId?.toString()  // Convert ObjectId to string
+                    },
+                    message: "Vendor company record fetched successfully",
+                };
+
 
                 return response;
 

@@ -90,6 +90,7 @@
   type Query {
     getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
     getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
+    getVendorCompanyRecord:GetVendorCompanyRecordResponse!
   }   
 
     # Input
@@ -128,6 +129,11 @@
     _id: String
     message: String
   }
+
+ type GetVendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+ }
     
 
 
