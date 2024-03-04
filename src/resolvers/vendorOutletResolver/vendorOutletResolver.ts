@@ -22,7 +22,22 @@ export const vendorOutletResolver: Resolvers = {
                 // Validate Input
                 await validateInput(validators.addVendorOutletValidatior, req);
 
-                let vendorId: Types.ObjectId = req.authAccount._id;
+                const vendorId = req.authAccount._id;
+
+                let vendorOutletRecord = await vendorOutletService.getVendorOutletRecordWithFilters({ vendorId: vendorId }, {}, {});
+
+                if (!vendorOutletRecord) {
+                    vendorOutletRecord = await vendorOutletService.createVendorOutletRecord({ vendorId: vendorId });
+                }
+                else if (vendorOutletRecord && vendorOutletRecord.status !== "PENDING") {
+                    throw new GraphQLError("Outlet details cant be updated", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
                 let outletName: string = input?.outletName || "";
                 let country: string = input?.country || "";
                 let district: string = input?.district || "";
@@ -63,33 +78,31 @@ export const vendorOutletResolver: Resolvers = {
                 }
 
                 fileMap = fileMap || {};
-                const vendorOutletRecord: vendorOutletService.IVendorOutlet = {
-                    vendorId,
-                    outletName,
-                    country,
-                    district,
-                    village,
-                    address,
-                    contactPersonName,
-                    contactPersonNumber,
-                    contactPersonDesignation,
-                    status,
-                };
+
+                vendorOutletRecord.outletName = outletName;
+                vendorOutletRecord.country = country;
+                vendorOutletRecord.district = district;
+                vendorOutletRecord.village = village;
+                vendorOutletRecord.address = address;
+                vendorOutletRecord.contactPersonName = contactPersonName;
+                vendorOutletRecord.contactPersonNumber = contactPersonNumber;
+                vendorOutletRecord.contactPersonDesignation = contactPersonDesignation;
+                vendorOutletRecord.status = status;
 
                 let outletImageKeys = Object.keys(fileMap);
                 outletImageKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
                             case "outletLicense":
-                                vendorOutletRecord.outletLicense = vendorOutetImages[fileMap[imageName]];
+                                vendorOutletRecord!.outletLicense = vendorOutetImages[fileMap[imageName]];
                                 break;
 
                             case "interiorImage":
-                                vendorOutletRecord.interiorImage = vendorOutetImages[fileMap[imageName]];
+                                vendorOutletRecord!.interiorImage = vendorOutetImages[fileMap[imageName]];
                                 break;
 
                             case "exteriorImage":
-                                vendorOutletRecord.exteriorImage = vendorOutetImages[fileMap[imageName]];
+                                vendorOutletRecord!.exteriorImage = vendorOutetImages[fileMap[imageName]];
                                 break;
 
                             default:
@@ -97,9 +110,8 @@ export const vendorOutletResolver: Resolvers = {
                     }
                 });
 
-
-                const result = await vendorOutletService.createVendorOutletRecord(vendorOutletRecord);
-                const response = { _id: result?._id.toString() || "", message: "Vendor outlet record added successfully" };
+                await vendorOutletRecord.save();
+                const response = { _id: vendorOutletRecord._id?.toString() || "", message: "Vendor outlet record added successfully" };
                 return response;
 
             } catch (error) {
@@ -109,15 +121,16 @@ export const vendorOutletResolver: Resolvers = {
 
         updateVendorOutlet: async (parent, { input, images, fileMap }, { req }, info) => {
             try {
+                await verifyVendor(req);
                 // Validate Input
                 await validateInput(validators.updateVendorOutletValidatior, req);
-                // await verifyVendor(req);
 
-                let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
-                const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
+                const vendorId = req.authAccount._id;
 
-                if (!vendorRecord) {
-                    throw new GraphQLError("Vendor record not found", {
+                const outletRecord = await vendorOutletService.getVendorOutletRecordWithFilters({ vendorId: vendorId }, {}, {});
+
+                if (!outletRecord) {
+                    throw new GraphQLError("Outlet record not found", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: [],
@@ -125,10 +138,8 @@ export const vendorOutletResolver: Resolvers = {
                     });
                 }
 
-                const outletRecord = await vendorOutletService.getVendorOutletRecordWithFilters({ vendorId: vendorId }, {}, {});
-
-                if (!outletRecord) {
-                    throw new GraphQLError("Outlet record not found", {
+                if (!["PENDING", "REJECTED"].includes(outletRecord.status || "")) {
+                    throw new GraphQLError("Company details cant be updated", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: [],
@@ -156,10 +167,10 @@ export const vendorOutletResolver: Resolvers = {
                     const key = spaceService.getFileKey(filePaths.vendorOutlet, filename, []);
 
                     const stream = createReadStream();
-                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+                    const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
                     outletImages.push({
-                        fileType: "PUBLIC",
+                        fileType: "PRIVATE",
                         fileURL: file.location,
                         mimeType: mimetype,
                         originalName: filename
@@ -190,10 +201,9 @@ export const vendorOutletResolver: Resolvers = {
                 });
 
                 // Save the updated outlet record
-                const result = await outletRecord.save();
+                await outletRecord.save();
 
                 const response = {
-                    record: result.toObject(),
                     message: "Vendor outlet record updated successfully"
                 };
                 return response;
@@ -203,68 +213,113 @@ export const vendorOutletResolver: Resolvers = {
             }
         },
 
-        // Vendor KYC of outlet details status updation
-        vendorOutletStatusUpdation: async (parent, { input }, { req }, info) => {
-            await validateInput(validators.vendorOutletStatusUpdationValidator, req);
+        updateVendorOutletByAdmin: async (parent, { input, interiorImage, exteriorImage, outletLicense }, { req }, info) => {
+            await validateInput(validators.updateVendorOutletByAdminValidatior, req);
+            await verifyAdmin(req);
 
-            const _id: Types.ObjectId = new Types.ObjectId(input._id);
-            const vendor = await vendorOutletService.getVendorOutletRecordWithId(_id);
+            let { _id, outletName, country, district, village, address, contactPersonName, contactPersonNumber, contactPersonDesignation, status, remarks } = input;
 
-            if (!vendor) {
-                throw new GraphQLError("Record not found", {
+            let vendorOutletRecord = await vendorOutletService.getVendorOutletRecordWithFilters({ _id: _id }, {}, {});
+
+            if (!vendorOutletRecord) {
+                throw new GraphQLError("Vendor outlet record not found", {
                     extensions: {
                         code: "BAD_REQUEST",
-                        errors: []
-                    }
+                        errors: [],
+                    },
                 });
             }
 
-            if (input.status !== null) {
-                vendor.status = input?.status;
+            if (outletName) {
+                vendorOutletRecord.outletName = outletName;
+            }
+            if (country) {
+                vendorOutletRecord.country = country;
+            }
+            if (district) {
+                vendorOutletRecord.district = district;
+            }
+            if (village) {
+                vendorOutletRecord.village = village;
+            }
+            if (contactPersonNumber) {
+                vendorOutletRecord.contactPersonNumber = contactPersonNumber;
+            }
+            if (address) {
+                vendorOutletRecord.address = address;
+            }
+            if (contactPersonName) {
+                vendorOutletRecord.contactPersonName = contactPersonName;
+            }
+            if (contactPersonDesignation) {
+                vendorOutletRecord.contactPersonDesignation = contactPersonDesignation;
+            }
+            if (status) {
+                vendorOutletRecord.status = status;
+                vendorOutletRecord.remarks = remarks || [];
+
             }
 
-            if (input.remarks !== null) {
-                vendor.remarks = (input.remarks || []).filter(Boolean) as [];
+            if (interiorImage) {
+                const { createReadStream, filename, mimetype } = await interiorImage;
+
+                const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
+
+                const stream = createReadStream();
+                const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                vendorOutletRecord.interiorImage = {
+                    fileType: "PRIVATE",
+                    fileURL: file.location,
+                    mimeType: mimetype,
+                    originalName: filename
+                };
             }
 
-            await vendor.save();
+            if (exteriorImage) {
+                const { createReadStream, filename, mimetype } = await exteriorImage;
+
+                const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
+
+                const stream = createReadStream();
+                const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                vendorOutletRecord.exteriorImage = {
+                    fileType: "PRIVATE",
+                    fileURL: file.location,
+                    mimeType: mimetype,
+                    originalName: filename
+                };
+            }
+
+            if (outletLicense) {
+                const { createReadStream, filename, mimetype } = await outletLicense;
+
+                const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
+
+                const stream = createReadStream();
+                const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                vendorOutletRecord.outletLicense = {
+                    fileType: "PRIVATE",
+                    fileURL: file.location,
+                    mimeType: mimetype,
+                    originalName: filename
+                };
+            }
+
+            await vendorOutletRecord.save();
 
             const response = {
-                _id: vendor._id?.toString(),
-                status: vendor.status,
-                message: "Vendor kyc of outlet status updated successfully"
-            }
-
+                message: "Vendor company record updated successfully"
+            };
             return response;
-        },
+
+        }
 
 
-        deleteVendorOutlet: async (parent, { input }, { req }, info) => {
-            try {
-                // Validate Input
-                await validateInput(validators.vendorOutletDeleteValidator, req);
-                await verifyVendor(req);
 
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                const result = await vendorOutletService.deleteOutletRecord(_id);
 
-                if (!result) {
-                    throw new GraphQLError("Outlet record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
-
-                const response = {
-                    _id: result?._id?.toString() || "", message: "Outlet record deleted successfully",
-                };
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
     },
 
     Query: {
@@ -308,7 +363,7 @@ export const vendorOutletResolver: Resolvers = {
                 const result = await vendorOutletService.getVendorOutletRecordWithId(_id);
 
                 if (!result) {
-                    throw new GraphQLError("vendor company record not found", {
+                    throw new GraphQLError("vendor outlet record not found", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: []
@@ -322,6 +377,38 @@ export const vendorOutletResolver: Resolvers = {
                         vendorId: result?.vendorId?.toString()  // Convert ObjectId to string
                     },
                     message: "Vendor company record fetched successfully",
+                };
+
+                return response;
+
+            } catch (error) {
+                throw error;
+            }
+        },
+        async getVendorOutletRecord(parent, { }, { req }, info) {
+            try {
+                // Validate Input
+                await verifyVendor(req);
+
+                const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+                const result = await vendorOutletService.getVendorOutletRecordWithId(_id);
+
+                if (!result) {
+                    throw new GraphQLError("vendor outlet record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                const response = {
+                    record: {
+                        ...result.toObject(),  // Convert Mongoose document to plain JavaScript object
+                        vendorId: result?.vendorId?.toString()  // Convert ObjectId to string
+                    },
+                    message: "Vendor outlet record fetched successfully",
                 };
 
                 return response;

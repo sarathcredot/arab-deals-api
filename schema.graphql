@@ -16,8 +16,7 @@ type Mutation {
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
   updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-  vendorOutletStatusUpdation(input: VendorOutletStatusUpdationInput!): VendorOutletStatusUpdationResponse!
-  deleteVendorOutlet(input: DeleteVendorOutletIdInput!): DeleteVendorOutletRecordResponse!
+  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
@@ -91,7 +90,8 @@ type Query {
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
   getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletIdInput!): VendorOutletRecordResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
@@ -494,13 +494,17 @@ type vendorOutletRecordsWithKycData {
   _id: String
   outletName: String
   status: String
-  companyId: String
-  companyName: String
-  companyStatus: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  remarks: [String]
 }
 
 input AddVendorOutletInput {
-  vendorId: String!
   outletName: String
   country: String
   district: String
@@ -512,7 +516,6 @@ input AddVendorOutletInput {
 }
 
 input UpdateVendorOutletInput {
-  vendorId: String!
   outletName: String
   country: String
   district: String
@@ -521,6 +524,20 @@ input UpdateVendorOutletInput {
   contactPersonName: String
   contactPersonNumber: String
   contactPersonDesignation: String
+}
+
+input UpdateVendorOutletByAdminInput {
+  _id: ObjectId!
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  status: String
+  remarks: [String!]
 }
 
 input DeleteVendorOutletIdInput {
@@ -539,7 +556,6 @@ type AddVendorOutletResponse {
 }
 
 type UpdateVendorOutletResponse {
-  record: VendorOutlet!
   message: String
 }
 
@@ -548,7 +564,11 @@ type DeleteVendorOutletRecordResponse {
   message: String
 }
 
-input VendorOutletIdInput {
+type UpdateVendorOutletByAdminResponse {
+  message: String
+}
+
+input VendorOutletRecordByAdminInput {
   _id: String!
 }
 
@@ -556,6 +576,11 @@ input VendorOutletRecordsByAdminFilter {
   page: Int
   size: Int
   status: String
+}
+
+type VendorOutletRecordByAdminResponse {
+  record: VendorOutlet!
+  message: String
 }
 
 type VendorOutletRecordResponse {
@@ -581,7 +606,7 @@ input UpdateVendorCompanyByAdminInput {
   companyType: String
   crNumber: String
   status: String
-  remarks: [String]
+  remarks: [String!]
 }
 
 type VendorCompany {
@@ -602,10 +627,9 @@ type vendorCompanyRecordsWithKycData {
   fullName: String
   isKycCompleted: String
   companyName: String
+  companyType: String
   status: String
-  outletId: String
-  outletName: String
-  outletStatus: String
+  crNumber: String
 }
 
 input AddVendorCompanyInput {

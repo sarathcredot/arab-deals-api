@@ -19,7 +19,7 @@
     companyType: String
     crNumber: String
     status: String
-    remarks: [String]
+    remarks: [String!]
   }
 
    # Type
@@ -42,10 +42,9 @@
         fullName: String
         isKycCompleted: String
         companyName: String
+        companyType: String
         status: String
-        outletId: String
-        outletName: String
-        outletStatus: String
+        crNumber: String
     }
 
 

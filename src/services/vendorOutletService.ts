@@ -109,9 +109,14 @@ export interface IVendorOutletWithKycData {
   _id?: string;
   outletName?: string;
   status?: string;
-  companyId?: string;
-  companyName?: string;
-  companyStatus?: string
+  country?: string;
+  district?: string;
+  village?: string;
+  address?: string;
+  contactPersonName?: string;
+  contactPersonNumber?: string;
+  contactPersonDesignation?: string;
+  remarks?: string[];
 }
 
 export interface IVendorOutletRecordsResponse {
@@ -124,7 +129,7 @@ export interface IVendorOutletOptions {
   status: string,
 }
 
-export const createVendorOutletRecord = async (record: IVendorOutlet): Promise<Document | null> => {
+export const createVendorOutletRecord = async (record: IVendorOutlet): Promise<Document> => {
   return await vendorOutletModel.create(record);
 }
 
@@ -169,14 +174,6 @@ export const getVendorOutletRecordsWithFilters = async (options: IVendorOutletOp
       $unwind: '$vendor'
     },
     {
-      $lookup: {
-        from: collections.VENDOR_COMPANIES,
-        localField: 'vendor._id',
-        foreignField: 'vendorId',
-        as: 'company'
-      }
-    },
-    {
       $facet: {
         metadata: [
           {
@@ -199,10 +196,15 @@ export const getVendorOutletRecordsWithFilters = async (options: IVendorOutletOp
               fullName: '$vendor.fullName',
               isKycCompleted: '$vendor.isKycCompleted',
               outletName: 1,
-              status: 1,
-              companyId: { $arrayElemAt: ['$company._id', 0] },
-              companyName: { $arrayElemAt: ['$company.companyName', 0] },
-              companyStatus: { $arrayElemAt: ['$company.status', 0] }
+              country: 1,
+              district: 1,
+              village: 1,
+              address: 1,
+              contactPersonName: 1,
+              contactPersonNumber: 1,
+              contactPersonDesignation: 1,
+              remarks: 1,
+              status: 1
             }
           }
         ]

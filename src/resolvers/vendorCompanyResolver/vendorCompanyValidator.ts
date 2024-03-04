@@ -35,5 +35,5 @@ export const vendorEditByAdminValidator = [
     body('variables.input.companyName').optional({ checkFalsy: true }),
     body('variables.input.companyType').optional({ checkFalsy: true }),
     body('variables.input.crNumber').optional({ checkFalsy: true }),
-
+    body('variables.input.remarks').isArray({ min: 0 }),
 ]

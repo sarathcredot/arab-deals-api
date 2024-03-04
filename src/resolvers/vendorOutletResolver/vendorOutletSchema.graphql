@@ -1,5 +1,6 @@
   scalar Upload
   scalar JSONObject
+  scalar ObjectId
 
 # Outlet Mutations
 
@@ -7,9 +8,12 @@
   type Mutation {
     addVendorOutlet(input: AddVendorOutletInput!, images:[Upload], fileMap: JSONObject): AddVendorOutletResponse!
     updateVendorOutlet(input: UpdateVendorOutletInput!, images:[Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-    vendorOutletStatusUpdation(input: VendorOutletStatusUpdationInput!): VendorOutletStatusUpdationResponse!
-    deleteVendorOutlet(input: DeleteVendorOutletIdInput!): DeleteVendorOutletRecordResponse!
+    updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!,outletLicense:Upload,interiorImage: Upload, exteriorImage:Upload): UpdateVendorOutletByAdminResponse!
+
   }
+
+
+
 
    # Type
 
@@ -39,21 +43,26 @@
     }  
 
     type vendorOutletRecordsWithKycData {
-        vendorId: String
-        fullName: String
-        isKycCompleted: String
-        _id: String
-        outletName: String
-        status: String
-        companyId: String
-        companyName: String
-        companyStatus: String
+      vendorId: String
+      fullName: String
+      isKycCompleted: String
+      _id: String
+      outletName: String
+      status: String
+      country: String
+      district: String
+      village: String
+      address: String
+      contactPersonName: String
+      contactPersonNumber: String
+      contactPersonDesignation: String
+      remarks: [String]
     }
+
 
     # Input
 
     input AddVendorOutletInput {
-        vendorId: String!
         outletName:String
         country:String
         district: String
@@ -65,7 +74,6 @@
     }   
 
     input UpdateVendorOutletInput {
-        vendorId: String!
         outletName:String
         country:String
         district: String
@@ -75,6 +83,21 @@
         contactPersonNumber: String
         contactPersonDesignation: String
     }
+
+    input UpdateVendorOutletByAdminInput {
+      _id: ObjectId!
+      outletName:String
+      country:String
+      district: String
+      village: String
+      address: String
+      contactPersonName: String
+      contactPersonNumber: String
+      contactPersonDesignation: String
+      status: String
+      remarks: [String!]
+    }
+
 
 
     input DeleteVendorOutletIdInput {
@@ -95,7 +118,6 @@
     }  
 
     type UpdateVendorOutletResponse {
-        record: VendorOutlet!
         message: String
     }
 
@@ -104,18 +126,23 @@
       message: String
     }
  
+   type UpdateVendorOutletByAdminResponse {
+        message: String
+  }
 
 
 # Outlet Queries
 
   type Query {
     getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-    getVendorOutletRecordByAdmin(input: VendorOutletIdInput!): VendorOutletRecordResponse!
+    getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+    getVendorOutletRecord: VendorOutletRecordResponse!
+
   }   
 
     # Input
    
-  input VendorOutletIdInput {
+  input VendorOutletRecordByAdminInput {
     _id: String!
   }
 
@@ -133,6 +160,11 @@
     mimeType: String
     originalName: String
   }    
+
+  type VendorOutletRecordByAdminResponse {
+    record: VendorOutlet!
+    message: String
+  }
 
   type VendorOutletRecordResponse {
     record: VendorOutlet!

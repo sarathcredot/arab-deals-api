@@ -202,9 +202,9 @@ export const vendorCompanyResolver: Resolvers = {
             await validateInput(validators.vendorEditByAdminValidator, req);
             await verifyAdmin(req);
 
-            let { _id, companyName, companyType, crNumber } = input;
+            let { _id, companyName, companyType, crNumber, status, remarks } = input;
 
-            let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ vendorId: _id }, {}, {});
+            let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ _id: _id }, {}, {});
 
             if (!vendorCompanyRecord) {
                 throw new GraphQLError("Vendor company record not found", {
@@ -225,6 +225,12 @@ export const vendorCompanyResolver: Resolvers = {
 
             if (crNumber) {
                 vendorCompanyRecord.crNumber = crNumber;
+            }
+
+            if (status) {
+                vendorCompanyRecord.status = status;
+                vendorCompanyRecord.remarks = remarks || [];
+
             }
 
             if (crLicense) {
