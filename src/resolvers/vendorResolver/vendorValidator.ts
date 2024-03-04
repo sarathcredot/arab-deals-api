@@ -23,8 +23,6 @@ export const getAllVendorsRecordsByVendorValidator = [
 export const VendorCreateValidator = [
   body('variables.input.fullName').trim().notEmpty(),
   body('variables.input.email').optional({ checkFalsy: true }).trim().isEmail(),
-  body('variables.input.mobileNumber').trim().notEmpty(),
-  body('variables.input.countryCode').trim().notEmpty(),
 ];
 
 
