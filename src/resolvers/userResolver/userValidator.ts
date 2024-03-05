@@ -27,8 +27,19 @@ export const userUpdateProfileValidator = [
   body('variables.input.firstName').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.lastName').optional({ checkFalsy: true }).notEmpty(),
   body('variables.input.displayName').optional({ checkFalsy: true }).notEmpty(),
-  body('variables.input.countryCode').optional({ checkFalsy: true }).notEmpty(),
 ];
+
+export const userUpdateProfileByAdminValidator = [
+  body('variables.input._id').isMongoId(),
+  body('variables.input.email').optional({ checkFalsy: true }).trim().isEmail(),
+  body('variables.input.firstName').optional({ checkFalsy: true }).notEmpty(),
+  body('variables.input.lastName').optional({ checkFalsy: true }).notEmpty(),
+  body('variables.input.displayName').optional({ checkFalsy: true }).notEmpty(),
+  body('variables.input.mobileNumber').optional({ checkFalsy: true }).notEmpty(),
+  body('variables.input.isBlocked').optional({ checkFalsy: true }).isIn([true, false]),
+];
+
+
 
 
 

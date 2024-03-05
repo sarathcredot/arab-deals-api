@@ -29,6 +29,7 @@ type Mutation {
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input: userBlockInput!): userBlockResponse!
   updateUserProfile(input: updateUserProfileInput!): updateUserProfileResponse!
+  updateUserProfileByAdmin(input: UpdateUserProfileByAdminInput!): UpdateUserProfileByAdminResponse!
   userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
@@ -828,6 +829,14 @@ input updateUserProfileInput {
   firstName: String
   lastName: String
   displayName: String
+}
+
+input UpdateUserProfileByAdminInput {
+  _id: ObjectId
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
   mobileNumber: String
   isBlocked: Boolean
 }
@@ -837,8 +846,6 @@ input updateUserProfileInMobileInput {
   firstName: String
   lastName: String
   displayName: String
-  mobileNumber: String
-  isBlocked: Boolean
 }
 
 input userInput {
@@ -904,6 +911,10 @@ type usersResponse {
 }
 
 type updateUserProfileResponse {
+  message: String
+}
+
+type UpdateUserProfileByAdminResponse {
   message: String
 }
 
