@@ -24,6 +24,8 @@ export const vendorOutletResolver: Resolvers = {
 
                 const vendorId = req.authAccount._id;
 
+                let outletImageKeys = Object.keys(fileMap || {});
+
                 let vendorOutletRecord = await vendorOutletService.getVendorOutletRecordWithFilters({ vendorId: vendorId }, {}, {});
 
                 if (!vendorOutletRecord) {
@@ -60,6 +62,15 @@ export const vendorOutletResolver: Resolvers = {
                     });
                 }
 
+                if (outletImageKeys.length !== images.length) {
+                    throw new GraphQLError("Document(s) missing", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
 
@@ -77,8 +88,6 @@ export const vendorOutletResolver: Resolvers = {
                     });
                 }
 
-                fileMap = fileMap || {};
-
                 vendorOutletRecord.outletName = outletName;
                 vendorOutletRecord.country = country;
                 vendorOutletRecord.district = district;
@@ -89,7 +98,6 @@ export const vendorOutletResolver: Resolvers = {
                 vendorOutletRecord.contactPersonDesignation = contactPersonDesignation;
                 vendorOutletRecord.status = status;
 
-                let outletImageKeys = Object.keys(fileMap);
                 outletImageKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
@@ -127,6 +135,8 @@ export const vendorOutletResolver: Resolvers = {
 
                 const vendorId = req.authAccount._id;
 
+                let outletImageKeys = Object.keys(fileMap || {});
+
                 const outletRecord = await vendorOutletService.getVendorOutletRecordWithFilters({ vendorId: vendorId }, {}, {});
 
                 if (!outletRecord) {
@@ -161,6 +171,15 @@ export const vendorOutletResolver: Resolvers = {
                 images = images || [];
                 let outletImages: vendorCompanyService.FileData[] = [];
 
+                if (images.length && outletImageKeys.length !== images.length) {
+                    throw new GraphQLError("Documents missing", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
 
@@ -177,8 +196,6 @@ export const vendorOutletResolver: Resolvers = {
                     });
                 }
 
-                fileMap = fileMap || {};
-                let outletImageKeys = Object.keys(fileMap);
 
                 outletImageKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {

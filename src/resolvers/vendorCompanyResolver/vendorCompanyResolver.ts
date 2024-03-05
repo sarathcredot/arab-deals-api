@@ -22,6 +22,9 @@ export const vendorCompanyResolver: Resolvers = {
 
                 const vendorId = req.authAccount._id;
 
+                let vendorCompanyImagesKeys = Object.keys(fileMap || {});
+
+
                 let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ vendorId: vendorId }, {}, {});
 
                 if (!vendorCompanyRecord) {
@@ -52,6 +55,15 @@ export const vendorCompanyResolver: Resolvers = {
                     });
                 }
 
+                if (vendorCompanyImagesKeys.length !== images.length) {
+                    throw new GraphQLError("Document(s) missing", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
                 let vendorCompanyImages: vendorCompanyService.FileData[] = [];
 
                 for (let image of images) {
@@ -71,14 +83,11 @@ export const vendorCompanyResolver: Resolvers = {
                     });
                 }
 
-                fileMap = fileMap || {};
-
                 vendorCompanyRecord.companyName = companyName;
                 vendorCompanyRecord.companyType = companyType;
                 vendorCompanyRecord.crNumber = crNumber;
                 vendorCompanyRecord.status = status;
 
-                let vendorCompanyImagesKeys = Object.keys(fileMap);
                 vendorCompanyImagesKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
@@ -114,6 +123,8 @@ export const vendorCompanyResolver: Resolvers = {
 
                 const vendorId = req.authAccount._id;
 
+                let vendorCompanyImagesKeys = Object.keys(fileMap || {});
+
                 let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ vendorId: vendorId }, {}, {});
 
                 if (!vendorCompanyRecord) {
@@ -137,6 +148,15 @@ export const vendorCompanyResolver: Resolvers = {
                 images = images || [];
                 let vendorCompanyImages: vendorCompanyService.FileData[] = [];
 
+                if (images.length && vendorCompanyImagesKeys.length !== images.length) {
+                    throw new GraphQLError("Documents missing", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
 
@@ -153,8 +173,6 @@ export const vendorCompanyResolver: Resolvers = {
                     });
                 }
 
-                fileMap = fileMap || {};
-
                 if (input.companyName) {
                     vendorCompanyRecord.companyName = input?.companyName;
                 }
@@ -169,7 +187,6 @@ export const vendorCompanyResolver: Resolvers = {
 
                 vendorCompanyRecord.status = "UNDER_VERIFICATION";
 
-                let vendorCompanyImagesKeys = Object.keys(fileMap);
                 vendorCompanyImagesKeys.forEach((imageName) => {
                     if (vendorCompanyRecord && fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
