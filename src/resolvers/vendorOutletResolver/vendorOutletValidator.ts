@@ -2,38 +2,38 @@ import { body, query } from "express-validator";
 
 
 export const addVendorOutletValidatior = [
-  body('input.variables.outletName').notEmpty(),
-  body('input.variables.country').notEmpty(),
-  body('input.variables.district').notEmpty(),
-  body('input.variables.village').notEmpty(),
-  body('input.variables.address').notEmpty(),
-  body('input.variables.contactPersonName').notEmpty(),
-  body('input.variables.contactPersonNumber').notEmpty(),
-  body('input.variables.contactPersonDesignation').notEmpty(),
+  body('variables.input.outletName').trim().notEmpty(),
+  body('variables.input.country').trim().notEmpty(),
+  body('variables.input.district').trim().notEmpty(),
+  body('variables.input.village').trim().notEmpty(),
+  body('variables.input.address').trim().notEmpty(),
+  body('variables.input.contactPersonName').trim().notEmpty(),
+  body('variables.input.contactPersonNumber').trim().notEmpty(),
+  body('variables.input.contactPersonDesignation').trim().notEmpty(),
 ];
 
 export const updateVendorOutletValidatior = [
-  body('input.variables.outletName').optional({ checkFalsy: true }),
-  body('input.variables.country').optional({ checkFalsy: true }),
-  body('input.variables.district').optional({ checkFalsy: true }),
-  body('input.variables.village').optional({ checkFalsy: true }),
-  body('input.variables.address').optional({ checkFalsy: true }),
-  body('input.variables.contactPersonName').optional({ checkFalsy: true }),
-  body('input.variables.contactPersonNumber').optional({ checkFalsy: true }),
-  body('input.variables.contactPersonDesignation').optional({ checkFalsy: true }),
+  body('variables.input.outletName').optional({ checkFalsy: true }),
+  body('variables.input.country').optional({ checkFalsy: true }),
+  body('variables.input.district').optional({ checkFalsy: true }),
+  body('variables.input.village').optional({ checkFalsy: true }),
+  body('variables.input.address').optional({ checkFalsy: true }),
+  body('variables.input.contactPersonName').optional({ checkFalsy: true }),
+  body('variables.input.contactPersonNumber').optional({ checkFalsy: true }),
+  body('variables.input.contactPersonDesignation').optional({ checkFalsy: true }),
 ];
 
 
 export const updateVendorOutletByAdminValidatior = [
   body('variables.input._id').notEmpty().isMongoId(),
-  body('input.variables.outletName').optional({ checkFalsy: true }),
-  body('input.variables.country').optional({ checkFalsy: true }),
-  body('input.variables.district').optional({ checkFalsy: true }),
-  body('input.variables.village').optional({ checkFalsy: true }),
-  body('input.variables.address').optional({ checkFalsy: true }),
-  body('input.variables.contactPersonName').optional({ checkFalsy: true }),
-  body('input.variables.contactPersonNumber').optional({ checkFalsy: true }),
-  body('input.variables.contactPersonDesignation').optional({ checkFalsy: true }),
+  body('variables.input.outletName').optional({ checkFalsy: true }),
+  body('variables.input.country').optional({ checkFalsy: true }),
+  body('variables.input.district').optional({ checkFalsy: true }),
+  body('variables.input.village').optional({ checkFalsy: true }),
+  body('variables.input.address').optional({ checkFalsy: true }),
+  body('variables.input.contactPersonName').optional({ checkFalsy: true }),
+  body('variables.input.contactPersonNumber').optional({ checkFalsy: true }),
+  body('variables.input.contactPersonDesignation').optional({ checkFalsy: true }),
 ];
 
 

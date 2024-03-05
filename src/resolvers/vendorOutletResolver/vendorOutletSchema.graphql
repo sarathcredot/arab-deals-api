@@ -63,14 +63,14 @@
     # Input
 
     input AddVendorOutletInput {
-        outletName:String
-        country:String
-        district: String
-        village: String
-        address: String
-        contactPersonName: String
-        contactPersonNumber: String
-        contactPersonDesignation: String
+        outletName:String!
+        country:String!
+        district: String!
+        village: String!
+        address: String!
+        contactPersonName: String!
+        contactPersonNumber: String!
+        contactPersonDesignation: String!
     }   
 
     input UpdateVendorOutletInput {
