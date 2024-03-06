@@ -21,6 +21,8 @@ import { fileResolver } from "./fileResolver/fileResolver";
 import { dashboardResolver } from "./dashboardResolver/dashboardResolver";
 import { jobResolver } from "./jobResolver/jobResolver";
 import { scalarTypeResolver } from "./scalarTypeResolver/scalarTypeReolver";
+import { settingsResolver } from "./settingsResolver/settingsResolver";
+
 
 
 export const resolvers: Resolvers = mergeResolvers(
@@ -44,6 +46,7 @@ export const resolvers: Resolvers = mergeResolvers(
         countryResolver,
         fileResolver,
         dashboardResolver,
-        jobResolver
+        jobResolver,
+        settingsResolver
     ]
 );
