@@ -109,7 +109,6 @@
   }
 
   input getAllBrandRecordsWithVendorByVendorInput {
-    vendorId: String!
     page: Int
     size: Int
   }

@@ -388,7 +388,7 @@ export const brandResolver: Resolvers = {
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
-                const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
+                const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
 
                 const options: brandService.IBrandRecordsWithVendorByVendorOptions = {
