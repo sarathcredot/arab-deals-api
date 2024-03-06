@@ -179,7 +179,8 @@ export interface IProductsOptions {
     brands?: string[],
     attributes?: Array<{ id: string, values: string[] }>,
     tags?: string[],
-    discount?: number
+    discount?: number;
+    status?: string;
 }
 
 export interface IProductsPriceRangeOptions {
@@ -609,6 +610,13 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
         });
     }
 
+    if (options.status) {
+        pipeline.push({
+            $match: {
+                status: options.status
+            }
+        });
+    }
 
     if (options.newest) {
         sort = { createdAt: -1 }

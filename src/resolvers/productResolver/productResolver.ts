@@ -684,9 +684,10 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
+                await validateInput(validators.adminProductsQueryValidator, req);
                 await verifyAdmin(req);
 
+                const status = input?.status || "";
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const minPrice: number | null = input?.minPrice || null;
@@ -741,7 +742,8 @@ export const productResolver: Resolvers = {
                     query,
                     projection,
                     parentCategory,
-                    categories
+                    categories,
+                    status
                 }
 
                 const result = await productService.getProductsByAdminWithFilters(options);
