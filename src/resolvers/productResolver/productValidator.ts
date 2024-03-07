@@ -2,6 +2,46 @@ import { body, query } from "express-validator";
 
 export const productsQueryValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
+    body('variables.input.status').optional({ checkFalsy: true }).isIn(["PENDING", "UNDER_VERIFICATION", "APPROVED", "REJECTED"]),
+    body('variables.input.productSize').optional({ checkFalsy: true }).isArray({ min: 0 }),
+    body('variables.input.bestSeller').optional({ checkFalsy: true }).isIn([true, false]),
+    body('variables.input.maxPrice').optional({ checkFalsy: true }).custom(val => val > 0),
+    body('variables.input.minPrice').optional({ checkFalsy: true }).custom(val => val >= 0),
+    body('variables.input.discount').optional({ checkFalsy: true }).custom(val => val >= 0),
+    body('variables.input.newest').optional({ checkFalsy: true }).toBoolean(true),
+    body('variables.input.priceLowToHigh').optional({ checkFalsy: true }).toBoolean(true),
+    body('variables.input.priceHighToLow').optional({ checkFalsy: true }).toBoolean(true),
+    body('variables.input.query').trim().optional({ checkFalsy: true }),
+    body('variables.input.parentCategory').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.categories').optional({ checkFalsy: true }).isArray({ min: 0 }).custom(val => {
+        for (let item of val) {
+            if (!item) {
+                return false;
+            }
+        }
+        return true;
+    }),
+    body('variables.input.brands').optional({ checkFalsy: true }).isArray({ min: 0 }).custom(val => {
+        for (let item of val) {
+            if (!item) {
+                return false;
+            }
+        }
+        return true;
+    }),
+    body('variables.input.attributes').optional({ checkFalsy: true }).isArray({ min: 0 }).custom((attributes) => {
+        for (let attribute of attributes) {
+            if (!attribute.id || !attribute.values || !Array.isArray(attribute.values) || attribute.values.length === 0) {
+                return false;
+            }
+        }
+        return true;
+    }),
+];
+
+export const vendorProductsQueryValidator = [
+    body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
+    body('variables.input.status').optional({ checkFalsy: true }).isIn(["PENDING", "UNDER_VERIFICATION", "APPROVED", "REJECTED"]),
     body('variables.input.productSize').optional({ checkFalsy: true }).isArray({ min: 0 }),
     body('variables.input.bestSeller').optional({ checkFalsy: true }).isIn([true, false]),
     body('variables.input.maxPrice').optional({ checkFalsy: true }).custom(val => val > 0),
@@ -161,6 +201,17 @@ export const relatedProductsQueryValidator = [
 ]
 
 export const productUpdateStatusValidator = [
-    body('variables.input._id').isMongoId(),
-    body('variables.input.status').optional({ checkFalsy: true })
+    body('variables.input._id').isMongoId()
+]
+
+
+export const macPriceValidator = [
+    body('variables.input.categories').optional({ checkFalsy: true }).isArray({ min: 0 }).custom(val => {
+        for (let item of val) {
+            if (!item) {
+                return false;
+            }
+        }
+        return true;
+    }),
 ]

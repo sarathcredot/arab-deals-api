@@ -13,10 +13,10 @@
   }
 
   type Mutation {
-    uploadProductFile(file: Upload!): File
-    createProduct(input: ProductInput!, images:[Upload]): ProductResponse
-    createVariant(input: VariantInput!, images:[Upload]): VariantResponse
-    updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
+    # uploadProductFile(file: Upload!): File
+    createProduct(input: ProductInput!, images:[Upload], productDetailImages:[Upload]): ProductResponse
+    createVariant(input: VariantInput!, images:[Upload], productDetailImages:[Upload]): VariantResponse
+    updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages:[Upload]): ProductUpdateResponse
     updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
     deleteProduct(input: ProductId!): DeleteProductResponse!
     submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
@@ -101,8 +101,7 @@ input VariantInput {
 }
 
    input ProductUpdateInput {
-     _id: String!
-    vendorId: String
+    _id: ObjectId!
     brandId: String
     brandName: String
     productName: String
@@ -203,7 +202,6 @@ type Query {
     }
 
     input ProductByVendorFilters {
-        vendorId: String!
         page: Int
         size: Int
         minPrice: Float
@@ -214,6 +212,7 @@ type Query {
         query: String
         categories:[String]
         parentCategory:String
+        status: String
     }
 
     input ProductId {
@@ -399,6 +398,10 @@ type Query {
        stock: Int
        status: String
        isBlocked: Boolean
+       productCode: Int
+       categoryNamePath: String
+       brandId: ObjectId
+       brandName: String
     }
 
     type VariantsTableByAdminResponse {

@@ -12,29 +12,33 @@ import { filePaths } from "../../configs";
 export const productResolver: Resolvers = {
     Upload: GraphQLUpload,
     Mutation: {
-        uploadProductFile: async (parent, { file }, info) => {
-            const { createReadStream, filename, mimetype, encoding } = await file;
-            const uploadDir = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "uploads");
+        // uploadProductFile: async (parent, { file }, info) => {
+        //     const { createReadStream, filename, mimetype, encoding } = await file;
+        //     const uploadDir = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "uploads");
 
-            const stream = createReadStream();
-            const writeStream = createWriteStream(`${uploadDir}/${Date.now()}${filename}`);
+        //     const stream = createReadStream();
+        //     const writeStream = createWriteStream(`${uploadDir}/${Date.now()}${filename}`);
 
-            await new Promise((resolve, reject) => {
-                stream.pipe(writeStream);
-                writeStream.on('finish', resolve);
-                writeStream.on('error', reject);
-            });
+        //     await new Promise((resolve, reject) => {
+        //         stream.pipe(writeStream);
+        //         writeStream.on('finish', resolve);
+        //         writeStream.on('error', reject);
+        //     });
 
-            return { filename, mimetype, encoding };
-        },
+        //     return { filename, mimetype, encoding };
+        // },
 
-        createProduct: async (parent, { input, images }, { req }, info) => {
+        createProduct: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
-                // Validate Input
+                await verifyVendor(req);
                 await validateInput(validators.createProductValidator, req);
-                // await verifyAdmin(req);
+
+                const vendorId = req.authAccount._id;
+
 
                 images = images || [];
+
+
 
                 let productImages = [];
 
@@ -53,6 +57,28 @@ export const productResolver: Resolvers = {
                         originalName: filename
                     });
                 }
+
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+
 
                 let newProduct: productService.IProduct = {};
 
@@ -116,7 +142,7 @@ export const productResolver: Resolvers = {
 
 
                 newProduct = {
-                    vendorId: input.vendorId,
+                    vendorId: vendorId,
                     brandId: input.brandId || "",
                     brandName: input.brandName || "",
                     productName: input?.productName || "",
@@ -134,6 +160,7 @@ export const productResolver: Resolvers = {
                     tags: tags || [],
                     stock: input?.stock || 0,
                     images: productImages || [],
+                    productDetailImages: detailImages || [],
                     categoryId: input.categoryId || "",
                     categoryNamePath: categoryName,
                     categoryIdPath: categoryIdPath,
@@ -158,11 +185,11 @@ export const productResolver: Resolvers = {
             }
         },
 
-        createVariant: async (parent, { input, images }, { req }, info) => {
+        createVariant: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
-                // Validate Input
+                await verifyVendor(req);
                 await validateInput(validators.createVariantValidator, req);
-                // await verifyAdmin(req);
+                const vendorId = req.authAccount._id;
 
                 images = images || [];
 
@@ -184,11 +211,32 @@ export const productResolver: Resolvers = {
                     });
                 }
 
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+
                 let newProduct: productService.IProduct = {};
 
                 let productCode: number = input.productCode;
 
-                const variant = await productService.getProductWithFilters({ productCode: productCode }, {}, { lean: true });
+                const variant = await productService.getProductWithFilters({ productCode: productCode, vendorId: vendorId }, {}, { lean: true });
                 if (!variant) {
                     throw new GraphQLError("Product not found", {
                         extensions: {
@@ -231,7 +279,7 @@ export const productResolver: Resolvers = {
                 const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 
                 newProduct = {
-                    vendorId: input.vendorId || variant.vendorId,
+                    vendorId: vendorId,
                     brandId: input.brandId || variant.brandId,
                     brandName: input.brandName || variant.brandName,
                     productName: input?.productName || variant.productName,
@@ -249,6 +297,7 @@ export const productResolver: Resolvers = {
                     tags: tags || [],
                     stock: input?.stock || 0,
                     images: productImages || [],
+                    productDetailImages: detailImages || [],
                     categoryId: variant.categoryId,
                     categoryNamePath: variant.categoryNamePath,
                     categoryIdPath: variant.categoryIdPath,
@@ -273,14 +322,16 @@ export const productResolver: Resolvers = {
             }
         },
 
-        updateProduct: async (parent, { input, images }, { req }, info) => {
+        updateProduct: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
+                await verifyVendor(req);
                 await validateInput(validators.productUpdateValidator, req);
-                await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const vendorId = req.authAccount._id;
 
-                const existingProduct: productService.IProductDocument | null = await productService.getProductWithId(_id);
+
+                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id, vendorId: vendorId }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
                         extensions: {
@@ -302,8 +353,27 @@ export const productResolver: Resolvers = {
 
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-
                     productImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
                         fileType: "PUBLIC",
                         fileURL: file.location,
                         mimeType: mimetype,
@@ -317,20 +387,6 @@ export const productResolver: Resolvers = {
                     tags = inputTags.split(',').map(tag => tag.trim());
                     existingProduct.tags = (tags || []).filter(Boolean) as [];
                 }
-
-
-                let attributes: Types.ObjectId[] = (input.attributes || []).filter(Boolean) as [];
-
-                // Explicitly define the type of result based on your Mongoose model
-                const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
-
-                const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
-
-                let productInfo: string[] = [];
-                if (input.productInfo) {
-                    existingProduct.productInfo = (input.productInfo || []).filter(Boolean) as [];
-                }
-
 
                 if (input.productName && existingProduct.productName !== input.productName) {
                     existingProduct.productName = input.productName;
@@ -354,11 +410,6 @@ export const productResolver: Resolvers = {
 
                 if (input.description && existingProduct.description !== input.description) {
                     existingProduct.description = input.description;
-                }
-
-
-                if (input.material && existingProduct.material !== input.material) {
-                    existingProduct.material = input.material;
                 }
 
                 if (input.rating !== null && existingProduct.rating !== input.rating) {
@@ -389,21 +440,10 @@ export const productResolver: Resolvers = {
                     existingProduct.images = productImages;
                 }
 
-                if (input.brandId !== null && existingProduct.brandId !== input.brandId) {
-                    existingProduct.brandId = input.brandId;
+
+                if (detailImages.length > 0) {
+                    existingProduct.productDetailImages = detailImages;
                 }
-
-                if (input.brandName !== null && existingProduct.brandName !== input.brandName) {
-                    existingProduct.brandName = input.brandName;
-                }
-
-
-                if (input.attributes !== null) {
-                    (existingProduct as any).attributes = [...(existingProduct as any).attributes, ...attributeData].filter(Boolean) as [];
-                }
-
-                // This code for remove the remarks array empty when resubmitting or updating the same product aftrer rejection
-                existingProduct.remarks = [];
 
                 // Update the product
                 const result = await existingProduct.save();
@@ -435,8 +475,10 @@ export const productResolver: Resolvers = {
                 await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const vendorId = req.authAccount._id;
 
-                const existingProduct: productService.IProductDocument | null = await productService.getProductWithId(_id);
+
+                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id, vendorId }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
                         extensions: {
@@ -446,12 +488,8 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-
-                if (input.status && existingProduct.status !== input.status) {
-                    existingProduct.status = input.status;
-                }
-                if (input.remarks !== null) {
-                    existingProduct.remarks = (input.remarks || []).filter(Boolean) as [];
+                if (["PENDING", "REJECTED"].includes(existingProduct.status || "")) {
+                    existingProduct.status = "UNDER_VERIFICATION";
                 }
 
                 // Update the product
@@ -480,8 +518,7 @@ export const productResolver: Resolvers = {
         //  Update product status by vendor by under progress
         submitProductForPreviewByVendor: async (parent, { input }, { req }, info) => {
             try {
-                // await verifyVendor(req);
-
+                await verifyVendor(req);
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
                 const existingProduct: productService.IProductDocument | null = await productService.getProductWithId(_id);
@@ -766,11 +803,12 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
-                // await verifyVendor(req);
+                await validateInput(validators.vendorProductsQueryValidator, req);
+                await verifyVendor(req);
 
-                const vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
-
+                const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+                
+                const status: string = input?.status || "";
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const minPrice: number | null = input?.minPrice || null;
@@ -826,7 +864,8 @@ export const productResolver: Resolvers = {
                     query,
                     projection,
                     parentCategory,
-                    categories
+                    categories,
+                    status
                 }
 
                 const result = await productService.getProductsByVendorWithFilters(options);
@@ -1308,27 +1347,14 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
+                await verifyVendor(req);
                 await validateInput(validators.variantsTableByVendorQueryValidator, req);
-                // const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-                const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
                 const productCode: number = input.productCode;
+                const vendorId: Types.ObjectId = req.authAccount._id;
 
 
-                const product = await productService.getProductWithFilters({ productCode: productCode }, { productCode: 1 }, { lean: true });
-                console.log("product: ", product)
-
-                if (!product) {
-                    throw new GraphQLError("variants not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-
-                let options = { page, size, productCode };
+                let options = { productCode, vendorId };
 
                 let variants = await productService.getProductVariantsByVendorTable(options);
 
@@ -1433,7 +1459,7 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
+                await validateInput(validators.macPriceValidator, req);
 
                 const categories: string[] = (input?.categories || []).map((item: string | null) => {
                     return item ? new Types.ObjectId(item).toString() : '';

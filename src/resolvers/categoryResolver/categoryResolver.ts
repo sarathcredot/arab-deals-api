@@ -1,7 +1,7 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { categoryService, spaceService, vendorService } from "../../services";
 import * as validators from "./categoryValidator";
-import { validateInput, verifyAdmin } from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { createWriteStream } from 'fs';
 import { GraphQLUpload } from "graphql-upload-ts";
 import path from "path";
@@ -309,7 +309,7 @@ export const categoryResolver: Resolvers = {
         getActiveCategoryTree: async (parent, { }, { req }, info) => {
             try {
 
-                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1 , categoryImage: 1}, { lean: true, sort: { path: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1, categoryImage: 1 }, { lean: true, sort: { path: 1 } });
 
                 if (!result || result.length == 0) {
                     throw new GraphQLError("Records not found", {
@@ -364,7 +364,7 @@ export const categoryResolver: Resolvers = {
         getActiveCategoryTreeInMobile: async (parent, { }, { req }, info) => {
             try {
 
-                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1, categoryImage:1 }, { lean: true, sort: { path: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1, categoryImage: 1 }, { lean: true, sort: { path: 1 } });
 
                 if (!result || result.length == 0) {
                     throw new GraphQLError("Records not found", {
@@ -545,11 +545,10 @@ export const categoryResolver: Resolvers = {
             }
         },
 
-        getAllCategoriesOfVendor: async (parent, { input }, { req }, info) => {
+        getAllCategoriesOfVendor: async (parent, { }, { req }, info) => {
             try {
-                // await verifyAdmin(req);
-                const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
-
+                await verifyVendor(req);
+                const vendorId = req.authAccount._id;
                 const vendor = await vendorService.getvendorRecordWithId(vendorId);
 
                 if (!vendor) {

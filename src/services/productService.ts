@@ -30,6 +30,7 @@ export interface IProduct {
     color?: string,
     size?: string,
     material?: string,
+    productDetailImages?: FileData[],
     images?: FileData[],
     rating?: number,
     sellingPrice?: number,
@@ -149,6 +150,12 @@ export interface IProductProjection {
     "images.mimeType"?: 1,
     "images.originalName"?: 1,
     "images.createdAt"?: 1,
+    "productDetailImages._id"?: 1,
+    "productDetailImages.fileType"?: 1,
+    "productDetailImages.fileURL"?: 1,
+    "productDetailImages.mimeType"?: 1,
+    "productDetailImages.originalName"?: 1,
+    "productDetailImages.createdAt"?: 1,
     rating?: 1,
     sellingPrice?: 1,
     price?: 1,
@@ -201,7 +208,8 @@ export interface IProductsByVendorOptions {
     priceHighToLow?: boolean,
     query?: string,
     categories?: string[],
-    parentCategory?: string
+    parentCategory?: string;
+    status?: string;
 }
 
 export interface IProductsResponse {
@@ -711,6 +719,14 @@ export const getProductsByVendorWithFilters = async (options: IProductsByVendorO
         });
     }
 
+    if (options.status) {
+        pipeline.push({
+            $match: {
+                status: options.status
+            }
+        });
+    }
+
     if (options.query || options.color?.length || options.productSize?.length) {
         let query = options.query || '';
         if (options.productSize?.length) {
@@ -977,8 +993,8 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
                             stock: 1,
                             status: 1,
                             isBlocked: 1,
-                            categoryNamePath:1,
-                            categoryId:1
+                            categoryNamePath: 1,
+                            categoryId: 1
                         }
                     }
                 ]
@@ -1011,54 +1027,10 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
     pipeline.push(
         {
             $match: {
-                productCode: options.productCode
+                productCode: options.productCode,
+                vendorId: options.vendorId
             }
         },
-        // Lookup related products with the same categoryId (excluding the current product)
-        {
-            $lookup: {
-                from: collections.PRODUCTS,
-                let: { categoryId: "$categoryId" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $ne: ["$_id", "$$categoryId"] }, // Exclude the current product
-                                    { $eq: ["$categoryId", "$$categoryId"] } // Match products with the same categoryId
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        $project: {
-                            productName: 1,
-                            _id: 0,
-                            images: 1,
-                            attributes: 1,
-                            stock: 1,
-                            status: 1,
-                            isBlocked: 1
-                        }
-                    }
-                ],
-                as: "relatedProducts"
-            }
-        },
-        // Project specific fields from the result
-        // {
-        //     $project: {
-        //         _id: 1,
-        //         productName: 1,
-        //         images: 1,
-        //         attributes: 1,
-        //         stock: 1,
-        //         status: 1,
-        //         isBlocked: 1,
-        //         relatedProducts: 1
-        //     }
-        // },
-        // Pagination
         {
             $facet: {
                 metadata: [
@@ -1071,12 +1043,6 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
                 ],
                 data: [
                     {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
                         $project: {
                             _id: 1,
                             productName: 1,
@@ -1085,7 +1051,11 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
                             stock: 1,
                             status: 1,
                             isBlocked: 1,
-                            relatedProducts: 1
+                            categoryNamePath: 1,
+                            categoryId: 1,
+                            productCode: 1,
+                            brandName: 1,
+                            brandId: 1
                         }
                     }
                 ]

@@ -72,7 +72,7 @@
   getCategoriesAutoComplete(input:GetCategoriesAutoCompleteInput!):GetCategoriesAutoCompleteRespons
   getAllLeafRecords: getAllLeafRecordsResponse!
   getLevelCategories(input:GetLevelCategoriesInput): GetLevelCategoriesResponse!
-  getAllCategoriesOfVendor(input:vendorIdInput!): getAllCategoriesOfVendorResponse!
+  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input:vendorIdInput!): getAllCategoriesOfVendorResponse!
 }   
 
