@@ -88,6 +88,12 @@ export const variantsQueryValidator = [
     body('variables.input.productCode').optional({ checkFalsy: true }),
 ]
 
+
+export const adminVariantsTableQueryValidator = [
+    body('variables.input.productCode').custom(val => val > 0)
+]
+
+
 export const variantsTableByVendorQueryValidator = [
     body('variables.input.productCode').optional({ checkFalsy: true }),
 ]

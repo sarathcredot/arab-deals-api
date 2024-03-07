@@ -253,9 +253,7 @@ type Query {
     }
 
     input ProductVariantsByAdminFilter {
-        _id: String!
-        page: Int
-        size: Int
+        productCode: Int!
   }
 
       input ProductVariantsByVendorFilter {

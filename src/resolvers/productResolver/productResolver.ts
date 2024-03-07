@@ -1282,41 +1282,13 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.variantsQueryValidator, req);
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                await validateInput(validators.adminVariantsTableQueryValidator, req);
+                const productCode: number = input.productCode;
 
 
-                const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
-
-                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
-                if (!product) {
-                    throw new GraphQLError("product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let result: productService.IProduct = product;
-                if (!result.productCode) {
-                    throw new GraphQLError("variants not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-
-                let productCode = result.productCode
-
-                let options = { page, size, productCode };
+                let options = { productCode };
 
                 let variants = await productService.getProductVariantsByAdminTable(options);
-
-                // variants.sort((a, b) => {
-                //     return a.size.localeCompare(b.size)
-                // });
 
                 let response = {
                     records: variants.records,

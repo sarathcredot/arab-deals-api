@@ -955,54 +955,8 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
         {
             $match: {
                 productCode: options.productCode,
-                status: { $ne: "PENDING" }
             }
         },
-        // Lookup related products with the same categoryId (excluding the current product)
-        {
-            $lookup: {
-                from: collections.PRODUCTS,
-                let: { categoryId: "$categoryId" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $ne: ["$_id", "$$categoryId"] }, // Exclude the current product
-                                    { $eq: ["$categoryId", "$$categoryId"] } // Match products with the same categoryId
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        $project: {
-                            productName: 1,
-                            _id: 1,
-                            images: 1,
-                            attributes: 1,
-                            stock: 1,
-                            status: 1,
-                            isBlocked: 1
-                        }
-                    }
-                ],
-                as: "relatedProducts"
-            }
-        },
-        // Project specific fields from the result
-        // {
-        //     $project: {
-        //         _id: 1,
-        //         productName: 1,
-        //         images: 1,
-        //         attributes: 1,
-        //         stock: 1,
-        //         status: 1,
-        //         isBlocked: 1,
-        //         relatedProducts: 1
-        //     }
-        // },
-        // Pagination
         {
             $facet: {
                 metadata: [
@@ -1015,12 +969,6 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
                 ],
                 data: [
                     {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
                         $project: {
                             _id: 1,
                             productName: 1,
@@ -1029,7 +977,8 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
                             stock: 1,
                             status: 1,
                             isBlocked: 1,
-                            relatedProducts: 1
+                            categoryNamePath:1,
+                            categoryId:1
                         }
                     }
                 ]
