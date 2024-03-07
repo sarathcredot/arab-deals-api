@@ -27,8 +27,6 @@
 
     input UpdateCmsInput {
         _id: String!
-        pageName: String
-        sectionName: String
         buttons: [ButtonDataInput]
     }
 

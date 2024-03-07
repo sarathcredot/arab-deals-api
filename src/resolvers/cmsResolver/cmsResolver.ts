@@ -107,12 +107,6 @@ export const cmsResolver: Resolvers = {
                 let filter = { _id };
                 let update: cmsService.ICmsRecord = {};
 
-
-                if (input.pageName) {
-                    update.pageName = input?.pageName;
-                }
-
-
                 if (cmsImages.length > 0) {
                     update.images = cmsImages;
                 }
