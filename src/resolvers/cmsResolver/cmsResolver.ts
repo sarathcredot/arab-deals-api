@@ -68,6 +68,20 @@ export const cmsResolver: Resolvers = {
 
                 images = images || [];
 
+                const _id: string = input._id.toString();
+
+                const existingCmsRecord = await cmsService.getCmsRecordWithId(_id);
+                if (!existingCmsRecord) {
+                    throw new GraphQLError("Record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+
+
                 let cmsImages = [];
 
                 for (let image of images) {
@@ -89,18 +103,6 @@ export const cmsResolver: Resolvers = {
                     });
                 }
 
-
-                const _id: string = input._id.toString();
-
-                const existingCmsRecord = await cmsService.getCmsRecordWithId(_id);
-                if (!existingCmsRecord) {
-                    throw new GraphQLError("Record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
 
                 let filter = { _id };
                 let update: cmsService.ICmsRecord = {};
@@ -141,32 +143,32 @@ export const cmsResolver: Resolvers = {
             }
         },
 
-        deleteCmsRecord: async (parent, { input }, { req }, info) => {
-            try {
-                await validateInput(validators.cmsDeleteValidator, req);
-                await verifyAdmin(req);
+        // deleteCmsRecord: async (parent, { input }, { req }, info) => {
+        //     try {
+        //         await validateInput(validators.cmsDeleteValidator, req);
+        //         await verifyAdmin(req);
 
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                const filter = { _id };
-                const result = await cmsService.deleteCmsRecord(filter);
+        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        //         const filter = { _id };
+        //         const result = await cmsService.deleteCmsRecord(filter);
 
-                if (!result) {
-                    throw new GraphQLError("Record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
+        //         if (!result) {
+        //             throw new GraphQLError("Record not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: [],
+        //                 },
+        //             });
+        //         }
 
-                const response = {
-                    _id: result?._id?.toString() || "", message: "CMS record deleted successfully",
-                };
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
+        //         const response = {
+        //             _id: result?._id?.toString() || "", message: "CMS record deleted successfully",
+        //         };
+        //         return response;
+        //     } catch (error) {
+        //         throw error;
+        //     }
+        // },
     },
 
     Query: {
