@@ -465,10 +465,9 @@ export const productResolver: Resolvers = {
                 await validateInput(validators.productUpdateByAdminValidator, req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                const vendorId = req.authAccount._id;
 
 
-                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id, vendorId: vendorId }, {}, {});
+                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
                         extensions: {
