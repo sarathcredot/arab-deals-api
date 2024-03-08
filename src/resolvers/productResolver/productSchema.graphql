@@ -405,6 +405,8 @@ type Query {
        warehouseSkuId: String,
        skuId: String,
        productCode: String
+       brandName: String
+       brandId: ObjectId
     }
 
     type VariantsByAdmin {

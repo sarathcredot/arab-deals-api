@@ -994,7 +994,10 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
                             categoryId: 1,
                             warehouseSkuId: 1,
                             skuId: 1,
-                            productCode: 1
+                            productCode: 1,
+                            brandName: 1,
+                            brandId: 1
+
                         }
                     }
                 ]
