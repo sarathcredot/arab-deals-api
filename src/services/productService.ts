@@ -27,9 +27,6 @@ export interface IProduct {
     description?: string,
     productInfo?: string[],
     productShortInfo?: string,
-    color?: string,
-    size?: string,
-    material?: string,
     productDetailImages?: FileData[],
     images?: FileData[],
     rating?: number,
@@ -74,6 +71,7 @@ export interface IProductDocument extends Document {
     productName?: string,
     shortDescription?: string,
     skuId?: string,
+    warehouseSkuId?: string;
     description?: string,
     productShortInfo?: string
     productInfo?: string[],

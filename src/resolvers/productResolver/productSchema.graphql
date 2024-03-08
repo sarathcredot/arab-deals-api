@@ -17,8 +17,8 @@
     createProduct(input: ProductInput!, images:[Upload], productDetailImages:[Upload]): ProductResponse
     createVariant(input: VariantInput!, images:[Upload], productDetailImages:[Upload]): VariantResponse
     updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages:[Upload]): ProductUpdateResponse
-    updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
-    deleteProduct(input: ProductId!): DeleteProductResponse!
+    updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages:[Upload]): UpdateProductByAdminResponse!
+    # deleteProduct(input: ProductId!): DeleteProductResponse!
     submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
   }
 
@@ -59,7 +59,6 @@
     description: String
     productInfo: [String]
     productShortInfo: String
-    material: String,
     rating: Int
     tags: String
     sellingPrice: Float
@@ -84,7 +83,6 @@ input VariantInput {
     description: String
     productInfo: [String]
     productShortInfo: String
-    material: String,
     rating: Int
     tags: String
     sellingPrice: Float
@@ -100,7 +98,7 @@ input VariantInput {
     images: [String]
 }
 
-   input ProductUpdateInput {
+input ProductUpdateInput {
     _id: ObjectId!
     brandId: String
     brandName: String
@@ -110,23 +108,47 @@ input VariantInput {
     description: String
     productInfo: [String]
     productShortInfo: String
-    material: String,
     rating: Int
     tags: String
     sellingPrice: Float
     price: Float
     mrp: Float
-    isBlocked: Boolean
     productCode: Int
     stock: Int
     categoryId: String
     status: String
     offerPrice: Int
     attributes: [String]
-    images: [String]
+
 }
 
-    input ProductId {
+input UpdateProductByAdminInput {
+    _id: ObjectId!
+    brandId: ObjectId
+    brandName: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    description: String
+    productInfo: [String]
+    productShortInfo: String
+    rating: Int
+    tags: String
+    sellingPrice: Float
+    price: Float
+    mrp: Float
+    productCode: Int
+    stock: Int
+    categoryId: String
+    status: String
+    offerPrice: Int
+    attributes: [String]
+    remarks: [String]
+    isBlocked: Boolean
+    warehouseSkuId: String
+}
+
+input ProductId {
         _id: String!
  }
 
@@ -287,7 +309,6 @@ type Query {
         description: String
         productInfo: [String]
         productShortInfo: String
-        material: String
         images: [ProductFileData]
         rating: Int
         sellingPrice: Float
@@ -350,6 +371,12 @@ type Query {
         message: String
     }
     
+    type UpdateProductByAdminResponse {
+        _id: String!
+        message: String
+    }
+    
+
 
     type Variant {
         _id: String!

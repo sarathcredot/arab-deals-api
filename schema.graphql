@@ -38,8 +38,7 @@ type Mutation {
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
-  updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
-  deleteProduct(input: ProductId!): DeleteProductResponse!
+  updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
@@ -52,12 +51,11 @@ type Mutation {
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
-  deleteCmsRecord(input: CmsRecordId!): DeleteCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
@@ -149,12 +147,12 @@ type Query {
   getDashboardRefundOrdersSummary(input: getDashboardRefundOrdersSummaryInput!): GetDashboardRefundOrderSummaryResponse!
   getDashboardOrdersAmountPieChartData(input: GetDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getDashboardShippingChargePieChartData(input: GetDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -999,7 +997,6 @@ input ProductInput {
   description: String
   productInfo: [String]
   productShortInfo: String
-  material: String
   rating: Int
   tags: String
   sellingPrice: Float
@@ -1024,7 +1021,6 @@ input VariantInput {
   description: String
   productInfo: [String]
   productShortInfo: String
-  material: String
   rating: Int
   tags: String
   sellingPrice: Float
@@ -1050,20 +1046,43 @@ input ProductUpdateInput {
   description: String
   productInfo: [String]
   productShortInfo: String
-  material: String
   rating: Int
   tags: String
   sellingPrice: Float
   price: Float
   mrp: Float
-  isBlocked: Boolean
   productCode: Int
   stock: Int
   categoryId: String
   status: String
   offerPrice: Int
   attributes: [String]
-  images: [String]
+}
+
+input UpdateProductByAdminInput {
+  _id: ObjectId!
+  brandId: ObjectId
+  brandName: String
+  productName: String
+  shortDescription: String
+  skuId: String
+  description: String
+  productInfo: [String]
+  productShortInfo: String
+  rating: Int
+  tags: String
+  sellingPrice: Float
+  price: Float
+  mrp: Float
+  productCode: Int
+  stock: Int
+  categoryId: String
+  status: String
+  offerPrice: Int
+  attributes: [String]
+  remarks: [String]
+  isBlocked: Boolean
+  warehouseSkuId: String
 }
 
 input ProductId {
@@ -1189,7 +1208,6 @@ type Product {
   description: String
   productInfo: [String]
   productShortInfo: String
-  material: String
   images: [ProductFileData]
   rating: Int
   sellingPrice: Float
@@ -1246,6 +1264,11 @@ type VariantResponse {
 }
 
 type ProductUpdateResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateProductByAdminResponse {
   _id: String!
   message: String
 }
@@ -2086,76 +2109,6 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
-  message: String
-}
-
 input AddCmsInput {
   pageName: String!
   buttons: [ButtonDataInput]
@@ -2168,8 +2121,6 @@ input ButtonDataInput {
 
 input UpdateCmsInput {
   _id: String!
-  pageName: String
-  sectionName: String
   buttons: [ButtonDataInput]
 }
 
@@ -2251,6 +2202,76 @@ type CmsRecordResponse {
 type CmsRecordsResponse {
   maxRecords: Int!
   records: [CmsRecord!]
+  message: String
+}
+
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
   message: String
 }
 

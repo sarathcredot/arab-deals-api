@@ -151,7 +151,6 @@ export const productResolver: Resolvers = {
                     description: input?.description || "",
                     productInfo: (input.productInfo || []).filter(Boolean) as [],
                     productShortInfo: input?.productShortInfo || "",
-                    material: input?.material || "",
                     rating: input?.rating || 0,
                     sellingPrice: input?.sellingPrice || 0,
                     price: input?.price || 0,
@@ -288,7 +287,6 @@ export const productResolver: Resolvers = {
                     description: input?.description || variant.description,
                     productInfo: (input.productInfo || variant.productInfo || []).filter(Boolean) as [],
                     productShortInfo: input?.productShortInfo || variant.productShortInfo,
-                    material: input?.material || variant.material,
                     rating: input?.rating || variant.rating,
                     sellingPrice: input?.sellingPrice || 0,
                     price: input?.price || 0,
@@ -428,10 +426,6 @@ export const productResolver: Resolvers = {
                     existingProduct.mrp = input.mrp;
                 }
 
-                if (input.isBlocked !== null && existingProduct.isBlocked !== input.isBlocked) {
-                    existingProduct.isBlocked = input.isBlocked;
-                }
-
                 if (input.stock !== null && existingProduct.stock !== input.stock) {
                     existingProduct.stock = input.stock;
                 }
@@ -467,18 +461,16 @@ export const productResolver: Resolvers = {
                 throw error;
             }
         },
-
-        //  Update product status by admin
-        updateProductStatus: async (parent, { input }, { req }, info) => {
+        updateProductByAdmin: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
-                await validateInput(validators.productUpdateStatusValidator, req);
                 await verifyAdmin(req);
+                await validateInput(validators.productUpdateByAdminValidator, req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const vendorId = req.authAccount._id;
 
 
-                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id, vendorId }, {}, {});
+                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id, vendorId: vendorId }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
                         extensions: {
@@ -488,12 +480,132 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                if (["PENDING", "REJECTED"].includes(existingProduct.status || "")) {
-                    existingProduct.status = "UNDER_VERIFICATION";
+                images = images || [];
+
+                let productImages = [];
+
+                for (let image of images) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.products, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    productImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+                let tags: string[] = [];
+                if (input.tags) {
+                    const inputTags: string = input.tags;
+                    tags = inputTags.split(',').map(tag => tag.trim());
+                    existingProduct.tags = (tags || []).filter(Boolean) as [];
+                }
+
+                if (input.productName && existingProduct.productName !== input.productName) {
+                    existingProduct.productName = input.productName;
+                }
+
+                if (input.shortDescription && existingProduct.shortDescription !== input.shortDescription) {
+                    existingProduct.shortDescription = input.shortDescription;
+                }
+
+                if (input.brandId && existingProduct.brandId !== input.brandId) {
+                    existingProduct.brandId = input.brandId;
+                }
+
+                if (input.brandName && existingProduct.brandName !== input.brandName) {
+                    existingProduct.brandName = input.brandName;
+                }
+
+                if (input.productInfo) {
+                    existingProduct.productInfo = (input.productInfo || []).filter(Boolean) as [];
+                }
+
+                if (input.remarks) {
+                    existingProduct.remarks = input.remarks as string[];
+                }
+
+                if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
+                    existingProduct.productShortInfo = input.productShortInfo;
+                }
+
+                if (input.skuId && existingProduct.skuId !== input.skuId) {
+                    existingProduct.skuId = input.skuId;
+                }
+
+                if (input.warehouseSkuId && existingProduct.warehouseSkuId !== input.warehouseSkuId) {
+                    existingProduct.warehouseSkuId = input.warehouseSkuId;
+                }
+
+                if (input.description && existingProduct.description !== input.description) {
+                    existingProduct.description = input.description;
+                }
+
+                if (input.rating !== null && existingProduct.rating !== input.rating) {
+                    existingProduct.rating = input.rating;
+                }
+
+                if (input.sellingPrice !== null && existingProduct.sellingPrice !== input.sellingPrice) {
+                    existingProduct.sellingPrice = input.sellingPrice;
+                }
+
+                if (input.price !== null && existingProduct.price !== input.price) {
+                    existingProduct.price = input.price;
+                }
+
+                if (input.mrp !== null && existingProduct.mrp !== input.mrp) {
+                    existingProduct.mrp = input.mrp;
+                }
+
+                if (input.isBlocked !== null && existingProduct.isBlocked !== input.isBlocked) {
+                    existingProduct.isBlocked = input.isBlocked;
+                }
+
+                if (input.stock !== null && existingProduct.stock !== input.stock) {
+                    existingProduct.stock = input.stock;
+                }
+
+                if (productImages.length > 0) {
+                    existingProduct.images = productImages;
+                }
+
+                if (input.status && existingProduct.status !== input.status) {
+                    existingProduct.status = input.status;
+                }
+
+                if (detailImages.length > 0) {
+                    existingProduct.productDetailImages = detailImages;
                 }
 
                 // Update the product
                 const result = await existingProduct.save();
+
 
                 if (!result) {
                     throw new GraphQLError("Product updatation failed", {
@@ -505,7 +617,7 @@ export const productResolver: Resolvers = {
                 }
 
                 const response = {
-                    _id: result?._id?.toString(),
+                    _id: result?._id?.toString() || "",
                     message: "Product updated successfully",
                 };
                 return response;
@@ -558,33 +670,33 @@ export const productResolver: Resolvers = {
         },
 
 
-        deleteProduct: async (parent, { input }, { req }, info) => {
-            try {
-                await validateInput(validators.productDeleteValidator, req);
-                await verifyAdmin(req);
+        // deleteProduct: async (parent, { input }, { req }, info) => {
+        //     try {
+        //         await validateInput(validators.productDeleteValidator, req);
+        //         await verifyAdmin(req);
 
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                const filter = { _id };
-                const result = await productService.deleteProduct(filter);
+        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        //         const filter = { _id };
+        //         const result = await productService.deleteProduct(filter);
 
-                if (!result) {
-                    throw new GraphQLError("Record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
+        //         if (!result) {
+        //             throw new GraphQLError("Record not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: [],
+        //                 },
+        //             });
+        //         }
 
-                const response = {
-                    _id: result?._id?.toString() || "",
-                    message: "Product deleted successfully",
-                };
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
+        //         const response = {
+        //             _id: result?._id?.toString() || "",
+        //             message: "Product deleted successfully",
+        //         };
+        //         return response;
+        //     } catch (error) {
+        //         throw error;
+        //     }
+        // },
 
 
     },
@@ -807,7 +919,7 @@ export const productResolver: Resolvers = {
                 await verifyVendor(req);
 
                 const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
-                
+
                 const status: string = input?.status || "";
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
