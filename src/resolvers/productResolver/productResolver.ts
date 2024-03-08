@@ -408,23 +408,23 @@ export const productResolver: Resolvers = {
                     existingProduct.description = input.description;
                 }
 
-                if (input.rating !== null && existingProduct.rating !== input.rating) {
+                if (input.rating && input.rating > 0 && existingProduct.rating !== input.rating) {
                     existingProduct.rating = input.rating;
                 }
 
-                if (input.sellingPrice !== null && existingProduct.sellingPrice !== input.sellingPrice) {
+
+                if (input.sellingPrice && input.sellingPrice > 0 && existingProduct.sellingPrice !== input.sellingPrice) {
                     existingProduct.sellingPrice = input.sellingPrice;
                 }
 
-                if (input.price !== null && existingProduct.price !== input.price) {
+                if (input.price && input.price > 0 && existingProduct.price !== input.price) {
                     existingProduct.price = input.price;
                 }
-
-                if (input.mrp !== null && existingProduct.mrp !== input.mrp) {
+                if (input.mrp && input.mrp > 0 && existingProduct.mrp !== input.mrp) {
                     existingProduct.mrp = input.mrp;
                 }
 
-                if (input.stock !== null && existingProduct.stock !== input.stock) {
+                if (input.stock && input.stock >= 0) {
                     existingProduct.stock = input.stock;
                 }
 
@@ -564,27 +564,27 @@ export const productResolver: Resolvers = {
                     existingProduct.description = input.description;
                 }
 
-                if (input.rating !== null && existingProduct.rating !== input.rating) {
+                if (input.rating && input.rating > 0 && existingProduct.rating !== input.rating) {
                     existingProduct.rating = input.rating;
                 }
 
-                if (input.sellingPrice !== null && existingProduct.sellingPrice !== input.sellingPrice) {
+                if (input.sellingPrice && input.sellingPrice > 0 && existingProduct.sellingPrice !== input.sellingPrice) {
                     existingProduct.sellingPrice = input.sellingPrice;
                 }
 
-                if (input.price !== null && existingProduct.price !== input.price) {
+                if (input.price && input.price > 0 && existingProduct.price !== input.price) {
                     existingProduct.price = input.price;
                 }
 
-                if (input.mrp !== null && existingProduct.mrp !== input.mrp) {
+                if (input.mrp && input.mrp > 0 && existingProduct.mrp !== input.mrp) {
                     existingProduct.mrp = input.mrp;
                 }
 
-                if (input.isBlocked !== null && existingProduct.isBlocked !== input.isBlocked) {
+                if (input.isBlocked == false || input.isBlocked === true) {
                     existingProduct.isBlocked = input.isBlocked;
                 }
 
-                if (input.stock !== null && existingProduct.stock !== input.stock) {
+                if (input.stock && input.stock >= 0) {
                     existingProduct.stock = input.stock;
                 }
 
