@@ -70,7 +70,6 @@
     categoryId: String!
     offerPrice: Int!
     attributes: [String]
-    images: [String]
 }
 
 input VariantInput {
