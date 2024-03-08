@@ -176,6 +176,7 @@ export const productUpdateValidator = [
 
 export const productUpdateByAdminValidator = [
     body('variables.input._id').notEmpty().isMongoId(),
+    body('variables.input.status').optional({ checkFalsy: true }).isIn(["PENDING", "UNDER_VERIFICATION", "APPROVED", "REJECTED"]),
     body('variables.input.brandId').optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.brandName').optional({ checkFalsy: true }),
     body('variables.input.productName').optional({ checkFalsy: true }),
@@ -190,7 +191,8 @@ export const productUpdateByAdminValidator = [
     body('variables.input.tags').optional({ checkFalsy: true }),
     body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
     body('variables.input.stock').optional({ checkFalsy: true }),
-    body('variables.input.productInfo').optional({ checkFalsy: true }).isArray({ min: 0 })
+    body('variables.input.productInfo').optional({ checkFalsy: true }).isArray({ min: 0 }),
+    body('variables.input.remarks').optional({ checkFalsy: true }).isArray({ min: 0 })
 ];
 
 export const productDeleteValidator = [

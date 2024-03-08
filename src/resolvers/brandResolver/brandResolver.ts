@@ -448,7 +448,7 @@ export const brandResolver: Resolvers = {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
 
 
-                let filter: any = {};
+                let filter: any = { isBlocked: false };
 
                 if (input.categoryId) {
                     filter["categories"] = input.categoryId;
