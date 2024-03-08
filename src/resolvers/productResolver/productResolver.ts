@@ -1051,7 +1051,7 @@ export const productResolver: Resolvers = {
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
 
 
-                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false }, {}, { lean: true });
+                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
 
                 // console.log(result)
 

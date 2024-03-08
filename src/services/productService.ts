@@ -858,7 +858,8 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
     const pipeline: PipelineStage[] = [
         {
             $match: {
-                productCode: productCode
+                productCode: productCode,
+                status: "APPROVED"
             }
         },
         {
