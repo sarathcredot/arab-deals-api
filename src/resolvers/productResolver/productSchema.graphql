@@ -50,7 +50,6 @@
     }
 
    input ProductInput {
-    vendorId: String!
     brandId: String
     brandName: String
     productName: String
