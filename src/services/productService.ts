@@ -136,12 +136,10 @@ export interface IProductProjection {
     productName?: 1,
     shortDescription?: 1,
     productShortInfo?: 1,
+    warehouseSkuId?: 1,
     productInfo?: 1,
     skuId?: 1,
     description?: 1,
-    color?: 1,
-    size?: 1,
-    material?: 1,
     "images._id"?: 1,
     "images.fileType"?: 1,
     "images.fileURL"?: 1,
@@ -992,7 +990,10 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
                             status: 1,
                             isBlocked: 1,
                             categoryNamePath: 1,
-                            categoryId: 1
+                            categoryId: 1,
+                            warehouseSkuId: 1,
+                            skuId: 1,
+                            productCode: 1
                         }
                     }
                 ]

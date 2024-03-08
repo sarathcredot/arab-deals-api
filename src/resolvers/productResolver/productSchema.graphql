@@ -405,6 +405,11 @@ type Query {
        stock: Int
        status: String
        isBlocked: Boolean
+       categoryNamePath: String,
+       categoryId: ObjectId,
+       warehouseSkuId: String,
+       skuId: String,
+       productCode: String
     }
 
     type VariantsByAdmin {
