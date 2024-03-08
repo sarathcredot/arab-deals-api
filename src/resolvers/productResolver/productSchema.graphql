@@ -75,7 +75,7 @@ input VariantInput {
     skuId: String!
     description: String!
     productInfo: [String!]!
-    productShortInfo: String!
+    productShortInfo: String
     rating: Int!
     tags: String
     sellingPrice: Float!
