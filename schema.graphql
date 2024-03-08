@@ -1177,8 +1177,6 @@ input ProductVariantsByAdminFilter {
 
 input ProductVariantsByVendorFilter {
   productCode: Int!
-  page: Int
-  size: Int
 }
 
 input categoriesInput {
@@ -1325,6 +1323,9 @@ type VariantTableByVendor {
   categoryNamePath: String
   brandId: ObjectId
   brandName: String
+  skuId: String
+  warehouseSkuId: String
+  categoryId: ObjectId
 }
 
 type VariantsTableByAdminResponse {

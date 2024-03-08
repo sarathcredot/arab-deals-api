@@ -162,7 +162,7 @@ export const productResolver: Resolvers = {
                     categoryNamePath: categoryName,
                     categoryIdPath: categoryIdPath,
                     productCode: productCode,
-                    status: "PENDING",
+                    status: "UNDER_VERIFICATION",
                     attributes: attributeData,
                     offerPrice: input.offerPrice || 0
                 };
