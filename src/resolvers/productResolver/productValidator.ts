@@ -153,7 +153,6 @@ export const createProductValidator = [
     body('variables.input.price').isFloat({ min: 0 }).withMessage('Invalid price'),
     body('variables.input.mrp').isFloat({ min: 0 }).withMessage('Invalid MRP'),
     body('variables.input.tags').optional({ checkFalsy: true }),
-    body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
     body('variables.input.productCode').optional({ checkFalsy: true }),
     body('variables.input.stock').isInt({ min: 0 }).withMessage('Invalid stock value'),
     body('variables.input.categoryId').isMongoId().withMessage('Invalid category ID'),
@@ -208,8 +207,7 @@ export const createVariantValidator = [
     body('variables.input.sellingPrice').isFloat({ min: 0 }).withMessage('Invalid selling price'),
     body('variables.input.price').isFloat({ min: 0 }).withMessage('Invalid price'),
     body('variables.input.mrp').isFloat({ min: 0 }).withMessage('Invalid MRP'),
-    body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
-    body('variables.input.productCode').optional({ checkFalsy: true }),
+    body('variables.input.productCode').notEmpty(),
     body('variables.input.stock').isInt({ min: 0 }).withMessage('Invalid stock value'),
     body('variables.input.categoryId').optional({ checkFalsy: true }).isMongoId().withMessage('Invalid category ID'),
 ];

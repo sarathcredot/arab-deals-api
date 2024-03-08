@@ -50,24 +50,22 @@
     }
 
    input ProductInput {
-    brandId: String
-    brandName: String
-    productName: String
-    shortDescription: String
-    skuId: String
-    description: String
+    brandId: ObjectId!
+    brandName: String!
+    productName: String!
+    shortDescription: String!
+    skuId: String!
+    description: String!
     productInfo: [String]
     productShortInfo: String
-    rating: Int
-    tags: String
-    sellingPrice: Float
-    price: Float
-    mrp: Float
-    isBlocked: Boolean
-    productCode: Int
-    stock: Int
-    categoryId: String!
-    offerPrice: Int!
+    rating: Int!
+    tags: String!
+    sellingPrice: Float!
+    price: Float!
+    mrp: Float!
+    stock: Int!
+    categoryId: ObjectId!
+    offerPrice: Float
     attributes: [String]
 }
 
@@ -86,7 +84,6 @@ input VariantInput {
     sellingPrice: Float
     price: Float
     mrp: Float
-    isBlocked: Boolean
     productCode: Int!
     stock: Int
     categoryId: String
