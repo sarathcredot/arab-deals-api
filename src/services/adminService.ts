@@ -91,7 +91,7 @@ export const loginAdmin = (admin: IAdminDocument): IAdminLoginResponse => {
 }
 
 export const getAdminWithId = async (id: Types.ObjectId, projection: IAdminProjection = {}, options: QueryOptions = {}): Promise<IAdminDocument | null> => {
-  const result = await vendorModel.findById(id, projection, options);
+  const result = await adminModel.findById(id, projection, options);
   return result;
 }
 
