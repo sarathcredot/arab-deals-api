@@ -205,6 +205,17 @@ export const getAllCmsRecordsWithFilters = async (options: ICmsRecordsOptions): 
 
     let pipeline: PipelineStage[] = [];
 
+
+    if (options.pageName) {
+        pipeline.push(
+            {
+                $match: {
+                    pageName: options.pageName
+                }
+            }
+        )
+    }
+
     pipeline.push(
         {
             $sort: { pageName: 1, _id: 1 }

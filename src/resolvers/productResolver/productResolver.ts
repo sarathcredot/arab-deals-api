@@ -39,7 +39,6 @@ export const productResolver: Resolvers = {
                 images = images || [];
 
 
-
                 let productImages = [];
 
                 for (let image of images) {

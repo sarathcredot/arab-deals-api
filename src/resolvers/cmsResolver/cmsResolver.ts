@@ -272,6 +272,8 @@ export const cmsResolver: Resolvers = {
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
+                const pageName: string = input?.pageName || "";
+
                 let projection: cmsService.ICmsRecordsProjection = { _id: 1 };
 
                 const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
@@ -305,6 +307,7 @@ export const cmsResolver: Resolvers = {
                     page,
                     size,
                     projection,
+                    pageName
                 }
 
                 // Fetch all CMS records
