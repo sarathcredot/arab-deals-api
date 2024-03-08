@@ -382,7 +382,8 @@ type Query {
         _id: String!
         productId: String
         attributeId: String
-        attributeName: String
+        attributeName: String,
+        attributeType: String,
         attributeValueId: String
         attributeValue: String
         attributeDescription: String
