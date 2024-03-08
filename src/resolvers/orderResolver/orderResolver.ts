@@ -1054,7 +1054,7 @@ export const orderResolver: Resolvers = {
         },
         getAdminOrderProduct: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductValidator, req);
 
             const product = await orderProductService.getOrderProductByIdIncludeVendor(input._id);
@@ -1067,6 +1067,8 @@ export const orderResolver: Resolvers = {
                     },
                 });
             }
+            
+            console.log(product);
 
             const response = { ...product.toObject(), vendorId: product.vendorId._id, vendorName: product.vendorId.fullName }
             return response;

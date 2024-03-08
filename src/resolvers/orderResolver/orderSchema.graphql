@@ -428,6 +428,7 @@ type GetAdminOrderProductResponse {
     userId: ObjectId
     vendorId: ObjectId
     productId: ObjectId
+    vendorName: String
     itemId: String
     orderId: String
     productName: String
