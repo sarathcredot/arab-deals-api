@@ -897,6 +897,7 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
                 _id: 0,
                 productId: '$_id',
                 attributeId: '$attribute._id',
+                attributeType: '$attribute.attributeType',
                 attributeName: '$attribute.name',
                 attributeDescription: {
                     $ifNull: ['$attribute.description', null]
