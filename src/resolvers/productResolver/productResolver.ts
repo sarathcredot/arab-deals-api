@@ -300,7 +300,7 @@ export const productResolver: Resolvers = {
                     productCode: productCode,
                     status: "UNDER_VERIFICATION",
                     attributes: attributeData,
-                    offerPrice: input?.offerPrice || 0,
+                    offerPrice: 0,
                 };
 
                 // Create the product

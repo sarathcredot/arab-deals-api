@@ -201,9 +201,9 @@ export const productDeleteValidator = [
 export const createVariantValidator = [
     body('variables.input.productName').trim().isLength({ min: 1 }).withMessage('Product name is required'),
     body('variables.input.shortDescription').trim().isLength({ min: 1 }).withMessage('Short description is required'),
-    body('variables.input.skuId').optional({ checkFalsy: true }),
-    body('variables.input.description').optional({ checkFalsy: true }),
-    body('variables.input.rating').optional({ checkFalsy: true }).isFloat({ min: 1, max: 5 }).withMessage('Invalid rating'),
+    body('variables.input.skuId').notEmpty(),
+    body('variables.input.description').notEmpty(),
+    body('variables.input.rating').notEmpty().isNumeric().custom(val => val > 0 && val <= 5).withMessage('Invalid rating'),
     body('variables.input.sellingPrice').isFloat({ min: 0 }).withMessage('Invalid selling price'),
     body('variables.input.price').isFloat({ min: 0 }).withMessage('Invalid price'),
     body('variables.input.mrp').isFloat({ min: 0 }).withMessage('Invalid MRP'),

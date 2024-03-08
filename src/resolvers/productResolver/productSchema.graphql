@@ -70,23 +70,20 @@
 }
 
 input VariantInput {
-    productName: String
-    shortDescription: String
-    skuId: String
-    description: String
-    productInfo: [String]
-    productShortInfo: String
-    rating: Int
+    productName: String!
+    shortDescription: String!
+    skuId: String!
+    description: String!
+    productInfo: [String!]!
+    productShortInfo: String!
+    rating: Int!
     tags: String
-    sellingPrice: Float
-    price: Float
-    mrp: Float
+    sellingPrice: Float!
+    price: Float!
+    mrp: Float!
     productCode: Int!
-    stock: Int
-    status: String
-    offerPrice: Int
-    attributes: [String]
-    images: [String]
+    stock: Int!
+    attributes: [String!]!
 }
 
 input ProductUpdateInput {
