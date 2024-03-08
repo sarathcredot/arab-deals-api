@@ -277,8 +277,8 @@ export const productResolver: Resolvers = {
 
                 newProduct = {
                     vendorId: vendorId,
-                    brandId: input.brandId || variant.brandId,
-                    brandName: input.brandName || variant.brandName,
+                    brandId: variant.brandId,
+                    brandName: variant.brandName,
                     productName: input?.productName || variant.productName,
                     shortDescription: input?.shortDescription || variant.shortDescription,
                     skuId: input?.skuId || variant.skuId,
@@ -298,7 +298,7 @@ export const productResolver: Resolvers = {
                     categoryNamePath: variant.categoryNamePath,
                     categoryIdPath: variant.categoryIdPath,
                     productCode: productCode,
-                    status: "PENDING",
+                    status: "UNDER_VERIFICATION",
                     attributes: attributeData,
                     offerPrice: input?.offerPrice || 0,
                 };

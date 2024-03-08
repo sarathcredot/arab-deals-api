@@ -164,7 +164,6 @@ export const productUpdateValidator = [
     body('variables.input.shortDescription').optional({ checkFalsy: true }),
     body('variables.input.skuId').optional({ checkFalsy: true }),
     body('variables.input.description').optional({ checkFalsy: true }),
-    body('variables.input.material').optional({ checkFalsy: true }),
     body('variables.input.rating').optional({ checkFalsy: true }),
     body('variables.input.sellingPrice').optional({ checkFalsy: true }),
     body('variables.input.price').optional({ checkFalsy: true }),
@@ -204,14 +203,12 @@ export const createVariantValidator = [
     body('variables.input.shortDescription').trim().isLength({ min: 1 }).withMessage('Short description is required'),
     body('variables.input.skuId').optional({ checkFalsy: true }),
     body('variables.input.description').optional({ checkFalsy: true }),
-    body('variables.input.material').optional({ checkFalsy: true }),
     body('variables.input.rating').optional({ checkFalsy: true }).isFloat({ min: 1, max: 5 }).withMessage('Invalid rating'),
     body('variables.input.sellingPrice').isFloat({ min: 0 }).withMessage('Invalid selling price'),
     body('variables.input.price').isFloat({ min: 0 }).withMessage('Invalid price'),
     body('variables.input.mrp').isFloat({ min: 0 }).withMessage('Invalid MRP'),
     body('variables.input.productCode').notEmpty(),
     body('variables.input.stock').isInt({ min: 0 }).withMessage('Invalid stock value'),
-    body('variables.input.categoryId').optional({ checkFalsy: true }).isMongoId().withMessage('Invalid category ID'),
 ];
 
 export const relatedProductsQueryValidator = [
