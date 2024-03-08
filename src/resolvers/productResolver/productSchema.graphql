@@ -318,6 +318,7 @@ type Query {
         offerPrice: Int
         attributes: [IProductAttribute]
         productDetailImages: [ProductFileData]
+        warehouseSkuId: String
     }
 
     type IProductAttribute {

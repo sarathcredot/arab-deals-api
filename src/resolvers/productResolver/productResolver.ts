@@ -705,7 +705,7 @@ export const productResolver: Resolvers = {
             try {
                 //Validate Input
                 await validateInput(validators.productQueryValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
                 const options: QueryOptions = { lean: true };
