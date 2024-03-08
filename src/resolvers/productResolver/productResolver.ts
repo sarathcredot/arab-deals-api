@@ -10,7 +10,6 @@ import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
 
 export const productResolver: Resolvers = {
-    Upload: GraphQLUpload,
     Mutation: {
         // uploadProductFile: async (parent, { file }, info) => {
         //     const { createReadStream, filename, mimetype, encoding } = await file;
@@ -165,7 +164,7 @@ export const productResolver: Resolvers = {
                     productCode: productCode,
                     status: "PENDING",
                     attributes: attributeData,
-                    offerPrice: input.offerPrice
+                    offerPrice: input.offerPrice || 0
                 };
 
                 // Create the product
