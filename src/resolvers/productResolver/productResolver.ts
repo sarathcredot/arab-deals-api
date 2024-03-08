@@ -118,7 +118,7 @@ export const productResolver: Resolvers = {
                         }
                     }
 
-                    categoryName = categoryNames.join(" ");
+                    categoryName = categoryNames.join("/");
                 }
 
                 let productCode: number;

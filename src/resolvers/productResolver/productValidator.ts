@@ -135,7 +135,7 @@ export const adminVariantsTableQueryValidator = [
 
 
 export const variantsTableByVendorQueryValidator = [
-    body('variables.input.productCode').optional({ checkFalsy: true }),
+    body('variables.input.productCode').notEmpty(),
 ]
 
 export const productsAutoCompleteQueryValidator = [

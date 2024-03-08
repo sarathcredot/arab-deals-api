@@ -275,8 +275,6 @@ type Query {
       input ProductVariantsByVendorFilter {
         # _id: String!
         productCode: Int!
-        page: Int
-        size: Int
   }
 
     input categoriesInput {
@@ -430,6 +428,9 @@ type Query {
        categoryNamePath: String
        brandId: ObjectId
        brandName: String
+       skuId: String
+       warehouseSkuId: String
+       categoryId: ObjectId
     }
 
     type VariantsTableByAdminResponse {
