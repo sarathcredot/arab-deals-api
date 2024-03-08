@@ -148,7 +148,7 @@ export const productResolver: Resolvers = {
                     skuId: input?.skuId || "",
                     description: input?.description || "",
                     productInfo: (input.productInfo || []).filter(Boolean) as [],
-                    productShortInfo: input?.productShortInfo || "",
+                    productShortInfo: input?.productShortInfo || input?.productName,
                     rating: input?.rating || 0,
                     sellingPrice: input?.sellingPrice || 0,
                     price: input?.price || 0,
