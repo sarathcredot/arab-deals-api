@@ -27,9 +27,7 @@ export interface IProduct {
     description?: string,
     productInfo?: string[],
     productShortInfo?: string,
-    color?: string,
-    size?: string,
-    material?: string,
+    productDetailImages?: FileData[],
     images?: FileData[],
     rating?: number,
     sellingPrice?: number,
@@ -73,12 +71,12 @@ export interface IProductDocument extends Document {
     productName?: string,
     shortDescription?: string,
     skuId?: string,
+    warehouseSkuId?: string;
     description?: string,
     productShortInfo?: string
     productInfo?: string[],
     color?: string,
     size?: string,
-    material?: string,
     images?: FileData[],
     rating?: number,
     sellingPrice?: number,
@@ -109,7 +107,6 @@ export interface IProductsProjection {
     productInfo?: 1,
     color?: 1,
     size?: 1,
-    material?: 1,
     "images._id"?: 1,
     "images.fileType"?: 1,
     "images.fileURL"?: 1,
@@ -137,18 +134,22 @@ export interface IProductProjection {
     productName?: 1,
     shortDescription?: 1,
     productShortInfo?: 1,
+    warehouseSkuId?: 1,
     productInfo?: 1,
     skuId?: 1,
     description?: 1,
-    color?: 1,
-    size?: 1,
-    material?: 1,
     "images._id"?: 1,
     "images.fileType"?: 1,
     "images.fileURL"?: 1,
     "images.mimeType"?: 1,
     "images.originalName"?: 1,
     "images.createdAt"?: 1,
+    "productDetailImages._id"?: 1,
+    "productDetailImages.fileType"?: 1,
+    "productDetailImages.fileURL"?: 1,
+    "productDetailImages.mimeType"?: 1,
+    "productDetailImages.originalName"?: 1,
+    "productDetailImages.createdAt"?: 1,
     rating?: 1,
     sellingPrice?: 1,
     price?: 1,
@@ -179,7 +180,8 @@ export interface IProductsOptions {
     brands?: string[],
     attributes?: Array<{ id: string, values: string[] }>,
     tags?: string[],
-    discount?: number
+    discount?: number;
+    status?: string;
 }
 
 export interface IProductsPriceRangeOptions {
@@ -200,7 +202,8 @@ export interface IProductsByVendorOptions {
     priceHighToLow?: boolean,
     query?: string,
     categories?: string[],
-    parentCategory?: string
+    parentCategory?: string;
+    status?: string;
 }
 
 export interface IProductsResponse {
@@ -609,6 +612,13 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
         });
     }
 
+    if (options.status) {
+        pipeline.push({
+            $match: {
+                status: options.status
+            }
+        });
+    }
 
     if (options.newest) {
         sort = { createdAt: -1 }
@@ -699,6 +709,14 @@ export const getProductsByVendorWithFilters = async (options: IProductsByVendorO
         pipeline.push({
             $match: {
                 vendorId: options.vendorId
+            }
+        });
+    }
+
+    if (options.status) {
+        pipeline.push({
+            $match: {
+                status: options.status
             }
         });
     }
@@ -840,7 +858,8 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
     const pipeline: PipelineStage[] = [
         {
             $match: {
-                productCode: productCode
+                productCode: productCode,
+                status: "APPROVED"
             }
         },
         {
@@ -873,6 +892,7 @@ export const getProductVariants = async (productCode: number): Promise<any> => {
                 _id: 0,
                 productId: '$_id',
                 attributeId: '$attribute._id',
+                attributeType: '$attribute.attributeType',
                 attributeName: '$attribute.name',
                 attributeDescription: {
                     $ifNull: ['$attribute.description', null]
@@ -947,54 +967,8 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
         {
             $match: {
                 productCode: options.productCode,
-                status: { $ne: "PENDING" }
             }
         },
-        // Lookup related products with the same categoryId (excluding the current product)
-        {
-            $lookup: {
-                from: collections.PRODUCTS,
-                let: { categoryId: "$categoryId" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $ne: ["$_id", "$$categoryId"] }, // Exclude the current product
-                                    { $eq: ["$categoryId", "$$categoryId"] } // Match products with the same categoryId
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        $project: {
-                            productName: 1,
-                            _id: 1,
-                            images: 1,
-                            attributes: 1,
-                            stock: 1,
-                            status: 1,
-                            isBlocked: 1
-                        }
-                    }
-                ],
-                as: "relatedProducts"
-            }
-        },
-        // Project specific fields from the result
-        // {
-        //     $project: {
-        //         _id: 1,
-        //         productName: 1,
-        //         images: 1,
-        //         attributes: 1,
-        //         stock: 1,
-        //         status: 1,
-        //         isBlocked: 1,
-        //         relatedProducts: 1
-        //     }
-        // },
-        // Pagination
         {
             $facet: {
                 metadata: [
@@ -1007,12 +981,6 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
                 ],
                 data: [
                     {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
                         $project: {
                             _id: 1,
                             productName: 1,
@@ -1021,7 +989,14 @@ export const getProductVariantsByAdminTable = async (options: QueryOptions): Pro
                             stock: 1,
                             status: 1,
                             isBlocked: 1,
-                            relatedProducts: 1
+                            categoryNamePath: 1,
+                            categoryId: 1,
+                            warehouseSkuId: 1,
+                            skuId: 1,
+                            productCode: 1,
+                            brandName: 1,
+                            brandId: 1
+
                         }
                     }
                 ]
@@ -1054,54 +1029,10 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
     pipeline.push(
         {
             $match: {
-                productCode: options.productCode
+                productCode: options.productCode,
+                vendorId: options.vendorId
             }
         },
-        // Lookup related products with the same categoryId (excluding the current product)
-        {
-            $lookup: {
-                from: collections.PRODUCTS,
-                let: { categoryId: "$categoryId" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $ne: ["$_id", "$$categoryId"] }, // Exclude the current product
-                                    { $eq: ["$categoryId", "$$categoryId"] } // Match products with the same categoryId
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        $project: {
-                            productName: 1,
-                            _id: 0,
-                            images: 1,
-                            attributes: 1,
-                            stock: 1,
-                            status: 1,
-                            isBlocked: 1
-                        }
-                    }
-                ],
-                as: "relatedProducts"
-            }
-        },
-        // Project specific fields from the result
-        // {
-        //     $project: {
-        //         _id: 1,
-        //         productName: 1,
-        //         images: 1,
-        //         attributes: 1,
-        //         stock: 1,
-        //         status: 1,
-        //         isBlocked: 1,
-        //         relatedProducts: 1
-        //     }
-        // },
-        // Pagination
         {
             $facet: {
                 metadata: [
@@ -1114,12 +1045,6 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
                 ],
                 data: [
                     {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
                         $project: {
                             _id: 1,
                             productName: 1,
@@ -1128,7 +1053,11 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
                             stock: 1,
                             status: 1,
                             isBlocked: 1,
-                            relatedProducts: 1
+                            categoryNamePath: 1,
+                            categoryId: 1,
+                            productCode: 1,
+                            brandName: 1,
+                            brandId: 1
                         }
                     }
                 ]
@@ -1420,7 +1349,6 @@ export const getProductsByCategory = async (options: QueryOptions): Promise<IPro
                 description: 1,
                 // color: 1,
                 // size: 1,
-                material: 1,
                 images: 1,
                 rating: 1,
                 sellingPrice: 1,

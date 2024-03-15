@@ -47,8 +47,8 @@ export const createWishlist = async (productId: Types.ObjectId, userId: Types.Ob
 export const getWishList = async (userId: Types.ObjectId): Promise<IWishListDoc | null> => {
     return await wishListModel.findOne({ userId: userId });
 }
-export const checkItemExists = async (productId: Types.ObjectId): Promise<IWishListDoc | null> => {
-    return await wishListModel.findOne({ "products.productId": productId }, { _id: 1 });
+export const checkItemExists = async (productId: Types.ObjectId, userId: Types.ObjectId): Promise<IWishListDoc | null> => {
+    return await wishListModel.findOne({ "products.productId": productId, "products.userId": userId }, { _id: 1 });
 }
 
 export const addItem = async (productId: Types.ObjectId, userId: string): Promise<any> => {

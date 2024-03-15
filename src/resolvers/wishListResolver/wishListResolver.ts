@@ -118,7 +118,7 @@ export const wishListResolver: Resolvers = {
             const userId: Types.ObjectId = req.authAccount._id;
             const productId = input.productId;
 
-            const product = await wishListService.checkItemExists(productId);
+            const product = await wishListService.checkItemExists(productId, userId);
 
             const response = {
                 isExist: product ? true : false

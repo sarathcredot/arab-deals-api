@@ -15,16 +15,23 @@ export const vendorCompanyResolver: Resolvers = {
 
         addVendorCompany: async (parent, { input, images, fileMap }, { req }, info) => {
             try {
-                // Validate Input
-                await validateInput(validators.addVendorCompanyValidator, req);
                 await verifyVendor(req);
 
-                let vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
-                const vendorRecord = await vendorService.getvendorRecordWithId(vendorId);
-                console.log(vendorRecord)
+                // Validate Input
+                await validateInput(validators.addVendorCompanyValidator, req);
 
-                if (!vendorRecord) {
-                    throw new GraphQLError("Vendor record not found", {
+                const vendorId = req.authAccount._id;
+
+                let vendorCompanyImagesKeys = Object.keys(fileMap || {});
+
+
+                let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ vendorId: vendorId }, {}, {});
+
+                if (!vendorCompanyRecord) {
+                    vendorCompanyRecord = await vendorCompanyService.createVendorCompanyRecord({ vendorId: vendorId });
+                }
+                else if (vendorCompanyRecord && vendorCompanyRecord.status !== "PENDING") {
+                    throw new GraphQLError("Company details cant be updated", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: [],
@@ -38,8 +45,26 @@ export const vendorCompanyResolver: Resolvers = {
                 let status: string = "UNDER_VERIFICATION";
 
                 images = images || [];
-                let vendorCompanyImages: vendorCompanyService.FileData[] = [];
 
+                if (images.length !== 2) {
+                    throw new GraphQLError("Document(s) missing", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                if (vendorCompanyImagesKeys.length !== images.length) {
+                    throw new GraphQLError("Document(s) missing", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                let vendorCompanyImages: vendorCompanyService.FileData[] = [];
 
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
@@ -48,35 +73,30 @@ export const vendorCompanyResolver: Resolvers = {
 
                     const stream = createReadStream();
 
-                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+                    const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
                     vendorCompanyImages.push({
-                        fileType: "PUBLIC",
+                        fileType: "PRIVATE",
                         fileURL: file.location,
                         mimeType: mimetype,
                         originalName: filename
                     });
                 }
 
-                fileMap = fileMap || {};
-                const vendorCompanyRecord: vendorCompanyService.IVendorCompany = {
-                    vendorId,
-                    companyName,
-                    companyType,
-                    crNumber,
-                    status,
-                };
+                vendorCompanyRecord.companyName = companyName;
+                vendorCompanyRecord.companyType = companyType;
+                vendorCompanyRecord.crNumber = crNumber;
+                vendorCompanyRecord.status = status;
 
-                let vendorCompanyImagesKeys = Object.keys(fileMap);
                 vendorCompanyImagesKeys.forEach((imageName) => {
                     if (fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
                             case "crLicense":
-                                vendorCompanyRecord.crLicense = vendorCompanyImages[fileMap[imageName]];
+                                vendorCompanyRecord!.crLicense = vendorCompanyImages[fileMap[imageName]];
                                 break;
 
                             case "cooCertificate":
-                                vendorCompanyRecord.cooCertificate = vendorCompanyImages[fileMap[imageName]];
+                                vendorCompanyRecord!.cooCertificate = vendorCompanyImages[fileMap[imageName]];
                                 break;
 
                             default:
@@ -84,9 +104,9 @@ export const vendorCompanyResolver: Resolvers = {
                     }
                 });
 
+                await vendorCompanyRecord.save();
 
-                const result = await vendorCompanyService.createVendorCompanyRecord(vendorCompanyRecord);
-                const response = { _id: result?._id.toString() || "", message: "Vendor company record added successfully" };
+                const response = { _id: vendorCompanyRecord._id?.toString() || "", message: "Vendor company record added successfully" };
                 return response;
 
             } catch (error) {
@@ -96,21 +116,14 @@ export const vendorCompanyResolver: Resolvers = {
 
         updateVendorCompany: async (parent, { input, images, fileMap }, { req }, info) => {
             try {
-                // Validate Input
-                await validateInput(validators.editVendorCompanyValidator, req);
                 await verifyVendor(req);
 
-                const vendorId: Types.ObjectId = new Types.ObjectId(input.vendorId);
-                const vendor = await vendorService.findVendorWithFilters({ _id: vendorId }, {}, {});
+                // Validate Input
+                await validateInput(validators.editVendorCompanyValidator, req);
 
-                if (!vendor) {
-                    throw new GraphQLError("Vendor not found with this id", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
+                const vendorId = req.authAccount._id;
+
+                let vendorCompanyImagesKeys = Object.keys(fileMap || {});
 
                 let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ vendorId: vendorId }, {}, {});
 
@@ -123,8 +136,26 @@ export const vendorCompanyResolver: Resolvers = {
                     });
                 }
 
+                if (!["PENDING", "REJECTED"].includes(vendorCompanyRecord.status || "")) {
+                    throw new GraphQLError("Company details cant be updated", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
                 images = images || [];
                 let vendorCompanyImages: vendorCompanyService.FileData[] = [];
+
+                if (images.length && vendorCompanyImagesKeys.length !== images.length) {
+                    throw new GraphQLError("Documents missing", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
 
                 for (let image of images) {
                     const { createReadStream, filename, mimetype } = await image;
@@ -132,17 +163,15 @@ export const vendorCompanyResolver: Resolvers = {
                     const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
 
                     const stream = createReadStream();
-                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+                    const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
                     vendorCompanyImages.push({
-                        fileType: "PUBLIC",
+                        fileType: "PRIVATE",
                         fileURL: file.location,
                         mimeType: mimetype,
                         originalName: filename
                     });
                 }
-
-                fileMap = fileMap || {};
 
                 if (input.companyName) {
                     vendorCompanyRecord.companyName = input?.companyName;
@@ -158,7 +187,6 @@ export const vendorCompanyResolver: Resolvers = {
 
                 vendorCompanyRecord.status = "UNDER_VERIFICATION";
 
-                let vendorCompanyImagesKeys = Object.keys(fileMap);
                 vendorCompanyImagesKeys.forEach((imageName) => {
                     if (vendorCompanyRecord && fileMap[imageName] != null && fileMap[imageName] >= 0) {
                         switch (imageName) {
@@ -175,10 +203,9 @@ export const vendorCompanyResolver: Resolvers = {
                     }
                 });
 
-                const result = await vendorCompanyRecord.save();
+                await vendorCompanyRecord.save();
 
                 const response = {
-                    record: result.toObject(),
                     message: "Vendor company record updated successfully"
                 };
                 return response;
@@ -188,78 +215,90 @@ export const vendorCompanyResolver: Resolvers = {
             }
         },
 
-        // Vendor KYC of company details status updation
-        vendorCompanyStatusUpdation: async (parent, { input }, { req }, info) => {
-            // await verifyAdmin(req);
-            await validateInput(validators.vendorCompanyStatusUpdationValidator, req);
+        updateVendorCompanyByAdmin: async (parent, { input, crLicense, cooCertificate }, { req }, info) => {
+            await validateInput(validators.vendorEditByAdminValidator, req);
+            await verifyAdmin(req);
 
-            const _id: Types.ObjectId = new Types.ObjectId(input._id);
-            const vendor = await vendorCompanyService.getVendorCompanyRecordWithId(_id);
+            let { _id, companyName, companyType, crNumber, status, remarks } = input;
 
-            if (!vendor) {
-                throw new GraphQLError("Record not found", {
+            let vendorCompanyRecord = await vendorCompanyService.getVendorCompanyRecordWithFilters({ _id: _id }, {}, {});
+
+            if (!vendorCompanyRecord) {
+                throw new GraphQLError("Vendor company record not found", {
                     extensions: {
                         code: "BAD_REQUEST",
-                        errors: []
-                    }
+                        errors: [],
+                    },
                 });
             }
 
-            if (input.status !== null) {
-                vendor.status = input?.status;
+            if (companyName) {
+                vendorCompanyRecord.companyName = companyName;
             }
 
-            if (input.remarks !== null) {
-                vendor.remarks = (input.remarks || []).filter(Boolean) as [];
+            if (companyType) {
+                vendorCompanyRecord.companyType = companyType;
             }
 
+            if (crNumber) {
+                vendorCompanyRecord.crNumber = crNumber;
+            }
 
-            await vendor.save();
+            if (status) {
+                vendorCompanyRecord.status = status;
+                vendorCompanyRecord.remarks = remarks || [];
 
-            console.log(vendor)
+            }
+
+            if (crLicense) {
+                const { createReadStream, filename, mimetype } = await crLicense;
+
+                const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
+
+                const stream = createReadStream();
+                const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                vendorCompanyRecord.crLicense = {
+                    fileType: "PRIVATE",
+                    fileURL: file.location,
+                    mimeType: mimetype,
+                    originalName: filename
+                };
+            }
+
+            if (cooCertificate) {
+                const { createReadStream, filename, mimetype } = await cooCertificate;
+
+                const key = spaceService.getFileKey(filePaths.vendorCompany, filename, []);
+
+                const stream = createReadStream();
+                const file = await spaceService.privateFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                vendorCompanyRecord.cooCertificate = {
+                    fileType: "PRIVATE",
+                    fileURL: file.location,
+                    mimeType: mimetype,
+                    originalName: filename
+                };
+            }
+
+            await vendorCompanyRecord.save();
 
             const response = {
-                _id: vendor._id?.toString(),
-                message: "Vendor kyc of company status updated successfully"
-            }
-
+                message: "Vendor company record updated successfully"
+            };
             return response;
-        },
 
-        deleteVendorOutlet: async (parent, { input }, { req }, info) => {
-            try {
-                // Validate Input
-                await validateInput(validators.vendorCompanyDeleteValidator, req);
-                await verifyVendor(req);
+        }
 
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                const result = await vendorCompanyService.deleteVendorCompanyRecord(_id);
-
-                if (!result) {
-                    throw new GraphQLError("Company record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
-
-                const response = {
-                    _id: result?._id?.toString() || "", message: "Company record deleted successfully",
-                };
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
     },
 
     Query: {
         // Fetch all vendor company
         async getAllVendorCompanyRecordsByAdmin(parent, { input }, { req }, info) {
             try {
-                await validateInput(validators.getAllVendorCompanyValidator, req);
                 await verifyAdmin(req);
+                await validateInput(validators.getAllVendorCompanyValidator, req);
 
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
@@ -286,9 +325,9 @@ export const vendorCompanyResolver: Resolvers = {
         // Fetch vendor company record by id
         async getVendorCompanyRecordByAdmin(parent, { input }, { req }, info) {
             try {
-                // Validate Input
-                await validateInput(validators.vendorCompanyQueryValidator, req);
                 await verifyAdmin(req);
+                await validateInput(validators.vendorCompanyQueryValidator, req);
+
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
@@ -310,6 +349,39 @@ export const vendorCompanyResolver: Resolvers = {
                     },
                     message: "Vendor company record fetched successfully",
                 };
+
+                return response;
+
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async getVendorCompanyRecord(parent, { }, { req }, info) {
+            try {
+                await verifyVendor(req);
+
+                const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+                const result = await vendorCompanyService.getVendorCompanyRecordWithId(_id);
+
+                if (!result) {
+                    throw new GraphQLError("Company record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                const response = {
+                    record: {
+                        ...result.toObject(),  // Convert Mongoose document to plain JavaScript object
+                        vendorId: result?.vendorId?.toString()  // Convert ObjectId to string
+                    },
+                    message: "Vendor company record fetched successfully",
+                };
+
 
                 return response;
 

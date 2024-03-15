@@ -54,7 +54,6 @@ const cmsSchema = new Schema(
         sectionName: {
             type: String,
             required: true,
-            unique: true
         },
         // title: {
         //     type: String

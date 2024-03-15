@@ -7,7 +7,7 @@
   type Mutation {
     addCmsSection(input: AddCmsInput!, images:[Upload]): AddCmsResponse!
     updateCmsRecord(input: UpdateCmsInput!, images:[Upload]): UpdateCmsResponse!
-    deleteCmsRecord(input: CmsRecordId!): DeleteCmsResponse!
+    # deleteCmsRecord(input: CmsRecordId!): DeleteCmsResponse!
 
   }
 
@@ -27,8 +27,6 @@
 
     input UpdateCmsInput {
         _id: String!
-        pageName: String
-        sectionName: String
         buttons: [ButtonDataInput]
     }
 

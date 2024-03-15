@@ -13,12 +13,12 @@
   }
 
   type Mutation {
-    uploadProductFile(file: Upload!): File
-    createProduct(input: ProductInput!, images:[Upload]): ProductResponse
-    createVariant(input: VariantInput!, images:[Upload]): VariantResponse
-    updateProduct(input: ProductUpdateInput!, images: [Upload]): ProductUpdateResponse
-    updateProductStatus(input: ProductStatusInput!): ProductStatusResponse
-    deleteProduct(input: ProductId!): DeleteProductResponse!
+    # uploadProductFile(file: Upload!): File
+    createProduct(input: ProductInput!, images:[Upload], productDetailImages:[Upload]): ProductResponse
+    createVariant(input: VariantInput!, images:[Upload], productDetailImages:[Upload]): VariantResponse
+    updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages:[Upload]): ProductUpdateResponse
+    updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages:[Upload]): UpdateProductByAdminResponse!
+    # deleteProduct(input: ProductId!): DeleteProductResponse!
     submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
   }
 
@@ -50,60 +50,64 @@
     }
 
    input ProductInput {
-    vendorId: String!
-    brandId: String
-    brandName: String
-    productName: String
-    shortDescription: String
-    skuId: String
-    description: String
+    brandId: ObjectId!
+    brandName: String!
+    productName: String!
+    shortDescription: String!
+    skuId: String!
+    description: String!
     productInfo: [String]
     productShortInfo: String
-    material: String,
-    rating: Int
-    tags: String
-    sellingPrice: Float
-    price: Float
-    mrp: Float
-    isBlocked: Boolean
-    productCode: Int
-    stock: Int
-    categoryId: String!
-    offerPrice: Int!
+    rating: Int!
+    tags: String!
+    sellingPrice: Float!
+    price: Float!
+    mrp: Float!
+    stock: Int!
+    categoryId: ObjectId!
+    offerPrice: Float
     attributes: [String]
-    images: [String]
 }
 
 input VariantInput {
-    vendorId: String
-    brandId: String
-    brandName: String
-    productName: String
-    shortDescription: String
-    skuId: String
-    description: String
-    productInfo: [String]
+    productName: String!
+    shortDescription: String!
+    skuId: String!
+    description: String!
+    productInfo: [String!]!
     productShortInfo: String
-    material: String,
-    rating: Int
+    rating: Int!
     tags: String
-    sellingPrice: Float
-    price: Float
-    mrp: Float
-    isBlocked: Boolean
+    sellingPrice: Float!
+    price: Float!
+    mrp: Float!
     productCode: Int!
-    stock: Int
-    categoryId: String
-    status: String
-    offerPrice: Int
-    attributes: [String]
-    images: [String]
+    stock: Int!
+    attributes: [String!]!
 }
 
-   input ProductUpdateInput {
-     _id: String!
-    vendorId: String
-    brandId: String
+input ProductUpdateInput {
+    _id: ObjectId!
+    productName: String
+    shortDescription: String
+    skuId: String
+    description: String
+    productInfo: [String]
+    productShortInfo: String
+    rating: Int
+    tags: String
+    sellingPrice: Float
+    price: Float
+    mrp: Float
+    stock: Int
+    status: String
+    offerPrice: Int
+
+}
+
+input UpdateProductByAdminInput {
+    _id: ObjectId!
+    brandId: ObjectId
     brandName: String
     productName: String
     shortDescription: String
@@ -111,23 +115,23 @@ input VariantInput {
     description: String
     productInfo: [String]
     productShortInfo: String
-    material: String,
     rating: Int
     tags: String
     sellingPrice: Float
     price: Float
     mrp: Float
-    isBlocked: Boolean
     productCode: Int
     stock: Int
     categoryId: String
     status: String
     offerPrice: Int
     attributes: [String]
-    images: [String]
+    remarks: [String]
+    isBlocked: Boolean
+    warehouseSkuId: String
 }
 
-    input ProductId {
+input ProductId {
         _id: String!
  }
 
@@ -177,6 +181,7 @@ type Query {
         attributes: [AttributeInput]
         discount: Int
         bestSeller: Boolean
+        status: String
     }
 
     input AttributeInput {
@@ -202,7 +207,6 @@ type Query {
     }
 
     input ProductByVendorFilters {
-        vendorId: String!
         page: Int
         size: Int
         minPrice: Float
@@ -213,6 +217,7 @@ type Query {
         query: String
         categories:[String]
         parentCategory:String
+        status: String
     }
 
     input ProductId {
@@ -252,16 +257,12 @@ type Query {
     }
 
     input ProductVariantsByAdminFilter {
-        _id: String!
-        page: Int
-        size: Int
+        productCode: Int!
   }
 
       input ProductVariantsByVendorFilter {
         # _id: String!
         productCode: Int!
-        page: Int
-        size: Int
   }
 
     input categoriesInput {
@@ -289,7 +290,6 @@ type Query {
         description: String
         productInfo: [String]
         productShortInfo: String
-        material: String
         images: [ProductFileData]
         rating: Int
         sellingPrice: Float
@@ -306,6 +306,7 @@ type Query {
         offerPrice: Int
         attributes: [IProductAttribute]
         productDetailImages: [ProductFileData]
+        warehouseSkuId: String
     }
 
     type IProductAttribute {
@@ -352,12 +353,19 @@ type Query {
         message: String
     }
     
+    type UpdateProductByAdminResponse {
+        _id: String!
+        message: String
+    }
+    
+
 
     type Variant {
         _id: String!
         productId: String
         attributeId: String
-        attributeName: String
+        attributeName: String,
+        attributeType: String,
         attributeValueId: String
         attributeValue: String
         attributeDescription: String
@@ -380,6 +388,13 @@ type Query {
        stock: Int
        status: String
        isBlocked: Boolean
+       categoryNamePath: String,
+       categoryId: ObjectId,
+       warehouseSkuId: String,
+       skuId: String,
+       productCode: String
+       brandName: String
+       brandId: ObjectId
     }
 
     type VariantsByAdmin {
@@ -400,6 +415,13 @@ type Query {
        stock: Int
        status: String
        isBlocked: Boolean
+       productCode: Int
+       categoryNamePath: String
+       brandId: ObjectId
+       brandName: String
+       skuId: String
+       warehouseSkuId: String
+       categoryId: ObjectId
     }
 
     type VariantsTableByAdminResponse {

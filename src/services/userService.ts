@@ -116,16 +116,8 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
               firstName: 1,
               lastName: 1,
               displayName: 1,
-              address: 1,
-              countryCode: 1,
               mobileNumber: 1,
-              hash: 1,
               isBlocked: 1,
-              houseNumber: 1,
-              streetName: 1,
-              city: 1,
-              pincode: 1,
-              country: 1,
             }
           }
         ]

@@ -214,8 +214,8 @@ export const userResolver: Resolvers = {
 
     userBlock: async (parent, { input }, { req }, info) => {
       try {
-        await validateInput(validators.userBlockValidator, req);
         await verifyAdmin(req);
+        await validateInput(validators.userBlockValidator, req);
 
         // const user= await userService.
         const _id: Types.ObjectId = new Types.ObjectId(input._id);
@@ -267,7 +267,7 @@ export const userResolver: Resolvers = {
           const trimmedEmail = input.email.trim().toLowerCase();
 
           if (user.email !== trimmedEmail) {
-            const isEmailExists = await adminService.findAdminWithFilters(
+            const isEmailExists = await userService.findUserWithFilters(
               { email: trimmedEmail },
               { _id: 1, email: 1 },
               { lean: true }
@@ -312,6 +312,101 @@ export const userResolver: Resolvers = {
       }
     },
 
+    updateUserProfileByAdmin: async (parent, { input }, { req }, info) => {
+
+      try {
+        await verifyAdmin(req);
+        await validateInput(validators.userUpdateProfileByAdminValidator, req);
+
+        let { _id, firstName, lastName, displayName, mobileNumber, isBlocked, email } = input;
+
+        const user = await userService.findUserWithFilters({ _id: _id }, {}, {});
+        if (!user) {
+          throw new GraphQLError('User not found', {
+            extensions: {
+              code: 'BAD_REQUEST',
+              errors: [],
+            },
+          });
+        }
+
+        if (email) {
+          const trimmedEmail = email.trim().toLowerCase();
+
+          if (user.email !== trimmedEmail) {
+            const isUserExists = await userService.findUserWithFilters(
+              { email: trimmedEmail },
+              { _id: 1 },
+              { lean: true }
+            );
+
+            if (isUserExists) {
+              throw new GraphQLError('User with this email already exists', {
+                extensions: {
+                  code: 'BAD_REQUEST',
+                  errors: [],
+                },
+              });
+            }
+
+            user.email = trimmedEmail;
+          }
+        }
+
+        if (mobileNumber) {
+
+          if (user.mobileNumber !== mobileNumber) {
+            const isUserExists = await userService.findUserWithFilters(
+              { mobileNumber: mobileNumber },
+              { _id: 1 },
+              { lean: true }
+            );
+
+            if (isUserExists) {
+              throw new GraphQLError('User with this mobile number already exists', {
+                extensions: {
+                  code: 'BAD_REQUEST',
+                  errors: [],
+                },
+              });
+            }
+
+            user.mobileNumber = mobileNumber;
+          }
+        }
+
+
+        if (firstName) {
+          user.firstName = firstName;
+        }
+
+        if (lastName) {
+          user.lastName = lastName;
+        }
+
+        if (displayName) {
+          user.displayName = displayName;
+        }
+
+        if (isBlocked === true || isBlocked === false) {
+          user.isBlocked = isBlocked;
+          if (user.isBlocked) {
+            user.token = `${Date.now}`;
+          }
+        }
+
+        await user.save();
+
+        const response = {
+          message: 'user successfully updated',
+        };
+
+        return response;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
     //Mobile Edit user profile
     updateUserProfileInMobile: async (parent, { input }, { req }, info) => {
 

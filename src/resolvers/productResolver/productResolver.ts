@@ -10,31 +10,33 @@ import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
 
 export const productResolver: Resolvers = {
-    Upload: GraphQLUpload,
     Mutation: {
-        uploadProductFile: async (parent, { file }, info) => {
-            const { createReadStream, filename, mimetype, encoding } = await file;
-            const uploadDir = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "uploads");
+        // uploadProductFile: async (parent, { file }, info) => {
+        //     const { createReadStream, filename, mimetype, encoding } = await file;
+        //     const uploadDir = path.join(path.dirname(path.dirname(path.dirname(__dirname))), "uploads");
 
-            const stream = createReadStream();
-            const writeStream = createWriteStream(`${uploadDir}/${Date.now()}${filename}`);
+        //     const stream = createReadStream();
+        //     const writeStream = createWriteStream(`${uploadDir}/${Date.now()}${filename}`);
 
-            await new Promise((resolve, reject) => {
-                stream.pipe(writeStream);
-                writeStream.on('finish', resolve);
-                writeStream.on('error', reject);
-            });
+        //     await new Promise((resolve, reject) => {
+        //         stream.pipe(writeStream);
+        //         writeStream.on('finish', resolve);
+        //         writeStream.on('error', reject);
+        //     });
 
-            return { filename, mimetype, encoding };
-        },
+        //     return { filename, mimetype, encoding };
+        // },
 
-        createProduct: async (parent, { input, images }, { req }, info) => {
+        createProduct: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
-                // Validate Input
+                await verifyVendor(req);
                 await validateInput(validators.createProductValidator, req);
-                // await verifyAdmin(req);
+
+                const vendorId = req.authAccount._id;
+
 
                 images = images || [];
+
 
                 let productImages = [];
 
@@ -53,6 +55,28 @@ export const productResolver: Resolvers = {
                         originalName: filename
                     });
                 }
+
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+
 
                 let newProduct: productService.IProduct = {};
 
@@ -94,7 +118,7 @@ export const productResolver: Resolvers = {
                         }
                     }
 
-                    categoryName = categoryNames.join(" ");
+                    categoryName = categoryNames.join("/");
                 }
 
                 let productCode: number;
@@ -116,7 +140,7 @@ export const productResolver: Resolvers = {
 
 
                 newProduct = {
-                    vendorId: input.vendorId,
+                    vendorId: vendorId,
                     brandId: input.brandId || "",
                     brandName: input.brandName || "",
                     productName: input?.productName || "",
@@ -124,23 +148,23 @@ export const productResolver: Resolvers = {
                     skuId: input?.skuId || "",
                     description: input?.description || "",
                     productInfo: (input.productInfo || []).filter(Boolean) as [],
-                    productShortInfo: input?.productShortInfo || "",
-                    material: input?.material || "",
+                    productShortInfo: input?.productShortInfo || input?.productName,
                     rating: input?.rating || 0,
                     sellingPrice: input?.sellingPrice || 0,
                     price: input?.price || 0,
                     mrp: input?.mrp || 0,
-                    isBlocked: input?.isBlocked || false,
+                    isBlocked: false,
                     tags: tags || [],
                     stock: input?.stock || 0,
                     images: productImages || [],
+                    productDetailImages: detailImages || [],
                     categoryId: input.categoryId || "",
                     categoryNamePath: categoryName,
                     categoryIdPath: categoryIdPath,
                     productCode: productCode,
-                    status: "PENDING",
+                    status: "UNDER_VERIFICATION",
                     attributes: attributeData,
-                    offerPrice: input.offerPrice
+                    offerPrice: input.offerPrice || 0
                 };
 
                 // Create the product
@@ -158,11 +182,11 @@ export const productResolver: Resolvers = {
             }
         },
 
-        createVariant: async (parent, { input, images }, { req }, info) => {
+        createVariant: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
-                // Validate Input
+                await verifyVendor(req);
                 await validateInput(validators.createVariantValidator, req);
-                // await verifyAdmin(req);
+                const vendorId = req.authAccount._id;
 
                 images = images || [];
 
@@ -184,11 +208,32 @@ export const productResolver: Resolvers = {
                     });
                 }
 
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+
                 let newProduct: productService.IProduct = {};
 
                 let productCode: number = input.productCode;
 
-                const variant = await productService.getProductWithFilters({ productCode: productCode }, {}, { lean: true });
+                const variant = await productService.getProductWithFilters({ productCode: productCode, vendorId: vendorId }, {}, { lean: true });
                 if (!variant) {
                     throw new GraphQLError("Product not found", {
                         extensions: {
@@ -231,31 +276,31 @@ export const productResolver: Resolvers = {
                 const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
 
                 newProduct = {
-                    vendorId: input.vendorId || variant.vendorId,
-                    brandId: input.brandId || variant.brandId,
-                    brandName: input.brandName || variant.brandName,
+                    vendorId: vendorId,
+                    brandId: variant.brandId,
+                    brandName: variant.brandName,
                     productName: input?.productName || variant.productName,
                     shortDescription: input?.shortDescription || variant.shortDescription,
                     skuId: input?.skuId || variant.skuId,
                     description: input?.description || variant.description,
                     productInfo: (input.productInfo || variant.productInfo || []).filter(Boolean) as [],
                     productShortInfo: input?.productShortInfo || variant.productShortInfo,
-                    material: input?.material || variant.material,
                     rating: input?.rating || variant.rating,
                     sellingPrice: input?.sellingPrice || 0,
                     price: input?.price || 0,
                     mrp: input?.mrp || 0,
-                    isBlocked: input?.isBlocked || false,
+                    isBlocked: false,
                     tags: tags || [],
                     stock: input?.stock || 0,
                     images: productImages || [],
+                    productDetailImages: detailImages || [],
                     categoryId: variant.categoryId,
                     categoryNamePath: variant.categoryNamePath,
                     categoryIdPath: variant.categoryIdPath,
                     productCode: productCode,
-                    status: "PENDING",
+                    status: "UNDER_VERIFICATION",
                     attributes: attributeData,
-                    offerPrice: input?.offerPrice || 0,
+                    offerPrice: 0,
                 };
 
                 // Create the product
@@ -273,14 +318,16 @@ export const productResolver: Resolvers = {
             }
         },
 
-        updateProduct: async (parent, { input, images }, { req }, info) => {
+        updateProduct: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
+                await verifyVendor(req);
                 await validateInput(validators.productUpdateValidator, req);
-                await verifyAdmin(req);
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const vendorId = req.authAccount._id;
 
-                const existingProduct: productService.IProductDocument | null = await productService.getProductWithId(_id);
+
+                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id, vendorId: vendorId }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
                         extensions: {
@@ -302,8 +349,27 @@ export const productResolver: Resolvers = {
 
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-
                     productImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
                         fileType: "PUBLIC",
                         fileURL: file.location,
                         mimeType: mimetype,
@@ -317,20 +383,6 @@ export const productResolver: Resolvers = {
                     tags = inputTags.split(',').map(tag => tag.trim());
                     existingProduct.tags = (tags || []).filter(Boolean) as [];
                 }
-
-
-                let attributes: Types.ObjectId[] = (input.attributes || []).filter(Boolean) as [];
-
-                // Explicitly define the type of result based on your Mongoose model
-                const attributeIdsArray = attributes.map(attr => new Types.ObjectId(attr)) || []; // Assuming the field is named 'attributes'
-
-                const attributeData = await productService.getProductsAttributesData(attributeIdsArray);
-
-                let productInfo: string[] = [];
-                if (input.productInfo) {
-                    existingProduct.productInfo = (input.productInfo || []).filter(Boolean) as [];
-                }
-
 
                 if (input.productName && existingProduct.productName !== input.productName) {
                     existingProduct.productName = input.productName;
@@ -356,32 +408,23 @@ export const productResolver: Resolvers = {
                     existingProduct.description = input.description;
                 }
 
-
-                if (input.material && existingProduct.material !== input.material) {
-                    existingProduct.material = input.material;
-                }
-
-                if (input.rating !== null && existingProduct.rating !== input.rating) {
+                if (input.rating && input.rating > 0 && existingProduct.rating !== input.rating) {
                     existingProduct.rating = input.rating;
                 }
 
-                if (input.sellingPrice !== null && existingProduct.sellingPrice !== input.sellingPrice) {
+
+                if (input.sellingPrice && input.sellingPrice > 0 && existingProduct.sellingPrice !== input.sellingPrice) {
                     existingProduct.sellingPrice = input.sellingPrice;
                 }
 
-                if (input.price !== null && existingProduct.price !== input.price) {
+                if (input.price && input.price > 0 && existingProduct.price !== input.price) {
                     existingProduct.price = input.price;
                 }
-
-                if (input.mrp !== null && existingProduct.mrp !== input.mrp) {
+                if (input.mrp && input.mrp > 0 && existingProduct.mrp !== input.mrp) {
                     existingProduct.mrp = input.mrp;
                 }
 
-                if (input.isBlocked !== null && existingProduct.isBlocked !== input.isBlocked) {
-                    existingProduct.isBlocked = input.isBlocked;
-                }
-
-                if (input.stock !== null && existingProduct.stock !== input.stock) {
+                if (input.stock && input.stock >= 0) {
                     existingProduct.stock = input.stock;
                 }
 
@@ -389,21 +432,173 @@ export const productResolver: Resolvers = {
                     existingProduct.images = productImages;
                 }
 
-                if (input.brandId !== null && existingProduct.brandId !== input.brandId) {
+
+                if (detailImages.length > 0) {
+                    existingProduct.productDetailImages = detailImages;
+                }
+
+                // Update the product
+                const result = await existingProduct.save();
+
+
+                if (!result) {
+                    throw new GraphQLError("Product updatation failed", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                const response = {
+                    _id: result?._id?.toString() || "",
+                    message: "Product updated successfully",
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+        updateProductByAdmin: async (parent, { input, images, productDetailImages }, { req }, info) => {
+            try {
+                await verifyAdmin(req);
+                await validateInput(validators.productUpdateByAdminValidator, req);
+
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+
+
+                const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id }, {}, {});
+                if (!existingProduct) {
+                    throw new GraphQLError("Product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                images = images || [];
+
+                let productImages = [];
+
+                for (let image of images) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.products, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    productImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+                productDetailImages = productDetailImages || [];
+
+                let detailImages = [];
+
+                for (let image of productDetailImages) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
+
+                    const stream = createReadStream();
+
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+                    detailImages.push({
+                        fileType: "PUBLIC",
+                        fileURL: file.location,
+                        mimeType: mimetype,
+                        originalName: filename
+                    });
+                }
+
+                let tags: string[] = [];
+                if (input.tags) {
+                    const inputTags: string = input.tags;
+                    tags = inputTags.split(',').map(tag => tag.trim());
+                    existingProduct.tags = (tags || []).filter(Boolean) as [];
+                }
+
+                if (input.productName && existingProduct.productName !== input.productName) {
+                    existingProduct.productName = input.productName;
+                }
+
+                if (input.shortDescription && existingProduct.shortDescription !== input.shortDescription) {
+                    existingProduct.shortDescription = input.shortDescription;
+                }
+
+                if (input.brandId && existingProduct.brandId !== input.brandId) {
                     existingProduct.brandId = input.brandId;
                 }
 
-                if (input.brandName !== null && existingProduct.brandName !== input.brandName) {
+                if (input.brandName && existingProduct.brandName !== input.brandName) {
                     existingProduct.brandName = input.brandName;
                 }
 
-
-                if (input.attributes !== null) {
-                    (existingProduct as any).attributes = [...(existingProduct as any).attributes, ...attributeData].filter(Boolean) as [];
+                if (input.productInfo) {
+                    existingProduct.productInfo = (input.productInfo || []).filter(Boolean) as [];
                 }
 
-                // This code for remove the remarks array empty when resubmitting or updating the same product aftrer rejection
-                existingProduct.remarks = [];
+                if (input.remarks) {
+                    existingProduct.remarks = input.remarks as string[];
+                }
+
+                if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
+                    existingProduct.productShortInfo = input.productShortInfo;
+                }
+
+                if (input.skuId && existingProduct.skuId !== input.skuId) {
+                    existingProduct.skuId = input.skuId;
+                }
+
+                if (input.warehouseSkuId && existingProduct.warehouseSkuId !== input.warehouseSkuId) {
+                    existingProduct.warehouseSkuId = input.warehouseSkuId;
+                }
+
+                if (input.description && existingProduct.description !== input.description) {
+                    existingProduct.description = input.description;
+                }
+
+                if (input.rating && input.rating > 0 && existingProduct.rating !== input.rating) {
+                    existingProduct.rating = input.rating;
+                }
+
+                if (input.sellingPrice && input.sellingPrice > 0 && existingProduct.sellingPrice !== input.sellingPrice) {
+                    existingProduct.sellingPrice = input.sellingPrice;
+                }
+
+                if (input.price && input.price > 0 && existingProduct.price !== input.price) {
+                    existingProduct.price = input.price;
+                }
+
+                if (input.mrp && input.mrp > 0 && existingProduct.mrp !== input.mrp) {
+                    existingProduct.mrp = input.mrp;
+                }
+
+                if (input.isBlocked == false || input.isBlocked === true) {
+                    existingProduct.isBlocked = input.isBlocked;
+                }
+
+                if (input.stock && input.stock >= 0) {
+                    existingProduct.stock = input.stock;
+                }
+
+                if (productImages.length > 0) {
+                    existingProduct.images = productImages;
+                }
+
+                if (input.status && existingProduct.status !== input.status) {
+                    existingProduct.status = input.status;
+                }
+
+                if (detailImages.length > 0) {
+                    existingProduct.productDetailImages = detailImages;
+                }
 
                 // Update the product
                 const result = await existingProduct.save();
@@ -428,60 +623,11 @@ export const productResolver: Resolvers = {
             }
         },
 
-        //  Update product status by admin
-        updateProductStatus: async (parent, { input }, { req }, info) => {
-            try {
-                await validateInput(validators.productUpdateStatusValidator, req);
-                await verifyAdmin(req);
-
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-
-                const existingProduct: productService.IProductDocument | null = await productService.getProductWithId(_id);
-                if (!existingProduct) {
-                    throw new GraphQLError("Product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
-
-
-                if (input.status && existingProduct.status !== input.status) {
-                    existingProduct.status = input.status;
-                }
-                if (input.remarks !== null) {
-                    existingProduct.remarks = (input.remarks || []).filter(Boolean) as [];
-                }
-
-                // Update the product
-                const result = await existingProduct.save();
-
-                if (!result) {
-                    throw new GraphQLError("Product updatation failed", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
-
-                const response = {
-                    _id: result?._id?.toString(),
-                    message: "Product updated successfully",
-                };
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
-
 
         //  Update product status by vendor by under progress
         submitProductForPreviewByVendor: async (parent, { input }, { req }, info) => {
             try {
-                // await verifyVendor(req);
-
+                await verifyVendor(req);
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
                 const existingProduct: productService.IProductDocument | null = await productService.getProductWithId(_id);
@@ -521,33 +667,33 @@ export const productResolver: Resolvers = {
         },
 
 
-        deleteProduct: async (parent, { input }, { req }, info) => {
-            try {
-                await validateInput(validators.productDeleteValidator, req);
-                await verifyAdmin(req);
+        // deleteProduct: async (parent, { input }, { req }, info) => {
+        //     try {
+        //         await validateInput(validators.productDeleteValidator, req);
+        //         await verifyAdmin(req);
 
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
-                const filter = { _id };
-                const result = await productService.deleteProduct(filter);
+        //         const _id: Types.ObjectId = new Types.ObjectId(input._id);
+        //         const filter = { _id };
+        //         const result = await productService.deleteProduct(filter);
 
-                if (!result) {
-                    throw new GraphQLError("Record not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: [],
-                        },
-                    });
-                }
+        //         if (!result) {
+        //             throw new GraphQLError("Record not found", {
+        //                 extensions: {
+        //                     code: "BAD_REQUEST",
+        //                     errors: [],
+        //                 },
+        //             });
+        //         }
 
-                const response = {
-                    _id: result?._id?.toString() || "",
-                    message: "Product deleted successfully",
-                };
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
+        //         const response = {
+        //             _id: result?._id?.toString() || "",
+        //             message: "Product deleted successfully",
+        //         };
+        //         return response;
+        //     } catch (error) {
+        //         throw error;
+        //     }
+        // },
 
 
     },
@@ -559,7 +705,7 @@ export const productResolver: Resolvers = {
             try {
                 //Validate Input
                 await validateInput(validators.productQueryValidator, req);
-                // await verifyAdmin(req);
+                await verifyAdmin(req);
 
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
                 const options: QueryOptions = { lean: true };
@@ -684,9 +830,10 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
+                await validateInput(validators.adminProductsQueryValidator, req);
                 await verifyAdmin(req);
 
+                const status = input?.status || "";
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const minPrice: number | null = input?.minPrice || null;
@@ -741,7 +888,8 @@ export const productResolver: Resolvers = {
                     query,
                     projection,
                     parentCategory,
-                    categories
+                    categories,
+                    status
                 }
 
                 const result = await productService.getProductsByAdminWithFilters(options);
@@ -764,11 +912,12 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
-                // await verifyVendor(req);
+                await validateInput(validators.vendorProductsQueryValidator, req);
+                await verifyVendor(req);
 
-                const vendorId: Types.ObjectId = new Types.ObjectId(input?.vendorId);
+                const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
+                const status: string = input?.status || "";
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const minPrice: number | null = input?.minPrice || null;
@@ -824,7 +973,8 @@ export const productResolver: Resolvers = {
                     query,
                     projection,
                     parentCategory,
-                    categories
+                    categories,
+                    status
                 }
 
                 const result = await productService.getProductsByVendorWithFilters(options);
@@ -901,7 +1051,7 @@ export const productResolver: Resolvers = {
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
 
 
-                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false }, {}, { lean: true });
+                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
 
                 // console.log(result)
 
@@ -1280,41 +1430,13 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.variantsQueryValidator, req);
-                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                await validateInput(validators.adminVariantsTableQueryValidator, req);
+                const productCode: number = input.productCode;
 
 
-                const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
-
-                const product = await productService.getProductWithId(_id, { productCode: 1 }, { lean: true });
-                if (!product) {
-                    throw new GraphQLError("product not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-                let result: productService.IProduct = product;
-                if (!result.productCode) {
-                    throw new GraphQLError("variants not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-
-                let productCode = result.productCode
-
-                let options = { page, size, productCode };
+                let options = { productCode };
 
                 let variants = await productService.getProductVariantsByAdminTable(options);
-
-                // variants.sort((a, b) => {
-                //     return a.size.localeCompare(b.size)
-                // });
 
                 let response = {
                     records: variants.records,
@@ -1334,27 +1456,14 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
+                await verifyVendor(req);
                 await validateInput(validators.variantsTableByVendorQueryValidator, req);
-                // const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-                const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
                 const productCode: number = input.productCode;
+                const vendorId: Types.ObjectId = req.authAccount._id;
 
 
-                const product = await productService.getProductWithFilters({ productCode: productCode }, { productCode: 1 }, { lean: true });
-                console.log("product: ", product)
-
-                if (!product) {
-                    throw new GraphQLError("variants not found", {
-                        extensions: {
-                            code: "BAD_REQUEST",
-                            errors: []
-                        }
-                    });
-                }
-
-                let options = { page, size, productCode };
+                let options = { productCode, vendorId };
 
                 let variants = await productService.getProductVariantsByVendorTable(options);
 
@@ -1459,7 +1568,7 @@ export const productResolver: Resolvers = {
             try {
 
                 //Validate Input
-                await validateInput(validators.productsQueryValidator, req);
+                await validateInput(validators.macPriceValidator, req);
 
                 const categories: string[] = (input?.categories || []).map((item: string | null) => {
                     return item ? new Types.ObjectId(item).toString() : '';

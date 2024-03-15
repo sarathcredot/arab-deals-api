@@ -1,4 +1,5 @@
 import { mergeResolvers } from '@graphql-tools/merge';
+
 import { Resolvers } from 'src/_generated_/resolvers-types';
 import { productResolver } from "./productResolver/productResolver";
 import { categoryResolver } from "./categoryResolver/categoryResolver";
@@ -19,10 +20,14 @@ import { countryResolver } from "./countryResolver/countryResolver";
 import { fileResolver } from "./fileResolver/fileResolver";
 import { dashboardResolver } from "./dashboardResolver/dashboardResolver";
 import { jobResolver } from "./jobResolver/jobResolver";
+import { scalarTypeResolver } from "./scalarTypeResolver/scalarTypeReolver";
+import { settingsResolver } from "./settingsResolver/settingsResolver";
+
 
 
 export const resolvers: Resolvers = mergeResolvers(
     [
+        scalarTypeResolver,
         productResolver,
         categoryResolver,
         adminResolver,
@@ -41,6 +46,7 @@ export const resolvers: Resolvers = mergeResolvers(
         countryResolver,
         fileResolver,
         dashboardResolver,
-        jobResolver
+        jobResolver,
+        settingsResolver
     ]
 );

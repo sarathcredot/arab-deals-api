@@ -1,5 +1,6 @@
 scalar Upload
 scalar JSONObject
+scalar ObjectId
 
 # Vendor  Mutations
 
@@ -149,7 +150,6 @@ input VendorSignUpByAdminInput {
 
 
 input VendorEditProfileInput {
-   _id: String!
   fullName: String
   email: String
 }
@@ -237,8 +237,8 @@ type Query {
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
   getVendorRecordByVendor: VendorsRecordByVendorResponse!
-  getVendorAllKycRecordByVendor(input: VendorAllKycRecordByVendorInput!): VendorAllKycRecordByVendorResponse!
-  getKycStatus(input: VendorRecordKycStatusInput!): VendorRecordKycStatusResponse!
+  getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
+  getKycStatus: VendorRecordKycStatusResponse!
 }
 
 # Vendor type
@@ -271,10 +271,6 @@ type CreateVendorByAdminResponse{
    input VendorRecordKycStatusInput {
     _id: String!
   }
-
-   input VendorAllKycRecordByVendorInput{
-    _id: String!
-  } 
 
   type VendorsRecordsByAdminResponse {
     maxRecords: Int!

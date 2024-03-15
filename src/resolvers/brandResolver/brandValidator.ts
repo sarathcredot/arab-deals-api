@@ -20,7 +20,6 @@ export const getAllBrandsWithVendorByAdminValidator = [
 ]
 
 export const getAllBrandsWithVendorByVendorValidator = [
-    body('variables.input.vendorId').notEmpty().isMongoId(),
     body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
     body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
 ]

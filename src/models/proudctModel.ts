@@ -105,6 +105,9 @@ const productSchema = new Schema(
         skuId: {
             type: String,
         },
+        warehouseSkuId: {
+            type: String,
+        },
         description: {
             type: String,
         },
@@ -113,9 +116,6 @@ const productSchema = new Schema(
             default: []
         },
         productShortInfo: {
-            type: String
-        },
-        material: {
             type: String
         },
         images: {
@@ -174,11 +174,6 @@ const productSchema = new Schema(
             type: String,
             enum: ["PENDING", "UNDER_VERIFICATION", "APPROVED", "REJECTED"],
             default: "PENDING"
-        },
-        IsReturnEnabled: {
-            type: Boolean,
-            required: true,
-            default: false
         },
         productDetailImages: {
             type: [fileSchema],

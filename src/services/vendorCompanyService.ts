@@ -39,10 +39,9 @@ export interface IVendorCompanyWithKycData {
   isKycCompleted?: string;
   _id?: string;
   companyName?: string;
+  companyType?: string;
+  crNumber?: string;
   status?: string;
-  outletId?: string;
-  outletName?: string;
-  outletStatus?: string
 }
 
 export interface IVendorCompanyDocument extends Document {
@@ -102,7 +101,7 @@ export interface IVendorCompanyRecordsResponse {
   maxRecords: number
 }
 
-export const createVendorCompanyRecord = async (record: IVendorCompany): Promise<Document | null> => {
+export const createVendorCompanyRecord = async (record: IVendorCompany): Promise<Document> => {
   return await vendorCompanyModel.create(record);
 }
 
@@ -147,14 +146,6 @@ export const getVendorCompanyRecordsWithFilters = async (options: IVendorCompany
       $unwind: '$vendor'
     },
     {
-      $lookup: {
-        from: collections.VENDOR_OUTLETS,
-        localField: 'vendor._id',
-        foreignField: 'vendorId',
-        as: 'outlet'
-      }
-    },
-    {
       $facet: {
         metadata: [
           {
@@ -177,10 +168,9 @@ export const getVendorCompanyRecordsWithFilters = async (options: IVendorCompany
               fullName: '$vendor.fullName',
               isKycCompleted: '$vendor.isKycCompleted',
               companyName: 1,
+              companyType: 1,
+              crNumber: 1,
               status: 1,
-              outletId: { $arrayElemAt: ['$outlet._id', 0] },
-              outletName: { $arrayElemAt: ['$outlet.outletName', 0] },
-              outletStatus: { $arrayElemAt: ['$outlet.status', 0] }
             }
           }
         ]

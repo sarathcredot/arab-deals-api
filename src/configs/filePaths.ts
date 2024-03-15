@@ -1,5 +1,6 @@
 export const filePaths = {
     products: "public/products",
+    productDetails: "public/product-detail",
     adminProfile: "public/admin/profile",
     categoryImages: "public/category/image",
     vendorProfilePic: "public/vendor/profilePic",

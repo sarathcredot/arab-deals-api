@@ -9,6 +9,8 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       lowercase: true,
+      unique: true,
+      sparse: true
     },
     firstName: {
       type: String,

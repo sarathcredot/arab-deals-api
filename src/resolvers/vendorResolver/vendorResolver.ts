@@ -396,9 +396,18 @@ export const vendorResolver: Resolvers = {
             originalName: filename
           }
         }
-
-        if (input.email) {
-          vendor.email = input.email.toLowerCase();
+        let email = input.email?.toLowerCase();
+        if (email && vendor.email != email) {
+          const isEmailExists = await vendorService.findVendorWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+          if (isEmailExists) {
+            throw new GraphQLError('This email already exists', {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: []
+              }
+            });
+          }
+          vendor.email = email;
         }
 
         if (input.fullName) {
@@ -662,7 +671,7 @@ export const vendorResolver: Resolvers = {
     },
 
     // Fetch each vendor all kycrecord by vendor
-    async getVendorAllKycRecordByVendor(parent, { input }, { req }, info) {
+    async getVendorAllKycRecordByVendor(parent, { }, { req }, info) {
       await verifyVendor(req);
 
       try {
@@ -699,7 +708,7 @@ export const vendorResolver: Resolvers = {
     },
 
     // Fetch each vendor record KYC status
-    async getKycStatus(parent, { input }, { req }, info) {
+    async getKycStatus(parent, { }, { req }, info) {
       await verifyVendor(req);
 
       try {

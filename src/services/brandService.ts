@@ -336,7 +336,7 @@ export const getBrandRecordsWithVendorByAdminFilters = async (options: IBrandRec
         },
         {
             $sort: {
-                "brandDetails.priority": -1,
+                "brandDetails.brandName": 1, "brandDetails._id": -1
             }
         },
         {
@@ -483,7 +483,7 @@ export const getBrandRecordsWithVendorByVendorFilters = async (options: IBrandRe
 
 export const deleteBrandRecord = async (filter: FilterQuery<IBrandRecord>): Promise<IBrandDocument | null> => {
     return await brandModel.findOneAndDelete(filter);
-};   
+};
 
 export const getCategoryWithBrandsBycategoryId = async (options: ICategoryWithBrandsOptions): Promise<any> => {
     let pipeline: PipelineStage[] = [];

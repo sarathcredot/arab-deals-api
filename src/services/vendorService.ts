@@ -217,8 +217,7 @@ export const loginVendor = (vendor: IVendorDocument): IVendorLoginResponse => {
 }
 
 export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<IVendorDocument | null> => {
-  const result = await vendorModel.findById(id);
-  return result;
+  return await vendorModel.findById(id);
 }
 
 export const getVendorRecordByAdminWithId = async (vendorId: Types.ObjectId): Promise<IVendorWithKycDetails> => {
@@ -261,7 +260,7 @@ export const getVendorRecordByAdminWithId = async (vendorId: Types.ObjectId): Pr
         _id: 1,
         fullName: 1,
         email: 1,
-        countryCode:1,
+        countryCode: 1,
         mobileNumber: 1,
         isBlocked: 1,
         isKycCompleted: 1,
@@ -572,6 +571,7 @@ export const getVendorRecordsByAdminWithFilters = async (options: IVendorsRecord
               fullName: 1,
               email: 1,
               mobileNumber: 1,
+              countryCode: 1,
               isBlocked: 1,
               isKycCompleted: 1,
               companyId: '$company._id',
