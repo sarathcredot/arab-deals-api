@@ -395,6 +395,49 @@ type AdminOrderProduct {
     username: String
 }
 
+type VendorOrderProduct {
+    _id: ObjectId
+    userId: ObjectId
+    productId: ObjectId
+    vendorId: ObjectId
+    vendorName: String
+    orderId: String
+    itemId: String
+    productName: String
+    shortDescription: String
+    skuId: String
+    image: FileData
+    returnPeriod: Int
+    mrp: Float
+    sellingPrice: Float
+    shippingCharge: Float
+    paymentMode: String
+    paymentStatus: String
+    paymentRemark: String
+    orderDate: Date
+    shippingStatus: String
+    shippedDate: Date
+    deliveryDate: Date
+    returnStatus: String
+    returnUserReason: String
+    returnAdminComment: String
+    returnRequestDate: Date
+    returnRejectedDate: Date
+    returnDate: Date
+    refundStatus: String
+    refundAmount: Float
+    refundRequestDate: Date
+    refundDate: Date
+    refundComment: String
+    cancelUserReason: String
+    cancelAdminComment: String
+    cancelledDate: Date
+    courierId: String
+    invoiceNumber: String
+    invoice: FileData
+    username: String
+}
+
 
 
 type GetAdminOrdersResponse {
@@ -701,15 +744,15 @@ input GetVendorRefundProductsInput {
 
 type GetVendorShippingProductsResponse {
     maxRecords: Int!
-    records: [AdminOrderProduct]!
+    records: [VendorOrderProduct]!
 }
 
 type GetVendorReturnProductsResponse {
     maxRecords: Int!
-    records: [AdminOrderProduct]!
+    records: [VendorOrderProduct]!
 }
 
 type GetVendorRefundProductsResponse {
     maxRecords: Int!
-    records: [AdminOrderProduct]!
+    records: [VendorOrderProduct]!
 }
