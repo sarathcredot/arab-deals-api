@@ -25,6 +25,12 @@ input GetDashboardOrdersGraphInput {
     vendorId: ObjectId
 }
 
+input GetVendorDashboardOrdersGraphInput {
+    startDate: Date
+    endDate: Date
+    graphType: String
+}
+
 
 
 input GetDashboardOrdersPieChartDataInput {
@@ -32,11 +38,19 @@ input GetDashboardOrdersPieChartDataInput {
     endDate: Date
     vendorId: ObjectId
 }
+input GetVendorDashboardOrdersPieChartDataInput {
+    startDate: Date
+    endDate: Date
+}
 
 input GetDashboardReturnedOrdersPieChartDataInput {
     startDate: Date
     endDate: Date
     vendorId: ObjectId
+}
+input GetVendorDashboardReturnedOrdersPieChartDataInput {
+    startDate: Date
+    endDate: Date
 }
 
 input GetDashboardRefundOrdersPieChartDataInput {
@@ -45,16 +59,29 @@ input GetDashboardRefundOrdersPieChartDataInput {
     vendorId: ObjectId
 }
 
+input GetVendorDashboardRefundOrdersPieChartDataInput {
+    startDate: Date
+    endDate: Date
+}
+
 input GetDashboardOrdersAmountPieChartDataInput{
     startDate: Date
     endDate: Date
     vendorId: ObjectId
+}
+input GetVendorDashboardOrdersAmountPieChartDataInput{
+    startDate: Date
+    endDate: Date
 }
 
 input GetDashboardShippingChargePieChartDataInput{
     startDate: Date
     endDate: Date
     vendorId: ObjectId
+}
+input GetVendorDashboardShippingChargePieChartDataInput{
+    startDate: Date
+    endDate: Date
 }
 
 input GetDashboardOrderSummaryInput {
@@ -108,14 +135,31 @@ type GetDashboardOrderSummaryResponse{
     cancelledOrders: Int
     returnedOrders: Int 
 }
+type GetVendorDashboardOrderSummaryResponse{
+    pendingOrders: Int
+    progressOrders: Int
+    shippedOrders: Int
+    deliveredOrders: Int
+    cancelledOrders: Int
+    returnedOrders: Int 
+}
 
 
 type GetDashboardOrdersGraphResposne {
     y1:[Int],
     x:[String]
 }
+type GetVendorDashboardOrdersGraphResposne {
+    y1:[Int],
+    x:[String]
+}
 
 type GetDashboardOrdersPieChartDataResponse {
+    deliveredOrders: Int
+    cancelledOrders:Int
+    returnedOrders: Int
+}
+type GetVendorDashboardOrdersPieChartDataResponse {
     deliveredOrders: Int
     cancelledOrders:Int
     returnedOrders: Int
@@ -173,6 +217,7 @@ type Query {
     getDashboardUsersGraph(input:GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
     getDashboardVendorsSummary:GetDashboardVendorsSummaryResponse!
     getDashboardVendorsGraph(input:GetDashboardVendorsGraphInput!): GetDashboardVendorsGraphResposne!
+    
     getDashboardOrderSummary(input: GetDashboardOrderSummaryInput!):GetDashboardOrderSummaryResponse!
     getDashboardOrdersGraph(input:GetDashboardOrdersGraphInput!): GetDashboardOrdersGraphResposne!
     getDashboardOrdersPieChartData(input:GetDashboardOrdersPieChartDataInput!):GetDashboardOrdersPieChartDataResponse!
@@ -182,6 +227,17 @@ type Query {
     getDashboardRefundOrdersSummary(input:getDashboardRefundOrdersSummaryInput!):GetDashboardRefundOrderSummaryResponse!
     getDashboardOrdersAmountPieChartData(input:GetDashboardOrdersAmountPieChartDataInput!):GetDashboardOrdersAmountPieChartDataResponse!
     getDashboardShippingChargePieChartData(input:GetDashboardShippingChargePieChartDataInput!):GetDashboardShippingChargePieChartDataResponse!
+
+    getVendorDashboardOrderSummary:GetVendorDashboardOrderSummaryResponse!
+    getVendorDashboardOrdersGraph(input:GetVendorDashboardOrdersGraphInput!): GetVendorDashboardOrdersGraphResposne!
+    getVendorDashboardOrdersPieChartData(input:GetVendorDashboardOrdersPieChartDataInput!):GetVendorDashboardOrdersPieChartDataResponse!
+    getVendorDashboardReturnedOrdersPieChartData(input: GetVendorDashboardReturnedOrdersPieChartDataInput!):GetDashboardReturnedOrdersPieChartDataResponse!
+    getVendorDashboardReturnedOrderSummary:GetDashboardReturnedOrderSummaryResponse!
+    getVendorDashboardRefundOrdersPieChartData(input:GetVendorDashboardRefundOrdersPieChartDataInput!):GetDashboardRefundOrdersPieChartDataResponse!
+    getVendorDashboardRefundOrdersSummary:GetDashboardRefundOrderSummaryResponse!
+
+    getVendorDashboardOrdersAmountPieChartData(input:GetVendorDashboardOrdersAmountPieChartDataInput!):GetDashboardOrdersAmountPieChartDataResponse!
+    getVendorDashboardShippingChargePieChartData(input:GetVendorDashboardShippingChargePieChartDataInput!):GetDashboardShippingChargePieChartDataResponse!
 
 }
 
