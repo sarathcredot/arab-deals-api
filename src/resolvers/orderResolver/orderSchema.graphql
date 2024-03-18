@@ -127,14 +127,29 @@ type Query {
     getUserOrderDetails(input:GetUserOrderDetailsInput!): GetUserOrderDetailsResponse!
     getUserOrderDetailsInMobile(input:GetUserOrderDetailsInMobileInput!): GetUserOrderDetailsInMobileResponse!
 
+    getVendorOrders(input:GetVendorOrdersInput!): GetAdminOrdersResponse! 
     getVendorShippingProducts(input:GetVendorShippingProductsInput!): GetVendorShippingProductsResponse!
     getVendorReturnProducts(input:GetVendorReturnProductsInput!): GetVendorReturnProductsResponse!
     getVendorRefundProducts(input:GetVendorRefundProductsInput!): GetVendorRefundProductsResponse!
     getVendorOrderProduct(input:GetVendorOrderProductInput!): GetVendorOrderProductResponse!
+    getVendorOrderDetails(input:GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
+
 }
 
 
 input GetAdminOrdersInput {
+    _id: ObjectId
+    userId: ObjectId
+    orderId: String
+    paymentMode: String
+    orderStatus: String
+    startDate: Date
+    endDate: Date
+    postCode: String
+    page: Int
+    size: Int
+}
+input GetVendorOrdersInput {
     _id: ObjectId
     userId: ObjectId
     orderId: String

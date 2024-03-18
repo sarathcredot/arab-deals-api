@@ -90,6 +90,15 @@ const orderSchema = new Schema(
             default: "PENDING",
             index: true,
             required: true
+        },
+        vendorIds: {
+            type: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: collections.VENDORS
+                }
+            ],
+            default: []
         }
     },
     {

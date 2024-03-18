@@ -57,7 +57,17 @@ export const orderResolver: Resolvers = {
                 }
             }
 
+
             const cartItems = await cartService.getOrderCart(userId);
+
+            const uniqueVendorIds: Set<Types.ObjectId> = new Set();
+            cartItems.forEach((item: any) => {
+                if (item.vendorId) {
+                    uniqueVendorIds.add(item.vendorId);
+                }
+            });
+
+            const vendorIds: Types.ObjectId[] = [...uniqueVendorIds];
 
             if (cartItems.length === 0) {
                 throw new GraphQLError("Cart is empty", {
@@ -148,7 +158,8 @@ export const orderResolver: Resolvers = {
                 paymentMode: paymentMode,
                 orderDate: orderDate.toDate(),
                 shippingAddress: shippingAddress,
-                orderStatus: "PENDING"
+                orderStatus: "PENDING",
+                vendorIds: vendorIds
             }
 
             await Promise.all([
@@ -1302,6 +1313,67 @@ export const orderResolver: Resolvers = {
 
             return response;
         },
+
+        getVendorOrders: async (parent, { input }, { req }, info) => {
+
+            await verifyVendor(req);
+            await validateInput(validators.getVendorOrdersValidator, req);
+
+            const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+            let filters: orderService.IOrdersOptions = { page: 0, size: 10 };
+
+            if (vendorId) {
+                filters.vendorId = vendorId;
+            }
+            if (input._id) {
+                filters._id = input._id;
+            }
+            if (input.userId) {
+                filters.userId = input.userId;
+            }
+            if (input.orderId) {
+                filters.orderId = input.orderId;
+            }
+            if (input.paymentMode) {
+                filters.paymentMode = input.paymentMode;
+            }
+            if (input.orderStatus) {
+                filters.orderStatus = input.orderStatus;
+            }
+            if (input.postCode) {
+                filters.postCode = input.postCode;
+            }
+            if (input.startDate) {
+                filters.startDate = moment(input.startDate).toDate();
+            }
+            if (input.endDate) {
+                filters.endDate = moment(input.endDate).toDate();
+            }
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+
+            const response = await orderService.getVendorOrdersWithFilters(filters);
+
+            return response;
+        },
+
+        getVendorOrderDetails: async (parent, { input }, { req }, info) => {
+
+            await verifyVendor(req);
+            await validateInput(validators.getAdminOrderDetailsValidator, req);
+
+            const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+            const response = await orderService.getVendorOrderDetails(input.orderId, vendorId);
+
+            return response;
+        },
+
         getVendorShippingProducts: async (parent, { input }, { req }, info) => {
 
             await verifyVendor(req);
@@ -1524,15 +1596,15 @@ export const orderResolver: Resolvers = {
 
             return response;
         },
-        
-        getVendorOrderProduct: async (parent , { input }, { req }, info)  => {
+
+        getVendorOrderProduct: async (parent, { input }, { req }, info) => {
 
             await verifyVendor(req);
             await validateInput(validators.getVendorOrderProductValidator, req);
 
-            let product = await orderProductService.getVendorOrderProductById(input._id );
+            let product = await orderProductService.getVendorOrderProductById(input._id);
 
-            if (!product ) {
+            if (!product) {
                 throw new GraphQLError("Record not found", {
                     extensions: {
                         code: "BAD_REQUEST",
@@ -1542,11 +1614,11 @@ export const orderResolver: Resolvers = {
             }
 
 
-            const response = { 
+            const response = {
                 ...product.toObject(),
                 vendorId: product.vendorId._id,
                 vendorName: product.vendorId.fullName
-             }
+            }
             return response;
         },
 
