@@ -88,6 +88,8 @@ input VariantInput {
 
 input ProductUpdateInput {
     _id: ObjectId!
+    brandId: ObjectId
+    brandName: String
     productName: String
     shortDescription: String
     skuId: String
@@ -99,9 +101,12 @@ input ProductUpdateInput {
     sellingPrice: Float
     price: Float
     mrp: Float
+    productCode: Int
     stock: Int
-    status: String
+    categoryId: String
     offerPrice: Int
+    attributes: [String]
+    remarks: [String]
 
 }
 

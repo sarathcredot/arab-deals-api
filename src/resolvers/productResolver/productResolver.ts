@@ -326,7 +326,6 @@ export const productResolver: Resolvers = {
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const vendorId = req.authAccount._id;
 
-
                 const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id, vendorId: vendorId }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
@@ -342,13 +341,16 @@ export const productResolver: Resolvers = {
                 let productImages = [];
 
                 for (let image of images) {
+                    if (!image) {
+                        continue;
+                    }
                     const { createReadStream, filename, mimetype, encoding } = await image;
+                    if (!createReadStream) {
+                        continue;
+                    }
                     const key = spaceService.getFileKey(filePaths.products, filename, []);
-
                     const stream = createReadStream();
-
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
-
                     productImages.push({
                         fileType: "PUBLIC",
                         fileURL: file.location,
@@ -362,13 +364,16 @@ export const productResolver: Resolvers = {
                 let detailImages = [];
 
                 for (let image of productDetailImages) {
+                    if (!image) {
+                        continue;
+                    }
                     const { createReadStream, filename, mimetype, encoding } = await image;
+                    if (!createReadStream) {
+                        continue;
+                    }
                     const key = spaceService.getFileKey(filePaths.productDetails, filename, []);
-
                     const stream = createReadStream();
-
                     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
-
                     detailImages.push({
                         fileType: "PUBLIC",
                         fileURL: file.location,
@@ -376,6 +381,7 @@ export const productResolver: Resolvers = {
                         originalName: filename
                     });
                 }
+
 
                 let tags: string[] = [];
                 if (input.tags) {
@@ -392,8 +398,20 @@ export const productResolver: Resolvers = {
                     existingProduct.shortDescription = input.shortDescription;
                 }
 
+                if (input.brandId && existingProduct.brandId !== input.brandId) {
+                    existingProduct.brandId = input.brandId;
+                }
+
+                if (input.brandName && existingProduct.brandName !== input.brandName) {
+                    existingProduct.brandName = input.brandName;
+                }
+
                 if (input.productInfo) {
                     existingProduct.productInfo = (input.productInfo || []).filter(Boolean) as [];
+                }
+
+                if (input.remarks) {
+                    existingProduct.remarks = input.remarks as string[];
                 }
 
                 if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
@@ -412,7 +430,6 @@ export const productResolver: Resolvers = {
                     existingProduct.rating = input.rating;
                 }
 
-
                 if (input.sellingPrice && input.sellingPrice > 0 && existingProduct.sellingPrice !== input.sellingPrice) {
                     existingProduct.sellingPrice = input.sellingPrice;
                 }
@@ -420,6 +437,7 @@ export const productResolver: Resolvers = {
                 if (input.price && input.price > 0 && existingProduct.price !== input.price) {
                     existingProduct.price = input.price;
                 }
+
                 if (input.mrp && input.mrp > 0 && existingProduct.mrp !== input.mrp) {
                     existingProduct.mrp = input.mrp;
                 }
@@ -431,7 +449,6 @@ export const productResolver: Resolvers = {
                 if (productImages.length > 0) {
                     existingProduct.images = productImages;
                 }
-
 
                 if (detailImages.length > 0) {
                     existingProduct.productDetailImages = detailImages;
@@ -459,6 +476,8 @@ export const productResolver: Resolvers = {
                 throw error;
             }
         },
+
+
         updateProductByAdmin: async (parent, { input, images, productDetailImages }, { req }, info) => {
             try {
                 await verifyAdmin(req);
