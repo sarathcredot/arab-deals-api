@@ -18,6 +18,17 @@ export const getAdminOrdersValidator = [
     body('variables.input.page').trim().optional({ checkFalsy: true }).isInt().custom(val => val >= 0),
     body('variables.input.size').trim().optional({ checkFalsy: true }).isInt().custom(val => val > 0),
 ];
+export const getVendorOrdersValidator = [
+    body('variables.input._id').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.userId').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.orderId').trim().optional({ checkFalsy: true }).isString(),
+    body('variables.input.paymentMode').trim().optional({ checkFalsy: true }).isIn(["COD"]),
+    body('variables.input.orderStatus').trim().optional({ checkFalsy: true }).isIn(["PENDING", "IN_PROGRESS", "COMPLETED"]),
+    body('variables.input.startDate').trim().optional({ checkFalsy: true }).isDate(),
+    body('variables.input.endDate').trim().optional({ checkFalsy: true }).isDate(),
+    body('variables.input.page').trim().optional({ checkFalsy: true }).isInt().custom(val => val >= 0),
+    body('variables.input.size').trim().optional({ checkFalsy: true }).isInt().custom(val => val > 0),
+];
 
 
 export const getAdminOrderDetailsValidator = [

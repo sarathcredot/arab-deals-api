@@ -31,6 +31,7 @@ export interface IOrder {
     orderDate?: Date;
     shippingAddress?: IShippingAddress;
     orderStatus?: string;
+    vendorIds?: Types.ObjectId[];
 }
 
 
@@ -56,6 +57,7 @@ export interface IOrdersOptions {
     endDate?: Date;
     page: number;
     size: number;
+    vendorId?: Types.ObjectId;
 }
 
 
@@ -325,6 +327,241 @@ export const getAdminOrdersWithFilters = async (options: IOrdersOptions): Promis
     return response;
 }
 
+export const getVendorOrdersWithFilters = async (options: IOrdersOptions): Promise<IOrders> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorIds: { $in: [options.vendorId] }
+                }
+
+            }
+        )
+    }
+
+    if (options.orderStatus) {
+        pipeline.push(
+            {
+                $match: {
+                    orderStatus: options.orderStatus
+                }
+            }
+        )
+    }
+
+    if (options.orderId) {
+        pipeline.push(
+            {
+                $match: {
+                    orderId: options.orderId
+                }
+            }
+        )
+    }
+    if (options.userId) {
+        pipeline.push(
+            {
+                $match: {
+                    userId: options.userId
+                }
+            }
+        )
+    }
+    if (options._id) {
+        pipeline.push(
+            {
+                $match: {
+                    _id: options._id
+                }
+            }
+        )
+    }
+    if (options.paymentMode) {
+        pipeline.push(
+            {
+                $match: {
+                    paymentMode: options.paymentMode
+                }
+            }
+        )
+    }
+    if (options.postCode) {
+        pipeline.push(
+            {
+                $match: {
+                    "shippingAddress.postCode": options.postCode
+                }
+            }
+        )
+    }
+    if (options.startDate) {
+        pipeline.push(
+            {
+                $match: {
+                    orderDate: { $gte: options.startDate }
+                }
+            }
+        )
+    }
+    if (options.endDate) {
+        pipeline.push(
+            {
+                $match: {
+                    orderDate: { $lte: options.endDate }
+                }
+            }
+        )
+    }
+
+    pipeline.push(
+        {
+            $sort: { orderDate: -1, _id: -1 }
+        },
+        {
+            $facet: {
+                metadata: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 }
+                        }
+                    }
+                ],
+                data: [
+                    {
+                        $skip: options.page * options.size
+                    },
+                    {
+                        $limit: options.size
+                    },
+                    {
+                        $lookup: {
+                            from: collections.USERS,
+                            let: { userId: "$userId" },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $eq: ["$_id", "$$userId"]
+                                        }
+                                    }
+                                },
+                                {
+                                    $limit: 1
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        firstName: 1,
+                                        lastName: 1
+                                    }
+                                }
+                            ],
+                            as: "userInfo"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$userInfo",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: collections.ORDER_PRODUCTS,
+                            let: { orderId: "$orderId" },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $eq: ["$orderId", "$$orderId"]
+                                        }
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        sellingPrice: 1,
+                                        shippingCharge: 1,
+                                        mrp: 1,
+                                        refundAmount: 1,
+                                        paidAmount: {
+                                            $cond: [{ $eq: ["$paymentStatus", "COMPLETED"] }, { $add: ["$sellingPrice", "$shippingCharge"] }, 0]
+                                        }
+                                    }
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalSellingPrice: { $sum: "$sellingPrice" },
+                                        totalShippingCharge: { $sum: "$shippingCharge" },
+                                        totalMRP: { $sum: "$mrp" },
+                                        totalRefundAmount: { $sum: "$refundAmount" },
+                                        totalPaidAmount: { $sum: "$paidAmount" }
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        totalMRP: 1,
+                                        totalSellingPrice: 1,
+                                        totalShippingCharge: 1,
+                                        totalRefundAmount: 1,
+                                        totalPaidAmount: 1
+                                    }
+                                }
+                            ],
+                            as: "orderPriceInfo"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$orderPriceInfo",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            orderId: 1,
+                            userId: 1,
+                            paymentMode: 1,
+                            orderDate: 1,
+                            orderStatus: 1,
+                            username: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
+                            orderPriceInfo: 1,
+                            shippingAddress: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                data: 1
+            }
+        }
+    );
+
+    const result = await orderModel.aggregate(pipeline);
+    let response = {
+        records: [],
+        maxRecords: 0
+    };
+    if (result.length) {
+        response.records = result[0].data || [];
+        response.maxRecords = result[0].maxRecords || 0;
+    }
+
+    return response;
+}
+
 
 
 export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetails> => {
@@ -336,6 +573,115 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
         {
             $match: {
                 orderId: orderId
+            }
+        },
+        {
+            $lookup: {
+                from: collections.USERS,
+                let: { userId: "$userId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$userId"]
+                            }
+                        }
+                    },
+                    {
+                        $limit: 1
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            firstName: 1,
+                            lastName: 1
+                        }
+                    }
+                ],
+                as: "userInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$userInfo",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: collections.ORDER_PRODUCTS,
+                let: { orderId: "$orderId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$orderId", "$$orderId"]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalSellingPrice: { $sum: "$sellingPrice" },
+                            totalShippingCharge: { $sum: "$shippingCharge" },
+                            totalMRP: { $sum: "$mrp" },
+                            totalRefundAmount: { $sum: "$refundAmount" }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            totalMRP: 1,
+                            totalSellingPrice: 1,
+                            totalShippingCharge: 1,
+                            totalRefundAmount: 1
+                        }
+                    }
+                ],
+                as: "orderPriceInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$orderPriceInfo",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                orderId: 1,
+                userId: 1,
+                paymentMode: 1,
+                orderDate: 1,
+                orderStatus: 1,
+                username: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
+                orderPriceInfo: 1,
+                shippingAddress: 1
+            }
+        }
+    );
+
+    const result = await orderModel.aggregate(pipeline);
+    let response;
+    if (result.length) {
+        response = result[0];
+    }
+
+    return response;
+}
+
+
+export const getVendorOrderDetails = async (orderId: string, vendorId: Types.ObjectId): Promise<IOrderDetails> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+    pipeline.push(
+        {
+            $match: {
+                orderId: orderId,
+                vendorIds: { $in: [vendorId] }
             }
         },
         {

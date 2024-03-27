@@ -2,7 +2,7 @@ import { orderProductService, spaceService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./fileValidator";
 import { GraphQLError } from "graphql";
-import { verifyUser, verifyAdmin, validateInput } from "../../middlewares";
+import { verifyUser, verifyAdmin, validateInput, verifyVendor } from "../../middlewares";
 
 
 
@@ -12,6 +12,19 @@ export const fileResolver: Resolvers = {
         getAdminSignedFileUrl: async (parent, { input }, { req }, info) => {
 
             await verifyAdmin(req);
+            await validateInput(validators.getAdminSignedUrlValidator, req);
+
+            const url = await spaceService.createSignedURL(input.fileURL, input.mimeType);
+
+            const response = {
+                url: url
+            }
+
+            return response;
+        },
+        getVendorSignedFileUrl: async (parent, { input }, { req }, info) => {
+
+            await verifyVendor(req);
             await validateInput(validators.getAdminSignedUrlValidator, req);
 
             const url = await spaceService.createSignedURL(input.fileURL, input.mimeType);
