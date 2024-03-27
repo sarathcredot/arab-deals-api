@@ -192,7 +192,8 @@ productSchema.index(
         shortDescription: 'text',
         description: 'text',
         categoryNamePath: 'text',
-        // status: 'text',
+        brandName: 'text',
+        "attributes.attributeValue": 'text'
     },
     {
         weights: {
@@ -201,7 +202,8 @@ productSchema.index(
             shortDescription: 5,
             categoryNamePath: 5,
             description: 3,
-            // status:4,
+            brandName: 10,
+            "attributes.attributeValue": 5
         }
     }
 );
