@@ -20,6 +20,10 @@ type Mutation {
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
+  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
+  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
+  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
+  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
   userResendLoginOtp(input: userResendLoginOtpInput!): userResendLoginOtpResponse!
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
@@ -29,10 +33,6 @@ type Mutation {
   userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
-  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
-  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
-  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
-  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
@@ -55,16 +55,11 @@ type Mutation {
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
-  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
-  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
-  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
-  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
-  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   bulkAddToCart(input: BulkAddToCartInput!): BulkAddToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
@@ -72,6 +67,11 @@ type Mutation {
   addToCartInMobile(input: addToCartInMobileInput!): addToCartInMObileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
+  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
+  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
+  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
+  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
   editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
@@ -94,13 +94,13 @@ type Query {
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getUserShippingAddresses: GetUserShippingAddressesResponse!
+  getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
+  getUserDefaultShippingAddress: GetUserShippingAddressResponse!
   getUsersByAdmin(input: userFilters): usersResponse!
   getUserRecordByAdmin(input: userInput!): userResponse!
   getUserRecord(input: userInput!): userResponse!
   getUserRecordInMobile(input: userInMobileInput!): userInMobileResponse!
-  getUserShippingAddresses: GetUserShippingAddressesResponse!
-  getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
-  getUserDefaultShippingAddress: GetUserShippingAddressResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
@@ -165,6 +165,10 @@ type Query {
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
   getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
   getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
+  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
+  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
+  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
+  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -175,10 +179,8 @@ type Query {
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
-  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
-  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
-  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
-  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -189,8 +191,6 @@ type Query {
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -707,6 +707,102 @@ type GetVendorCompanyRecordResponse {
   message: String
 }
 
+input UserCreateShippingAddressInput {
+  firstname: String!
+  email: String
+  mobile: String!
+  streetName: String!
+  city: String!
+  houseNumber: String!
+  country: String
+  postCode: String!
+  apartment: String
+  suite: String
+  unit: String
+  isDefault: Boolean
+}
+
+input UserEditShippingAddressInput {
+  _id: ObjectId!
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+}
+
+input UserRemoveShippingAddressInput {
+  _id: ObjectId!
+}
+
+input updateUserShippingAddressAsDefaultInput {
+  addressId: ObjectId!
+}
+
+type UserCreateShippingAddressResponse {
+  _id: ObjectId!
+}
+
+type UserEditShippingAddressResponse {
+  _id: ObjectId!
+}
+
+type UserRemoveShippingAddressResponse {
+  _id: ObjectId!
+  message: String
+}
+
+type updateUserShippingAddressAsDefaultResponse {
+  _id: ObjectId!
+  message: String
+}
+
+input GetUserShippingAddressInput {
+  _id: ObjectId!
+}
+
+type UserShippingAddress {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  isDefault: Boolean
+}
+
+type GetUserShippingAddressesResponse {
+  address: [UserShippingAddress]
+}
+
+type GetUserShippingAddressResponse {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  isDefault: Boolean
+}
+
 input userLoginOtpInput {
   mobileNumber: String!
 }
@@ -847,102 +943,6 @@ type userResponse {
 type userInMobileResponse {
   record: user
   message: String
-}
-
-input UserCreateShippingAddressInput {
-  firstname: String!
-  email: String
-  mobile: String!
-  streetName: String!
-  city: String!
-  houseNumber: String!
-  country: String
-  postCode: String!
-  apartment: String
-  suite: String
-  unit: String
-  isDefault: Boolean
-}
-
-input UserEditShippingAddressInput {
-  _id: ObjectId!
-  firstname: String
-  email: String
-  mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
-  postCode: String
-  houseNumber: String
-  country: String
-}
-
-input UserRemoveShippingAddressInput {
-  _id: ObjectId!
-}
-
-input updateUserShippingAddressAsDefaultInput {
-  addressId: ObjectId!
-}
-
-type UserCreateShippingAddressResponse {
-  _id: ObjectId!
-}
-
-type UserEditShippingAddressResponse {
-  _id: ObjectId!
-}
-
-type UserRemoveShippingAddressResponse {
-  _id: ObjectId!
-  message: String
-}
-
-type updateUserShippingAddressAsDefaultResponse {
-  _id: ObjectId!
-  message: String
-}
-
-input GetUserShippingAddressInput {
-  _id: ObjectId!
-}
-
-type UserShippingAddress {
-  _id: ObjectId
-  firstname: String
-  email: String
-  mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
-  postCode: String
-  houseNumber: String
-  country: String
-  isDefault: Boolean
-}
-
-type GetUserShippingAddressesResponse {
-  address: [UserShippingAddress]
-}
-
-type GetUserShippingAddressResponse {
-  _id: ObjectId
-  firstname: String
-  email: String
-  mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
-  postCode: String
-  houseNumber: String
-  country: String
-  isDefault: Boolean
 }
 
 scalar Date
@@ -2431,6 +2431,102 @@ type CountryRecordsResponse {
   message: String
 }
 
+input AddCmsInput {
+  pageName: String!
+  buttons: [ButtonDataInput]
+}
+
+input ButtonDataInput {
+  buttonText: String!
+  redirectionURL: String!
+}
+
+input UpdateCmsInput {
+  _id: String!
+  buttons: [ButtonDataInput]
+}
+
+input CmsRecordId {
+  _id: String!
+}
+
+type AddCmsResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateCmsResponse {
+  _id: String!
+  message: String
+}
+
+type DeleteCmsResponse {
+  _id: String!
+  message: String
+}
+
+input cmsRecordByAdminFilter {
+  _id: String!
+}
+
+input cmsRecordFilter {
+  sectionName: String!
+  pageName: String!
+}
+
+input CmsRecordsFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+}
+
+input CmsRecordsByAdminFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+  isBlocked: Boolean
+}
+
+type ButtonData {
+  buttonText: String
+  redirectionURL: String
+}
+
+type CmsImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type CmsRecord {
+  _id: String
+  pageName: String
+  sectionName: String
+  images: [CmsImageData]
+  buttons: [ButtonData]
+  isBlocked: Boolean
+}
+
+type CmsRecordResponse {
+  record: CmsRecord!
+  message: String
+}
+
+type CmsRecordsResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
+}
+
 input CreateCategoryInput {
   categoryName: String!
   parentId: String
@@ -2567,100 +2663,98 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
-input AddCmsInput {
-  pageName: String!
-  buttons: [ButtonDataInput]
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
 }
 
-input ButtonDataInput {
-  buttonText: String!
-  redirectionURL: String!
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
 }
 
-input UpdateCmsInput {
-  _id: String!
-  buttons: [ButtonDataInput]
+input removeFromCartInput {
+  productId: String!
 }
 
-input CmsRecordId {
-  _id: String!
+input removeFromCartInMobileInput {
+  productId: String!
 }
 
-type AddCmsResponse {
-  _id: String!
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
   message: String
 }
 
-type UpdateCmsResponse {
-  _id: String!
+type BulkAddToCartResponse {
   message: String
 }
 
-type DeleteCmsResponse {
-  _id: String!
+type addToCartInMObileResponse {
   message: String
 }
 
-input cmsRecordByAdminFilter {
-  _id: String!
-}
-
-input cmsRecordFilter {
-  sectionName: String!
-  pageName: String!
-}
-
-input CmsRecordsFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-}
-
-input CmsRecordsByAdminFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-  isBlocked: Boolean
-}
-
-type ButtonData {
-  buttonText: String
-  redirectionURL: String
-}
-
-type CmsImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-type CmsRecord {
-  _id: String
-  pageName: String
-  sectionName: String
-  images: [CmsImageData]
-  buttons: [ButtonData]
-  isBlocked: Boolean
-}
-
-type CmsRecordResponse {
-  record: CmsRecord!
+type removeFromCartResponse {
   message: String
 }
 
-type CmsRecordsResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
+type removeFromCartInMobileResponse {
   message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Int
+  subTotal: Int
+  deliveryCharge: Int
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Int
+  subTotal: Int
+  deliveryCharge: Int
 }
 
 input AddBrandInput {
@@ -2853,100 +2947,6 @@ type AttributeValueEditResponse {
   colorCode: String
   priority: Int
   isBlocked: Boolean
-}
-
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
-  name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
-}
-
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Int
-  subTotal: Int
-  deliveryCharge: Int
-}
-
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Int
-  subTotal: Int
-  deliveryCharge: Int
 }
 
 type Attribute {
