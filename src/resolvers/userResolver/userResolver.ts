@@ -17,7 +17,6 @@ export const userResolver: Resolvers = {
       const mobileNumber: string = input.mobileNumber;
       const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
 
-
       if (user?.isBlocked) {
         throw new GraphQLError("User is Blocked", {
           extensions: {
