@@ -389,15 +389,15 @@ export const brandResolver: Resolvers = {
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
-
+                const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
 
                 const options: brandService.IBrandRecordsWithVendorByVendorOptions = {
                     page,
                     size,
                     vendorId,
+                    query
                 }
-
-                const result = await brandService.getBrandRecordsWithVendorByAdminFilters(options);
+                const result = await brandService.getBrandRecordsWithVendorByVendorFilters(options);
                 const response = {
                     records: result.records,
                     maxRecords: result.maxRecords,

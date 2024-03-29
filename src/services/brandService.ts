@@ -92,6 +92,7 @@ export interface IBrandRecordsWithVendorByVendorOptions {
     page: number,
     size: number,
     vendorId: Types.ObjectId,
+    query: string,
 }
 
 export interface IBrandRecordsResponse {
@@ -396,9 +397,8 @@ export const getBrandRecordsWithVendorByAdminFilters = async (options: IBrandRec
     return response;
 }
 
+
 export const getBrandRecordsWithVendorByVendorFilters = async (options: IBrandRecordsWithVendorByVendorOptions): Promise<IBrandRecordsWithVendorByVendorResponse> => {
-
-
     let pipeline: PipelineStage[] = [];
 
     pipeline.push(
@@ -417,6 +417,13 @@ export const getBrandRecordsWithVendorByVendorFilters = async (options: IBrandRe
         },
         {
             $unwind: "$brandDetails"
+        },
+        {
+            $match: {
+                "brandDetails.brandName": {
+                    $regex: options.query ? new RegExp(options.query, 'i') : /.*/
+                }
+            }
         },
         {
             $sort: {
@@ -479,6 +486,7 @@ export const getBrandRecordsWithVendorByVendorFilters = async (options: IBrandRe
 
     return response;
 }
+
 
 
 export const deleteBrandRecord = async (filter: FilterQuery<IBrandRecord>): Promise<IBrandDocument | null> => {

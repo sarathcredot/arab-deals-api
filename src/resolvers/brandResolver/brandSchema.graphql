@@ -111,6 +111,7 @@
   input getAllBrandRecordsWithVendorByVendorInput {
     page: Int
     size: Int
+    query:String
   }
 
 
