@@ -1057,7 +1057,8 @@ export const getProductVariantsByVendorTable = async (options: QueryOptions): Pr
                             categoryId: 1,
                             productCode: 1,
                             brandName: 1,
-                            brandId: 1
+                            brandId: 1,
+                            skuId: 1,
                         }
                     }
                 ]

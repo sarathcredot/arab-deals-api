@@ -133,6 +133,7 @@ type Query {
     getVendorRefundProducts(input:GetVendorRefundProductsInput!): GetVendorRefundProductsResponse!
     getVendorOrderProduct(input:GetVendorOrderProductInput!): GetVendorOrderProductResponse!
     getVendorOrderDetails(input:GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
+     getVendorOrderProducts(input:GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
 
 }
 

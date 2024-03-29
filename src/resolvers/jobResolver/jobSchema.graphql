@@ -82,14 +82,18 @@ type GetAdminDownloadTokenResponse {
 
 type Mutation {
     exportAdminOrders(input:ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+    exportVendorOrders(input:ExportAdminOrdersInput!): ExportAdminOrdersResponse!
     exportAdminShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+    exportVendorShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
 
 }
 
 
 type Query {
     getJobsQueue(input:GetJobQueueInput!):GetJobQueueResponse!
+    getVendorJobsQueue(input:GetJobQueueInput!):GetJobQueueResponse!
     getAdminDownloadToken(input:GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+    getVendorDownloadToken(input:GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
 }
 
 
