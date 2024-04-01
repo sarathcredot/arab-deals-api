@@ -442,7 +442,9 @@ type Query {
     }
 
     type ProductSuggestion {
-      productName:String!
+      suggestion:String!
+      image: String
+      categoryId: ObjectId
     }
 
     type GetProductsAutoCompleteResponse {

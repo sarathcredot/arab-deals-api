@@ -244,8 +244,9 @@ export interface IVariantTablesByAdminOptions {
 
 
 export interface IProductSuggestion {
-    productName: string,
-    color: string
+    suggestion: string;
+    image?: string;
+    categoryId?: Types.ObjectId;
 }
 
 export interface ProductStock {
@@ -1115,17 +1116,24 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
                         {
                             autocomplete: {
                                 query: query,
-                                path: "color",
+                                path: "brandName",
                                 fuzzy: { "maxEdits": 1, "prefixLength": 3, "maxExpansions": 256 },
                             }
                         },
                         {
                             autocomplete: {
                                 query: query,
-                                path: "size",
+                                path: "categoryNamePath",
                                 fuzzy: { "maxEdits": 1, "prefixLength": 3, "maxExpansions": 256 },
                             }
-                        }
+                        },
+                        {
+                            autocomplete: {
+                                query: query,
+                                path: "tags",
+                                fuzzy: { "maxEdits": 1, "prefixLength": 3, "maxExpansions": 256 },
+                            }
+                        },
                     ],
                     'minimumShouldMatch': 1
                 }
@@ -1133,7 +1141,7 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
         },
         {
             $group: {
-                _id: "$productCode",
+                _id: "$categoryId",
                 product: { $first: "$$ROOT" }
             }
         },
@@ -1143,13 +1151,13 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
         {
             $match: {
                 isBlocked: false,
+                status: "APPROVED"
             }
         },
         {
             $project: {
                 _id: 0,
-                productName: 1,
-                color: 1,
+                categoryId: 1,
                 score: { $meta: "searchScore" }
             }
         },
@@ -1162,9 +1170,29 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
             $limit: 3
         },
         {
+            $lookup: {
+                from: collections.CATEGORIES,
+                let: { catId: "$categoryId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$catId"]
+                            }
+                        }
+                    }
+                ],
+                as: "catData"
+            }
+        },
+        {
+            $unwind: "$catData"
+        },
+        {
             $project: {
-                productName: 1,
-                color: 1,
+                suggestion: "$catData.description",
+                image: "$catData.categoryImage.fileURL",
+                categoryId: 1
             }
         },
     );
