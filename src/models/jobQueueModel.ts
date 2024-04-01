@@ -18,6 +18,14 @@ const jobSchema = new Schema(
             required: true,
             default: false,
         },
+        vendorId: {
+            type: Types.ObjectId,
+        },
+        userType: {
+            type: String,
+            enum: ["VENDOR", "ADMIN"],
+            default: "ADMIN"
+        },
         metadata: {
             filePath: String
         },

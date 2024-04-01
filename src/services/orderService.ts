@@ -1007,6 +1007,236 @@ export const exportAdminOrdersWithFilters = async (options: IOrdersOptions, expo
 
     return filename;
 }
+export const exportVendorOrdersWithFilters = async (options: IOrdersOptions, exportFolder: string): Promise<string> => {
+
+
+    let pipeline: PipelineStage[] = [];
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorIds: { $in: [options.vendorId] }
+                }
+
+            }
+        )
+    }
+
+    if (options.orderStatus) {
+        pipeline.push(
+            {
+                $match: {
+                    orderStatus: options.orderStatus
+                }
+            }
+        )
+    }
+    if (options.orderId) {
+        pipeline.push(
+            {
+                $match: {
+                    orderId: options.orderId
+                }
+            }
+        )
+    }
+    if (options.userId) {
+        pipeline.push(
+            {
+                $match: {
+                    userId: options.userId
+                }
+            }
+        )
+    }
+    if (options._id) {
+        pipeline.push(
+            {
+                $match: {
+                    _id: options._id
+                }
+            }
+        )
+    }
+    if (options.paymentMode) {
+        pipeline.push(
+            {
+                $match: {
+                    paymentMode: options.paymentMode
+                }
+            }
+        )
+    }
+    if (options.postCode) {
+        pipeline.push(
+            {
+                $match: {
+                    "shippingAddress.postCode": options.postCode
+                }
+            }
+        )
+    }
+    if (options.startDate) {
+        pipeline.push(
+            {
+                $match: {
+                    orderDate: { $gte: options.startDate }
+                }
+            }
+        )
+    }
+    if (options.endDate) {
+        pipeline.push(
+            {
+                $match: {
+                    orderDate: { $lte: options.endDate }
+                }
+            }
+        )
+    }
+
+    pipeline.push(
+        {
+            $sort: { orderDate: 1, _id: 1 }
+        },
+        {
+            $lookup: {
+                from: collections.USERS,
+                let: { userId: "$userId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$userId"]
+                            }
+                        }
+                    },
+                    {
+                        $limit: 1
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            firstName: 1,
+                            lastName: 1
+                        }
+                    }
+                ],
+                as: "userInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$userInfo",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: collections.ORDER_PRODUCTS,
+                let: { orderId: "$orderId" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$orderId", "$$orderId"]
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            sellingPrice: 1,
+                            shippingCharge: 1,
+                            mrp: 1,
+                            refundAmount: 1,
+                            paidAmount: {
+                                $cond: [{ $eq: ["$paymentStatus", "COMPLETED"] }, { $add: ["$sellingPrice", "$shippingCharge"] }, 0]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalSellingPrice: { $sum: "$sellingPrice" },
+                            totalShippingCharge: { $sum: "$shippingCharge" },
+                            totalMRP: { $sum: "$mrp" },
+                            totalRefundAmount: { $sum: "$refundAmount" },
+                            totalPaidAmount: { $sum: "$paidAmount" }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            totalMRP: 1,
+                            totalSellingPrice: 1,
+                            totalShippingCharge: 1,
+                            totalRefundAmount: 1,
+                            totalPaidAmount: 1
+                        }
+                    }
+                ],
+                as: "orderPriceInfo"
+            }
+        },
+        {
+            $unwind: {
+                path: "$orderPriceInfo",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                orderId: 1,
+                userId: 1,
+                paymentMode: 1,
+                orderDate: 1,
+                orderStatus: 1,
+                username: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
+                orderPriceInfo: 1,
+                shippingAddress: 1
+            }
+        }
+    );
+
+    let orders = await orderModel.aggregate(pipeline);
+
+    let filename = '';
+
+    if (orders && orders.length) {
+        orders = orders.map((order) => {
+            return { ...order, userId: order.userId.toString(), orderPriceInfo: JSON.stringify(order.orderPriceInfo), shippingAddress: JSON.stringify(order.shippingAddress) }
+        })
+
+        let workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet("Orders");
+        worksheet.columns = [
+            { header: "Order Date", key: "orderDate", width: 20 },
+            { header: "Order ID", key: "orderId", width: 25 },
+            { header: "User ID", key: "userId", width: 25 },
+            { header: "User Name", key: "username", width: 25 },
+            { header: "Order Status", key: "orderStatus", width: 20 },
+            { header: "Order Price ", key: "orderPriceInfo", width: 50 },
+            { header: "Shipping Address ", key: "shippingAddress", width: 200 }
+        ];
+        let firstRow = worksheet.getRow(1);
+        firstRow.eachCell((cell: any) => {
+            cell.font = { bold: true };
+        });
+
+        worksheet.addRows(orders);
+
+        filename = `order-${Date.now()}.xlsx`;
+        let filePath = path.join(exportFolder, filename);
+        await workbook.xlsx.writeFile(filePath).then(() => {
+            console.log("FILE SAVED!");
+        });
+    }
+
+    return filename;
+}
 
 
 export const getUserOrderDetails = async (orderId: string, userId: Types.ObjectId): Promise<IOrderDetails | null> => {

@@ -1370,7 +1370,6 @@ export const orderResolver: Resolvers = {
             const vendorId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
             const response = await orderService.getVendorOrderDetails(input.orderId, vendorId);
-
             return response;
         },
 
@@ -1614,15 +1613,24 @@ export const orderResolver: Resolvers = {
             }
 
 
-            const response = {
-                ...product.toObject(),
-                vendorId: product.vendorId._id,
-                vendorName: product.vendorId.fullName
-            }
+            const response = product;
             return response;
         },
 
+        getVendorOrderProducts: async (parent, { input }, { req }, info) => {
 
+            await verifyVendor(req);
+            await validateInput(validators.getAdminOrderProductsValidator, req);
+            let vendorId = req.authAccount._id;
+
+            const result = await orderProductService.getOrderProductsWithFiltersIncludeVendor({ orderId: input.orderId, vendorId });
+
+            const response = {
+                products: result.map((item: any) => { return { ...item.toObject(), vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
+            }
+
+            return response;
+        },
 
     }
 };

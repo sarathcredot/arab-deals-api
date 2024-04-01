@@ -463,7 +463,7 @@ export const getVendorOrderProductById = async (_id: Types.ObjectId): Promise<an
                 invoiceNumber: 1,
                 invoice: 1,
                 shippingAddress: "$orderDetails.shippingAddress"
-                 
+
             }
         }
     )
@@ -2652,6 +2652,18 @@ export const getUserOrderProductsByAdmin = async (options: IUserOrderProductsByA
 export const exportShippingProducts = async (options: IShippingProductsOptions, exportFolder: string): Promise<string> => {
 
     let pipeline: PipelineStage[] = [];
+
+
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+
+            }
+        )
+    }
 
     if (options._id) {
         pipeline.push(
