@@ -1510,13 +1510,6 @@ export const productResolver: Resolvers = {
 
                 if (query) {
                     suggestions = await productService.getProductsAutoComplete(query);
-                    suggestions = suggestions.map((suggestion) => {
-                        let color = suggestion.color?.split(" ").pop()?.toLowerCase() ?? "";
-                        if (color && query.includes(color)) {
-                            suggestion.productName = `${color} ${suggestion.productName}`
-                        }
-                        return suggestion;
-                    })
                 }
 
                 let response = {
