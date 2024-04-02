@@ -260,6 +260,10 @@ type CreateVendorByAdminResponse{
     page: Int
     size: Int
     isKycCompleted: Boolean
+    isBlocked:Boolean
+    fullName:String
+    email:String
+    mobileNumber:String
   }
 
 

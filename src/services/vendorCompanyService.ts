@@ -94,6 +94,10 @@ export interface IVendorCompanyOptions {
   page: number,
   size: number,
   status: string,
+  fullName: string,
+  companyName: string,
+  crNumber: string,
+  vendorId: Types.ObjectId
 }
 
 export interface IVendorCompanyRecordsResponse {
@@ -125,10 +129,53 @@ export const getVendorCompanyRecordsWithFilters = async (options: IVendorCompany
   if (options.status) {
     pipeline.push({
       $match: {
-        status: options.status  // filter with status
+        status: options.status
       }
     });
   }
+
+  if (options.companyName !== "") {
+    let query = options.companyName || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      { $match: { companyName: { $regex: regexQuery } } }
+    );
+  }
+  if (options.crNumber !== "") {
+    let query = options.crNumber || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      { $match: { crNumber: { $regex: regexQuery } } }
+    );
+  }
+
+  if (options.vendorId !== null) {
+    pipeline.push(
+      { $match: { vendorId: options.vendorId } }
+    );
+  }
+
+  if (options.fullName !== "") {
+    let query = options.fullName || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      {
+        $lookup: {
+          from: collections.VENDORS,
+          localField: 'vendorId',
+          foreignField: '_id',
+          as: 'vendor'
+        }
+      },
+      {
+        $unwind: '$vendor'
+      },
+      {
+        $match: { 'vendor.fullName': { $regex: regexQuery } }
+      }
+    );
+  }
+
 
   pipeline.push(
     {

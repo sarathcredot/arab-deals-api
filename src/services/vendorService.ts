@@ -180,6 +180,10 @@ export interface IVendorsRecordsByAdminOptions {
   page: number,
   size: number,
   isKycCompleted: boolean | null,
+  isBlocked: boolean | null,
+  fullName: string | null,
+  email: string | null,
+  mobileNumber: string | null,
 }
 
 export interface IVendorsRecordsByVendorOptions {
@@ -513,6 +517,36 @@ export const getVendorRecordsByAdminWithFilters = async (options: IVendorsRecord
         isKycCompleted: options.isKycCompleted  // filter with status
       }
     });
+  }
+
+  if (options.isBlocked != null) {
+    pipeline.push({
+      $match: {
+        isBlocked: options.isBlocked
+      }
+    });
+  }
+  if (options.fullName !== null) {
+    let query = options.fullName || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      { $match: { fullName: { $regex: regexQuery } } }
+    );
+  }
+
+  if (options.email !== null) {
+    let query = options.email || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      { $match: { email: { $regex: regexQuery } } }
+    );
+  }
+  if (options.mobileNumber !== null) {
+    let query = options.mobileNumber || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      { $match: { mobileNumber: { $regex: regexQuery } } }
+    );
   }
 
   pipeline.push(
