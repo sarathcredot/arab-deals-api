@@ -1097,7 +1097,7 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
     pipeline.push(
         {
             $search: {
-                index: "productNameSearchIndex",
+                index: "AdProductNameSearchIndex",
                 'compound': {
                     'should': [
                         {
