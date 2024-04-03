@@ -54,7 +54,7 @@ export interface IBrandRecordsOptions {
     page: number,
     size: number,
     isBlocked: boolean,
-    projection: IBrandRecordsProjection
+    projection: IBrandRecordsProjection,
 }
 
 export interface ITopBrandRecordsOptions {
@@ -133,10 +133,18 @@ export const getBrandsWithFilter = async (filters = {}, projection: string = "",
     return await brandModel.find(filters, projection, options);
 }
 
-export const getBrandRecordsWithFilters = async (options: IBrandRecordsOptions): Promise<IBrandRecordsResponse> => {
+export const getBrandRecordsWithFilters = async (options: any): Promise<IBrandRecordsResponse> => {
 
 
     let pipeline: PipelineStage[] = [];
+
+    if (options.query !== "") {
+        let query = options.query || '';
+        const regexQuery = new RegExp(query, 'i');
+        pipeline.push(
+            { $match: { brandName: { $regex: regexQuery } } }
+        );
+    }
 
     pipeline.push(
         {

@@ -127,6 +127,9 @@ export interface IVendorOutletOptions {
   page: number,
   size: number,
   status: string,
+  fullName: string,
+  vendorId: Types.ObjectId,
+  outletName: string,
 }
 
 export const createVendorOutletRecord = async (record: IVendorOutlet): Promise<Document> => {
@@ -156,6 +159,42 @@ export const getVendorOutletRecordsWithFilters = async (options: IVendorOutletOp
         status: options.status  // filter with status
       }
     });
+  }
+
+
+  if (options.outletName !== "") {
+    let query = options.outletName || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      { $match: { outletName: { $regex: regexQuery } } }
+    );
+  }
+
+  if (options.vendorId !== null) {
+    pipeline.push(
+      { $match: { vendorId: options.vendorId } }
+    );
+  }
+
+  if (options.fullName !== "") {
+    let query = options.fullName || '';
+    const regexQuery = new RegExp(query, 'i');
+    pipeline.push(
+      {
+        $lookup: {
+          from: collections.VENDORS,
+          localField: 'vendorId',
+          foreignField: '_id',
+          as: 'vendor'
+        }
+      },
+      {
+        $unwind: '$vendor'
+      },
+      {
+        $match: { 'vendor.fullName': { $regex: regexQuery } }
+      }
+    );
   }
 
   pipeline.push(

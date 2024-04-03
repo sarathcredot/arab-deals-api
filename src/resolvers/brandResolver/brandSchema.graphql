@@ -119,6 +119,7 @@
     page: Int
     size: Int
     isBlocked: Boolean
+    query:String
   }
 
    input BrandRecordsInMobileFilter {

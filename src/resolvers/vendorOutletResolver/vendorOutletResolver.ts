@@ -349,11 +349,17 @@ export const vendorOutletResolver: Resolvers = {
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const status: string = input?.status || '';
+                const fullName: string = input?.fullName || '';
+                const vendorId: Types.ObjectId = input?.vendorId || null;
+                const outletName: string = input?.outletName || "";
 
                 const options = {
                     page,
                     size,
                     status,
+                    fullName,
+                    vendorId,
+                    outletName
                 }
 
                 const result = await vendorOutletService.getVendorOutletRecordsWithFilters(options);

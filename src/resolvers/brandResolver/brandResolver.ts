@@ -185,6 +185,7 @@ export const brandResolver: Resolvers = {
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const isBlocked: boolean = input?.isBlocked || false;
+                const query: string = input?.query || "";
 
                 let projection: brandService.IBrandRecordsProjection = { _id: 1 };
 
@@ -215,11 +216,12 @@ export const brandResolver: Resolvers = {
                 }
 
 
-                const options: brandService.IBrandRecordsOptions = {
+                const options = {
                     page,
                     size,
                     isBlocked,
                     projection,
+                    query
                 }
 
                 const result = await brandService.getBrandRecordsWithFilters(options);
