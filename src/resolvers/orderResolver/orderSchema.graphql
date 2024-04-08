@@ -284,6 +284,7 @@ input GetUserOrderProductsByAdminInput {
     page: Int
     size: Int
     userId: ObjectId!
+    orderId:String
 }
 
 

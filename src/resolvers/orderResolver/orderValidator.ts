@@ -249,6 +249,7 @@ export const getUserOrderProductsByAdminValidator = [
     body('variables.input.page').trim().optional({ checkFalsy: true }).isInt().custom(val => val >= 0),
     body('variables.input.size').trim().optional({ checkFalsy: true }).isInt().custom(val => val > 0),
     body('variables.input.userId').isMongoId(),
+    body('variables.input.orderId').optional({ checkFalsy: true }),
 ];
 
 

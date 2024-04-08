@@ -40,6 +40,11 @@ export const updateVendorOutletByAdminValidatior = [
 export const getAllVendorOutletValidator = [
   body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
   body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
+  body('variables.input.status').optional({ checkFalsy: true }),
+  body('variables.input.fullName').optional({ checkFalsy: true }),
+  body('variables.input.outletName').optional({ checkFalsy: true }),
+  body('variables.input.vendorId').optional({ checkFalsy: true }).isMongoId(),
+
 ]
 
 export const vendorOutletQueryValidator = [

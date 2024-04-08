@@ -303,11 +303,19 @@ export const vendorCompanyResolver: Resolvers = {
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const status: string = input?.status || '';
+                const fullName: string = input?.fullName || '';
+                const companyName: string = input?.companyName || '';
+                const vendorId: Types.ObjectId = input?.vendorId || null;
+                const crNumber: string = input?.crNumber || '';
 
                 const options = {
                     page,
                     size,
                     status,
+                    fullName,
+                    companyName,
+                    vendorId,
+                    crNumber
                 }
 
                 const result = await vendorCompanyService.getVendorCompanyRecordsWithFilters(options);

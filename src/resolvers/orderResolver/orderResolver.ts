@@ -1297,8 +1297,9 @@ export const orderResolver: Resolvers = {
             await validateInput(validators.getUserOrderProductsByAdminValidator, req);
 
             const userId = input.userId;
+            const orderId = input.orderId || "";
 
-            let filters: orderProductService.IUserOrderProductsByAdminOptions = { page: 0, size: 10, userId: userId }
+            let filters: orderProductService.IUserOrderProductsByAdminOptions = { page: 0, size: 10, userId: userId, orderId: orderId }
 
             if (input.page) {
                 filters.page = input.page;

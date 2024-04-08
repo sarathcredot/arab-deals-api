@@ -10,8 +10,12 @@ export const addVendorCompanyValidator = [
 
 export const getAllVendorCompanyValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
-    body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
     body('variables.input.status').optional({ checkFalsy: true }).isIn(["PENDING", "UNDER_VERIFICATION", "COMPLETED", "REJECTED"]),
+    body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
+    body('variables.input.fullName').optional({ checkFalsy: true }),
+    body('variables.input.companyName').optional({ checkFalsy: true }),
+    body('variables.input.vendorId').optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.crNumber').optional({ checkFalsy: true }),
 ]
 
 export const vendorCompanyQueryValidator = [

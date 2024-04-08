@@ -348,6 +348,7 @@ export interface IUserOrderProductsByAdminOptions {
     page: number;
     size: number;
     userId: Types.ObjectId;
+    orderId: string;
 }
 
 export interface IUserOrderProducts {
@@ -2561,6 +2562,14 @@ export const getUserOrderProducts = async (options: IUserOrderProductsOptions): 
 export const getUserOrderProductsByAdmin = async (options: IUserOrderProductsByAdminOptions): Promise<IUserOrderProductsByAdmin> => {
 
     let pipeline: PipelineStage[] = [];
+
+    if (options.orderId !== "") {
+        let query = options.orderId || '';
+        const regexQuery = new RegExp(query, 'i');
+        pipeline.push(
+            { $match: { orderId: { $regex: regexQuery } } }
+        );
+    }
 
     pipeline.push(
         {

@@ -581,11 +581,19 @@ export const vendorResolver: Resolvers = {
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
         const isKycCompleted: boolean | null = input?.isKycCompleted ?? null;
+        const isBlocked: boolean | null = input?.isBlocked ?? null;
+        const fullName: string | null = input?.fullName ?? null;
+        const email: string | null = input?.email ?? null;
+        const mobileNumber: string | null = input?.mobileNumber ?? null;
 
         const options: vendorService.IVendorsRecordsByAdminOptions = {
           page,
           size,
           isKycCompleted,
+          isBlocked,
+          fullName,
+          email,
+          mobileNumber,
         }
 
         // Fetch all vendors records

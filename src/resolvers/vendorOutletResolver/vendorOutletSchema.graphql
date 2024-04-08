@@ -150,6 +150,9 @@
     page: Int
     size: Int
     status: String
+    vendorId:ObjectId
+    outletName:String
+    fullName:String
   }
 
     # Output

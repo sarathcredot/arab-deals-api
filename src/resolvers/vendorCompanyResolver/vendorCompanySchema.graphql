@@ -102,6 +102,10 @@
     page: Int
     size: Int
     status: String
+    fullName:String
+    companyName:String
+    vendorId:ObjectId
+    crNumber:String
   }
 
     # Output

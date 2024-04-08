@@ -11,6 +11,7 @@ export const brandCreateValidator = [
 export const getAllBrandsValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
     body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
+    body('variables.input.query').optional({ checkFalsy: true }),
 ]
 
 export const getAllBrandsWithVendorByAdminValidator = [

@@ -12,6 +12,10 @@ export const getAllVendorsRecordsByAdminValidator = [
   body('variables.input.page').optional({ checkFalsy: true }).isInt({ min: 0 }),
   body('variables.input.size').optional({ checkFalsy: true }).isInt({ min: 1 }),
   body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+  body('variables.input.isKycCompleted').optional({ checkFalsy: true }).toBoolean(true),
+  body('variables.input.fullName').optional({ checkFalsy: true }),
+  body('variables.input.email').optional({ checkFalsy: true }),
+  body('variables.input.mobileNumber').optional({ checkFalsy: true }),
 ];
 
 export const getAllVendorsRecordsByVendorValidator = [

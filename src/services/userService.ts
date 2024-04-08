@@ -81,6 +81,7 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
       { $match: { mobileNumber: { $regex: regexQuery } } }
     );
   }
+
   if (options.isBlocked != null) {
 
     pipeline.push(

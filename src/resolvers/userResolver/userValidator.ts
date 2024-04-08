@@ -16,6 +16,7 @@ export const usersQueryValidator = [
   body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
   body('variables.input.size').optional({ checkFalsy: true }).custom(val => val > 0),
   body('variables.input.isBlocked').optional({ checkFalsy: true }).toBoolean(true),
+  body('variables.input.query').optional({ checkFalsy: true }),
 ]
 
 export const userQueryValidator = [
