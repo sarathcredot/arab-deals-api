@@ -380,6 +380,7 @@ type AdminOrderProduct {
     productName: String
     shortDescription: String
     skuId: String
+    warehouseSkuId: String
     image: FileData
     returnPeriod: Int
     mrp: Float
@@ -502,6 +503,7 @@ type GetAdminOrderProductResponse {
     productName: String
     shortDescription: String
     skuId: String
+    warehouseSkuId: String
     image: FileData
     returnPeriod: Int
     mrp: Float

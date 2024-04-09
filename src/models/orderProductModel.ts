@@ -71,6 +71,9 @@ const orderProductSchema = new Schema(
         skuId: {
             type: String
         },
+        warehouseSkuId: {
+            type: String,
+        },
         image: {
             type: fileSchema,
         },
