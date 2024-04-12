@@ -53,6 +53,7 @@ export interface ICartProduct {
     price: number;
     image: FileData;
     skuId: string;
+    warehouseSkuId: string;
     sellingPrice: number;
     mrp: number;
 }
@@ -245,6 +246,7 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                             price: 1,
                             images: { $arrayElemAt: ["$images", 0] },
                             skuId: 1,
+                            warehouseSkuId: 1,
                             shortDescription: 1,
                             sellingPrice: 1,
                             mrp: 1
@@ -274,6 +276,7 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                 price: "$productData.price",
                 image: "$productData.images",
                 skuId: "$productData.skuId",
+                warehouseSkuId: "$productData.warehouseSkuId",
                 shortDescription: "$productData.shortDescription",
                 sellingPrice: "$productData.sellingPrice",
                 mrp: "$productData.mrp",

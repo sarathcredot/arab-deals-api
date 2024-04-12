@@ -114,6 +114,7 @@ export const orderResolver: Resolvers = {
                             productName: product.name,
                             shortDescription: product.shortDescription,
                             skuId: product.skuId,
+                            warehouseSkuId: product.warehouseSkuId,
                             image: {
                                 fileType: product.image?.fileType,
                                 fileURL: product.image?.fileURL,
@@ -161,7 +162,6 @@ export const orderResolver: Resolvers = {
                 orderStatus: "PENDING",
                 vendorIds: vendorIds
             }
-
             await Promise.all([
                 orderService.createOrder(order),
                 orderProductService.createOrderProducts(products),

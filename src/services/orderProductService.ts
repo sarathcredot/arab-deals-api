@@ -31,6 +31,7 @@ export interface IOrderProduct {
     productName?: string;
     shortDescription?: string;
     skuId?: string;
+    warehouseSkuId?: string;
     image?: FileData;
     returnPeriod?: number;
     mrp?: number;
