@@ -14,6 +14,8 @@ type Mutation {
   vendorKycApproval(input: VendorKycStatusInput!): VendorKycStatusResponse!
   updateVendorProfile(input: VendorEditProfileInput!,image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!,image: Upload): UpdateVendorByAdminResponse!
+  logoutVendor:LogoutVendorResponse!
+
 }
 
 # Otp 
@@ -22,6 +24,11 @@ input sendOtpInput {
   fullName: String!
   mobileNumber: String!
 }
+
+type  LogoutVendorResponse {
+  message: String!
+}
+
 
 type sendOtpResponse {
   message: String

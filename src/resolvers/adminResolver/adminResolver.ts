@@ -283,6 +283,15 @@ export const adminResolver: Resolvers = {
       }
     },
 
+    logoutAdmin: async (parent, { }, { req }, info) => {
+      await verifyAdmin(req);
+      await adminService.logoutAdmin(req.authAccount._id);
+      const response = {
+        message: "logout successful"
+      }
+      return response;
+    }
+
 
   },
 
