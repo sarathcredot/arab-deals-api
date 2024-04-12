@@ -9,6 +9,7 @@ scalar ObjectId
   userBlock(input:userBlockInput!):userBlockResponse!
   updateUserProfile(input:updateUserProfileInput!):updateUserProfileResponse!
   updateUserProfileByAdmin(input:UpdateUserProfileByAdminInput!):UpdateUserProfileByAdminResponse!
+  logoutUser:UserLogoutResponse!
 
   # Mobile API
     userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
@@ -182,3 +183,6 @@ mutation: Mutation,
 }
 
 
+type UserLogoutResponse {
+  _id: ObjectId!
+}

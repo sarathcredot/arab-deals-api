@@ -80,7 +80,7 @@ export const isOtpExpired = async function (expiryTimestamp: MomentInput): Promi
 
 
 export const findOtpRecordWithFilters = async (filters: FilterQuery<IAuthUtility>, projection: IAuthUtilityProjection = {}, options: QueryOptions): Promise<IAuthUtility | null> => {
-  return await authUtilityModel.findOne(filters, projection, options);
+  return await authUtilityModel.findOne(filters, projection, options)
 }
 
 export const deleteOtpRecord = async (_id: Types.ObjectId): Promise<void> => {
