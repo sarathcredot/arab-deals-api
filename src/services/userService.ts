@@ -147,6 +147,11 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
 }
 
 
+export const logoutUser = async (userId: Types.ObjectId): Promise<IUserDocument | null> => {
+  return await userModel.findByIdAndUpdate(userId, { $set: { token: `Token-${Date.now()}` } });
+}
+
+
 
 
 

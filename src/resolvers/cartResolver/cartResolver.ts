@@ -95,15 +95,23 @@ export const cartResolver: Resolvers = {
                 const cart = await cartService.checkCartExist(userId)
                 if (cart) {
                     let temp = [];
-                    for (let item of cart.products) {
-                        for (let product of products) {
+                    for (let product of products) {
+                        let itemExist = false;
+                        for (let item of cart.products) {
                             if (item.productId.equals(product.productId)) {
+                                itemExist = true;
                                 item.quantity += product.quantity;
+                                break;
                             }
                         }
-                        temp.push(item);
+                        if (!itemExist) {
+                            temp.push({ productId: product.productId, quantity: product.quantity });
+                        }
                     }
-
+                    if (temp.length) {
+                        cart.products = cart.products.concat(temp);
+                        await cart.save();
+                    }
                     cart.products = temp;
                     await cart.save();
 

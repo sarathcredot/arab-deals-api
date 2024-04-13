@@ -473,6 +473,16 @@ export const userResolver: Resolvers = {
         throw error;
       }
     },
+
+    logoutUser: async (parent, { }, { req }, info) => {
+      await verifyUser(req);
+      const userId = req.authAccount._id;
+      await userService.logoutUser(userId);
+      const response = {
+        _id: userId
+      }
+      return response;
+    }
   },
 
   Query: {
