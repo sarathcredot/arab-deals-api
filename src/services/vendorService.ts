@@ -198,6 +198,12 @@ export interface IVendorsRecordsResponse {
 }
 
 
+
+export const logoutVendor = async (id: Types.ObjectId): Promise<void> => {
+  await vendorModel.findByIdAndUpdate(id, { $set: { token: `${Date.now()} token` } })
+}
+
+
 export const createVendor = async (vendorData: IVendor): Promise<IVendorDocument> => {
   let vendor: IVendorDocument = new vendorModel(vendorData);
   return await vendor.save();

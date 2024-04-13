@@ -99,6 +99,11 @@ export const getAdminRecordWithId = async (id: Types.ObjectId, projection: IAdmi
   return await adminModel.findById(id, projection, options);
 }
 
+export const logoutAdmin = async (id: Types.ObjectId): Promise<void> => {
+  await adminModel.findByIdAndUpdate(id, { $set: { token: `${Date.now()} token` } })
+}
+
+
 
 
 
