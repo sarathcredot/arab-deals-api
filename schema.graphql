@@ -30,6 +30,7 @@ type Mutation {
   userBlock(input: userBlockInput!): userBlockResponse!
   updateUserProfile(input: updateUserProfileInput!): updateUserProfileResponse!
   updateUserProfileByAdmin(input: UpdateUserProfileByAdminInput!): UpdateUserProfileByAdminResponse!
+  logoutUser: UserLogoutResponse!
   userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
@@ -961,6 +962,10 @@ type userInMobileResponse {
   message: String
 }
 
+type UserLogoutResponse {
+  _id: ObjectId!
+}
+
 scalar Date
 
 input UpdatePaymentSettingsInput {
@@ -1372,6 +1377,7 @@ type ProductSuggestion {
   suggestion: String!
   image: String
   categoryId: ObjectId
+  categoryIdPath: String
 }
 
 type GetProductsAutoCompleteResponse {

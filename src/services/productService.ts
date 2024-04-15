@@ -247,6 +247,7 @@ export interface IProductSuggestion {
     suggestion: string;
     image?: string;
     categoryId?: Types.ObjectId;
+    categoryIdPath?: string;
 }
 
 export interface ProductStock {
@@ -1159,7 +1160,8 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
             $project: {
                 _id: 0,
                 categoryId: 1,
-                score: { $meta: "searchScore" }
+                score: { $meta: "searchScore" },
+                categoryIdPath: 1
             }
         },
         {
@@ -1193,7 +1195,8 @@ export const getProductsAutoComplete = async (query: string): Promise<IProductSu
             $project: {
                 suggestion: "$catData.description",
                 image: "$catData.categoryImage.fileURL",
-                categoryId: 1
+                categoryId: 1,
+                categoryIdPath: 1
             }
         },
     );
