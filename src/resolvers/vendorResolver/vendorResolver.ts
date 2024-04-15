@@ -569,6 +569,14 @@ export const vendorResolver: Resolvers = {
       return response;
     },
 
+    logoutVendor: async (parent, { }, { req }, info) => {
+      await verifyVendor(req);
+      await vendorService.logoutVendor(req.authAccount._id);
+      const response = {
+        message: "logout successful"
+      }
+      return response;
+    },
   },
 
   Query: {

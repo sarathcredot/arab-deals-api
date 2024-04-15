@@ -1,6 +1,8 @@
   scalar Upload
 
 
+
+
 # Admin auth Mutations
 
  type Mutation {
@@ -9,6 +11,7 @@
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image:Upload): UpdateAdminResponse!
   adminApprovalForVendor(input: adminApprovalForVendorInput!): adminApprovalForVendorResponse!
+  logoutAdmin:LogoutAdminResponse!
 }
 
  type ImageData {
@@ -17,6 +20,12 @@
   mimeType: String
   originalName: String
   }  
+
+
+type  LogoutAdminResponse {
+  message: String!
+}
+
 
 # Admin auth Type
 
