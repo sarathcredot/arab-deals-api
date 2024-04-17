@@ -1383,6 +1383,7 @@ type ProductSuggestion {
   suggestion: String!
   image: String
   categoryId: ObjectId
+  categoryIdPath: String
 }
 
 type GetProductsAutoCompleteResponse {
