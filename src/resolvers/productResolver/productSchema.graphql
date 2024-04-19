@@ -58,7 +58,7 @@
     description: String!
     productInfo: [String]
     productShortInfo: String
-    rating: Int!
+    rating: Float!
     tags: String!
     sellingPrice: Float!
     price: Float!
@@ -76,7 +76,7 @@ input VariantInput {
     description: String!
     productInfo: [String!]!
     productShortInfo: String
-    rating: Int!
+    rating: Float!
     tags: String
     sellingPrice: Float!
     price: Float!
@@ -96,7 +96,7 @@ input ProductUpdateInput {
     description: String
     productInfo: [String]
     productShortInfo: String
-    rating: Int
+    rating: Float
     tags: String
     sellingPrice: Float
     price: Float
@@ -120,7 +120,7 @@ input UpdateProductByAdminInput {
     description: String
     productInfo: [String]
     productShortInfo: String
-    rating: Int
+    rating: Float
     tags: String
     sellingPrice: Float
     price: Float
@@ -296,7 +296,7 @@ type Query {
         productInfo: [String]
         productShortInfo: String
         images: [ProductFileData]
-        rating: Int
+        rating: Float
         sellingPrice: Float
         price: Float
         mrp: Float
