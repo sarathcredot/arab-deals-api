@@ -134,72 +134,74 @@ export const getBrandsWithFilter = async (filters = {}, projection: string = "",
 }
 
 export const getBrandRecordsWithFilters = async (options: any): Promise<IBrandRecordsResponse> => {
-
-
     let pipeline: PipelineStage[] = [];
 
     if (options.query !== "") {
         let query = options.query || '';
         const regexQuery = new RegExp(query, 'i');
+        pipeline.push({ $match: { brandName: { $regex: regexQuery } } });
+    }
+
+    pipeline.push({ $match: { isBlocked: options.isBlocked } }, { $sort: { priority: -1 } });
+
+    if (options.paginationEnabled && options.page !== undefined && options.size !== undefined) {
+        // Pagination enabled
         pipeline.push(
-            { $match: { brandName: { $regex: regexQuery } } }
+            {
+                $facet: {
+                    metadata: [{ $group: { _id: null, total: { $sum: 1 } } }],
+                    data: [
+                        { $skip: options.page * options.size },
+                        { $limit: options.size },
+                        { $project: options.projection }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                    records: "$data"
+                }
+            }
+        );
+    } else {
+        // Pagination disabled
+        pipeline.push(
+            {
+                $facet: {
+                    metadata: [{ $group: { _id: null, total: { $sum: 1 } } }],
+                    data: [
+                        { $project: options.projection }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+                    records: "$data"
+                }
+            }
         );
     }
 
-    pipeline.push(
-        {
-            $match: {
-                isBlocked: options.isBlocked
-            }
-        },
-        {
-            $sort: {
-                priority: -1,
-            }
-        },
-        {
-            $facet: {
-                metadata: [
-                    {
-                        $group: {
-                            _id: null,
-                            total: { $sum: 1 }
-                        }
-                    }
-                ],
-                data: [
-                    {
-                        $skip: options.page * options.size
-                    },
-                    {
-                        $limit: options.size
-                    },
-                    {
-                        $project: options.projection
-                    }
-                ]
-            }
-        },
-        {
-            $project: {
-                maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-                data: 1
-            }
-        }
-    );
-
     const result = await brandModel.aggregate(pipeline);
+
     let response = {
         records: [],
         maxRecords: 0
     };
+
     if (result.length) {
-        response.records = result[0].data || [];
+        response.records = result[0].records || [];
         response.maxRecords = result[0].maxRecords || 0;
     }
 
     return response;
-}
+};
+
+
+
+
 
 export const getTopBrandRecordsWithFilters = async (options: ITopBrandRecordsOptions): Promise<IBrandRecordsResponse> => {
 

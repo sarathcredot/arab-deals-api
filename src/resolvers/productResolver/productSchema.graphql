@@ -187,6 +187,7 @@ type Query {
         discount: Int
         bestSeller: Boolean
         status: String
+        vendorId:ObjectId
     }
 
     input AttributeInput {

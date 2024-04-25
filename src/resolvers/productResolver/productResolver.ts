@@ -853,6 +853,7 @@ export const productResolver: Resolvers = {
                 await verifyAdmin(req);
 
                 const status = input?.status || "";
+                const vendorId: Types.ObjectId = input?.vendorId || null;
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const minPrice: number | null = input?.minPrice || null;
@@ -908,7 +909,8 @@ export const productResolver: Resolvers = {
                     projection,
                     parentCategory,
                     categories,
-                    status
+                    status,
+                    vendorId
                 }
 
                 const result = await productService.getProductsByAdminWithFilters(options);

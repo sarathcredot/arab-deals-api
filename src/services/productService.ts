@@ -182,6 +182,7 @@ export interface IProductsOptions {
     tags?: string[],
     discount?: number;
     status?: string;
+    vendorId?: Types.ObjectId,
 }
 
 export interface IProductsPriceRangeOptions {
@@ -563,7 +564,15 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
 
     let sort: { [key: string]: 1 | -1 } = {};
 
-
+    if (options.vendorId) {
+        pipeline.push(
+            {
+                $match: {
+                    vendorId: options.vendorId
+                }
+            },
+        )
+    }
 
 
     if (options.query) {
