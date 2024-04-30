@@ -115,8 +115,6 @@ export const attributeResolver: Resolvers = {
         await validateInput(validators.getAllAttributeRecordsValidator, req);
         await verifyAdmin(req);
 
-        const page: number = input?.page || 0;
-        const size: number = input?.size || 10;
         const isBlocked: boolean | null = input?.isBlocked ?? null;
 
         let projection: attributeService.IAttributeProjection = { _id: 1 };
@@ -148,11 +146,23 @@ export const attributeResolver: Resolvers = {
         }
 
 
-        const options: attributeService.IAttributeRecordsOptions = {
-          page,
-          size,
+        const paginationEnabled: boolean = input?.paginationEnabled || false;
+        let pageNumber: number | undefined | null;
+        let pageSize: number | undefined | null;
+
+        if (paginationEnabled) {
+          pageNumber = input?.page !== undefined ? input.page : 0;
+          pageSize = input?.size !== undefined ? input.size : 10;
+        }
+
+
+
+        const options = {
+          page: pageNumber,
+          size: pageSize,
           projection,
           isBlocked,
+          paginationEnabled
         }
 
         // Fetch all vendors records

@@ -106,7 +106,7 @@ export const getvendorRecordWithId = async (id: Types.ObjectId): Promise<IAttrib
 }
 
 
-export const getAttributeRecordsWithFilters = async (options: IAttributeRecordsOptions): Promise<IAttributeRecordsResponse> => {
+export const getAttributeRecordsWithFilters = async (options: any): Promise<IAttributeRecordsResponse> => {
 
 
   let pipeline: PipelineStage[] = [];
@@ -119,42 +119,77 @@ export const getAttributeRecordsWithFilters = async (options: IAttributeRecordsO
     });
   }
 
-  pipeline.push(
-    {
-      $sort: {
-        priority: -1,
-      }
-    },
-    {
-      $facet: {
-        metadata: [
-          {
-            $group: {
-              _id: null,
-              total: { $sum: 1 }
+
+  if (options.paginationEnabled && options.page !== undefined && options.size !== undefined) {
+    pipeline.push(
+      {
+        $sort: {
+          priority: -1,
+        }
+      },
+      {
+        $facet: {
+          metadata: [
+            {
+              $group: {
+                _id: null,
+                total: { $sum: 1 }
+              }
             }
-          }
-        ],
-        data: [
-          {
-            $skip: options.page * options.size
-          },
-          {
-            $limit: options.size
-          },
-          {
-            $project: options.projection
-          }
-        ]
+          ],
+          data: [
+            {
+              $skip: options.page * options.size
+            },
+            {
+              $limit: options.size
+            },
+            {
+              $project: options.projection
+            }
+          ]
+        }
+      },
+      {
+        $project: {
+          maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+          data: 1
+        }
       }
-    },
-    {
-      $project: {
-        maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
-        data: 1
+    );
+  } else {
+    pipeline.push(
+      {
+        $sort: {
+          priority: -1,
+        }
+      },
+      {
+        $facet: {
+          metadata: [
+            {
+              $group: {
+                _id: null,
+                total: { $sum: 1 }
+              }
+            }
+          ],
+          data: [
+            {
+              $project: options.projection
+            }
+          ]
+        }
+      },
+      {
+        $project: {
+          maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+          data: 1
+        }
       }
-    }
-  );
+    );
+  }
+
 
   const result = await attributeModel.aggregate(pipeline);
   let response = {
