@@ -90,6 +90,7 @@ input AttributeRecordsByAdminFilter {
  page: Int,
  size: Int,
  isBlocked: Boolean
+ paginationEnabled:Boolean
 }
 
 input AttributeRecordByAdminInput {

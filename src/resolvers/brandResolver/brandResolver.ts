@@ -182,17 +182,13 @@ export const brandResolver: Resolvers = {
                 await validateInput(validators.getAllBrandsValidator, req);
                 await verifyAdmin(req);
 
-                const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
                 const isBlocked: boolean = input?.isBlocked || false;
                 const query: string = input?.query || "";
-
                 let projection: brandService.IBrandRecordsProjection = { _id: 1 };
 
                 const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
                 for (const selection of selectedFields) {
                     if (selection.kind === "Field" && selection.name.value == "records") {
-
                         let selectionSet = selection.selectionSet || { selections: [] };
                         for (let item of selectionSet.selections) {
                             if (item.kind === "Field") {
@@ -206,8 +202,7 @@ export const brandResolver: Resolvers = {
                                             projection[path as keyof brandService.IBrandRecordsProjection] = 1;
                                         }
                                     }
-                                }
-                                else {
+                                } else {
                                     projection[fieldName as keyof brandService.IBrandRecordsProjection] = 1;
                                 }
                             }
@@ -215,14 +210,23 @@ export const brandResolver: Resolvers = {
                     }
                 }
 
+                const paginationEnabled: boolean = input?.paginationEnabled || false;
+                let pageNumber: number | undefined | null;
+                let pageSize: number | undefined | null;
+
+                if (paginationEnabled) {
+                    pageNumber = input?.page !== undefined ? input.page : 0;
+                    pageSize = input?.size !== undefined ? input.size : 10;
+                }
 
                 const options = {
-                    page,
-                    size,
+                    page: pageNumber,
+                    size: pageSize,
                     isBlocked,
                     projection,
-                    query
-                }
+                    query,
+                    paginationEnabled
+                };
 
                 const result = await brandService.getBrandRecordsWithFilters(options);
                 const response = {
@@ -235,6 +239,8 @@ export const brandResolver: Resolvers = {
                 throw error;
             }
         },
+
+
 
         // Fetch all top brands
         async getAllTopBrandRecords(parent, { input }, { req }, info) {

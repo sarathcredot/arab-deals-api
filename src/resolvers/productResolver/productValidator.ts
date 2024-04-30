@@ -80,6 +80,7 @@ export const vendorProductsQueryValidator = [
 
 export const adminProductsQueryValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
+    body('variables.input.vendorId').optional({ checkFalsy: true }).isMongoId(),
     body('variables.input.productSize').optional({ checkFalsy: true }).isArray({ min: 0 }),
     body('variables.input.bestSeller').optional({ checkFalsy: true }).isIn([true, false]),
     body('variables.input.maxPrice').optional({ checkFalsy: true }).custom(val => val > 0),

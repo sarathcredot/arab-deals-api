@@ -120,6 +120,7 @@
     size: Int
     isBlocked: Boolean
     query:String
+    paginationEnabled:Boolean
   }
 
    input BrandRecordsInMobileFilter {
