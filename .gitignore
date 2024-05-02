@@ -6,3 +6,4 @@ dist
 src/_generated_
 src/scripts/migrationScript.ts
 src/scripts/products.json
+src/utils/logs.ts
