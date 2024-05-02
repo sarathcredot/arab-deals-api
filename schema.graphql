@@ -121,7 +121,7 @@ type Query {
   getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
   getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
   getVariantsTableByVendor(input: ProductVariantsByVendorFilter!): VariantsTableByVendorResponse!
-  getProductsMaxPrice(input: categoriesInput!): getProductsMaxPriceResponse!
+  getProductsMaxPrice(input: categoriesInput): getProductsMaxPriceResponse!
   getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
   getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
@@ -980,7 +980,7 @@ input UpdatePaymentSettingsInput {
 }
 
 input UpdateShippingSettingsInput {
-  shippingCharge: Int
+  shippingCharge: Float
   freeShippingThreshold: Int
   returnPeriod: Int
 }
@@ -991,7 +991,7 @@ type UpdatePaymentSettingsResponse {
 }
 
 type UpdateShippingSettingsResponse {
-  shippingCharge: Int
+  shippingCharge: Float
   freeShippingThreshold: Int
   returnPeriod: Int
 }
@@ -1002,7 +1002,7 @@ type GetPaymentSettingsResponse {
 }
 
 type GetShippingSettingsResponse {
-  shippingCharge: Int
+  shippingCharge: Float
   freeShippingThreshold: Int
   returnPeriod: Int
 }
@@ -1085,7 +1085,7 @@ input ProductUpdateInput {
   productCode: Int
   stock: Int
   categoryId: String
-  offerPrice: Int
+  offerPrice: Float
   attributes: [String]
   remarks: [String]
 }
@@ -1109,7 +1109,7 @@ input UpdateProductByAdminInput {
   stock: Int
   categoryId: String
   status: String
-  offerPrice: Int
+  offerPrice: Float
   attributes: [String]
   remarks: [String]
   isBlocked: Boolean
@@ -1251,7 +1251,7 @@ type Product {
   isBlocked: Boolean
   stock: Int
   status: String
-  offerPrice: Int
+  offerPrice: Float
   attributes: [IProductAttribute]
   productDetailImages: [ProductFileData]
   warehouseSkuId: String
@@ -2654,6 +2654,7 @@ type CategoryNode {
   _id: String
   categoryImage: ImageData
   children: [CategoryNode]
+  isLeaf: Boolean
 }
 
 type GetActiveChildCategoriesResponse {
@@ -2779,15 +2780,15 @@ type cartProduct {
 
 type getCartResponse {
   products: [cartProduct]
-  grandTotal: Int
-  subTotal: Int
+  grandTotal: Float
+  subTotal: Float
   deliveryCharge: Int
 }
 
 type getCartInMobileResponse {
   products: [cartProduct]
-  grandTotal: Int
-  subTotal: Int
+  grandTotal: Float
+  subTotal: Float
   deliveryCharge: Int
 }
 

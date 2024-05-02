@@ -98,15 +98,15 @@ type cartProduct{
 
 type getCartResponse{
   products:[cartProduct]
-  grandTotal:Int
-  subTotal:Int
+  grandTotal:Float
+  subTotal:Float
   deliveryCharge:Int
 }
 
 type getCartInMobileResponse{
   products:[cartProduct]
-  grandTotal:Int
-  subTotal:Int
+  grandTotal:Float
+  subTotal:Float
   deliveryCharge:Int
 }
 

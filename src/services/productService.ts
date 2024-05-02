@@ -293,18 +293,6 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
 
     let sort: { [key: string]: 1 | -1 } = {};
 
-
-    if (options?.attributes?.length) {
-        options.attributes.forEach((attribute) => {
-            pipeline.push({
-                $match: {
-                    'attributes.attributeId': new Types.ObjectId(attribute.id),
-                    'attributes.attributeValueId': { $in: attribute.values.map(value => new Types.ObjectId(value)) }
-                }
-            });
-        });
-    }
-
     if (options.query) {
         let query = options.query || '';
         query = query.trim();
@@ -318,6 +306,18 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
         );
         sort = { score: -1 }
     }
+
+    if (options?.attributes?.length) {
+        options.attributes.forEach((attribute) => {
+            pipeline.push({
+                $match: {
+                    'attributes.attributeId': new Types.ObjectId(attribute.id),
+                    'attributes.attributeValueId': { $in: attribute.values.map(value => new Types.ObjectId(value)) }
+                }
+            });
+        });
+    }
+
 
     if (options.discount && options.discount > 0) {
         let multiplier = options.discount / 100;

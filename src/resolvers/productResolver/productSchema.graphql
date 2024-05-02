@@ -104,7 +104,7 @@ input ProductUpdateInput {
     productCode: Int
     stock: Int
     categoryId: String
-    offerPrice: Int
+    offerPrice: Float
     attributes: [String]
     remarks: [String]
 
@@ -129,7 +129,7 @@ input UpdateProductByAdminInput {
     stock: Int
     categoryId: String
     status: String
-    offerPrice: Int
+    offerPrice: Float
     attributes: [String]
     remarks: [String]
     isBlocked: Boolean
@@ -160,7 +160,7 @@ type Query {
     getRelatedProducts(input: RelatedProductsFilters!):RelatedProductsResponse!
     getVariantsTableByAdmin(input:ProductVariantsByAdminFilter!) : VariantsTableByAdminResponse!
     getVariantsTableByVendor(input:ProductVariantsByVendorFilter!) : VariantsTableByVendorResponse!
-    getProductsMaxPrice(input:categoriesInput!) : getProductsMaxPriceResponse!
+    getProductsMaxPrice(input:categoriesInput) : getProductsMaxPriceResponse!
 
  # MOBILE SIDE APIS
     getProductsInMobile(input:ProductsInMobileFilters):ProductsInMobileResponse!
@@ -309,7 +309,7 @@ type Query {
         isBlocked: Boolean
         stock: Int
         status: String
-        offerPrice: Int
+        offerPrice: Float
         attributes: [IProductAttribute]
         productDetailImages: [ProductFileData]
         warehouseSkuId: String

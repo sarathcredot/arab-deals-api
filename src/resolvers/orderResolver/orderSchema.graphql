@@ -22,14 +22,14 @@ type Mutation {
 input CreateUserOrderInput {
     shippingAddressId: ObjectId!
     paymentMode: String!
-    grandTotal: Float!
+   grandTotal: Float!
 }
 
 
 input CreateUserOrderInMobileInput {
     shippingAddressId: ObjectId!
     paymentMode: String!
-    grandTotal: Float!
+   grandTotal: Float!
 }
 
 

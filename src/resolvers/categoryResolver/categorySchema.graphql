@@ -136,6 +136,7 @@
       _id: String
       categoryImage: ImageData
       children: [CategoryNode]
+      isLeaf: Boolean
     }
 
     type GetActiveChildCategoriesResponse{
