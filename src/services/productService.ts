@@ -321,10 +321,15 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
 
     if (options.discount && options.discount > 0) {
         let multiplier = options.discount / 100;
+        let discountEnding = options.discount !== 50 ? options.discount + 20 : 100;
+        let discountEndingMultiplier = discountEnding / 100;
         pipeline.push({
             $match: {
                 $expr: {
-                    $lte: ["$sellingPrice", { $subtract: ["$mrp", { $multiply: ["$mrp", multiplier] }] }]
+                    $and: [
+                        { $lte: ["$sellingPrice", { $subtract: ["$mrp", { $multiply: ["$mrp", multiplier] }] }] },
+                        { $gte: ["$sellingPrice", { $subtract: ["$mrp", { $multiply: ["$mrp", discountEndingMultiplier] }] }] }
+                    ]
                 }
             }
         });
@@ -443,6 +448,9 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
     else if (options.ids?.length) {
         sort = { orderCount: -1 }
     }
+    else if (options.discount && options.discount > 0) {
+        sort = { discountAmount: -1 }
+    }
 
     sort["_id"] = -1;
 
@@ -452,6 +460,11 @@ export const getProductsWithFilters = async (options: IProductsOptions): Promise
             $match: {
                 isBlocked: false,
                 status: "APPROVED"
+            }
+        },
+        {
+            $addFields: {
+                discountAmount: { $subtract: ["$mrp", "$sellingPrice"] }
             }
         },
         {
