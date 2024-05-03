@@ -99,28 +99,25 @@ export const brandResolver: Resolvers = {
                     brandRecord.brandName = input?.brandName;
                 }
 
-                if (input.isBlocked) {
-                    brandRecord.isBlocked = input?.isBlocked;
-                }
-
                 if (brandLogo) {
                     brandRecord.logo = brandLogo;
                 }
 
-                if (input.isBlocked != null) {
-                    brandRecord.isBlocked = input?.isBlocked;
-                }
 
                 if (input.priority) {
                     brandRecord.priority = input?.priority;
                 }
 
-                if (input.isPopular) {
-                    brandRecord.isPopular = input?.isPopular;
+                if (input?.isBlocked !== undefined && input?.isBlocked !== null && [true, false].includes(input.isBlocked)) {
+                    brandRecord.isBlocked = input.isBlocked;
                 }
 
+                if (input?.isPopular !== undefined && input?.isPopular !== null && [true, false].includes(input.isPopular)) {
+                    brandRecord.isPopular = input.isPopular;
+                }
+
+
                 if (input.categories) {
-                    // Check if any input.brands are already in the existing category array
                     const existingBrandsSet = new Set(brandRecord.categories.map(category => category?.toString()));
 
                     if (input.categories.some(brand => brand && existingBrandsSet.has(brand.toString()))) {
