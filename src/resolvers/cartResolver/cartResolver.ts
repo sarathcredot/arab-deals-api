@@ -3,7 +3,7 @@ import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./cartValidator";
 import { GraphQLError } from "graphql";
-import { validateInput, verifyUser } from "../../middlewares";
+import { validateInput, verifyMobileUser, verifyUser } from "../../middlewares";
 import { Types } from "mongoose";
 
 export const cartResolver: Resolvers = {
@@ -83,64 +83,11 @@ export const cartResolver: Resolvers = {
             }
 
         },
-        bulkAddToCart: async (parent, { input }, { req }, info) => {
-
-            try {
-                await verifyUser(req);
-                await validateInput(validators.bulkAddToCartValidator, req);
-
-                const products: cartService.IUserCartProduct[] = input.products || [];
-                const userId: Types.ObjectId = req.authAccount._id;
-
-                const cart = await cartService.checkCartExist(userId)
-                if (cart) {
-                    let temp = [];
-                    for (let product of products) {
-                        let itemExist = false;
-                        for (let item of cart.products) {
-                            if (item.productId.equals(product.productId)) {
-                                itemExist = true;
-                                item.quantity += product.quantity;
-                                break;
-                            }
-                        }
-                        if (!itemExist) {
-                            temp.push({ productId: product.productId, quantity: product.quantity });
-                        }
-                    }
-                    if (temp.length) {
-                        cart.products = cart.products.concat(temp);
-                        await cart.save();
-                    }
-                    cart.products = temp;
-                    await cart.save();
-
-                } else {
-                    try {
-                        await cartService.createBulkCart(userId, products);
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
-
-                const response = {
-                    message: "Items added to cart",
-
-                }
-                return response;
-            } catch (error) {
-                console.log(error);
-                throw error;
-            }
-
-        },
-
         // Add to cart in mobile
         addToCartInMobile: async (parent, { input }, { req }, info) => {
-
             try {
-                await verifyUser(req);
-                await validateInput(validators.addToCartInMobileValidator, req);
+                await verifyMobileUser(req);
+                await validateInput(validators.addToCartValidator, req);
                 const quantity: number = input.quantity;
                 const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
@@ -207,8 +154,109 @@ export const cartResolver: Resolvers = {
                 console.log(error);
                 throw error;
             }
+        },
+        bulkAddToCart: async (parent, { input }, { req }, info) => {
+
+            try {
+                await verifyUser(req);
+                await validateInput(validators.bulkAddToCartValidator, req);
+
+                const products: cartService.IUserCartProduct[] = input.products || [];
+                const userId: Types.ObjectId = req.authAccount._id;
+
+                const cart = await cartService.checkCartExist(userId)
+                if (cart) {
+                    let temp = [];
+                    for (let product of products) {
+                        let itemExist = false;
+                        for (let item of cart.products) {
+                            if (item.productId.equals(product.productId)) {
+                                itemExist = true;
+                                item.quantity += product.quantity;
+                                break;
+                            }
+                        }
+                        if (!itemExist) {
+                            temp.push({ productId: product.productId, quantity: product.quantity });
+                        }
+                    }
+                    if (temp.length) {
+                        cart.products = cart.products.concat(temp);
+                        await cart.save();
+                    }
+                    cart.products = temp;
+                    await cart.save();
+
+                } else {
+                    try {
+                        await cartService.createBulkCart(userId, products);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+
+                const response = {
+                    message: "Items added to cart",
+
+                }
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
 
         },
+        bulkAddToCartInMobile: async (parent, { input }, { req }, info) => {
+            try {
+                await verifyMobileUser(req);
+                await validateInput(validators.bulkAddToCartValidator, req);
+
+                const products: cartService.IUserCartProduct[] = input.products || [];
+                const userId: Types.ObjectId = req.authAccount._id;
+
+                const cart = await cartService.checkCartExist(userId)
+                if (cart) {
+                    let temp = [];
+                    for (let product of products) {
+                        let itemExist = false;
+                        for (let item of cart.products) {
+                            if (item.productId.equals(product.productId)) {
+                                itemExist = true;
+                                item.quantity += product.quantity;
+                                break;
+                            }
+                        }
+                        if (!itemExist) {
+                            temp.push({ productId: product.productId, quantity: product.quantity });
+                        }
+                    }
+                    if (temp.length) {
+                        cart.products = cart.products.concat(temp);
+                        await cart.save();
+                    }
+                    cart.products = temp;
+                    await cart.save();
+
+                } else {
+                    try {
+                        await cartService.createBulkCart(userId, products);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+
+                const response = {
+                    message: "Items added to cart",
+
+                }
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+
+        },
+
 
         removeFromCart: async (parent, { input }, { req }, info) => {
 
@@ -278,8 +326,8 @@ export const cartResolver: Resolvers = {
         removeFromCartInMobile: async (parent, { input }, { req }, info) => {
 
             try {
-                await verifyUser(req);
-                await validateInput(validators.removeFromCartInMobileValidator, req);
+                await verifyMobileUser(req);
+                await validateInput(validators.removeFromCartValidator, req);
                 const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
 
@@ -337,6 +385,7 @@ export const cartResolver: Resolvers = {
                 console.log(error);
                 throw error;
             }
+
 
         },
 
@@ -411,8 +460,8 @@ export const cartResolver: Resolvers = {
         },
         updateCartQuantityInMobile: async (parent, { input }, { req }, info) => {
             try {
-                await verifyUser(req);
-                await validateInput(validators.updateCartInMobileValidator, req);
+                await verifyMobileUser(req);
+                await validateInput(validators.updateCartValidator, req);
                 const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
@@ -554,7 +603,7 @@ export const cartResolver: Resolvers = {
         },
         getCartInMobile: async (parent, { }, { req }, info) => {
             try {
-                await verifyUser(req);
+                await verifyMobileUser(req);
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
                 const cart = await cartService.getCart(userId);
                 const user_Id = userId;

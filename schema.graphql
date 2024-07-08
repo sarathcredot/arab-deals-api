@@ -71,6 +71,7 @@ type Mutation {
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
   bulkAddToCart(input: BulkAddToCartInput!): BulkAddToCartResponse!
   addToCartInMobile(input: addToCartInMobileInput!): addToCartInMObileResponse!
+  bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
@@ -2768,11 +2769,19 @@ input BulkAddToCartInput {
   products: [CartItem!]
 }
 
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
 type addToCartResponse {
   message: String
 }
 
 type BulkAddToCartResponse {
+  message: String
+}
+
+type BulkAddToCartInMobileResponse {
   message: String
 }
 

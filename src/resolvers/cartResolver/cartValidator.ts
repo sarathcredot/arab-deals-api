@@ -17,6 +17,8 @@ export const removeFromCartInMobileValidator = [
 
 export const updateCartValidator = [
   body('variables.input.productId').notEmpty(),
+  body('variables.input.quantity').custom(val => val >= 0),
+
 ];
 export const updateCartInMobileValidator = [
   body('variables.input.productId').notEmpty(),

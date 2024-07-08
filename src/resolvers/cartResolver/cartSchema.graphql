@@ -10,6 +10,7 @@ scalar ObjectId
   bulkAddToCart(input: BulkAddToCartInput!): BulkAddToCartResponse!
   # MOBILE SIDE APIS
     addToCartInMobile(input: addToCartInMobileInput!): addToCartInMObileResponse!
+    bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
     removeFromCartInMobile(input: removeFromCartInMobileInput!):removeFromCartInMobileResponse!
     updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!):updateCartQuantityInMobileResponse!
 }
@@ -56,12 +57,19 @@ input BulkAddToCartInput {
   products: [CartItem!]
 }
 
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
 # cart Output
 
 type addToCartResponse{
   message:String
 }
 type BulkAddToCartResponse{
+  message:String
+}
+type BulkAddToCartInMobileResponse{
   message:String
 }
 type addToCartInMObileResponse{
@@ -115,6 +123,7 @@ type getCartInMobileResponse{
 
 schema {
 mutation: Mutation,
+query: Query
 }
 
 
