@@ -222,6 +222,62 @@ export const cmsResolver: Resolvers = {
                 throw error;
             }
         },
+        async getAllCmsRecordsInMobile(parent, { input }, { req }, info) {
+            try {
+                await validateInput(validators.getAllCmsRecordsValidator, req);
+
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 10;
+                const pageName: string = input?.pageName || "";
+                let projection: cmsService.ICmsRecordsProjection = { _id: 1 };
+
+                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
+                for (const selection of selectedFields) {
+                    if (selection.kind === "Field" && selection.name.value == "records") {
+
+                        let selectionSet = selection.selectionSet || { selections: [] };
+                        for (let item of selectionSet.selections) {
+                            if (item.kind === "Field") {
+                                const fieldName = item.name.value;
+                                if (["images"].includes(fieldName)) {
+                                    let selectionSet = item.selectionSet || { selections: [] };
+                                    for (let item2 of selectionSet.selections) {
+                                        if (item2.kind === "Field") {
+                                            const subField = item2.name.value;
+                                            const path = `${fieldName}.${subField}`;
+                                            projection[path as keyof cmsService.ICmsRecordsProjection] = 1;
+                                        }
+                                    }
+                                }
+                                else {
+                                    projection[fieldName as keyof cmsService.ICmsRecordsProjection] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                const options: cmsService.ICmsRecordsOptions = {
+                    page,
+                    size,
+                    projection,
+                    pageName
+                }
+
+                // Fetch all CMS records
+                const result = await cmsService.getCmsRecordsWithFilters(options);
+                const response = {
+                    records: result.records,
+                    maxRecords: result.maxRecords,
+                    message: "CMS records fetched successfully",
+                };
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+
 
         // Fetch each section by section name
 
@@ -263,6 +319,46 @@ export const cmsResolver: Resolvers = {
             }
 
         },
+
+        async getCmsRecordInMobile(parent, { input }, { req }, info) {
+
+            try {
+
+                //Validate Input
+                await validateInput(validators.cmsSectionQueryValidator, req);
+
+                const sectionName: string = input?.sectionName;
+                const pageName: string = input.pageName;
+
+                const result = await cmsService.getCmsRecordWithSectionName(sectionName, pageName);
+
+                if (!result) {
+                    throw new GraphQLError("Record not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                const record: cmsService.ICmsRecord = result;
+
+
+                const response = {
+                    record: record,
+                    message: "CMS record fetched successfully",
+                }
+
+
+
+                return response;
+
+            } catch (error) {
+                throw error;
+            }
+
+        },
+
 
         // Fetch all CMS records for admin
         async getAllCmsRecordsByAdmin(parent, { input }, { req }, info) {

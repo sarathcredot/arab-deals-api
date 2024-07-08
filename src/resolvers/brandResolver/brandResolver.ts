@@ -446,7 +446,6 @@ export const brandResolver: Resolvers = {
             }
         },
 
-        // Fetch each brand records  and each record values with category in vendor portal
         async getBrandDetailsWithCategory(parent, { input }, { req }, info) {
 
             try {
@@ -491,14 +490,13 @@ export const brandResolver: Resolvers = {
 
         },
 
-        // Fetch each brand records  and each record values with category in mobile
         async getBrandDetailsWithCategoryInMobile(parent, { input }, { req }, info) {
 
             try {
                 await validateInput(validators.getBrandsWithCategoryValidator, req);
 
 
-                let filter: any = {};
+                let filter: any = { isBlocked: false };
 
                 if (input.categoryId) {
                     filter["categories"] = input.categoryId;
@@ -536,7 +534,6 @@ export const brandResolver: Resolvers = {
 
         },
 
-        // Fetch each brand records  and each record values with category in vendor portal
         async getCategoryDetailsWithBrand(parent, { input }, { req }, info) {
 
             try {

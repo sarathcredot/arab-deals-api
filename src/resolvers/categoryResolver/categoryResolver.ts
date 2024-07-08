@@ -272,7 +272,7 @@ export const categoryResolver: Resolvers = {
 
                 const mPath = parentId ? new RegExp(`${parentId}#$`) : /^#$/;
 
-                const result = await categoryService.findCategoriesWithFilters({ path: mPath, isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1 , isLeaf: 1}, { lean: true, sort: { categoryName: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ path: mPath, isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, isLeaf: 1 }, { lean: true, sort: { categoryName: 1 } });
 
                 const response = {
                     records: result && result.length ? result.map((item) => { return { ...item, _id: item._id.toString() } }) : []
@@ -294,7 +294,7 @@ export const categoryResolver: Resolvers = {
 
                 const mPath = parentId ? new RegExp(`${parentId}#$`) : /^#$/;
 
-                const result = await categoryService.findCategoriesWithFilters({ path: mPath, isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1 }, { lean: true, sort: { categoryName: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ path: mPath, isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, isLeaf: 1 }, { lean: true, sort: { categoryName: 1 } });
 
                 const response = {
                     records: result && result.length ? result.map((item) => { return { ...item, _id: item._id.toString() } }) : []
@@ -309,7 +309,7 @@ export const categoryResolver: Resolvers = {
         getActiveCategoryTree: async (parent, { }, { req }, info) => {
             try {
 
-                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1, categoryImage: 1 , isLeaf: 1}, { lean: true, sort: { path: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ isBlocked: false, isDefault: false }, { _id: 1, categoryName: 1, path: 1, categoryImage: 1, isLeaf: 1 }, { lean: true, sort: { path: 1 } });
 
                 if (!result || result.length == 0) {
                     throw new GraphQLError("Records not found", {

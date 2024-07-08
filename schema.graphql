@@ -192,6 +192,8 @@ type Query {
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
+  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
+  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -2677,7 +2679,22 @@ input cmsRecordFilter {
   pageName: String!
 }
 
+input GetCmsRecordInMobileInput {
+  sectionName: String!
+  pageName: String!
+}
+
 input CmsRecordsFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+}
+
+input GetAllCmsRecordsInMobileInput {
   _id: String
   page: Int
   size: Int
@@ -2720,6 +2737,17 @@ type CmsRecord {
 }
 
 type CmsRecordResponse {
+  record: CmsRecord!
+  message: String
+}
+
+type GetAllCmsRecordsInMobileResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
+}
+
+type GetCmsRecordInMobileResponse {
   record: CmsRecord!
   message: String
 }

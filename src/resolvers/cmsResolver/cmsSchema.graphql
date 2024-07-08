@@ -61,6 +61,10 @@
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
 
+  # Mobile
+  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
+  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
+
 }   
 
     # Input
@@ -73,7 +77,23 @@
     pageName: String!
   }
 
+  input GetCmsRecordInMobileInput {
+    sectionName: String!
+    pageName: String!
+  }
+
+
   input CmsRecordsFilter {
+    _id: String
+    page: Int
+    size: Int
+    pageName: String
+    sectionName: String
+    images: [String]
+    buttons: [String]  
+  }
+
+    input GetAllCmsRecordsInMobileInput {
     _id: String
     page: Int
     size: Int
@@ -118,6 +138,17 @@
   }  
   
   type CmsRecordResponse {
+    record: CmsRecord!
+    message: String
+  }
+
+  type GetAllCmsRecordsInMobileResponse {
+    maxRecords: Int!
+    records: [CmsRecord!]
+    message: String
+  }
+
+   type GetCmsRecordInMobileResponse {
     record: CmsRecord!
     message: String
   }
