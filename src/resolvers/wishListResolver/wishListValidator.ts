@@ -17,6 +17,24 @@ export const wishListItemExistsValidator = [
 
 
 
+// Mobile 
+
+
+export const addToWishListMobileValidator = [
+  body('variables.input.productId').isMongoId(),
+];
+
+export const removeFromWishListMobileValidator = [
+  body('variables.input.productId').isMongoId(),
+];
+
+export const wishListItemExistsMobileValidator = [
+  body('variables.input.productId').isMongoId(),
+];
+
+
+
+
 
 
 

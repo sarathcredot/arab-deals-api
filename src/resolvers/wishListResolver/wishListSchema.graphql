@@ -5,11 +5,19 @@ scalar ObjectId
 type Mutation {
   addToWishList(input: AddToWishListInput!): AddToWishListResponse!
   removeFromWishList(input: RemoveFromWishListInput!):RemoveFromWishListResponse!
+
+  #  Mobile 
+    addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
+    removeFromMobileWishList(input: RemoveFromMobileWishListInput!):RemoveFromMobileWishListResponse!
 }
 
 type Query{
   getWishListProducts:GetWishListProductsResponse!
   getWishListProductStatus(input: GetWishListProductStatusInput!):GetWishListProductStatusResponse!
+
+  # Mobile
+  getMobileWishListProducts:GetMobileWishListProductsResponse!
+  getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!):GetMobileWishListProductStatusResponse!
 }
 
 
@@ -26,12 +34,31 @@ input GetWishListProductStatusInput {
   productId: ObjectId!
 }
 
+input AddToMobileWishListInput {
+  productId:ObjectId!
+}
+input RemoveFromMobileWishListInput {
+  productId:ObjectId!
+}
+
+input GetMobileWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+
 # wishList Output
 
 type AddToWishListResponse {
   message:String
 }
 type RemoveFromWishListResponse {
+  message:String
+}
+
+type AddToMobileWishListResponse {
+  message:String
+}
+type RemoveFromMobileWishListResponse {
   message:String
 }
 
@@ -53,6 +80,17 @@ type GetWishListProductsResponse {
 type GetWishListProductStatusResponse {
   isExist:Boolean!
 }
+
+
+type GetMobileWishListProductsResponse {
+  products:[WishListProduct]
+}
+
+type GetMobileWishListProductStatusResponse {
+  isExist:Boolean!
+}
+
+
 
 # Schema
 
