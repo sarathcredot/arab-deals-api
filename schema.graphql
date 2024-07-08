@@ -27,6 +27,10 @@ type Mutation {
   editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
   removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
   updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
+  createMobileUserShippingAddress(input: CreateMobileUserShippingAddressInput!): CreateMobileUserShippingAddressResponse!
+  editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
+  removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
+  updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input: userBlockInput!): userBlockResponse!
@@ -107,6 +111,9 @@ type Query {
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
+  getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
+  getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
+  getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
   getUsersByAdmin(input: userFilters): usersResponse!
   getUserRecordByAdmin(input: userInput!): userResponse!
   getUserRecord: GetUserRecordResponse!
@@ -778,7 +785,37 @@ input UserCreateShippingAddressInput {
   isDefault: Boolean
 }
 
+input CreateMobileUserShippingAddressInput {
+  firstname: String!
+  email: String
+  mobile: String!
+  streetName: String!
+  city: String!
+  houseNumber: String!
+  country: String
+  postCode: String!
+  apartment: String
+  suite: String
+  unit: String
+  isDefault: Boolean
+}
+
 input UserEditShippingAddressInput {
+  _id: ObjectId!
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+}
+
+input EditMobileUserShippingAddressInput {
   _id: ObjectId!
   firstname: String
   email: String
@@ -797,7 +834,15 @@ input UserRemoveShippingAddressInput {
   _id: ObjectId!
 }
 
+input RemoveMobileUserShippingAddressInput {
+  _id: ObjectId!
+}
+
 input updateUserShippingAddressAsDefaultInput {
+  addressId: ObjectId!
+}
+
+input UpdateMobileUserShippingAddressAsDefaultInput {
   addressId: ObjectId!
 }
 
@@ -805,11 +850,24 @@ type UserCreateShippingAddressResponse {
   _id: ObjectId!
 }
 
+type CreateMobileUserShippingAddressResponse {
+  _id: ObjectId!
+}
+
 type UserEditShippingAddressResponse {
   _id: ObjectId!
 }
 
+type EditMobileUserShippingAddressResponse {
+  _id: ObjectId!
+}
+
 type UserRemoveShippingAddressResponse {
+  _id: ObjectId!
+  message: String
+}
+
+type RemoveMobileUserShippingAddressResponse {
   _id: ObjectId!
   message: String
 }
@@ -819,7 +877,16 @@ type updateUserShippingAddressAsDefaultResponse {
   message: String
 }
 
+type UpdateMobileUserShippingAddressAsDefaultResponse {
+  _id: ObjectId!
+  message: String
+}
+
 input GetUserShippingAddressInput {
+  _id: ObjectId!
+}
+
+input GetMobileUserShippingAddressInput {
   _id: ObjectId!
 }
 
@@ -843,7 +910,43 @@ type GetUserShippingAddressesResponse {
   address: [UserShippingAddress]
 }
 
+type GetMobileUserShippingAddressesResponse {
+  address: [UserShippingAddress]
+}
+
 type GetUserShippingAddressResponse {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  isDefault: Boolean
+}
+
+type GetMobileUserShippingAddressResponse {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  isDefault: Boolean
+}
+
+type GetMobileUserDefaultShippingAddressResponse {
   _id: ObjectId
   firstname: String
   email: String
