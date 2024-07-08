@@ -33,8 +33,10 @@ const userSchema = new Schema(
     token: {
       type: String,
     },
+    mobileToken: {
+      type: String
+    }
   },
-
   {
     _id: true,
     timestamps: true

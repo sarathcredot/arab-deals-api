@@ -42,5 +42,23 @@ export const userUpdateProfileByAdminValidator = [
 
 
 
+// Mobile
+
+
+export const userMobileNumberValidator = [
+  body('variables.input.mobileNumber').notEmpty(),
+];
+
+export const userMobileOtpValidator = [
+  body('variables.input.code').notEmpty().isLength({ min: 5 }),
+  body('variables.input._id').notEmpty().isMongoId()
+];
+
+export const userMobileUpdateProfileValidator = [
+  body('variables.input.email').optional({ checkFalsy: true }).trim().isEmail(),
+  body('variables.input.firstName').optional({ checkFalsy: true }).notEmpty(),
+  body('variables.input.lastName').optional({ checkFalsy: true }).notEmpty(),
+  body('variables.input.displayName').optional({ checkFalsy: true }).notEmpty(),
+];
 
 

@@ -4,7 +4,6 @@ scalar ObjectId
 
  type Mutation {
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
-  userResendLoginOtp(input: userResendLoginOtpInput!): userResendLoginOtpResponse!
   userVerifyOtp(input:userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input:userBlockInput!):userBlockResponse!
   updateUserProfile(input:updateUserProfileInput!):updateUserProfileResponse!
@@ -15,6 +14,8 @@ scalar ObjectId
     userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
     userVerifyOtpInMobile(input:userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
     updateUserProfileInMobile(input:updateUserProfileInMobileInput!):updateUserProfileInMobileResponse!
+    logoutMobileUser:LogoutMobileUserResponse!
+
 }
 
 # user auth query
@@ -22,19 +23,15 @@ scalar ObjectId
 type Query{
   getUsersByAdmin(input:userFilters):usersResponse!
   getUserRecordByAdmin(input:userInput!):userResponse!
-  getUserRecord(input:userInput!):userResponse!
+  getUserRecord:GetUserRecordResponse!
 
   # Mobile API
-  getUserRecordInMobile(input:userInMobileInput!):userInMobileResponse!
+  getUserRecordInMobile:GetUserRecordInMobileResponse!
 }
 
 # user auth Input
 
 input userLoginOtpInput {
-  mobileNumber: String!
-}
-
-input userResendLoginOtpInput {
   mobileNumber: String!
 }
 
@@ -94,10 +91,6 @@ input userInput{
   _id: String!
 } 
 
-input userInMobileInput{
-  _id: String!
-} 
-
 # user auth Output
 
 type userBlockResponse{
@@ -108,11 +101,6 @@ type userLoginOtpResponse {
   message: String!
   mobileNumber:String!
   _id: ObjectId!
-  }
-
-  type userResendLoginOtpResponse {
-  message: String!
-  mobileNumber:String!
   }
 
 type userLoginOtpInMobileResponse {
@@ -176,13 +164,33 @@ type userInMobileResponse{
   message: String
 }
   
-# Schema
-
-schema {
-mutation: Mutation,
-}
-
 
 type UserLogoutResponse {
   _id: ObjectId!
 }
+
+type LogoutMobileUserResponse {
+  _id: ObjectId!
+}
+
+
+type GetUserRecordResponse {
+  record: user
+  message: String
+}
+
+type GetUserRecordInMobileResponse {
+  record: user
+  message: String
+}
+
+
+
+# Schema
+
+schema {
+mutation: Mutation,
+query: Query
+}
+
+

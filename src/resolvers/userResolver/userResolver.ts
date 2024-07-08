@@ -5,7 +5,7 @@ import * as validators from "./userValidator";
 import path from "path";
 import { createWriteStream } from 'fs';
 import { GraphQLError } from "graphql";
-import { validateInput, verifySuperAdmin, verifyAdmin, verifyUser } from "../../middlewares";
+import { validateInput, verifySuperAdmin, verifyAdmin, verifyUser, verifyMobileUser } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 
@@ -41,6 +41,7 @@ export const userResolver: Resolvers = {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
           mobileNumber,
+          device: "WEB"
         },
         isVerified: false
       };
@@ -68,13 +69,9 @@ export const userResolver: Resolvers = {
 
     // Mobile user login
     userLoginOtpInMobile: async (parent, { input }, { req }, info) => {
-      await validateInput(validators.userNumberValidator, req);
+      await validateInput(validators.userMobileNumberValidator, req);
       const mobileNumber: string = input.mobileNumber;
       const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
-      // let authname = "";
-      // if (user) {
-      //   authname = "USER_LOGIN_MOBILE_OTP";
-      // }
 
       if (user?.isBlocked) {
         throw new GraphQLError("User is Blocked", {
@@ -100,6 +97,7 @@ export const userResolver: Resolvers = {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
           mobileNumber,
+          device: "MOBILE"
         },
         isVerified: false
       };
@@ -124,12 +122,10 @@ export const userResolver: Resolvers = {
       }
       return response;
     },
-
-
     userVerifyOtp: async (parent, { input }, { req }, info) => {
       await validateInput(validators.userOtpValidator, req);
       const code: string = input.code;
-      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code, _id: input._id }, {}, {});
+      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code, _id: input._id, 'metadata.device': "WEB" }, {}, {});
       if (!otpVerification) {
         throw new GraphQLError('Verification failed. Invalid OTP.', {
           extensions: {
@@ -170,9 +166,9 @@ export const userResolver: Resolvers = {
 
     // Mobile user verfy
     userVerifyOtpInMobile: async (parent, { input }, { req }, info) => {
-      await validateInput(validators.userOtpValidator, req);
+      await validateInput(validators.userMobileOtpValidator, req);
       const code: string = input.code;
-      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code, _id: input._id }, {}, {});
+      let otpVerification = await otpService.findOtpRecordWithFilters({ 'metadata.code': code, _id: input._id, 'metadata.device': "MOBILE" }, {}, {});
       if (!otpVerification) {
         throw new GraphQLError('Verification failed. Invalid OTP.', {
           extensions: {
@@ -197,7 +193,7 @@ export const userResolver: Resolvers = {
         user = await userService.createUser({ mobileNumber: otpVerification?.metadata?.mobileNumber });
       }
       let token = await jwtService.createUserJWT(user._id!.toString());
-      user.token = token;
+      user.mobileToken = token;
 
       await user.save();
 
@@ -408,10 +404,9 @@ export const userResolver: Resolvers = {
     },
     //Mobile Edit user profile
     updateUserProfileInMobile: async (parent, { input }, { req }, info) => {
-
       try {
-        await verifyUser(req);
-        await validateInput(validators.userUpdateProfileValidator, req);
+        await verifyMobileUser(req);
+        await validateInput(validators.userMobileUpdateProfileValidator, req);
 
         const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
@@ -429,7 +424,7 @@ export const userResolver: Resolvers = {
           const trimmedEmail = input.email.trim().toLowerCase();
 
           if (user.email !== trimmedEmail) {
-            const isEmailExists = await adminService.findAdminWithFilters(
+            const isEmailExists = await userService.findUserWithFilters(
               { email: trimmedEmail },
               { _id: 1, email: 1 },
               { lean: true }
@@ -476,6 +471,16 @@ export const userResolver: Resolvers = {
 
     logoutUser: async (parent, { }, { req }, info) => {
       await verifyUser(req);
+      const userId = req.authAccount._id;
+      await userService.logoutUser(userId);
+      const response = {
+        _id: userId
+      }
+      return response;
+    },
+
+    logoutMobileUser: async (parent, { }, { req }, info) => {
+      await verifyMobileUser(req);
       const userId = req.authAccount._id;
       await userService.logoutUser(userId);
       const response = {
@@ -550,7 +555,7 @@ export const userResolver: Resolvers = {
       }
 
     },
-    async getUserRecord(parent, { input }, { req }, info) {
+    async getUserRecord(parent, { }, { req }, info) {
 
       try {
         await verifyUser(req);
@@ -589,10 +594,10 @@ export const userResolver: Resolvers = {
     },
 
     //Mobile fetch user
-    async getUserRecordInMobile(parent, { input }, { req }, info) {
+    async getUserRecordInMobile(parent, { }, { req }, info) {
 
       try {
-        await verifyUser(req);
+        await verifyMobileUser(req);
 
         const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
@@ -624,8 +629,6 @@ export const userResolver: Resolvers = {
         console.log(error);
         throw error;
       }
-
     }
   }
 };
-

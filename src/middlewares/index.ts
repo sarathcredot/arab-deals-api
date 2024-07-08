@@ -3,6 +3,8 @@ import { verifyAdmin } from "./verifyAdmin";
 import { verifySuperAdmin } from "./verifySuperAdmin";
 import { verifyVendor } from "./verifyVendor";
 import { verifyUser } from "./verifyUser";
+import { verifyMobileUser } from "./verifyMobileUser";
+
 
 
 
@@ -12,4 +14,5 @@ export {
     verifySuperAdmin,
     verifyVendor,
     verifyUser,
+    verifyMobileUser
 }   

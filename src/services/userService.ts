@@ -11,6 +11,7 @@ export interface IUser {
   mobileNumber?: string;
   isBlocked?: boolean;
   token?: string;
+  mobileToken?: string;
 }
 
 export interface IUserDocument extends Document {
@@ -22,6 +23,7 @@ export interface IUserDocument extends Document {
   mobileNumber?: string;
   isBlocked?: boolean;
   token?: string;
+  mobileToken?: string;
 }
 
 export interface IGeneralResponse {

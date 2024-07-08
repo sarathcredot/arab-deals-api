@@ -26,7 +26,6 @@ type Mutation {
   removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
   updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
-  userResendLoginOtp(input: userResendLoginOtpInput!): userResendLoginOtpResponse!
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input: userBlockInput!): userBlockResponse!
   updateUserProfile(input: updateUserProfileInput!): updateUserProfileResponse!
@@ -35,6 +34,7 @@ type Mutation {
   userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
+  logoutMobileUser: LogoutMobileUserResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
@@ -104,8 +104,8 @@ type Query {
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
   getUsersByAdmin(input: userFilters): usersResponse!
   getUserRecordByAdmin(input: userInput!): userResponse!
-  getUserRecord(input: userInput!): userResponse!
-  getUserRecordInMobile(input: userInMobileInput!): userInMobileResponse!
+  getUserRecord: GetUserRecordResponse!
+  getUserRecordInMobile: GetUserRecordInMobileResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
@@ -830,10 +830,6 @@ input userLoginOtpInput {
   mobileNumber: String!
 }
 
-input userResendLoginOtpInput {
-  mobileNumber: String!
-}
-
 input userLoginOtpInMobileInput {
   mobileNumber: String!
 }
@@ -888,10 +884,6 @@ input userInput {
   _id: String!
 }
 
-input userInMobileInput {
-  _id: String!
-}
-
 type userBlockResponse {
   message: String
 }
@@ -900,11 +892,6 @@ type userLoginOtpResponse {
   message: String!
   mobileNumber: String!
   _id: ObjectId!
-}
-
-type userResendLoginOtpResponse {
-  message: String!
-  mobileNumber: String!
 }
 
 type userLoginOtpInMobileResponse {
@@ -970,6 +957,20 @@ type userInMobileResponse {
 
 type UserLogoutResponse {
   _id: ObjectId!
+}
+
+type LogoutMobileUserResponse {
+  _id: ObjectId!
+}
+
+type GetUserRecordResponse {
+  record: user
+  message: String
+}
+
+type GetUserRecordInMobileResponse {
+  record: user
+  message: String
 }
 
 scalar Date
