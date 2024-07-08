@@ -22,14 +22,14 @@ type Mutation {
 input CreateUserOrderInput {
     shippingAddressId: ObjectId!
     paymentMode: String!
-   grandTotal: Float!
+    grandTotal: Float!
 }
 
 
 input CreateUserOrderInMobileInput {
     shippingAddressId: ObjectId!
     paymentMode: String!
-   grandTotal: Float!
+    grandTotal: Float!
 }
 
 
@@ -133,7 +133,7 @@ type Query {
     getVendorRefundProducts(input:GetVendorRefundProductsInput!): GetVendorRefundProductsResponse!
     getVendorOrderProduct(input:GetVendorOrderProductInput!): GetVendorOrderProductResponse!
     getVendorOrderDetails(input:GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
-     getVendorOrderProducts(input:GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
+    getVendorOrderProducts(input:GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
 
 }
 

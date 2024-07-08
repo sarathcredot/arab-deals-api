@@ -2,7 +2,7 @@ import { cartService, orderProductService, orderService, productService, setting
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./orderValidator";
 import { GraphQLError } from "graphql";
-import { verifyUser, verifyAdmin, validateInput, verifyVendor } from "../../middlewares";
+import { verifyUser, verifyAdmin, validateInput, verifyVendor, verifyMobileUser } from "../../middlewares";
 import { Types } from "mongoose";
 import moment from "moment";
 import { filePaths } from "../../configs";
@@ -190,8 +190,7 @@ export const orderResolver: Resolvers = {
 
         },
         createUserOrderInMobile: async (parent, { input }, { req }, info) => {
-
-            await verifyUser(req);
+            await verifyMobileUser(req);
             await validateInput(validators.createOrderValidator, req);
 
             const userId = req.authAccount._id;
@@ -235,7 +234,17 @@ export const orderResolver: Resolvers = {
                 }
             }
 
+
             const cartItems = await cartService.getOrderCart(userId);
+
+            const uniqueVendorIds: Set<Types.ObjectId> = new Set();
+            cartItems.forEach((item: any) => {
+                if (item.vendorId) {
+                    uniqueVendorIds.add(item.vendorId);
+                }
+            });
+
+            const vendorIds: Types.ObjectId[] = [...uniqueVendorIds];
 
             if (cartItems.length === 0) {
                 throw new GraphQLError("Cart is empty", {
@@ -282,6 +291,7 @@ export const orderResolver: Resolvers = {
                             productName: product.name,
                             shortDescription: product.shortDescription,
                             skuId: product.skuId,
+                            warehouseSkuId: product.warehouseSkuId,
                             image: {
                                 fileType: product.image?.fileType,
                                 fileURL: product.image?.fileURL,
@@ -326,9 +336,9 @@ export const orderResolver: Resolvers = {
                 paymentMode: paymentMode,
                 orderDate: orderDate.toDate(),
                 shippingAddress: shippingAddress,
-                orderStatus: "PENDING"
+                orderStatus: "PENDING",
+                vendorIds: vendorIds
             }
-
             await Promise.all([
                 orderService.createOrder(order),
                 orderProductService.createOrderProducts(products),
@@ -595,8 +605,7 @@ export const orderResolver: Resolvers = {
             return response;
         },
         returnUserOrderProductInMobile: async (parent, { input }, { req }, info) => {
-
-            await verifyUser(req);
+            await verifyMobileUser(req);
             await validateInput(validators.returnUserOrderValidator, req);
             const userId = req.authAccount._id;
             let { _id, returnUserReason } = input;
@@ -711,7 +720,7 @@ export const orderResolver: Resolvers = {
         },
         cancelUserOrderProductInMobile: async (parent, { input }, { req }, info) => {
 
-            await verifyUser(req);
+            await verifyMobileUser(req);
             await validateInput(validators.cancelUserOrderValidator, req);
             const userId = req.authAccount._id;
             let { _id } = input;
@@ -1150,8 +1159,7 @@ export const orderResolver: Resolvers = {
             return response;
         },
         getUserOrderProductInMobile: async (parent, { input }, { req }, info) => {
-
-            await verifyUser(req);
+            await verifyMobileUser(req);
             await validateInput(validators.getUserOrderProductValidator, req);
 
             const userId = req.authAccount._id;
@@ -1161,8 +1169,8 @@ export const orderResolver: Resolvers = {
                 {
                     _id: 1,
                     productId: 1,
-                    orderId: 1,
                     vendorId: 1,
+                    orderId: 1,
                     productName: 1,
                     shortDescription: 1,
                     skuId: 1,
@@ -1227,7 +1235,8 @@ export const orderResolver: Resolvers = {
         },
         getUserOrderDetailsInMobile: async (parent, { input }, { req }, info) => {
 
-            await verifyUser(req);
+
+            await verifyMobileUser(req);
             await validateInput(validators.getUserOrderDetailsValidator, req);
 
             const userId = new Types.ObjectId(req.authAccount._id);
@@ -1271,7 +1280,7 @@ export const orderResolver: Resolvers = {
         },
         getUserOrderProductsInMobile: async (parent, { input }, { req }, info) => {
 
-            await verifyUser(req);
+            await verifyMobileUser(req);
             await validateInput(validators.getUserOrderProductsValidator, req);
 
             const userId = req.authAccount._id;
