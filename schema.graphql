@@ -128,7 +128,6 @@ type Query {
   getProducts(input: ProductFilters): ProductsResponse!
   getProduct(input: ProductId!): ProductResponse!
   getVariants(input: VariantsInput!): VariantsResponse!
-  getVariantsInMobile(input: VariantsInMobileInput!): VariantsInMobileResponse!
   getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
   getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
   getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
@@ -136,6 +135,10 @@ type Query {
   getProductsMaxPrice(input: categoriesInput): getProductsMaxPriceResponse!
   getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
   getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
+  getVariantsInMobile(input: VariantsInMobileInput!): VariantsInMobileResponse!
+  getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
+  getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
+  getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -1285,6 +1288,7 @@ input AttributeInput {
 input ProductsInMobileFilters {
   page: Int
   size: Int
+  tags: [String]
   minPrice: Float
   maxPrice: Float
   newest: Boolean
@@ -1297,6 +1301,8 @@ input ProductsInMobileFilters {
   attributes: [AttributeInput]
   discount: Int
   bestSeller: Boolean
+  status: String
+  vendorId: ObjectId
 }
 
 input ProductByVendorFilters {
@@ -1335,12 +1341,21 @@ input GetProductsAutoCompleteInput {
   query: String!
 }
 
+input GetProductsAutoCompleteInMobileInput {
+  query: String!
+}
+
 type DeleteProductResponse {
   _id: String!
   message: String
 }
 
 input RelatedProductsFilters {
+  _id: String!
+  limit: Int
+}
+
+input RelatedProductsInMobileFilters {
   _id: String!
   limit: Int
 }
@@ -1354,6 +1369,10 @@ input ProductVariantsByVendorFilter {
 }
 
 input categoriesInput {
+  categories: [String]
+}
+
+input GettProductsMaxPriceInMobileInput {
   categories: [String]
 }
 
@@ -1528,7 +1547,15 @@ type GetProductsAutoCompleteResponse {
   suggestions: [ProductSuggestion]
 }
 
+type GetProductsAutoCompleteInMobileResponse {
+  suggestions: [ProductSuggestion]
+}
+
 type RelatedProductsResponse {
+  records: [Product!]
+}
+
+type RelatedProductsInMobileResponse {
   records: [Product!]
 }
 
@@ -1544,6 +1571,11 @@ type VariantsByAdminResponse {
 }
 
 type getProductsMaxPriceResponse {
+  maxPrice: Int
+  message: String
+}
+
+type GetProductsMaxPriceInMobileResponse {
   maxPrice: Int
   message: String
 }

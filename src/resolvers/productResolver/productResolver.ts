@@ -1108,37 +1108,11 @@ export const productResolver: Resolvers = {
                 await validateInput(validators.productQueryValidator, req);
 
                 const productId: Types.ObjectId = new Types.ObjectId(input._id);
-                const options: QueryOptions = { lean: true };
-                const projection: productService.IProductProjection = {};
-                const selectedFields = info?.fieldNodes[0]?.selectionSet?.selections || [];
-                for (const selection of selectedFields) {
-                    if (selection.kind === "Field" && selection.name.value == "product") {
 
-                        let selectionSet = selection.selectionSet || { selections: [] };
-                        for (let item of selectionSet.selections) {
-                            if (item.kind === "Field") {
-                                const fieldName = item.name.value;
-                                if (["images"].includes(fieldName)) {
-                                    let selectionSet = item.selectionSet || { selections: [] };
-                                    for (let item2 of selectionSet.selections) {
-                                        if (item2.kind === "Field") {
-                                            const subField = item2.name.value;
-                                            const path = `${fieldName}.${subField}`;
-                                            projection[path as keyof productService.IProductProjection] = 1;
-                                        }
-                                    }
-                                }
-                                else {
-                                    projection[fieldName as keyof productService.IProductProjection] = 1;
-                                }
-                            }
-                        }
-                    }
-                }
 
-                const result = await productService.getProductWithId(productId, projection, options);
+                const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
 
-                console.log(result)
+                // console.log(result)
 
 
                 if (!result) {
@@ -1150,9 +1124,8 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-
                 const response = {
-                    product: result,
+                    product: { ...result, _id: result._id ? result._id.toString() : "" },
                 }
 
                 return response;
@@ -1270,10 +1243,8 @@ export const productResolver: Resolvers = {
         async getProductsInMobile(parent, { input }, { req }, info) {
 
             try {
-
                 //Validate Input
                 await validateInput(validators.productsQueryValidator, req);
-
                 const page: number = input?.page || 0;
                 const size: number = input?.size || 10;
                 const discount: number = input?.discount || 0;
@@ -1299,6 +1270,8 @@ export const productResolver: Resolvers = {
                         values: (attribute?.values || []).filter((value): value is string => value !== null && value !== undefined),
                     };
                 }).filter((attribute) => attribute.id && attribute.values.length > 0);
+
+                const tags: string[] = (input?.tags || []).filter(Boolean) as [];
 
                 let projection: productService.IProductsProjection = { _id: 1 };
 
@@ -1350,8 +1323,10 @@ export const productResolver: Resolvers = {
                     categories,
                     brands,
                     attributes,
+                    tags,
                     discount
                 }
+
 
                 const result = await productService.getProductsWithFilters(options);
 
@@ -1432,8 +1407,7 @@ export const productResolver: Resolvers = {
                         }
                     });
                 }
-                let variants = await productService.getProductVariantsInMobile(result.productCode);
-
+                let variants = await productService.getProductVariants(result.productCode);
 
                 let response = {
                     variants: variants
@@ -1524,9 +1498,82 @@ export const productResolver: Resolvers = {
                 throw error;
             }
         },
+        async getProductsAutoCompleteInMobile(parent, { input }, { req }, info) {
+            try {
+
+                //Validate Input
+                await validateInput(validators.productsAutoCompleteQueryValidator, req);
+
+                const query: string = (input.query.replace(/[^0-9a-zA-Z]/g, ' ')).trim().toLowerCase();
+                let suggestions: productService.IProductSuggestion[] = [];
+
+                if (query) {
+                    suggestions = await productService.getProductsAutoComplete(query);
+                }
+
+                let response = {
+                    suggestions: suggestions
+                }
+
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
 
         //TODO-3
         async getRelatedProducts(parent, { input }, { req }, info) {
+            try {
+
+                //Validate Input
+                await validateInput(validators.relatedProductsQueryValidator, req);
+                const _id: Types.ObjectId = new Types.ObjectId(input._id);
+                const limit: number = input.limit || 12;
+
+
+                const product = await productService.getProductWithId(_id, { _id: 1, categoryId: 1, productCode: 1 }, { lean: true });
+                if (!product) {
+                    throw new GraphQLError("product not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+                let productData: productService.IProduct = product;
+                if (!productData.categoryId) {
+                    throw new GraphQLError("category not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                const options: QueryOptions = { productCode: productData.productCode, categoryId: productData.categoryId, limit: limit };
+
+                const records = await productService.getProductsByCategory(options);
+                if (!records || records.length === 0) {
+                    throw new GraphQLError("Related products not found", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: []
+                        }
+                    });
+                }
+
+                let response: any = {
+                    records: records
+                };
+
+                return response;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
+        async getRelatedProductsInMobile(parent, { input }, { req }, info) {
             try {
 
                 //Validate Input
@@ -1606,6 +1653,37 @@ export const productResolver: Resolvers = {
             }
 
         },
+
+         // Fetch max price
+         async getProductsMaxPriceInMobile(parent, { input }, { req }, info) {
+            try {
+
+                //Validate Input
+                await validateInput(validators.macPriceValidator, req);
+
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item: any) => item ? true : false);
+
+
+
+                const options: productService.IProductsPriceRangeOptions = {
+                    categories,
+                }
+
+                const result = await productService.getProductsMaxPriceRangeWithCategories(options);
+
+                const response = {
+                    maxPrice: result,
+                    message: "Products max price fetched successfully"
+                }
+                return response;
+            } catch (error) {
+                throw error;
+            }
+
+        },
+
 
     },
 
