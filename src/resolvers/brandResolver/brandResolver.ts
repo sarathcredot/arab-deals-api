@@ -522,7 +522,7 @@ export const brandResolver: Resolvers = {
                         isPopular: n?.isPopular,
                         priority: n?.priority,
                     })),
-                    message: "Vendor record fetched successfully",
+                    message: "brands fetched successfully",
 
                 }
 
