@@ -17,7 +17,7 @@ type Query{
 # delivery agent type
 
 type deliveryAgent{
-
+    
       _id:String!
       fullName:String!
       contactNumber:String!
