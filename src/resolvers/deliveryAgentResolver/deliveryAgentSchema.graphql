@@ -31,3 +31,10 @@ input CreateDeliveryAgentInput {
 type Mutation {
   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
 }
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+}

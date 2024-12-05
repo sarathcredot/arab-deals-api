@@ -19,6 +19,7 @@ import { orderModel } from "./orderModel";
 import { orderProductModel } from "./orderProductModel";
 import { countriesModel } from "./countriesModel";
 import { jobQueueModel } from "./jobQueueModel";
+import {deliveryAgentModel} from './deliveryAgentModel'
 
 
 export {
@@ -42,5 +43,6 @@ export {
     orderModel,
     orderProductModel,
     countriesModel,
-    jobQueueModel
+    jobQueueModel,
+    deliveryAgentModel
 }
