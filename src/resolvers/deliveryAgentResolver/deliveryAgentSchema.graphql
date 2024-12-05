@@ -1,0 +1,30 @@
+
+
+
+type Mutation{
+
+
+}
+
+type Query{
+
+
+}
+
+
+
+
+# delivery agent type
+
+type deliveryAgent{
+
+      _id:String!
+      fullName:String!
+      contactNumber:String!
+      userID:String!
+      password:String!
+      agentType:String!
+      isActive:Boolean!
+      vendorID:ObjectId!
+
+}
