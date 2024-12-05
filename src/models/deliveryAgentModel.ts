@@ -40,7 +40,7 @@ const deliveryAgentSchema = new Schema(
     {
         timestamps: true,
     }
-);
+); 
 
 
 const deliveryAgentModel = model(collections.DELIVERYAGENT, deliveryAgentSchema);

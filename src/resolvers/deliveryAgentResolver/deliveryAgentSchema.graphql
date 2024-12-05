@@ -1,30 +1,26 @@
+# scalar ObjectId
+# # Define Mutation and Query types if needed
+
+# type Mutation {
+#   # Example mutation (comment out if not ready)
+#   # createDeliveryAgent(input: CreateDeliveryAgentInput!): DeliveryAgent!
+# }
+
+# type Query {
+#   # Example query (comment out if not ready)
+#   # getDeliveryAgents: [DeliveryAgent!]!
+# }
 
 
 
-type Mutation{
-
-
-}
-
-type Query{
-
-
-}
-
-
-
-
-# delivery agent type
-
-type deliveryAgent{
-    
-      _id:String!
-      fullName:String!
-      contactNumber:String!
-      userID:String!
-      password:String!
-      agentType:String!
-      isActive:Boolean!
-      vendorID:ObjectId!
-
-}
+# # Delivery Agent Type
+# type DeliveryAgent {
+#   _id: String               
+#   fullName: String
+#   contactNumber: String
+#   userID: String
+#   password: String
+#   agentType: String
+#   isActive: Boolean
+#   vendorID: ObjectId      
+# }
