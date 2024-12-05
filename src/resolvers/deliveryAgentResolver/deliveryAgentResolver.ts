@@ -1,3 +1,5 @@
+
+
 import { vendorService, jwtService, spaceService, vendorCompanyService, vendorOutletService, vendorJwtService, otpService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
@@ -17,6 +19,7 @@ export const deliveryAgentResolver: Resolvers = {
 
   Query: {
    
+
   },
 };
 
