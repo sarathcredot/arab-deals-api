@@ -3,12 +3,35 @@ import {deliveryAgentModel} from '../models'
 import { collections } from "../configs";
 
 export interface IDeliveryAgent {
-    _id?: string;
+    _id?: Types.ObjectId;
     fullName: string;
     contactNumber:string;
     userID:string;
     password:string;
-    agentType: "ArabDeals" | "Vendor" | "ThirdParty";
-    vendorID?: string;
+    agentType: string;
+    vendorID?: Types.ObjectId;
   }
   
+
+  export interface IDeliveryAgentDocument extends Document {
+    _id?: Types.ObjectId;
+    fullName: string;
+    contactNumber:string;
+    userID:string;
+    password:string;
+    agentType: string;
+    vendorID?: Types.ObjectId;
+    setHash(password: string): Promise<void>;
+    verifyHash(password: string): Promise<boolean>;
+  }
+  
+  export const createDeliveryAgent = async (deliveryAgentData: IDeliveryAgent ,password: string): Promise<IDeliveryAgentDocument> => {
+    let deliveryAgent :IDeliveryAgentDocument = new deliveryAgentModel(deliveryAgentData);
+    await deliveryAgent.setHash!(password);
+    return await deliveryAgent.save();
+  };
+
+
+  export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgent | null> => {
+    return await deliveryAgentModel.findOne(filters, projection, options);
+  };

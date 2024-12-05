@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import argon2 from "argon2";
 import { collections } from "../configs";
+import { IDeliveryAgentDocument } from "src/services/deliveryAgentService";
 
 
 const deliveryAgentSchema = new Schema(
@@ -42,7 +43,24 @@ const deliveryAgentSchema = new Schema(
     }
 ); 
 
+deliveryAgentSchema.methods.setHash = async function (password: string): Promise<void> {
+  try {
+    this.password = await argon2.hash(password);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
 
-const deliveryAgentModel = model(collections.DELIVERYAGENT, deliveryAgentSchema);
+deliveryAgentSchema.methods.verifyHash = async function (password: string): Promise<boolean> {
+  try {
+    return await argon2.verify(this.password, password);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
+
+const deliveryAgentModel = model<IDeliveryAgentDocument>(collections.DELIVERYAGENT, deliveryAgentSchema);
+
 
 export { deliveryAgentModel };
