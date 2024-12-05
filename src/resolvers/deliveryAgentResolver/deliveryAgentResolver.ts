@@ -15,8 +15,11 @@ export const deliveryAgentResolver: Resolvers = {
       // Vendor creation from admin side
       createDeliveryAgent: async (parent, { input }, { req }, info) => {
         await verifyAdmin(req);
+        
         let fullName: string = input.fullName;
         let contactNumber: string = input.contactNumber;
+        let userID: string = input.userID;
+        let password: string = input.password;
         let agentType: string = input.agentType;
         let vendorID: string | undefined = input?.vendorID;
   
