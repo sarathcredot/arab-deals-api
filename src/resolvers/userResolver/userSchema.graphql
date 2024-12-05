@@ -28,7 +28,7 @@ type Query{
   # Mobile API
   getUserRecordInMobile:GetUserRecordInMobileResponse!
 }
-
+                  
 # user auth Input
 
 input userLoginOtpInput {
