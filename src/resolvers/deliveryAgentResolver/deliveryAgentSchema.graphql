@@ -32,9 +32,18 @@ type Mutation {
   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
 }
 
+type Query{
+
+   # view all DeliveryAgents details query
+   viewAllDeliveryAgents:DeliveryAgent!
+    
+}
 
 # Schema
 
 schema {
   mutation: Mutation
 }
+
+
+

@@ -22,8 +22,12 @@ import { dashboardResolver } from "./dashboardResolver/dashboardResolver";
 import { jobResolver } from "./jobResolver/jobResolver";
 import { scalarTypeResolver } from "./scalarTypeResolver/scalarTypeReolver";
 import { settingsResolver } from "./settingsResolver/settingsResolver";
+<<<<<<< HEAD
 import {deliveryAgentResolver} from './deliveryAgentResolver/deliveryAgentResolver'
 
+=======
+import {deliveryAgentResolver} from "./deliveryAgentResolver/deliveryAgentResolver"
+>>>>>>> dd293773de34ec175246cc6db8bbc21b292c9a48
 
 
 
@@ -51,6 +55,10 @@ export const resolvers: Resolvers = mergeResolvers(
         jobResolver,
         settingsResolver,
         deliveryAgentResolver
+<<<<<<< HEAD
      
+=======
+       
+>>>>>>> dd293773de34ec175246cc6db8bbc21b292c9a48
     ]
 );

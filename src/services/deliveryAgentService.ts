@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
 import {deliveryAgentModel} from '../models'
 import { collections } from "../configs";
@@ -19,3 +20,6 @@ export interface IDeliveryAgent {
     vendorID?: string;
   }
   
+=======
+
+>>>>>>> dd293773de34ec175246cc6db8bbc21b292c9a48
