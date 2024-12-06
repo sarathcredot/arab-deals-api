@@ -2,10 +2,13 @@ scalar ObjectId
 
 
 
+
+
 type Mutation {
   
-  createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
   editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
+   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
+  suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   
 
   }
@@ -50,7 +53,7 @@ type CreateDeliveryAgentResponse {
   _id: ObjectId
   message: String!
 }
-
+ 
 # Input type for creating a Delivery Agent
 input CreateDeliveryAgentInput {
   fullName: String!
@@ -60,6 +63,14 @@ input CreateDeliveryAgentInput {
   agentType: String! # Must be one of: 'ArabDeals', 'Vendor', 'ThirdParty'
   vendorID: ObjectId # Optional, only for agents linked to a vendor
 }
+
+
+input SuspendDeliveryAgentInput {
+  agentId:ObjectId!
+}
+
+
+ 
 
 
 input EditAgentDataInput{
@@ -72,6 +83,7 @@ input EditAgentDataInput{
     agentType:String!
     isActive:Boolean!
     vendorID:ObjectId
+
 }
 
 
