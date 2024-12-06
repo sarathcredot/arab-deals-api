@@ -16,7 +16,7 @@ type CreateDeliveryAgentResponse {
   _id: ObjectId
   message: String!
 }
-
+ 
 # Input type for creating a Delivery Agent
 input CreateDeliveryAgentInput {
   fullName: String!
@@ -27,9 +27,14 @@ input CreateDeliveryAgentInput {
   vendorID: ObjectId # Optional, only for agents linked to a vendor
 }
 
+input SuspendDeliveryAgentInput {
+  agentId:ObjectId!
+}
+
 # Mutation for creating a Delivery Agent
 type Mutation {
   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
+  suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
 }
 
 type Query{

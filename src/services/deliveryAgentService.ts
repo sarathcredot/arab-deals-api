@@ -24,12 +24,22 @@ export interface IDeliveryAgent {
     setHash(password: string): Promise<void>;
     verifyHash(password: string): Promise<boolean>;
   }
-  
+
   export const createDeliveryAgent = async (deliveryAgentData: IDeliveryAgent ,password: string): Promise<IDeliveryAgentDocument> => {
     let deliveryAgent :IDeliveryAgentDocument = new deliveryAgentModel(deliveryAgentData);
     await deliveryAgent.setHash!(password);
     return await deliveryAgent.save();
   };
+
+  
+  export const suspendDeliveryAgent = async (agentId: Types.ObjectId): Promise<IDeliveryAgent | null> => {
+    return await deliveryAgentModel.findByIdAndUpdate(
+      agentId,
+      { isActive: false },
+      { new: true }
+    );
+  };
+
 
 
   export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgent | null> => {
