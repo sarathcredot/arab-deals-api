@@ -95,7 +95,7 @@ export const deliveryAgentResolver: Resolvers = {
        
       // delivery agent suspension from admin side
       suspendDeliveryAgent:async (parent, { input }, { req }, info) =>{
-        //  await verifyAdmin(req);
+         await verifyAdmin(req);
          const { agentId,isActive } = input;
 
         // Validate the input
