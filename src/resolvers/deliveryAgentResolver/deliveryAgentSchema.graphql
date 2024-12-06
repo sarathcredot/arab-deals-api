@@ -1,9 +1,6 @@
 scalar ObjectId
 
 
-
-
-
 type Mutation {
   
   editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
@@ -24,11 +21,6 @@ type Query{
   getDeliveryAgent(input: SuspendDeliveryAgentInput!): DeliveryAgent
     
 }
-
-
-
-
-
 
 
 type AllAgents{
@@ -75,10 +67,9 @@ input CreateDeliveryAgentInput {
 
 input SuspendDeliveryAgentInput {
   agentId:ObjectId!
+  isActive:Boolean!
 }
 
-
- 
 
 
 input EditAgentDataInput{
@@ -91,11 +82,6 @@ input EditAgentDataInput{
     vendorID:ObjectId
 
 }
-
-
-
-
-
 
 
 
