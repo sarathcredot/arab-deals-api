@@ -87,9 +87,7 @@ input EditAgentDataInput{
     fullName:String!
     contactNumber:String!
     userID:String!
-    password:String!
     agentType:String!
-    isActive:Boolean!
     vendorID:ObjectId
 
 }
