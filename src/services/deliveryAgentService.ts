@@ -1,5 +1,6 @@
+
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import {deliveryAgentModel} from '../models'
+import { deliveryAgentModel } from '../models'
 import { collections } from "../configs";
 
 export interface IDeliveryAgent {
@@ -45,3 +46,61 @@ export interface IDeliveryAgent {
   export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgent | null> => {
     return await deliveryAgentModel.findOne(filters, projection, options);
   };
+
+type Editrespo = {
+  flag: boolean
+}
+
+
+// all delivery agent details find 
+export const viewAllDeliveryAgents = async (): Promise<IDeliveryAgent[] | []> => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      const allData = await deliveryAgentModel.find()
+
+      resolve(allData)
+
+    } catch (error) {
+
+      reject()
+    }
+
+  })
+
+}
+
+
+
+// delivery agent data edit 
+
+export const editAgentData = async (data: any): Promise<Editrespo> => {
+
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+        $set: {
+
+          fullName: data.fullName,
+          contactNumber: data.contactNumber,
+          userID: data.userID,
+          vendorID: data.vendorID,
+          agentType: data.agentType,
+        }
+      })
+
+      resolve({ flag: true })
+
+    } catch (error) {
+
+
+      reject({ flag: false })
+    }
+  })
+}

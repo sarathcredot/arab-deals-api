@@ -1,15 +1,52 @@
 scalar ObjectId
 
-# Delivery Agent Type
-type DeliveryAgent {
-  _id: ObjectId!
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  agentType: String!
-  isActive: Boolean!
-  vendorID: ObjectId
+
+
+
+
+type Mutation {
+  
+  editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
+   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
+  suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
+  
+
+  }
+
+
+
+
+
+
+type Query{
+
+   
+  getAllAgentData:[AllAgents]!
+
+    
 }
+
+
+
+
+
+
+
+type AllAgents{
+
+    _id:ObjectId!
+    fullName:String!
+    contactNumber:String!
+    userID:String!
+    password:String!
+    agentType:String!
+    isActive:Boolean!
+    vendorID:ObjectId
+
+}
+
+
+
 
 # Response type for createDeliveryAgent Mutation
 type CreateDeliveryAgentResponse {
@@ -27,28 +64,40 @@ input CreateDeliveryAgentInput {
   vendorID: ObjectId # Optional, only for agents linked to a vendor
 }
 
+
 input SuspendDeliveryAgentInput {
   agentId:ObjectId!
 }
 
-# Mutation for creating a Delivery Agent
-type Mutation {
-  createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
-  suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
+
+ 
+
+
+input EditAgentDataInput{
+
+    _id:ObjectId!
+    fullName:String!
+    contactNumber:String!
+    userID:String!
+    password:String!
+    agentType:String!
+    isActive:Boolean!
+    vendorID:ObjectId
+
 }
 
-type Query{
 
-   # view all DeliveryAgents details query
-   viewAllDeliveryAgents:DeliveryAgent!
-    
-}
+
+
+
+
+
 
 # Schema
 
 schema {
   mutation: Mutation
-  query:Query
+  query: Query
 }
 
 
