@@ -21,7 +21,7 @@ export const deliveryAgentResolver: Resolvers = {
   
       // delivery agent creation from admin side
       createDeliveryAgent: async (parent, { input }, { req }, info) => {
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
         await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
 
         let fullName: string = input.fullName;
@@ -96,7 +96,7 @@ export const deliveryAgentResolver: Resolvers = {
       // delivery agent suspension from admin side
       suspendDeliveryAgent:async (parent, { input }, { req }, info) =>{
         //  await verifyAdmin(req);
-         const { agentId } = input;
+         const { agentId,isActive } = input;
 
         // Validate the input
         if (!agentId) {
@@ -122,6 +122,7 @@ export const deliveryAgentResolver: Resolvers = {
           // Update the isActive status
           const updatedAgent = await deliveryAgentService.suspendDeliveryAgent(
             new Types.ObjectId(agentId),
+            isActive
           );
       
           if (!updatedAgent) {
@@ -132,7 +133,7 @@ export const deliveryAgentResolver: Resolvers = {
       
           return {
             _id: updatedAgent._id,
-            message:"Delivery agent suspended sucsessfully"
+            message:`${isActive ? "Activated delivery agent succsessfully":"suspended delievery agent successfully"}`
           };
         } catch (error:any) {
             throw new GraphQLError(error.message || "Error suspending Delivery Agent", {
@@ -230,9 +231,6 @@ export const deliveryAgentResolver: Resolvers = {
             extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
           });
       }},
-
-    
-
 
     // get all delivery agent data 
      async getAllAgentData(): Promise<any> {

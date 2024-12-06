@@ -44,10 +44,10 @@ export interface IDeliveryAgent {
   };
 
   
-  export const suspendDeliveryAgent = async (agentId: Types.ObjectId): Promise<IDeliveryAgent | null> => {
+  export const suspendDeliveryAgent = async (agentId: Types.ObjectId,isActive:boolean): Promise<IDeliveryAgent | null> => {
     return await deliveryAgentModel.findByIdAndUpdate(
       agentId,
-      { isActive: false },
+      { isActive: isActive },
       { new: true }
     );
   };
