@@ -141,7 +141,14 @@ export const deliveryAgentResolver: Resolvers = {
         }
       },
 
+     
+     // delivery agent data edit 
       editDeliveryAgentData: async (parent, { input }, { req }, info): Promise<boolean> => {
+        
+        await verifyAdmin(req);
+        
+        // delivery agent edit input validation
+        await validateInput(validators.deliveryAgentEditByAdminValidator, req);
 
           if(!input._id){
 
