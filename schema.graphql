@@ -70,9 +70,6 @@ type Mutation {
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
-  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
-  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
-  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -84,6 +81,9 @@ type Mutation {
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
+  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
+  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
@@ -198,16 +198,6 @@ type Query {
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
-  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
-  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
-  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
-  getActiveCategoryTree: getActiveCategoryTreeResponse!
-  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
-  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
-  getAllLeafRecords: getAllLeafRecordsResponse!
-  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
-  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
-  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
@@ -219,6 +209,16 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
+  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
+  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
+  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
+  getActiveCategoryTree: getActiveCategoryTreeResponse!
+  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
+  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
+  getAllLeafRecords: getAllLeafRecordsResponse!
+  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
+  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
+  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
@@ -2802,143 +2802,6 @@ type CmsRecordsResponse {
   message: String
 }
 
-input CreateCategoryInput {
-  categoryName: String!
-  parentId: String
-  isBlocked: Boolean
-  description: String
-  isLeaf: Boolean
-  attributes: [String]
-}
-
-input UpdateCategoryInput {
-  _id: String!
-  categoryName: String
-  parentId: String
-  isBlocked: Boolean
-  description: String
-  isLeaf: Boolean
-  attributes: [String]
-}
-
-input CategoryId {
-  _id: String!
-}
-
-input CategoryRecordIdInput {
-  _id: String
-}
-
-type CreateCategoryResponse {
-  _id: String!
-}
-
-type UpdateCategoryResponse {
-  _id: String!
-  message: String
-}
-
-type DeleteCategoryResponse {
-  _id: String!
-  message: String
-}
-
-type CategoryRecordId {
-  _id: String
-}
-
-input GetAllChildLevelCategoriesInput {
-  parent: String
-}
-
-input GetActiveChildCategoriesInput {
-  parent: String
-}
-
-input GetActiveChildCategoriesInMobileInput {
-  parent: String
-}
-
-input GetCategoriesAutoCompleteInput {
-  query: String!
-}
-
-input GetLevelCategoriesInput {
-  level: Int
-  limit: Int
-}
-
-input vendorIdInput {
-  vendorId: String!
-}
-
-type Category {
-  categoryName: String
-  _id: String
-  isBlocked: Boolean
-  fullCategoryName: String
-  isLeaf: Boolean
-  description: String
-  categoryImage: ImageData
-}
-
-type CategoryAssignedToVendor {
-  categoryName: String
-  _id: String
-  isBlocked: Boolean
-  fullCategoryName: String
-  isLeaf: Boolean
-}
-
-type CategoryNode {
-  categoryName: String
-  _id: String
-  categoryImage: ImageData
-  children: [CategoryNode]
-  isLeaf: Boolean
-}
-
-type GetActiveChildCategoriesResponse {
-  records: [Category]
-}
-
-type GetActiveChildCategoriesInMobileResponse {
-  records: [Category]
-}
-
-type GetAllChildLevelCategoriesResponse {
-  records: [Category]
-}
-
-type getActiveCategoryTreeResponse {
-  records: [CategoryNode]
-}
-
-type getActiveCategoryTreeInMobileesponse {
-  records: [CategoryNode]
-}
-
-type CategorySuggestion {
-  _id: String!
-  description: String!
-}
-
-type GetCategoriesAutoCompleteRespons {
-  suggestions: [CategorySuggestion]
-}
-
-type getAllLeafRecordsResponse {
-  records: [Category]
-}
-
-type getAllCategoriesOfVendorResponse {
-  records: [CategoryAssignedToVendor]
-}
-
-type GetLevelCategoriesResponse {
-  records: [Category]
-}
-
 input addToCartInput {
   productId: ObjectId!
   quantity: Int!
@@ -3184,6 +3047,143 @@ type CategoryInBrands {
   fullCategoryName: String
   isLeaf: Boolean
   description: String
+}
+
+input CreateCategoryInput {
+  categoryName: String!
+  parentId: String
+  isBlocked: Boolean
+  description: String
+  isLeaf: Boolean
+  attributes: [String]
+}
+
+input UpdateCategoryInput {
+  _id: String!
+  categoryName: String
+  parentId: String
+  isBlocked: Boolean
+  description: String
+  isLeaf: Boolean
+  attributes: [String]
+}
+
+input CategoryId {
+  _id: String!
+}
+
+input CategoryRecordIdInput {
+  _id: String
+}
+
+type CreateCategoryResponse {
+  _id: String!
+}
+
+type UpdateCategoryResponse {
+  _id: String!
+  message: String
+}
+
+type DeleteCategoryResponse {
+  _id: String!
+  message: String
+}
+
+type CategoryRecordId {
+  _id: String
+}
+
+input GetAllChildLevelCategoriesInput {
+  parent: String
+}
+
+input GetActiveChildCategoriesInput {
+  parent: String
+}
+
+input GetActiveChildCategoriesInMobileInput {
+  parent: String
+}
+
+input GetCategoriesAutoCompleteInput {
+  query: String!
+}
+
+input GetLevelCategoriesInput {
+  level: Int
+  limit: Int
+}
+
+input vendorIdInput {
+  vendorId: String!
+}
+
+type Category {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
+  description: String
+  categoryImage: ImageData
+}
+
+type CategoryAssignedToVendor {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
+}
+
+type CategoryNode {
+  categoryName: String
+  _id: String
+  categoryImage: ImageData
+  children: [CategoryNode]
+  isLeaf: Boolean
+}
+
+type GetActiveChildCategoriesResponse {
+  records: [Category]
+}
+
+type GetActiveChildCategoriesInMobileResponse {
+  records: [Category]
+}
+
+type GetAllChildLevelCategoriesResponse {
+  records: [Category]
+}
+
+type getActiveCategoryTreeResponse {
+  records: [CategoryNode]
+}
+
+type getActiveCategoryTreeInMobileesponse {
+  records: [CategoryNode]
+}
+
+type CategorySuggestion {
+  _id: String!
+  description: String!
+}
+
+type GetCategoriesAutoCompleteRespons {
+  suggestions: [CategorySuggestion]
+}
+
+type getAllLeafRecordsResponse {
+  records: [Category]
+}
+
+type getAllCategoriesOfVendorResponse {
+  records: [CategoryAssignedToVendor]
+}
+
+type GetLevelCategoriesResponse {
+  records: [Category]
 }
 
 type AttributeValue {

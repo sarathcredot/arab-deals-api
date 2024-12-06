@@ -143,17 +143,33 @@ export const deliveryAgentResolver: Resolvers = {
 
       editDeliveryAgentData: async (parent, { input }, { req }, info): Promise<boolean> => {
 
-        const result:EditAgentResult = await deliveryAgentService.editAgentData(input)
+          if(!input._id){
 
-      if (result.flag) {
+            throw new GraphQLError("Agent ID is required", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
 
-        return true  // agent data edited
+          }else{
 
-      } else {
+            const result:EditAgentResult = await deliveryAgentService.editAgentData(input)
 
-        return false  // agent data edit failed
-      }
-
+            if (result.flag) {
+      
+              return true  // agent data edited
+      
+            } else {
+      
+              throw new GraphQLError("Unable to edit delivery agent", {
+                extensions: {
+                  code: "INTERNAL_SERVER_ERROR",
+                  errors: [],
+                },
+              });
+      
+               // agent data edit failed
+            }
+      
+          }
 
       },
 
@@ -180,8 +196,15 @@ export const deliveryAgentResolver: Resolvers = {
          return result
  
        } catch (error) {
+
+        throw new GraphQLError("Unable to edit delivery agent", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
  
-         console.log("error")
+        
  
        }
  
