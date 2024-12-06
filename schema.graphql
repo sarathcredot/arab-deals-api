@@ -55,13 +55,13 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
+  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
   exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
   editDeliveryAgentData(input: EditAgentDataInput!): Boolean!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
@@ -166,6 +166,7 @@ type Query {
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getAllAgentData: [AllAgents]!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -188,7 +189,6 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  getAllAgentData: [AllAgents]!
   getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
   getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
@@ -2284,6 +2284,23 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
+input GetAdminSignedFileUrlInput {
+  fileURL: String!
+  mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+  _id: ObjectId!
+}
+
+type GetAdminSignedFileUrlResponse {
+  url: String
+}
+
+type GetUserIvoiceUrlResponse {
+  url: String
+}
+
 input ExportAdminOrdersInput {
   _id: ObjectId
   userId: ObjectId
@@ -2358,21 +2375,40 @@ type GetAdminDownloadTokenResponse {
   url: String!
 }
 
-input GetAdminSignedFileUrlInput {
-  fileURL: String!
-  mimeType: String!
-}
-
-input GetUserIvoiceUrlInput {
+type AllAgents {
   _id: ObjectId!
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  password: String!
+  agentType: String!
+  isActive: Boolean!
+  vendorID: ObjectId
 }
 
-type GetAdminSignedFileUrlResponse {
-  url: String
+type CreateDeliveryAgentResponse {
+  _id: ObjectId
+  message: String!
 }
 
-type GetUserIvoiceUrlResponse {
-  url: String
+input CreateDeliveryAgentInput {
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  password: String!
+  agentType: String!
+  vendorID: ObjectId
+}
+
+input EditAgentDataInput {
+  _id: ObjectId!
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  password: String!
+  agentType: String!
+  isActive: Boolean!
+  vendorID: ObjectId
 }
 
 input GetDashboardUsersGraphInput {
@@ -2567,42 +2603,6 @@ type GetDashboardOrdersAmountPieChartDataResponse {
 type GetDashboardShippingChargePieChartDataResponse {
   pending: Float
   paid: Float
-}
-
-type AllAgents {
-  _id: ObjectId!
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  password: String!
-  agentType: String!
-  isActive: Boolean!
-  vendorID: ObjectId
-}
-
-type CreateDeliveryAgentResponse {
-  _id: ObjectId
-  message: String!
-}
-
-input CreateDeliveryAgentInput {
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  password: String!
-  agentType: String!
-  vendorID: ObjectId
-}
-
-input EditAgentDataInput {
-  _id: ObjectId!
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  password: String!
-  agentType: String!
-  isActive: Boolean!
-  vendorID: ObjectId
 }
 
 input ImageDataInput {
