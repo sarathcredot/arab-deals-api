@@ -2,7 +2,7 @@ import {  jwtService, spaceService, otpService,deliveryAgentService } from "../.
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import path from "path";
-import { createWriteStream } from 'fs';
+import * as validators from "./deliveryAgentValidator";
 import { GraphQLError } from "graphql";
 import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { filePaths } from "../../configs";
@@ -16,6 +16,7 @@ export const deliveryAgentResolver: Resolvers = {
       // delivery agent creation from admin side
       createDeliveryAgent: async (parent, { input }, { req }, info) => {
         // await verifyAdmin(req);
+        await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
 
         let fullName: string = input.fullName;
         let contactNumber: string = input.contactNumber;
