@@ -15,7 +15,7 @@ export const deliveryAgentResolver: Resolvers = {
   
       // delivery agent creation from admin side
       createDeliveryAgent: async (parent, { input }, { req }, info) => {
-        // await verifyAdmin(req);
+        await verifyAdmin(req);
         await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
 
         let fullName: string = input.fullName;

@@ -64,14 +64,17 @@ type Mutation {
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): CreateDeliveryAgentResponse!
-  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
-  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
-  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
+  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
+  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
+  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
+  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
+  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -80,9 +83,6 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
-  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
-  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
-  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
@@ -166,6 +166,7 @@ type Query {
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  viewAllDeliveryAgents: DeliveryAgent!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -188,9 +189,6 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  viewAllDeliveryAgents: DeliveryAgent!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
@@ -207,8 +205,8 @@ type Query {
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -218,6 +216,8 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
@@ -2375,6 +2375,34 @@ type GetUserIvoiceUrlResponse {
   url: String
 }
 
+type DeliveryAgent {
+  _id: ObjectId!
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  agentType: String!
+  isActive: Boolean!
+  vendorID: ObjectId
+}
+
+type CreateDeliveryAgentResponse {
+  _id: ObjectId
+  message: String!
+}
+
+input CreateDeliveryAgentInput {
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  password: String!
+  agentType: String!
+  vendorID: ObjectId
+}
+
+input SuspendDeliveryAgentInput {
+  agentId: ObjectId!
+}
+
 input GetDashboardUsersGraphInput {
   startDate: Date
   endDate: Date
@@ -2567,104 +2595,6 @@ type GetDashboardOrdersAmountPieChartDataResponse {
 type GetDashboardShippingChargePieChartDataResponse {
   pending: Float
   paid: Float
-}
-
-type DeliveryAgent {
-  _id: ObjectId!
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  agentType: String!
-  isActive: Boolean!
-  vendorID: ObjectId
-}
-
-type CreateDeliveryAgentResponse {
-  _id: ObjectId
-  message: String!
-}
-
-input CreateDeliveryAgentInput {
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  password: String!
-  agentType: String!
-  vendorID: ObjectId
-}
-
-input SuspendDeliveryAgentInput {
-  agentId: ObjectId!
-}
-
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
-  message: String
 }
 
 input AddCmsInput {
@@ -2926,106 +2856,74 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
 }
 
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-input BulkAddToCartInMobileInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type BulkAddToCartInMobileResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
+input AddCountryInput {
   name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
 }
 
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
 }
 
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
 }
 
 input AddBrandInput {
@@ -3171,6 +3069,108 @@ type CategoryInBrands {
   fullCategoryName: String
   isLeaf: Boolean
   description: String
+}
+
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input removeFromCartInput {
+  productId: String!
+}
+
+input removeFromCartInMobileInput {
+  productId: String!
+}
+
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
+  message: String
+}
+
+type BulkAddToCartResponse {
+  message: String
+}
+
+type BulkAddToCartInMobileResponse {
+  message: String
+}
+
+type addToCartInMObileResponse {
+  message: String
+}
+
+type removeFromCartResponse {
+  message: String
+}
+
+type removeFromCartInMobileResponse {
+  message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
 }
 
 type AttributeValue {
