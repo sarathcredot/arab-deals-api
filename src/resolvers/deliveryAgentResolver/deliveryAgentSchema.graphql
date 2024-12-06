@@ -19,10 +19,9 @@ type Mutation {
 
 
 type Query{
-
-   
+  
   getAllAgentData:[AllAgents]!
-
+  getDeliveryAgent(input: SuspendDeliveryAgentInput!): DeliveryAgent
     
 }
 
@@ -45,6 +44,15 @@ type AllAgents{
 
 }
 
+type DeliveryAgent{
+    _id:ObjectId!
+    fullName:String!
+    contactNumber:String!
+    userID:String!
+    agentType:String!
+    isActive:Boolean!
+    vendorID:ObjectId
+}
 
 
 

@@ -14,6 +14,17 @@ export interface IDeliveryAgent {
   }
   
 
+  export interface IDeliveryAgentFilter {
+    _id: Types.ObjectId;
+    fullName: string;
+    contactNumber:string;
+    userID:string;
+    password:string;
+    agentType: string;
+    vendorID?: Types.ObjectId;
+    isActive:boolean;
+  }
+
   export interface IDeliveryAgentDocument extends Document {
     _id?: Types.ObjectId;
     fullName: string;
@@ -43,7 +54,7 @@ export interface IDeliveryAgent {
 
 
 
-  export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgent | null> => {
+  export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgentFilter | null> => {
     return await deliveryAgentModel.findOne(filters, projection, options);
   };
 
