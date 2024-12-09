@@ -6,7 +6,7 @@ type Mutation {
   editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
    createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
-  loginDeliveryAgent(input:LoginDeliveryAgentInput):Boolean!
+  loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
   
 
   }

@@ -8,6 +8,7 @@ import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 import { deliveryAgentModel } from "src/models";
+import { error } from "console";
 
 
 interface EditAgentResult {
@@ -194,69 +195,51 @@ export const deliveryAgentResolver: Resolvers = {
 
     loginDeliveryAgent: async (parent, { input }, { req }, info):Promise<any> => {
 
-      const respoObj = {
-
-        status: "#",
-        fullName: "#",
-        token: "#",
-        msg: "#"
-      }
-
+     // agent login 
       const result: any = await deliveryAgentService.loginDeliveryAgent(input as DeliveryLoginData)
 
-      // agent login done
       if (result.login) {
 
-        // genarate JWT token 
+      const token=await jwtService.createDeliveryAgentLoginJWT({id:result._id,userID:result.userId})
 
-        const obj = {
+      console.log(result)
 
-          id: result._id.toString,
-          userID: result.userID
+        return  {   // agent login done
+
+          status: "login",
+          fullName: result.fullname,
+          token:token,
+          msg: result.msg
         }
-
-        jwtService.createDeliveryAgentLoginJWT(obj).then((respo) => {
-
-          respoObj.status = "login"
-          respoObj.fullName = result.fullname
-          respoObj.token = respo
-          respoObj.msg = result.msg
-
-          console.log(respoObj)
-          return true
-
-        })
+          
         
-        // .catch(error => {
 
-        //   new GraphQLError("JWT error", {
-        //     extensions: {
-        //       code: "INTERNAL_SERVER_ERROR",
-        //       errors: []
-        //     }
-        //   })
-        // })
+      } else if (result.notfount) {
 
-      } else if (result.notfount) {  // agent userID not valid
+     
+        return  {
 
-        respoObj.status="notfount"
-        respoObj.msg=result.msg
+          status: "notfount",
+          fullName: "#",
+          token: "#",
+          msg:result.msg
+        }
+      } else {
 
-        console.log(respoObj)
-        return false
+        console.log(result)
+        return  {
 
-       } else {   // agent userID and password not matching
+          status: "mismatch",
+          fullName: "#",
+          token: "#",
+          msg: result.msg
+        }
+      }
 
-           respoObj.status="mismatch"
-           respoObj.msg=result.msg
 
-           console.log(respoObj)
-           
 
-           return false
-           
 
-       }
+
 
 
     }
