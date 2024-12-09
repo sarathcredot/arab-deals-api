@@ -7,6 +7,7 @@ const vendorSecretKey: string = process.env.VENDOR_JWT_SECRET || "";
 const userSecretKey: string = process.env.USER_JWT_SECRET || "";
 const vendorSignUpSecretKey: string = process.env.VENDOR_SIGNUP_JWT_SECRET || "";
 const fileDownloadSecretKey: string = process.env.FILE_DOWNLOAD_TOKEN_JWT_SECRET || "";
+const delieveryAgentSecretKey:string=process.env.DELIVERY_AGENT_LOGIN_JWT_SECRET || "";
 
 
 
@@ -202,3 +203,16 @@ export const verifyFileDownloadJWT = (token: string, ignoreExpiration = false): 
         }
     });
 };
+
+export const createDeliveryAgentLoginJWT = ({ id, userID }: { id: string, userID: string }): Promise<string> => {
+
+    return new Promise((resolve, reject) => {
+
+        try {
+            const token = jwt.sign({ id:id,userID:userID }, delieveryAgentSecretKey, { expiresIn: '7d' });
+            resolve(token);
+        } catch (e) {
+            reject();
+        }
+    })
+}

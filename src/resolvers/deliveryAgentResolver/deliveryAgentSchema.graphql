@@ -6,6 +6,7 @@ type Mutation {
   editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
    createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
+  loginDeliveryAgent(input:LoginDeliveryAgentInput):Boolean!
   
 
   }
@@ -82,6 +83,23 @@ input EditAgentDataInput{
     vendorID:ObjectId
 
 }
+
+input LoginDeliveryAgentInput{
+   
+    userID:String!
+    contactNumber:String!
+    password:String!
+}
+
+type LoginDeliveryAgentResponse{
+
+      status:String!
+      fullName:String!
+      token:String!
+      msg:String!
+}
+
+
 
 
 
