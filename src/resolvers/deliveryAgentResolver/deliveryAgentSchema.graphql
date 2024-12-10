@@ -1,20 +1,17 @@
 scalar ObjectId
+scalar Upload
 
 
 type Mutation {
   
   editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
-  createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
+  createDeliveryAgent(input: CreateDeliveryAgentInput!,image:Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
   createSettlement(input:CreateSettlementInput!):CreateDeliveryAgentResponse!
   
 
   }
-
-
-
-
 
 
 type Query{
@@ -24,9 +21,15 @@ type Query{
     
 }
 
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
 
 type AllAgents{
-
     _id:ObjectId!
     fullName:String!
     contactNumber:String!
@@ -46,6 +49,7 @@ type DeliveryAgent{
     agentType:String!
     isActive:Boolean!
     vendorID:ObjectId
+    licence:ImageData
 }
 
 

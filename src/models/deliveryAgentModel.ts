@@ -3,7 +3,32 @@ import argon2 from "argon2";
 import { collections } from "../configs";
 import { IDeliveryAgentDocument } from "src/services/deliveryAgentService";
 
-
+const fileSchema = new Schema(
+  {
+      fileType: {
+          type: String,
+          enum: ["PRIVATE", "PUBLIC"],
+          default: "PUBLIC",
+          required: true
+      },
+      fileURL: {
+          type: String,
+          required: true
+      },
+      mimeType: {
+          type: String,
+          required: true
+      },
+      originalName: {
+          type: String,
+          required: true
+      }
+  },
+  {
+      _id: true,
+      timestamps: true
+  }
+);
 
 const deliveryAgentSchema = new Schema(
     {
@@ -19,7 +44,10 @@ const deliveryAgentSchema = new Schema(
             type: String,
             unique: true,
             required: true,
+            sparse: true,
+            lowercase: true,
           },
+          licence:fileSchema,
           password: {
             type: String,
             required: true,

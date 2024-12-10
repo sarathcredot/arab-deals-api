@@ -30,7 +30,7 @@ export const deliveryAgentResolver: Resolvers = {
   Mutation: {
 
     // delivery agent creation from admin side
-    createDeliveryAgent: async (parent, { input }, { req }, info) => {
+    createDeliveryAgent: async (parent, { input, image }, { req }, info) => {
       // await verifyAdmin(req);
       await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
 
@@ -40,6 +40,7 @@ export const deliveryAgentResolver: Resolvers = {
       let password: string = input.password;
       let agentType: string = input.agentType;
       let vendorID: Types.ObjectId = input?.vendorID;
+      let licence: deliveryAgentService.FileData | undefined;
 
       console.log(input)
 
@@ -55,6 +56,14 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: {
             code: "USER_ALREADY_EXISTS",
             errors: [],
+          },
+        });
+      }
+
+      if (!licence) {
+        throw new GraphQLError("Licence file is required", {
+          extensions: {
+            code: "BAD_REQUEST",
           },
         });
       }
@@ -75,6 +84,27 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
 
+
+      if (image) {
+        try {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+  
+          licence = {
+            fileType: "PUBLIC",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          }
+        } catch (error) {
+          throw new GraphQLError("License upload failed", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+          });
+        }
+      }
+
       let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
         fullName,
         contactNumber,
@@ -82,6 +112,7 @@ export const deliveryAgentResolver: Resolvers = {
         password,
         agentType,
         vendorID,
+        licence
       };
 
       // Create the delivery agent record in the database
@@ -331,6 +362,7 @@ export const deliveryAgentResolver: Resolvers = {
             agentType: 1,
             vendorID: 1,
             isActive: 1,
+            licence:1
           },
           { lean: true }
         );

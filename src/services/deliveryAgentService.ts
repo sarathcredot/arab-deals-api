@@ -3,6 +3,16 @@ import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, T
 import { deliveryAgentModel, settlementModel } from '../models'
 import { collections } from "../configs";
 
+
+
+export interface FileData {
+  _id?: string,
+  fileType?: string,
+  fileURL?: string,
+  mimeType?: string,
+  originalName?: string,
+}
+
 export interface IDeliveryAgent {
   _id?: Types.ObjectId;
   fullName: string;
@@ -11,7 +21,9 @@ export interface IDeliveryAgent {
   password: string;
   agentType: string;
   vendorID?: Types.ObjectId;
+  licence:FileData;
 }
+
 
 export interface ISettlement {
   _id?: Types.ObjectId;
@@ -44,6 +56,7 @@ export interface IDeliveryAgentDocument extends Document {
   password: string;
   agentType: string;
   vendorID?: Types.ObjectId;
+  licence:FileData;
   cashInHand:number;
   lastSettlementDate:Date;
   settlementHistory:Types.ObjectId[];
