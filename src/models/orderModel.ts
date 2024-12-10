@@ -99,7 +99,21 @@ const orderSchema = new Schema(
                 }
             ],
             default: []
+        },
+
+        delivery_agent:{
+
+              type:Schema.Types.ObjectId,
+              ref:collections.DELIVERYAGENT
+        },
+        delivery_status:{
+
+              type:String,
+              enum:[""]
+
         }
+
+
     },
     {
         _id: true,

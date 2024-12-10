@@ -8,35 +8,45 @@ import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 import { deliveryAgentModel } from "src/models";
+import { error } from "console";
 
 
 interface EditAgentResult {
   flag: boolean;
 }
 
+type DeliveryLoginData = {
+
+
+  userID: string;
+  contactNumber: string;
+  password: string;
+
+}
+
 export const deliveryAgentResolver: Resolvers = {
 
-    Upload: GraphQLUpload,
-    Mutation: {
-  
-      // delivery agent creation from admin side
-      createDeliveryAgent: async (parent, { input }, { req }, info) => {
-        await verifyAdmin(req);
-        await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
+  Upload: GraphQLUpload,
+  Mutation: {
 
-        let fullName: string = input.fullName;
-        let contactNumber: string = input.contactNumber;
-        let userID: string = input.userID;
-        let password: string = input.password;
-        let agentType: string = input.agentType;
-        let vendorID: Types.ObjectId = input?.vendorID;
+    // delivery agent creation from admin side
+    createDeliveryAgent: async (parent, { input }, { req }, info) => {
+      // await verifyAdmin(req);
+      await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
 
-        console.log(input)
-  
-       // Check if userid already exists
-       const isUserExists = await deliveryAgentService.findDeliveryAgentWithFilters(
+      let fullName: string = input.fullName;
+      let contactNumber: string = input.contactNumber;
+      let userID: string = input.userID;
+      let password: string = input.password;
+      let agentType: string = input.agentType;
+      let vendorID: Types.ObjectId = input?.vendorID;
+
+      console.log(input)
+
+      // Check if userid already exists
+      const isUserExists = await deliveryAgentService.findDeliveryAgentWithFilters(
         { userID },
-        { _id: 1 }, 
+        { _id: 1 },
         { lean: true }
       );
 
@@ -49,8 +59,8 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
 
-       // Check if the contactNumber already exists
-       const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
+      // Check if the contactNumber already exists
+      const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
         { contactNumber },
         { _id: 1 },
         { lean: true }
@@ -74,10 +84,10 @@ export const deliveryAgentResolver: Resolvers = {
         vendorID,
       };
 
-       // Create the delivery agent record in the database
-       const result = await deliveryAgentService.createDeliveryAgent(newDeliveryAgentData,password);
+      // Create the delivery agent record in the database
+      const result = await deliveryAgentService.createDeliveryAgent(newDeliveryAgentData, password);
 
-       if (!result) {
+      if (!result) {
         throw new GraphQLError("Unable to create delivery agent", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
@@ -87,162 +97,216 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       return {
-        _id: result._id, 
+        _id: result._id,
         message: "Delivery Agent successfully created",
       };
 
-      },
-       
-      // delivery agent suspension from admin side
-      suspendDeliveryAgent:async (parent, { input }, { req }, info) =>{
-         await verifyAdmin(req);
-         const { agentId,isActive } = input;
+    },
 
-        // Validate the input
-        if (!agentId) {
-          throw new GraphQLError("Agent ID is required", {
-            extensions: { code: "BAD_USER_INPUT" },
+    // delivery agent suspension from admin side
+    suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
+      await verifyAdmin(req);
+      const { agentId, isActive } = input;
+
+      // Validate the input
+      if (!agentId) {
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        // Check if the delivery agent exists
+        const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { _id: agentId },
+          { _id: 1, isActive: 1 },
+          { lean: true }
+        );
+
+        if (!existingAgent) {
+          throw new GraphQLError("Delivery Agent not found", {
+            extensions: { code: "NOT_FOUND" },
           });
         }
-      
-        try {
-          // Check if the delivery agent exists
-          const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
-            { _id: agentId },
-            { _id: 1, isActive: 1 },
-            { lean: true }
-          );
-      
-          if (!existingAgent) {
-            throw new GraphQLError("Delivery Agent not found", {
-              extensions: { code: "NOT_FOUND" },
-            });
-          }
-      
-          // Update the isActive status
-          const updatedAgent = await deliveryAgentService.suspendDeliveryAgent(
-            new Types.ObjectId(agentId),
-            isActive
-          );
-      
-          if (!updatedAgent) {
-            throw new GraphQLError("Unable to update Delivery Agent status", {
-              extensions: { code: "INTERNAL_SERVER_ERROR" },
-            });
-          }
-      
-          return {
-            _id: updatedAgent._id,
-            message:`${isActive ? "Activated delivery agent succsessfully":"suspended delievery agent successfully"}`
-          };
-        } catch (error:any) {
-            throw new GraphQLError(error.message || "Error suspending Delivery Agent", {
-            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+
+        // Update the isActive status
+        const updatedAgent = await deliveryAgentService.suspendDeliveryAgent(
+          new Types.ObjectId(agentId),
+          isActive
+        );
+
+        if (!updatedAgent) {
+          throw new GraphQLError("Unable to update Delivery Agent status", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
           });
         }
-      },
 
-     
-     // delivery agent data edit 
-      editDeliveryAgentData: async (parent, { input }, { req }, info): Promise<boolean> => {
-        
-        await verifyAdmin(req);
-        
-        // delivery agent edit input validation
-        await validateInput(validators.deliveryAgentEditByAdminValidator, req);
-
-          if(!input._id){
-
-            throw new GraphQLError("Agent ID is required", {
-              extensions: { code: "BAD_USER_INPUT" },
-            });
-
-          }else{
-
-            const result:EditAgentResult = await deliveryAgentService.editAgentData(input)
-
-            if (result.flag) {
-      
-              return true  // agent data edited
-      
-            } else {
-      
-              throw new GraphQLError("Unable to edit delivery agent", {
-                extensions: {
-                  code: "INTERNAL_SERVER_ERROR",
-                  errors: [],
-                },
-              });
-      
-               // agent data edit failed
-            }
-      
-          }
-
-      },
+        return {
+          _id: updatedAgent._id,
+          message: `${isActive ? "Activated delivery agent succsessfully" : "suspended delievery agent successfully"}`
+        };
+      } catch (error: any) {
+        throw new GraphQLError(error.message || "Error suspending Delivery Agent", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
     },
 
 
+    // delivery agent data edit 
+    editDeliveryAgentData: async (parent, { input }, { req }, info): Promise<boolean> => {
 
-    Query: {
-   
-      getDeliveryAgent: async (parent, { input }, { req }, info) => {
+      await verifyAdmin(req);
 
-        const { agentId } = input;
+      // delivery agent edit input validation
+      await validateInput(validators.deliveryAgentEditByAdminValidator, req);
 
-        if (!agentId) {
-          throw new GraphQLError("Agent ID is required", {
-            extensions: { code: "BAD_USER_INPUT" },
+      if (!input._id) {
+
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+
+      } else {
+
+        const result: EditAgentResult = await deliveryAgentService.editAgentData(input)
+
+        if (result.flag) {
+
+          return true  // agent data edited
+
+        } else {
+
+          throw new GraphQLError("Unable to edit delivery agent", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
           });
+
+          // agent data edit failed
         }
-  
-        if (!Types.ObjectId.isValid(agentId)) {
-          throw new GraphQLError("Invalid Agent ID format", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
+
+      }
+
+    },
+
+    // delivery agent login 
+
+    loginDeliveryAgent: async (parent, { input }, { req }, info):Promise<any> => {
+
+     // agent login 
+      const result: any = await deliveryAgentService.loginDeliveryAgent(input as DeliveryLoginData)
+
+      if (result.login) {
+
+      const token=await jwtService.createDeliveryAgentLoginJWT({id:result._id,userID:result.userId})
+
+      console.log(result)
+
+        return  {   // agent login done
+
+          status: "login",
+          fullName: result.fullname,
+          token:token,
+          msg: result.msg
         }
-  
-        try {
-          // Fetch the delivery agent by agentId
-          const deliveryAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+          
+        
+
+      } else if (result.notfount) {
+
+     
+        return  {
+
+          status: "notfount",
+          fullName: "#",
+          token: "#",
+          msg:result.msg
+        }
+      } else {
+
+        console.log(result)
+        return  {
+
+          status: "mismatch",
+          fullName: "#",
+          token: "#",
+          msg: result.msg
+        }
+      }
+
+
+
+
+
+
+
+    }
+  },
+
+
+
+  Query: {
+
+    getDeliveryAgent: async (parent, { input }, { req }, info) => {
+
+      const { agentId } = input;
+
+      if (!agentId) {
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        // Fetch the delivery agent by agentId
+        const deliveryAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
           { _id: agentId },
-            {
-          _id: 1,
-          fullName: 1,
-          contactNumber: 1,
-          userID: 1,
-          agentType: 1,
-          vendorID: 1,
-          isActive: 1,
-           },
+          {
+            _id: 1,
+            fullName: 1,
+            contactNumber: 1,
+            userID: 1,
+            agentType: 1,
+            vendorID: 1,
+            isActive: 1,
+          },
           { lean: true }
-          );
-  
-          if (!deliveryAgent) {
-            throw new GraphQLError("Delivery Agent not found", {
-              extensions: { code: "NOT_FOUND" },
-            });
-          }
-  
-          return deliveryAgent;
+        );
 
-        } catch (error:any) {
-          throw new GraphQLError(error.message || "Error fetching Delivery Agent", {
-            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        if (!deliveryAgent) {
+          throw new GraphQLError("Delivery Agent not found", {
+            extensions: { code: "NOT_FOUND" },
           });
-      }},
+        }
+
+        return deliveryAgent;
+
+      } catch (error: any) {
+        throw new GraphQLError(error.message || "Error fetching Delivery Agent", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
 
     // get all delivery agent data 
-     async getAllAgentData(): Promise<any> {
- 
- 
-       try {
- 
-         const result = await deliveryAgentService.viewAllDeliveryAgents()
- 
-         return result
- 
-       } catch (error) {
+    async getAllAgentData(): Promise<any> {
+
+
+      try {
+
+        const result = await deliveryAgentService.viewAllDeliveryAgents()
+
+        return result
+
+      } catch (error) {
 
         throw new GraphQLError("Unable to edit delivery agent", {
           extensions: {
@@ -250,15 +314,16 @@ export const deliveryAgentResolver: Resolvers = {
             errors: [],
           },
         });
- 
-        
- 
-       }
- 
- 
-     }
- 
-   }
+
+
+
+      }
+
+
+    }
+
+
+  }
 
 
 }
