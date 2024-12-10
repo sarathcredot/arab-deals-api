@@ -164,7 +164,8 @@ export const productResolver: Resolvers = {
                     productCode: productCode,
                     status: "UNDER_VERIFICATION",
                     attributes: attributeData,
-                    offerPrice: input.offerPrice || 0
+                    offerPrice: input.offerPrice || 0,
+                    delivery_type:input.delivery_type || ""
                 };
 
                 // Create the product
@@ -454,6 +455,11 @@ export const productResolver: Resolvers = {
                     existingProduct.productDetailImages = detailImages;
                 }
 
+                if(input.delivery_type && existingProduct.delivery_type !== input.delivery_type){
+
+                    existingProduct.delivery_type = input.delivery_type;
+                }
+
                 // Update the product
                 const result = await existingProduct.save();
 
@@ -618,6 +624,12 @@ export const productResolver: Resolvers = {
                 if (detailImages.length > 0) {
                     existingProduct.productDetailImages = detailImages;
                 }
+
+                if(input.delivery_type && existingProduct.delivery_type !== input.delivery_type){
+
+                    existingProduct.delivery_type = input.delivery_type;
+                }
+
 
                 // Update the product
                 const result = await existingProduct.save();

@@ -179,6 +179,12 @@ const productSchema = new Schema(
             type: [fileSchema],
             default: []
         },
+        delivery_type: {
+
+            type: String,
+            require: true,
+            enum: ['ArabDeals', 'Vendor', 'ThirdParty'],
+        }
     },
     {
         timestamps: true

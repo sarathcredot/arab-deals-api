@@ -51,7 +51,8 @@ export interface IProduct {
         attributeDescription: string;
     }[];
     offerPrice?: number,
-    remarks?: string
+    remarks?: string,
+    delivery_type?:string
 }
 
 
@@ -95,6 +96,7 @@ export interface IProductDocument extends Document {
     attributes?: [IProductAttribute];
     remarks?: string[];
     productDetailImages?: FileData[];
+    delivery_type?:string
 }
 
 export interface IProductsProjection {
