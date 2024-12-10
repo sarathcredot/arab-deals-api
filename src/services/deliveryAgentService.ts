@@ -1,6 +1,6 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { deliveryAgentModel } from '../models'
+import { deliveryAgentModel, settlementModel } from '../models'
 import { collections } from "../configs";
 
 export interface IDeliveryAgent {
@@ -13,6 +13,14 @@ export interface IDeliveryAgent {
   vendorID?: Types.ObjectId;
 }
 
+export interface ISettlement {
+  _id?: Types.ObjectId;
+  agentId: Types.ObjectId;
+  amount:number;
+  date:Date;
+  remarks?:string;
+}
+
 
 export interface IDeliveryAgentFilter {
   _id: Types.ObjectId;
@@ -23,6 +31,9 @@ export interface IDeliveryAgentFilter {
   agentType: string;
   vendorID?: Types.ObjectId;
   isActive: boolean;
+  cashInHand:number;
+  lastSettlementDate:Date;
+  settlementHistory:Types.ObjectId[];
 }
 
 export interface IDeliveryAgentDocument extends Document {
@@ -33,13 +44,16 @@ export interface IDeliveryAgentDocument extends Document {
   password: string;
   agentType: string;
   vendorID?: Types.ObjectId;
+  cashInHand:number;
+  lastSettlementDate:Date;
+  settlementHistory:Types.ObjectId[];
   setHash(password: string): Promise<void>;
   verifyHash(password: string): Promise<boolean>;
 }
 
+
+
 type DeliveryLoginData = {
-
-
   userID: string;
   contactNumber: string;
   password: string;
@@ -50,6 +64,34 @@ export const createDeliveryAgent = async (deliveryAgentData: IDeliveryAgent, pas
   let deliveryAgent: IDeliveryAgentDocument = new deliveryAgentModel(deliveryAgentData);
   await deliveryAgent.setHash!(password);
   return await deliveryAgent.save();
+};
+
+
+// export const createSettlement = async (settlementData:ISettlement ,existingAgent:IDeliveryAgentDocument): Promise<ISettlement> => {
+//   let settlement = new settlementModel(settlementData);
+
+//   existingAgent.cashInHand -= settlement.amount;
+//   existingAgent.lastSettlementDate = new Date(settlement.date);
+//   existingAgent.settlementHistory.push(settlement._id);
+
+//   await existingAgent.save();
+//   return await settlement.save();
+// };
+
+export const createSettlement = async (settlementData:ISettlement,agentId:Types.ObjectId): Promise<ISettlement> => {
+  let settlement = new settlementModel(settlementData);
+  const existingAgent=await deliveryAgentModel.findById(agentId)
+
+  if (!existingAgent) {
+    throw new Error("Delivery Agent not found");
+  }
+  
+  existingAgent.cashInHand -= settlement.amount;
+  existingAgent.lastSettlementDate = new Date(settlement.date);
+  existingAgent.settlementHistory.push(settlement._id);
+
+  await existingAgent.save();
+  return await settlement.save();
 };
 
 

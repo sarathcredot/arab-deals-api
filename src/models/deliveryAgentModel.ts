@@ -4,6 +4,7 @@ import { collections } from "../configs";
 import { IDeliveryAgentDocument } from "src/services/deliveryAgentService";
 
 
+
 const deliveryAgentSchema = new Schema(
     {
         fullName: {
@@ -37,10 +38,25 @@ const deliveryAgentSchema = new Schema(
             ref: collections.VENDORS, 
             default: null
           },
-    },
-    {
-        timestamps: true,
-    }
+          cashInHand:  { 
+            type: Number, 
+            default:0 
+          },
+          lastSettlementDate:  { 
+            type: Date 
+
+          },
+          settlementHistory: [
+                {
+                  type: Schema.Types.ObjectId,
+                   ref: collections.SETTLEMENTS,  
+                }
+         ]
+
+        },
+        {
+            timestamps: true,
+        }
 ); 
 
 deliveryAgentSchema.methods.setHash = async function (password: string): Promise<void> {

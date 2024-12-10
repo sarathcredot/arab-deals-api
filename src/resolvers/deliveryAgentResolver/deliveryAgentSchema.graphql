@@ -4,9 +4,10 @@ scalar ObjectId
 type Mutation {
   
   editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
-   createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
+  createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
+  createSettlement(input:CreateSettlementInput!):CreateDeliveryAgentResponse!
   
 
   }
@@ -63,6 +64,13 @@ input CreateDeliveryAgentInput {
   password: String!
   agentType: String! # Must be one of: 'ArabDeals', 'Vendor', 'ThirdParty'
   vendorID: ObjectId # Optional, only for agents linked to a vendor
+}
+
+input CreateSettlementInput {
+  agentId: ObjectId!
+  amount: Float!
+  date: Date!
+  remarks: String
 }
 
 

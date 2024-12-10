@@ -152,6 +152,60 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+    createSettlement:async(parent, { input }, { req }, info) =>{
+      //  await verifyAdmin(req);
+
+       const {agentId,amount,date}=input;
+       const remarks: string | undefined = input?.remarks ?? undefined;
+
+       try {
+        // Check if the delivery agent exists
+        const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { _id: agentId },
+          { _id: 1,cashInHand:1 },
+          { lean: false }
+        );
+
+        if (!existingAgent) {
+          throw new GraphQLError("Delivery Agent not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+       
+        if(existingAgent.cashInHand < amount){
+          throw new GraphQLError("Insufficient funds. The agent does not have enough money for this settlement.", {
+            extensions: { code: "BAD_REQUEST" },
+          });
+        }
+
+
+        let settlementData: deliveryAgentService.ISettlement = {
+          agentId,amount,date,remarks
+        };
+
+        const result = await deliveryAgentService.createSettlement(settlementData,agentId);
+
+        if (!result) {
+          throw new GraphQLError("Unable to create settlement", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+        }
+
+        return {
+          _id: result._id,
+          message: "settlement successfully created",
+        };
+        
+       } catch (error: any) {
+        throw new GraphQLError(error.message || "Error Creating  settlement", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+
 
     // delivery agent data edit 
     editDeliveryAgentData: async (parent, { input }, { req }, info): Promise<boolean> => {

@@ -3,6 +3,7 @@ export const collections = {
     CATEGORIES: "categories",
     ADMINS: "admins",
     DELIVERYAGENT:"deliveryagents",
+    SETTLEMENTS:"settlements",
     VENDORS: "vendors",
     AUTH_UTILITIES: "auth_utilities",
     VENDOR_COMPANIES: "vendor_companies",
