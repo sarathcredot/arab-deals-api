@@ -43,8 +43,12 @@ export interface IDeliveryAgentFilter {
   agentType: string;
   vendorID?: Types.ObjectId;
   isActive: boolean;
-  cashInHand:number;
-  lastSettlementDate:Date;
+  wallet: {
+    cashInHand: number;
+    lastSettlementDate: Date;
+    grandTotal: number;
+    totalSettlement: number;
+  };
   settlementHistory:Types.ObjectId[];
 }
 
@@ -57,8 +61,12 @@ export interface IDeliveryAgentDocument extends Document {
   agentType: string;
   vendorID?: Types.ObjectId;
   licence:FileData;
-  cashInHand:number;
-  lastSettlementDate:Date;
+  wallet: {
+    cashInHand: number;
+    lastSettlementDate: Date;
+    grandTotal: number;
+    totalSettlement: number;
+  };
   settlementHistory:Types.ObjectId[];
   setHash(password: string): Promise<void>;
   verifyHash(password: string): Promise<boolean>;
@@ -99,8 +107,9 @@ export const createSettlement = async (settlementData:ISettlement,agentId:Types.
     throw new Error("Delivery Agent not found");
   }
   
-  existingAgent.cashInHand -= settlement.amount;
-  existingAgent.lastSettlementDate = new Date(settlement.date);
+  existingAgent.wallet.cashInHand -= settlement.amount;
+  existingAgent.wallet.totalSettlement += settlement.amount;
+  existingAgent.wallet.lastSettlementDate = new Date(settlement.date);
   existingAgent.settlementHistory.push(settlement._id);
 
   await existingAgent.save();

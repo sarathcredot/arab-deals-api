@@ -66,13 +66,22 @@ const deliveryAgentSchema = new Schema(
             ref: collections.VENDORS, 
             default: null
           },
-          cashInHand:  { 
-            type: Number, 
-            default:0 
-          },
-          lastSettlementDate:  { 
-            type: Date 
-
+          wallet:{
+            cashInHand:  { 
+              type: Number, 
+              default:0 
+            },
+            lastSettlementDate:  { 
+              type: Date 
+            },
+            grandTotal: {
+              type: Number, 
+              default:0 
+            },
+            totalSettlement: {
+              type: Number, 
+              default:0 
+            }
           },
           settlementHistory: [
                 {

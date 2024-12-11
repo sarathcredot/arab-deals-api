@@ -193,7 +193,7 @@ export const deliveryAgentResolver: Resolvers = {
         // Check if the delivery agent exists
         const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
           { _id: agentId },
-          { _id: 1,cashInHand:1 },
+          { _id: 1, wallet:1 },
           { lean: false }
         );
 
@@ -203,7 +203,7 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
        
-        if(existingAgent.cashInHand < amount){
+        if(existingAgent.wallet.cashInHand < amount){
           throw new GraphQLError("Insufficient funds. The agent does not have enough money for this settlement.", {
             extensions: { code: "BAD_REQUEST" },
           });
