@@ -59,7 +59,7 @@ const deliveryAgentSchema = new Schema(
           },
           isActive: {
             type: Boolean,
-            default: true, // true = active, false = suspended
+            default: true,                     // true = active, false = suspended
           },
           vendorID: {
             type: Schema.Types.ObjectId,
@@ -67,20 +67,26 @@ const deliveryAgentSchema = new Schema(
             default: null
           },
           wallet:{
-            cashInHand:  { 
+            cashInHand:  {                    //balance  amount agent has in his wallet
               type: Number, 
-              default:0 
+              default:200 
             },
             lastSettlementDate:  { 
               type: Date 
             },
-            grandTotal: {
+            grandTotal: {       
+              type: Number,  
+              default:0 
+            },
+            totalSettlement: {                  //total amount agent has settled
               type: Number, 
               default:0 
             },
-            totalSettlement: {
+            numberOfOrderAssigned:{
               type: Number, 
-              default:0 
+            },
+            numberOfOrderDelivered:{
+              type: Number, 
             }
           },
           settlementHistory: [
@@ -102,7 +108,7 @@ deliveryAgentSchema.methods.setHash = async function (password: string): Promise
   } catch (error) {
     return Promise.reject(error);
   }
-}
+}  
 
 deliveryAgentSchema.methods.verifyHash = async function (password: string): Promise<boolean> {
   try {

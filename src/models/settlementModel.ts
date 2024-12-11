@@ -5,6 +5,11 @@ import { collections } from "../configs";
 
 const settlementSchema = new Schema(
     {
+        type:{
+            type: String,
+            enum: ['SETTLED', 'COLLECTED'],
+            required: true,
+        },
         agentId: { 
                 type: Schema.Types.ObjectId,
                  ref: collections.DELIVERYAGENT, 
@@ -22,8 +27,18 @@ const settlementSchema = new Schema(
         remarks:{
             type:String,
             trim:true
-        }  
-      
+        },
+        totalAmount:{       //total amount  before settlement
+            type:Number
+        },
+        balance:{
+            type:Number    //balance amount after settlement
+        },
+        orderId:{
+            type: Schema.Types.ObjectId,
+            ref: collections.ORDERS, 
+        }
+
     },
     {
         timestamps: true,

@@ -7,7 +7,7 @@ import { GraphQLError } from "graphql";
 import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
-import { deliveryAgentModel } from "src/models";
+import { deliveryAgentModel, settlementModel } from "src/models";
 import { error } from "console";
 
 
@@ -211,7 +211,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         let settlementData: deliveryAgentService.ISettlement = {
-          agentId,amount,date,remarks
+          type:"SETTLED",agentId,amount,date,remarks,totalAmount:existingAgent.wallet.cashInHand,balance:existingAgent.wallet.cashInHand-amount
         };
 
         const result = await deliveryAgentService.createSettlement(settlementData,agentId);
@@ -230,6 +230,82 @@ export const deliveryAgentResolver: Resolvers = {
           message: "settlement successfully created",
         };
         
+       } catch (error: any) {
+        throw new GraphQLError(error.message || "Error Creating  settlement", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+
+
+    editSettlement:async(parent, { input }, { req }, info) =>{
+      //  await verifyAdmin(req);
+
+       const { settlementId, amount,date } = input;
+       const remarks: string | undefined = input?.remarks ?? undefined;
+
+       try {
+
+        const existingSettlement = await deliveryAgentService.findSettlementtWithFilters(
+          { _id: settlementId },
+          { _id: 1, type:1,agentId:1,amount:1,date:1,remarks:1,totalAmount:1,balance:1},
+          { lean: false });
+
+
+        if (!existingSettlement) {
+          throw new GraphQLError("Settlement not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+
+                // Check if the delivery agent exists
+                const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+                  { _id: existingSettlement.agentId },
+                  { _id: 1, wallet:1 },
+                  { lean: false }
+                );
+
+                if (!existingAgent) {
+                  throw new GraphQLError("Delivery Agent not found", {
+                    extensions: { code: "NOT_FOUND" },
+                  });
+                }
+            
+                // Calculate the wallet adjustment
+                const originalAmount = existingSettlement.amount;
+                const walletAdjustment = amount - originalAmount;
+
+                if (existingAgent.wallet.cashInHand < walletAdjustment) {
+                  throw new GraphQLError("Insufficient funds. The agent does not have enough money for this adjustment.", {
+                    extensions: { code: "BAD_REQUEST" },
+                  });
+                }
+              // Update settlement data
+              const updatedSettlementData = {
+                amount,
+                type:"SETTLED",
+                agentId:existingSettlement.agentId ,
+                date,
+                remarks,
+                balance: existingAgent.wallet.cashInHand - walletAdjustment,
+              };
+
+              const result = await deliveryAgentService.editSettlement(settlementId, updatedSettlementData, walletAdjustment,existingSettlement.agentId);
+
+              if (!result) {
+                throw new GraphQLError("Unable to update settlement", {
+                  extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: [],
+                  },
+                });
+              }
+
+              return {
+                _id: result._id,
+                message: "Settlement successfully updated",
+              };
+  
        } catch (error: any) {
         throw new GraphQLError(error.message || "Error Creating  settlement", {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },

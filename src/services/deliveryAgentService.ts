@@ -27,10 +27,13 @@ export interface IDeliveryAgent {
 
 export interface ISettlement {
   _id?: Types.ObjectId;
+  type:string;
   agentId: Types.ObjectId;
   amount:number;
   date:Date;
   remarks?:string;
+  totalAmount?:number;
+  balance?:number;
 }
 
 
@@ -48,6 +51,8 @@ export interface IDeliveryAgentFilter {
     lastSettlementDate: Date;
     grandTotal: number;
     totalSettlement: number;
+    numberOfOrderAssigned:number;
+    numberOfOrderDelivered:number;
   };
   settlementHistory:Types.ObjectId[];
 }
@@ -66,6 +71,8 @@ export interface IDeliveryAgentDocument extends Document {
     lastSettlementDate: Date;
     grandTotal: number;
     totalSettlement: number;
+    numberOfOrderAssigned:number;
+    numberOfOrderDelivered:number;
   };
   settlementHistory:Types.ObjectId[];
   setHash(password: string): Promise<void>;
@@ -88,16 +95,6 @@ export const createDeliveryAgent = async (deliveryAgentData: IDeliveryAgent, pas
 };
 
 
-// export const createSettlement = async (settlementData:ISettlement ,existingAgent:IDeliveryAgentDocument): Promise<ISettlement> => {
-//   let settlement = new settlementModel(settlementData);
-
-//   existingAgent.cashInHand -= settlement.amount;
-//   existingAgent.lastSettlementDate = new Date(settlement.date);
-//   existingAgent.settlementHistory.push(settlement._id);
-
-//   await existingAgent.save();
-//   return await settlement.save();
-// };
 
 export const createSettlement = async (settlementData:ISettlement,agentId:Types.ObjectId): Promise<ISettlement> => {
   let settlement = new settlementModel(settlementData);
@@ -117,6 +114,42 @@ export const createSettlement = async (settlementData:ISettlement,agentId:Types.
 };
 
 
+export const editSettlement = async (
+  settlementId:Types.ObjectId,
+  updatedSettlementData:ISettlement,
+  walletAdjustment:number,
+  agentId:Types.ObjectId
+) => {
+  const settlement = await settlementModel.findById(settlementId);
+
+  if (!settlement) {
+    throw new Error("Settlement not found");
+  }
+
+  const existingAgent=await deliveryAgentModel.findById(agentId)
+
+  if (!existingAgent) {
+    throw new Error("Delivery Agent not found");
+  }
+
+  // Update the settlement fields
+  settlement.amount = updatedSettlementData.amount;
+  settlement.date = updatedSettlementData.date;
+  settlement.remarks = updatedSettlementData.remarks;
+  settlement.balance = updatedSettlementData.balance;
+
+  // Update agent wallet
+  existingAgent.wallet.cashInHand -= walletAdjustment;
+  existingAgent.wallet.totalSettlement += walletAdjustment;
+  existingAgent.wallet.lastSettlementDate = new Date(updatedSettlementData.date);
+
+  await existingAgent.save();
+
+
+  return await settlement.save();
+};
+
+
 export const suspendDeliveryAgent = async (agentId: Types.ObjectId, isActive: boolean): Promise<IDeliveryAgent | null> => {
   return await deliveryAgentModel.findByIdAndUpdate(
     agentId,
@@ -126,6 +159,9 @@ export const suspendDeliveryAgent = async (agentId: Types.ObjectId, isActive: bo
 };
 
 
+export const findSettlementtWithFilters = async (filters: object, projection: object, options: object): Promise<ISettlement | null> => {
+  return await settlementModel.findOne(filters, projection, options);
+};
 
 export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgentFilter | null> => {
   return await deliveryAgentModel.findOne(filters, projection, options);

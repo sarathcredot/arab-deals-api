@@ -9,6 +9,7 @@ type Mutation {
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
   createSettlement(input:CreateSettlementInput!):CreateDeliveryAgentResponse!
+  editSettlement(input: EditSettlementInput!):CreateDeliveryAgentResponse!
   
 
   }
@@ -77,6 +78,13 @@ input CreateSettlementInput {
   remarks: String
 }
 
+
+input EditSettlementInput {
+  settlementId: ObjectId!
+  amount: Float!
+  date: Date!
+  remarks: String
+}
 
 input SuspendDeliveryAgentInput {
   agentId:ObjectId!
