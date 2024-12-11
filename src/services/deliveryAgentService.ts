@@ -1,6 +1,6 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { deliveryAgentModel } from '../models'
+import { deliveryAgentModel, orderProductModel } from '../models'
 import { collections } from "../configs";
 
 export interface IDeliveryAgent {
@@ -43,7 +43,7 @@ type DeliveryLoginData = {
   userID: string;
   contactNumber: string;
   password: string;
- 
+
 }
 
 export const createDeliveryAgent = async (deliveryAgentData: IDeliveryAgent, password: string): Promise<IDeliveryAgentDocument> => {
@@ -155,32 +155,32 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
         // checking agent password
 
-        const passwordStatus=await agentData.verifyHash(agentInput.password)
+        const passwordStatus = await agentData.verifyHash(agentInput.password)
 
-         if(!passwordStatus){
+        if (!passwordStatus) {
 
           const obj = {
             mismatch: true,
             msg: "userid and password not matching"
           }
 
-              resolve(obj)
-         }else{
+          resolve(obj)
+        } else {
 
           // agent is  verfyed 
 
-              const obj={
+          const obj = {
 
-                  login:true,
-                  _id:agentData._id,
-                  fullname:agentData.fullName,
-                  userId:agentData.userID,
-                  msg:"agent credentials is matched"
-              }
+            login: true,
+            _id: agentData._id,
+            fullname: agentData.fullName,
+            userId: agentData.userID,
+            msg: "agent credentials is matched"
+          }
 
-              resolve(obj)
-         }
-            
+          resolve(obj)
+        }
+
       }
 
     } catch (error) {
@@ -190,3 +190,49 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
   })
 }
+
+
+
+// order assign to delivery agent
+
+export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
+
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // find assign order 
+
+      const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+
+      if (assignOrder) {
+
+        // add delivery agent id and name this order 
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+
+          $set: {
+
+            deliveryAgentId: data.deliveryAgentId,
+            deliveryAgentName: data.deliveryAgentName
+          }
+        })
+
+        resolve({ flag: true })
+      } else {
+
+        reject({ flag: false })
+      }
+
+
+    } catch (error) {
+
+      reject({ flag: false })
+  
+    }
+  })
+
+}
+

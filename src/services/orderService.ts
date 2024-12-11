@@ -1,8 +1,9 @@
-import { orderModel } from "../models";
+import { orderModel, deliveryAgentModel } from "../models";
 import { Types, Document, QueryOptions, PipelineStage, ProjectionFields, FilterQuery, UpdateQuery, AnyObject } from "mongoose";
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
+import { productModel } from "../models";
 
 
 export interface IShippingAddress {
@@ -1313,3 +1314,73 @@ export const getUserOrderDetails = async (orderId: string, userId: Types.ObjectI
 
     return response;
 }
+
+
+export const getProductDeliveryTypeDeliveryAgents = async (proid: Types.ObjectId) => {
+
+
+    return new Promise(async (resolve, reject) => {
+
+        try {
+               // find product details 
+            const productData: any = await productModel.findById({ _id: proid })
+
+            // find product delivery type
+
+            const deliveryType = productData.delivery_type
+
+            if (deliveryType === "ArabDeals") {
+
+                // find all Arabdeals under deliveryagents
+                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ArabDeals" })
+
+                const obj = {
+
+                    deliveryType: "ArabDeals",
+                    deliveryAgents: deliveryAgents
+                }
+
+                resolve(obj);
+
+
+            } else if (deliveryType === "Vendor") {
+
+                // find all Vendor  under deliveryagents
+                const deliveryAgents = await deliveryAgentModel.find({ vendorID: productData.vendorId, agentType: "Vendor" })
+
+                const obj = {
+
+                    deliveryType: "Vendor",
+                    deliveryAgents: deliveryAgents
+                }
+
+
+                resolve(obj)
+            } else {
+
+                // find all ThirdParty  under deliveryagents
+                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ThirdParty" })
+
+                const obj = {
+
+                    deliveryType: "ThirdParty",
+                    deliveryAgents: deliveryAgents
+                }
+
+                resolve(obj)
+
+            }
+
+
+
+        } catch (error) {
+
+            reject()
+
+        }
+
+    })
+}
+
+
+

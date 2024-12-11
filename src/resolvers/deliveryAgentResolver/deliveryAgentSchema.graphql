@@ -7,6 +7,7 @@ type Mutation {
    createDeliveryAgent(input: CreateDeliveryAgentInput!): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
+  orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):Boolean!
   
 
   }
@@ -46,6 +47,15 @@ type DeliveryAgent{
     isActive:Boolean!
     vendorID:ObjectId
 }
+
+
+input OrderAssignDeliveryAgentInput{
+
+       orderItemId:ObjectId!
+       deliveryAgentId:ObjectId!
+       deliveryAgentName:String
+}
+
 
 
 

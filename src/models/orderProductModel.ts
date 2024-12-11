@@ -80,6 +80,8 @@ const orderProductSchema = new Schema(
         returnPeriod: {
             type: Number,
         },
+
+
         mrp: {
             type: Number,
             required: true,
@@ -188,7 +190,20 @@ const orderProductSchema = new Schema(
         },
         invoice: {
             type: fileSchema
-        }
+        },
+        deliveryAgentId: {
+
+            type: Schema.Types.ObjectId,
+            ref: collections.DELIVERYAGENT
+        },
+
+        deliveryAgentName: {
+
+            type:String
+        },
+
+
+
     },
     {
         _id: true,

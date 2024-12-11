@@ -14,3 +14,12 @@ export const deliveryAgentCreateByAdminValidator = [
     body('variables.input.userID').trim().notEmpty(),
     body('variables.input.agentType').trim().notEmpty() .isIn(['ArabDeals', 'Vendor', 'ThirdParty']) .withMessage('Agent type must be one of: ArabDeals, Vendor, ThirdParty')
   ];
+
+
+  export const orderAssignDeliveryAgentValidator=[
+
+    body('variables.input.orderItemId').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.deliveryAgentId').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.deliveryAgentName').trim().notEmpty(),
+
+  ]
