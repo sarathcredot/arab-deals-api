@@ -39,6 +39,11 @@ export const getUserOrderDetailsValidator = [
     body('variables.input.orderId').trim().isString().notEmpty(),
 ];
 
+export const getProductDeliveryTypeDeliveryAgentsValidator=[
+
+    body('variables.input.productId').trim().optional({ checkFalsy: true }).isMongoId()
+]
+
 
 
 

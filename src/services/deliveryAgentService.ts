@@ -1,6 +1,7 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
 import { deliveryAgentModel, settlementModel } from '../models'
+import {  orderProductModel } from '../models'
 import { collections } from "../configs";
 
 
@@ -85,7 +86,7 @@ type DeliveryLoginData = {
   userID: string;
   contactNumber: string;
   password: string;
- 
+
 }
 
 export const createDeliveryAgent = async (deliveryAgentData: IDeliveryAgent, password: string): Promise<IDeliveryAgentDocument> => {
@@ -280,32 +281,32 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
         // checking agent password
 
-        const passwordStatus=await agentData.verifyHash(agentInput.password)
+        const passwordStatus = await agentData.verifyHash(agentInput.password)
 
-         if(!passwordStatus){
+        if (!passwordStatus) {
 
           const obj = {
             mismatch: true,
             msg: "userid and password not matching"
           }
 
-              resolve(obj)
-         }else{
+          resolve(obj)
+        } else {
 
           // agent is  verfyed 
 
-              const obj={
+          const obj = {
 
-                  login:true,
-                  _id:agentData._id,
-                  fullname:agentData.fullName,
-                  userId:agentData.userID,
-                  msg:"agent credentials is matched"
-              }
+            login: true,
+            _id: agentData._id,
+            fullname: agentData.fullName,
+            userId: agentData.userID,
+            msg: "agent credentials is matched"
+          }
 
-              resolve(obj)
-         }
-            
+          resolve(obj)
+        }
+
       }
 
     } catch (error) {
@@ -315,3 +316,184 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
   })
 }
+
+
+
+// order assign to delivery agent
+
+export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // find assign order 
+
+      const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+
+      if (assignOrder) {
+
+
+        // check is this first assigning or reassigning
+
+        if (!assignOrder.deliveryAgentId) {
+
+          // add order products model assign agent id and name 
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+            $set: {
+
+              deliveryAgentId: data.deliveryAgentId,
+              deliveryAgentName: data.deliveryAgentName
+            }
+          })
+
+          // update delivery agent total order count
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+            $inc: {
+
+              'wallet.numberOfOrderAssigned': 1
+            }
+          })
+
+          resolve({ flag: true })
+
+
+        } else {
+
+          // reassign this oder to new delivery agent
+
+          // find old delivery agent and update this agent numberOfOrderAssigned count
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.deliveryAgentId }, {
+
+            $inc: {
+
+              'wallet.numberOfOrderAssigned': -1
+            }
+          })
+
+          //  this order reassign to new delivery agent 
+
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+            $set: {
+
+              deliveryAgentId: data.deliveryAgentId,
+              deliveryAgentName: data.deliveryAgentName
+            }
+          })
+
+          // update this new new agent numberOfOrderAssigned count
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+            $inc: {
+
+              'wallet.numberOfOrderAssigned': 1
+            }
+          })
+
+          resolve({ flag: true })
+        }
+
+      } else {
+
+        reject({ flag: false })
+      }
+
+
+    } catch (error) {
+
+      reject({ flag: false })
+
+    }
+  })
+
+}
+
+
+export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, orderId: Types.ObjectId, pymentType: string, deliveryStatus: string }) => {
+
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // change order product delivery status 
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+        $set: {
+
+          shippingStatus: data.deliveryStatus
+        }
+         })
+
+         // uppdate this order product pymentmode
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
+  
+            paymentMode:data.pymentType
+          }
+        })
+  
+           
+
+      // check this order status DELIVERED
+
+      if (data.deliveryStatus === "DELIVERED"){
+
+
+        // update delivery agent numberOfOrderDelivered count
+
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+          $inc: {
+
+            'wallet.numberOfOrderAssigned': 1
+          }
+        })
+
+        // check this order pyment type is COD
+
+        if(data.pymentType==="COD"){
+
+            // update delivery agent wallet cashInHand and grandTotal
+
+            // get this order product price 
+
+            const orderProduct= await orderProductModel.findOne({_id:data.orderItemId})
+            const productPrice=orderProduct?.sellingPrice
+
+            // genarat transaction logs 
+
+               
+
+            resolve({flag:true})
+
+             
+        }else{
+
+           resolve({flag:true})
+        }
+
+      } else {
+
+        // this part control to order status is  CANCELED
+      }
+
+
+    } catch (error) {
+
+      reject()
+
+    }
+  })
+
+}
+

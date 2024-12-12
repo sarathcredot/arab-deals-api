@@ -135,6 +135,34 @@ type Query {
     getVendorOrderDetails(input:GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
     getVendorOrderProducts(input:GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
 
+    getProductDeliveryTypeDeliveryAgents(input:GetProductDeliveryTypeDeliveryAgentsInput!):GetProductDeliveryTypeDeliveryAgentsResponse!
+
+}
+
+# delivery agent type 
+
+type AllAgents{
+
+    _id:ObjectId!
+    fullName:String!
+    contactNumber:String!
+    userID:String!
+    password:String!
+    agentType:String!
+    isActive:Boolean!
+    vendorID:ObjectId
+
+}
+
+input GetProductDeliveryTypeDeliveryAgentsInput{
+
+         productId: ObjectId
+}
+
+type GetProductDeliveryTypeDeliveryAgentsResponse{
+
+        deliveryType:String,
+        deliveryAgents:[AllAgents]
 }
 
 
@@ -411,6 +439,8 @@ type AdminOrderProduct {
     invoiceNumber: String
     invoice: FileData
     username: String
+    deliveryAgentId: ObjectId
+    deliveryAgentName: String ,
 }
 
 type VendorOrderProduct {
@@ -454,6 +484,8 @@ type VendorOrderProduct {
     invoiceNumber: String
     invoice: FileData
     username: String
+    deliveryAgentId: ObjectId
+    deliveryAgentName: String
 }
 
 

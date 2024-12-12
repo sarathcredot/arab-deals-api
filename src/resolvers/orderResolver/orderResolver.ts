@@ -1642,6 +1642,37 @@ export const orderResolver: Resolvers = {
             return response;
         },
 
+        getProductDeliveryTypeDeliveryAgents: async (parent, { input }, { req }, info) => {
+
+            try {
+
+                await verifyAdmin(req);
+                // products id validation
+                await validateInput(validators.getProductDeliveryTypeDeliveryAgentsValidator, req)
+
+                // find products delivery type and delivery agents
+                const result: any = await orderService.getProductDeliveryTypeDeliveryAgents(input.productId)
+
+                return {
+
+                    deliveryType: result.deliveryType,
+                    deliveryAgents: result.deliveryAgents
+                };
+
+
+            } catch (error) {
+
+
+                throw new GraphQLError("Unable find data", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                });
+
+            }
+        }
+
     }
 };
 

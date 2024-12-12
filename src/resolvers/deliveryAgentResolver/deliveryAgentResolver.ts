@@ -24,6 +24,17 @@ type DeliveryLoginData = {
 
 }
 
+type OrderAssignDeliveryAgentInput = {
+
+  orderItemId: Types.ObjectId
+  deliveryAgentId: Types.ObjectId
+  deliveryAgentName: string
+}
+
+
+
+
+
 export const deliveryAgentResolver: Resolvers = {
 
   Upload: GraphQLUpload,
@@ -354,41 +365,41 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent login 
 
-    loginDeliveryAgent: async (parent, { input }, { req }, info):Promise<any> => {
+    loginDeliveryAgent: async (parent, { input }, { req }, info): Promise<any> => {
 
-     // agent login 
+      // agent login 
       const result: any = await deliveryAgentService.loginDeliveryAgent(input as DeliveryLoginData)
 
       if (result.login) {
 
-      const token=await jwtService.createDeliveryAgentLoginJWT({id:result._id,userID:result.userId})
+        const token = await jwtService.createDeliveryAgentLoginJWT({ id: result._id, userID: result.userId })
 
-      console.log(result)
+        console.log(result)
 
-        return  {   // agent login done
+        return {   // agent login done
 
           status: "login",
           fullName: result.fullname,
-          token:token,
+          token: token,
           msg: result.msg
         }
-          
-        
+
+
 
       } else if (result.notfount) {
 
-     
-        return  {
+
+        return {
 
           status: "notfount",
           fullName: "#",
           token: "#",
-          msg:result.msg
+          msg: result.msg
         }
       } else {
 
         console.log(result)
-        return  {
+        return {
 
           status: "mismatch",
           fullName: "#",
@@ -403,7 +414,58 @@ export const deliveryAgentResolver: Resolvers = {
 
 
 
+    },
+
+    // order assign to delivery agent 
+
+    orderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
+
+     try {
+
+       // input validation
+       await validateInput(validators.orderAssignDeliveryAgentValidator, req)
+      
+       const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+ 
+       if (result.flag) {
+ 
+         return true // order assign to delivery agent 
+ 
+       } else {
+ 
+         throw new GraphQLError("Unable to assigen delivery agent", {
+           extensions: {
+             code: "INTERNAL_SERVER_ERROR",
+             errors: [],
+           },
+         });
+ 
+       }
+ 
+ 
+    } catch (error) {
+      
+      throw new GraphQLError("Unable to assigen delivery agent", {
+        extensions: {
+          code: "INTERNAL_SERVER_ERROR",
+          errors: [],
+        },
+      });
+
+     }
+
+
+    },
+
+    orderDelivedbyAgent:async(parent, { input }, { req }, info)=>{
+
+      
+           
+
+            return true
     }
+
+
   },
 
 
@@ -470,7 +532,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       } catch (error) {
 
-        throw new GraphQLError("Unable to edit delivery agent", {
+        throw new GraphQLError("Unable ind all delivery agents", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],

@@ -10,6 +10,8 @@ type Mutation {
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
   createSettlement(input:CreateSettlementInput!):CreateDeliveryAgentResponse!
   editSettlement(input: EditSettlementInput!):CreateDeliveryAgentResponse!
+  orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):Boolean!
+  orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):Boolean!
   
 
   }
@@ -60,6 +62,24 @@ type Wallet {
   totalSettlement:Float
   grandTotal: Float
 }
+input OrderDelivedbyAgentInput{
+
+      deliveryAgentId:ObjectId!
+      orderItemId:ObjectId!
+      orderId:ObjectId!
+      pymentType:String!
+      deliveryStatus:String
+}
+
+
+input OrderAssignDeliveryAgentInput{
+
+       orderItemId:ObjectId!
+       deliveryAgentId:ObjectId!
+       deliveryAgentName:String
+}
+
+
 
 type Agent {
   _id: ObjectId
