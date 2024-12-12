@@ -197,7 +197,6 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
 export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
 
-
   return new Promise(async (resolve, reject) => {
 
     try {
@@ -208,19 +207,72 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
       if (assignOrder) {
 
-        // add delivery agent id and name this order 
 
-        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+        // check is this first assigning or reassigning
+
+        if (!assignOrder.deliveryAgentId) {
+
+          // add order products model assign agent id and name 
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+            $set: {
+
+              deliveryAgentId: data.deliveryAgentId,
+              deliveryAgentName: data.deliveryAgentName
+            }
+          })
+
+          // update delivery agent total order count
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+            $inc: {
+
+              'wallet.numberOfOrderAssigned': 1
+            }
+          })
+
+          resolve({ flag: true })
 
 
-          $set: {
+        } else {
 
-            deliveryAgentId: data.deliveryAgentId,
-            deliveryAgentName: data.deliveryAgentName
-          }
-        })
+          // reassign this oder to new delivery agent
 
-        resolve({ flag: true })
+          // find old delivery agent and update this agent numberOfOrderAssigned count
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.deliveryAgentId }, {
+
+            $inc: {
+
+              'wallet.numberOfOrderAssigned': -1
+            }
+          })
+
+          //  this order reassign to new delivery agent 
+
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+            $set: {
+
+              deliveryAgentId: data.deliveryAgentId,
+              deliveryAgentName: data.deliveryAgentName
+            }
+          })
+
+          // update this new new agent numberOfOrderAssigned count
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+            $inc: {
+
+              'wallet.numberOfOrderAssigned': 1
+            }
+          })
+
+          resolve({ flag: true })
+        }
+
       } else {
 
         reject({ flag: false })
@@ -230,7 +282,90 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
     } catch (error) {
 
       reject({ flag: false })
+
+    }
+  })
+
+}
+
+
+export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, orderId: Types.ObjectId, pymentType: string, deliveryStatus: string }) => {
+
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // change order product delivery status 
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+        $set: {
+
+          shippingStatus: data.deliveryStatus
+        }
+         })
+
+         // uppdate this order product pymentmode
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
   
+            paymentMode:data.pymentType
+          }
+        })
+  
+           
+
+      // check this order status DELIVERED
+
+      if (data.deliveryStatus === "DELIVERED"){
+
+
+        // update delivery agent numberOfOrderDelivered count
+
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+          $inc: {
+
+            'wallet.numberOfOrderAssigned': 1
+          }
+        })
+
+        // check this order pyment type is COD
+
+        if(data.pymentType==="COD"){
+
+            // update delivery agent wallet cashInHand and grandTotal
+
+            // get this order product price 
+
+            const orderProduct= await orderProductModel.findOne({_id:data.orderItemId})
+            const productPrice=orderProduct?.sellingPrice
+
+            // genarat transaction logs 
+
+               
+
+            resolve({flag:true})
+
+             
+        }else{
+
+           resolve({flag:true})
+        }
+
+      } else {
+
+        // this part control to order status is  CANCELED
+      }
+
+
+    } catch (error) {
+
+      reject()
+
     }
   })
 

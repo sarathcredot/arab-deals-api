@@ -8,6 +8,7 @@ type Mutation {
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
   orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):Boolean!
+  orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):Boolean!
   
 
   }
@@ -46,6 +47,15 @@ type DeliveryAgent{
     agentType:String!
     isActive:Boolean!
     vendorID:ObjectId
+}
+
+input OrderDelivedbyAgentInput{
+
+      deliveryAgentId:ObjectId!
+      orderItemId:ObjectId!
+      orderId:ObjectId!
+      pymentType:String!
+      deliveryStatus:String
 }
 
 
