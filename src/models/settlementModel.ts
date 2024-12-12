@@ -22,7 +22,6 @@ const settlementSchema = new Schema(
              },
         date: { 
             type: Date,
-             required: true
          },
         remarks:{
             type:String,

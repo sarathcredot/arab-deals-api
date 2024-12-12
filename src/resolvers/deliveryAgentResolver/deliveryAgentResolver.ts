@@ -197,7 +197,7 @@ export const deliveryAgentResolver: Resolvers = {
     createSettlement:async(parent, { input }, { req }, info) =>{
       //  await verifyAdmin(req);
 
-       const {agentId,amount,date}=input;
+       const {agentId,amount}=input;
        const remarks: string | undefined = input?.remarks ?? undefined;
 
        try {
@@ -222,7 +222,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         let settlementData: deliveryAgentService.ISettlement = {
-          type:"SETTLED",agentId,amount,date,remarks,totalAmount:existingAgent.wallet.cashInHand,balance:existingAgent.wallet.cashInHand-amount
+          type:"SETTLED",agentId,amount,remarks,totalAmount:existingAgent.wallet.cashInHand,balance:existingAgent.wallet.cashInHand-amount
         };
 
         const result = await deliveryAgentService.createSettlement(settlementData,agentId);
@@ -252,7 +252,7 @@ export const deliveryAgentResolver: Resolvers = {
     editSettlement:async(parent, { input }, { req }, info) =>{
       //  await verifyAdmin(req);
 
-       const { settlementId, amount,date } = input;
+       const { settlementId, amount } = input;
        const remarks: string | undefined = input?.remarks ?? undefined;
 
        try {
@@ -296,7 +296,6 @@ export const deliveryAgentResolver: Resolvers = {
                 amount,
                 type:"SETTLED",
                 agentId:existingSettlement.agentId ,
-                date,
                 remarks,
                 balance: existingAgent.wallet.cashInHand - walletAdjustment,
               };

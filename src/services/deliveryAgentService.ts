@@ -31,10 +31,12 @@ export interface ISettlement {
   type:string;
   agentId: Types.ObjectId;
   amount:number;
-  date:Date;
+  date?:Date;
   remarks?:string;
   totalAmount?:number;
   balance?:number;
+  createdAt?:Date;
+  updatedAt?:Date;
 }
 
 
@@ -107,7 +109,7 @@ export const createSettlement = async (settlementData:ISettlement,agentId:Types.
   
   existingAgent.wallet.cashInHand -= settlement.amount;
   existingAgent.wallet.totalSettlement += settlement.amount;
-  existingAgent.wallet.lastSettlementDate = new Date(settlement.date);
+  existingAgent.wallet.lastSettlementDate = new Date(Date.now());
   existingAgent.settlementHistory.push(settlement._id);
 
   await existingAgent.save();
@@ -144,7 +146,7 @@ export const editSettlement = async (
   // Update agent wallet
   existingAgent.wallet.cashInHand -= walletAdjustment;
   existingAgent.wallet.totalSettlement += walletAdjustment;
-  existingAgent.wallet.lastSettlementDate = new Date(updatedSettlementData.date);
+  existingAgent.wallet.lastSettlementDate = new Date(Date.now());
 
   await existingAgent.save();
 

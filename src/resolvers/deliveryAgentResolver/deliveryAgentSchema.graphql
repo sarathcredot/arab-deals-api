@@ -97,6 +97,8 @@ type Settlement {
   remarks: String
   totalAmount: Float
   balance: Float
+  createdAt:Date
+  updatedAt:Date
 }
 # Response type for createDeliveryAgent Mutation
 type CreateDeliveryAgentResponse {
@@ -117,7 +119,6 @@ input CreateDeliveryAgentInput {
 input CreateSettlementInput {
   agentId: ObjectId!
   amount: Float!
-  date: Date!
   remarks: String
 }
 
@@ -125,7 +126,6 @@ input CreateSettlementInput {
 input EditSettlementInput {
   settlementId: ObjectId!
   amount: Float!
-  date: Date!
   remarks: String
 }
 
