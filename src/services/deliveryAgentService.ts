@@ -3,6 +3,8 @@ import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, T
 import { deliveryAgentModel, settlementModel } from '../models'
 import {  orderProductModel } from '../models'
 import { collections } from "../configs";
+import excel from 'exceljs';
+import path from 'path';
 
 
 
@@ -26,6 +28,9 @@ export interface IDeliveryAgent {
 }
 
 
+
+
+
 export interface ISettlement {
   _id?: Types.ObjectId;
   type:string;
@@ -37,6 +42,15 @@ export interface ISettlement {
   balance?:number;
   createdAt?:Date;
   updatedAt?:Date;
+}
+
+export interface IAdminSettlementHistoryOptions {
+  _id?: Types.ObjectId;
+  agentId?: Types.ObjectId;
+  startDate?: Date;
+  endDate?: Date;
+  page: number;
+  size: number;
 }
 
 
@@ -194,6 +208,95 @@ export const findSettlementtWithFilters = async (filters: object, projection: ob
 export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgentFilter | null> => {
   return await deliveryAgentModel.findOne(filters, projection, options);
 };
+
+
+export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSettlementHistoryOptions, exportFolder: string): Promise<string> => {
+  let pipeline: PipelineStage[] = [];
+
+  if (options._id) {
+      pipeline.push({ $match: { _id: options._id } });
+  }
+  if (options.agentId) {
+      pipeline.push({ $match: { agentId: options.agentId } });
+  }
+  if (options.startDate) {
+      pipeline.push({ $match: { date: { $gte: options.startDate } } });
+  }
+  if (options.endDate) {
+      pipeline.push({ $match: { date: { $lte: options.endDate } } });
+  }
+
+  pipeline.push(
+      { $sort: { date: 1, _id: 1 } },
+      {
+          $lookup: {
+              from: collections.SETTLEMENTS,
+              localField: "agentId",
+              foreignField: "_id",
+              as: "agentInfo"
+          }
+      },
+      {
+          $unwind: {
+              path: "$agentInfo",
+              preserveNullAndEmptyArrays: true
+          }
+      },
+      {
+          $project: {
+              _id: 1,
+              type:1,
+              agentId: 1,
+              amount: 1,
+              balance: 1,
+              createdAt:1,
+              remarks: 1,
+              totalAmount: 1,
+          }
+      }
+  );
+
+  const settlements = await settlementModel.aggregate(pipeline);
+  let filename = '';
+
+  if (settlements && settlements.length) {
+      let formattedData = settlements.map((settlement) => ({
+          ...settlement,
+          agentId: settlement.agentId.toString(),
+      }));
+
+      let workbook = new excel.Workbook();
+      let worksheet = workbook.addWorksheet("Settlement History");
+      worksheet.columns = [
+          { header: "Type", key: "type", width: 20 },
+          { header: "Date", key: "createdAt", width: 20 },
+          { header: "Agent ID", key: "agentId", width: 25 },
+          { header: "Agent Name", key: "fullName", width: 25 },
+          { header: "Amount", key: "amount", width: 20 },
+          { header: "Balance", key: "balance", width: 20 },
+          { header: "Total Amount", key: "totalAmount", width: 20 },
+          { header: "Remarks", key: "remarks", width: 50 }
+      ];
+
+      let firstRow = worksheet.getRow(1);
+      firstRow.eachCell((cell: any) => {
+          cell.font = { bold: true };
+      });
+
+      worksheet.addRows(formattedData);
+
+      console.log(formattedData)
+
+      filename = `settlement-history-${Date.now()}.xlsx`;
+      let filePath = path.join(exportFolder, filename);
+      await workbook.xlsx.writeFile(filePath).then(() => {
+          console.log("File saved!");
+      });
+  }
+
+  return filename;
+};
+
 
 type Editrespo = {
   flag: boolean

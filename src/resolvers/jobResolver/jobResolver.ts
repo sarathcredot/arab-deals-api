@@ -1,4 +1,4 @@
-import { jobQueueService, jwtService, orderProductService, orderService } from "../../services";
+import { jobQueueService, jwtService, orderProductService, orderService,deliveryAgentService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./jobValidator";
 import path from "path";
@@ -108,10 +108,11 @@ export const jobResolver: Resolvers = {
         }
     },
     Mutation: {
-        exportAdminOrders: async (parent, { input }, { req }, info) => {
+        exportAdminOrders: async (parent, { input }, { req }, info) => { 
 
             await verifyAdmin(req);
             await validateInput(validators.exportAdminOrdersValidator, req);
+            
 
             let filters: orderService.IOrdersOptions = { page: 0, size: 10 };
 
@@ -146,6 +147,7 @@ export const jobResolver: Resolvers = {
                 filters.size = input.size;
             }
 
+            
 
             setTimeout(async () => {
 
@@ -173,12 +175,64 @@ export const jobResolver: Resolvers = {
 
             }, 1000);
 
-
             const response = {
                 message: "export successful"
             }
             return response;
         },
+
+
+        exportAdminSettlementHistory: async (parent, { input }, { req }, info) => {
+            // await verifyAdmin(req);
+        
+            let filters:deliveryAgentService.IAdminSettlementHistoryOptions  = { page: 0, size: 10 };
+        
+            if (input._id) {
+                filters._id = input._id;
+            }
+            if (input.agentId) {
+                filters.agentId = input.agentId;
+            }
+            if (input.startDate) {
+                filters.startDate = moment(input.startDate).toDate();
+            }
+            if (input.endDate) {
+                filters.endDate = moment(input.endDate).toDate();
+            }
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+        
+            setTimeout(async () => {
+                const job = {
+                    name: "SETTLEMENT_EXPORT",
+                    status: "IN_PROGRESS",
+                    userType: "ADMIN",
+                    metadata: {}
+                };
+                const record = await jobQueueService.createJob(job);
+        
+                const filename = await deliveryAgentService.exportAdminSettlementHistoryWithFilters(filters, EXPORT_FOLDER);
+        
+                if (filename) {
+                    record.status = "COMPLETED";
+                    record.metadata = {
+                        filePath: `exports/${filename}`
+                    };
+                } else {
+                    record.status = "FAILED";
+                }
+                await record.save();
+            }, 1000);
+        
+            return {
+                message: "Export successful"
+            };
+        },
+        
         exportVendorOrders: async (parent, { input }, { req }, info) => {
 
             await verifyVendor(req);

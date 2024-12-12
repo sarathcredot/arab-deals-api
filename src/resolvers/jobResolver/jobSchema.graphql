@@ -52,6 +52,15 @@ input ExportAdminShippingProductsInput {
     sort: String
 }
 
+input ExportAdminSettlementHistoryInput{
+    _id: ObjectId
+    agentId: ObjectId
+    startDate: Date
+    endDate: Date
+    page: Int
+    size: Int
+}
+
 type ExportAdminOrdersResponse {
     message: String
 }
@@ -85,6 +94,7 @@ type Mutation {
     exportVendorOrders(input:ExportAdminOrdersInput!): ExportAdminOrdersResponse!
     exportAdminShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
     exportVendorShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+    exportAdminSettlementHistory(input:ExportAdminSettlementHistoryInput!):ExportAdminShippingProductsResponse!
 
 }
 
