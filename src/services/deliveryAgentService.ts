@@ -71,7 +71,7 @@ export interface IDeliveryAgentFilter {
     numberOfOrderAssigned:number;
     numberOfOrderDelivered:number;
   };
-  settlementHistory:Types.ObjectId[];
+  settlementHistory:Types.ObjectId[] | ISettlement[];
 }
 
 export interface IDeliveryAgentDocument extends Document {
@@ -206,7 +206,10 @@ export const findSettlementtWithFilters = async (filters: object, projection: ob
 };
 
 export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgentFilter | null> => {
-  return await deliveryAgentModel.findOne(filters, projection, options);
+  return await deliveryAgentModel.findOne(filters, projection, options) .populate({
+    path: "settlementHistory", 
+    select: "_id type amount remarks totalAmount balance createdAt", 
+  });
 };
 
 
@@ -322,8 +325,6 @@ export const viewAllDeliveryAgents = async (): Promise<IDeliveryAgent[] | []> =>
   })
 
 }
-
-
 
 // delivery agent data edit 
 

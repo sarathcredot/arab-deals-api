@@ -499,7 +499,9 @@ export const deliveryAgentResolver: Resolvers = {
             agentType: 1,
             vendorID: 1,
             isActive: 1,
-            licence:1
+            licence:1,
+            wallet:1,
+            settlementHistory:1
           },
           { lean: true }
         );
