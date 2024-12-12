@@ -482,9 +482,29 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
+    },
+
+
+
+    getSettlementHistoryByAdmin: async () => {
+      try {
+        const result = await deliveryAgentService.getSettlementHistoryByAdmin({});
+    
+        if (!result || result.length === 0) {
+          throw new GraphQLError("No settlements found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+    
+        return result;
+
+      } catch (error:any) {
+        throw new GraphQLError("Error fetching settlements", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", details: error.message },
+        });
+      }
     }
-
-
+    
   }
 
 

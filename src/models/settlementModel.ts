@@ -11,7 +11,7 @@ const settlementSchema = new Schema(
             required: true,
         },
         agentId: { 
-                type: Schema.Types.ObjectId,
+                 type: Schema.Types.ObjectId,
                  ref: collections.DELIVERYAGENT, 
                  required: true, 
               },

@@ -19,6 +19,7 @@ type Query{
   
   getAllAgentData:[AllAgents]!
   getDeliveryAgent(input: SuspendDeliveryAgentInput!): DeliveryAgent
+  getSettlementHistoryByAdmin:[Settlement]!
     
 }
 
@@ -53,8 +54,30 @@ type DeliveryAgent{
     licence:ImageData
 }
 
+type Wallet {
+  cashInHand:Float
+  lastSettlementDate: Date
+  totalSettlement:Float
+  grandTotal: Float
+}
 
+type Agent {
+  _id: ObjectId
+  fullName: String
+  contactNumber:String
+  wallet:Wallet
+}
 
+type Settlement {
+  _id: ObjectId
+  type: String
+  agentId: Agent
+  amount: Float
+  date: Date
+  remarks: String
+  totalAmount: Float
+  balance: Float
+}
 # Response type for createDeliveryAgent Mutation
 type CreateDeliveryAgentResponse {
   _id: ObjectId

@@ -114,6 +114,8 @@ export const createSettlement = async (settlementData:ISettlement,agentId:Types.
 };
 
 
+
+
 export const editSettlement = async (
   settlementId:Types.ObjectId,
   updatedSettlementData:ISettlement,
@@ -149,6 +151,29 @@ export const editSettlement = async (
   return await settlement.save();
 };
 
+
+// export const getSettlementHistoryByAdmin = async (): Promise<ISettlement[]> => {
+//   try {
+//     const result = await settlementModel.find({})
+//     .populate({
+//         path: "agentId",
+//         select: "fullName",
+//     })
+//     .lean();
+
+//   console.log(result);   
+//   return result
+//   } catch (error) {
+//     throw new Error("Error fetching settlements");
+//   }
+// };
+
+
+export const getSettlementHistoryByAdmin = async (filters: FilterQuery<ISettlement>, projection: ProjectionFields<ISettlement> = {}, options: QueryOptions = {}): Promise<any[] | []> => {
+  const result= await settlementModel.find(filters, projection, options).populate({ path: "agentId", select: "_id fullName wallet contactNumber" });
+  console.log(result)
+  return result
+}
 
 export const suspendDeliveryAgent = async (agentId: Types.ObjectId, isActive: boolean): Promise<IDeliveryAgent | null> => {
   return await deliveryAgentModel.findByIdAndUpdate(
