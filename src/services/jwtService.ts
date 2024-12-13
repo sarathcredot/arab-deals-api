@@ -134,6 +134,27 @@ export const verifyUserJWT = (token: string): JwtPayload => {
 }
 
 
+// delivery agent jwt verify
+
+export const verifyDeliveryAgentJWT = (token: string): JwtPayload => {
+    return new Promise((resolve, reject) => {
+        try {
+            const decoded = jwt.verify(token, delieveryAgentSecretKey, { ignoreExpiration: true });
+
+            resolve(decoded);
+        } catch (e) {
+            reject(new GraphQLError("JWT error", {
+                extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: []
+                }
+            }));
+        }
+    });
+}
+
+
+
 
 export const createVendorSignupJWT = (id: string): Promise<string> => {
     return new Promise((resolve, reject) => {

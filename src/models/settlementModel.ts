@@ -36,7 +36,7 @@ const settlementSchema = new Schema(
         },
         orderId:{
             type: Schema.Types.ObjectId,
-            ref: collections.ORDERS, 
+            ref: collections.ORDER_PRODUCTS, 
         }
 
     },

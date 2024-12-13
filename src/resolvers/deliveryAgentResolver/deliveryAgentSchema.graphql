@@ -4,14 +4,14 @@ scalar Upload
 
 type Mutation {
   
-  editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
+  editDeliveryAgentData(input:EditAgentDataInput!,image:Upload):Boolean!
   createDeliveryAgent(input: CreateDeliveryAgentInput!,image:Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
   createSettlement(input:CreateSettlementInput!):CreateDeliveryAgentResponse!
   editSettlement(input: EditSettlementInput!):CreateDeliveryAgentResponse!
-  orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):Boolean!
-  orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):Boolean!
+  orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
+  orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):OrderDelivedbyAgentResponse!
   
 
   }
@@ -25,11 +25,25 @@ type Query{
     
 }
 
+type OrderAssignDeliveryAgentResponse{
+
+       status:Boolean!
+      msg:String
+
+}
+
 type ImageData {
   fileType: String
   fileURL: String
   mimeType: String
   originalName: String
+}
+
+type OrderDelivedbyAgentResponse{
+
+        status:Boolean!
+        msg:String
+
 }
 
 
@@ -64,11 +78,12 @@ type Wallet {
 }
 input OrderDelivedbyAgentInput{
 
-      deliveryAgentId:ObjectId!
+    
       orderItemId:ObjectId!
-      orderId:ObjectId!
       pymentType:String!
-      deliveryStatus:String
+      deliveryStatus:String!
+      remarks:String
+
 }
 
 
