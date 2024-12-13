@@ -1,10 +1,14 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
 import { deliveryAgentModel, settlementModel } from '../models'
-import {  orderProductModel } from '../models'
+import { orderProductModel } from '../models'
 import { collections } from "../configs";
+<<<<<<< HEAD
 import excel from 'exceljs';
 import path from 'path';
+=======
+import { transactionlogs } from "../services"
+>>>>>>> daefbc4a72a98ff2e7ff3eb171f7339688771054
 
 
 
@@ -24,7 +28,7 @@ export interface IDeliveryAgent {
   password: string;
   agentType: string;
   vendorID?: Types.ObjectId;
-  licence:FileData;
+  licence: FileData;
 }
 
 
@@ -33,8 +37,9 @@ export interface IDeliveryAgent {
 
 export interface ISettlement {
   _id?: Types.ObjectId;
-  type:string;
+  type: string;
   agentId: Types.ObjectId;
+<<<<<<< HEAD
   amount:number;
   date?:Date;
   remarks?:string;
@@ -51,6 +56,13 @@ export interface IAdminSettlementHistoryOptions {
   endDate?: Date;
   page: number;
   size: number;
+=======
+  amount: number;
+  date: Date;
+  remarks?: string;
+  totalAmount?: number;
+  balance?: number;
+>>>>>>> daefbc4a72a98ff2e7ff3eb171f7339688771054
 }
 
 
@@ -68,10 +80,14 @@ export interface IDeliveryAgentFilter {
     lastSettlementDate: Date;
     grandTotal: number;
     totalSettlement: number;
-    numberOfOrderAssigned:number;
-    numberOfOrderDelivered:number;
+    numberOfOrderAssigned: number;
+    numberOfOrderDelivered: number;
   };
+<<<<<<< HEAD
   settlementHistory:Types.ObjectId[] | ISettlement[];
+=======
+  settlementHistory: Types.ObjectId[];
+>>>>>>> daefbc4a72a98ff2e7ff3eb171f7339688771054
 }
 
 export interface IDeliveryAgentDocument extends Document {
@@ -82,16 +98,16 @@ export interface IDeliveryAgentDocument extends Document {
   password: string;
   agentType: string;
   vendorID?: Types.ObjectId;
-  licence:FileData;
+  licence: FileData;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
     grandTotal: number;
     totalSettlement: number;
-    numberOfOrderAssigned:number;
-    numberOfOrderDelivered:number;
+    numberOfOrderAssigned: number;
+    numberOfOrderDelivered: number;
   };
-  settlementHistory:Types.ObjectId[];
+  settlementHistory: Types.ObjectId[];
   setHash(password: string): Promise<void>;
   verifyHash(password: string): Promise<boolean>;
 }
@@ -113,14 +129,14 @@ export const createDeliveryAgent = async (deliveryAgentData: IDeliveryAgent, pas
 
 
 
-export const createSettlement = async (settlementData:ISettlement,agentId:Types.ObjectId): Promise<ISettlement> => {
+export const createSettlement = async (settlementData: ISettlement, agentId: Types.ObjectId): Promise<ISettlement> => {
   let settlement = new settlementModel(settlementData);
-  const existingAgent=await deliveryAgentModel.findById(agentId)
+  const existingAgent = await deliveryAgentModel.findById(agentId)
 
   if (!existingAgent) {
     throw new Error("Delivery Agent not found");
   }
-  
+
   existingAgent.wallet.cashInHand -= settlement.amount;
   existingAgent.wallet.totalSettlement += settlement.amount;
   existingAgent.wallet.lastSettlementDate = new Date(Date.now());
@@ -134,10 +150,10 @@ export const createSettlement = async (settlementData:ISettlement,agentId:Types.
 
 
 export const editSettlement = async (
-  settlementId:Types.ObjectId,
-  updatedSettlementData:ISettlement,
-  walletAdjustment:number,
-  agentId:Types.ObjectId
+  settlementId: Types.ObjectId,
+  updatedSettlementData: ISettlement,
+  walletAdjustment: number,
+  agentId: Types.ObjectId
 ) => {
   const settlement = await settlementModel.findById(settlementId);
 
@@ -145,7 +161,7 @@ export const editSettlement = async (
     throw new Error("Settlement not found");
   }
 
-  const existingAgent=await deliveryAgentModel.findById(agentId)
+  const existingAgent = await deliveryAgentModel.findById(agentId)
 
   if (!existingAgent) {
     throw new Error("Delivery Agent not found");
@@ -187,7 +203,7 @@ export const editSettlement = async (
 
 
 export const getSettlementHistoryByAdmin = async (filters: FilterQuery<ISettlement>, projection: ProjectionFields<ISettlement> = {}, options: QueryOptions = {}): Promise<any[] | []> => {
-  const result= await settlementModel.find(filters, projection, options).populate({ path: "agentId", select: "_id fullName wallet contactNumber" });
+  const result = await settlementModel.find(filters, projection, options).populate({ path: "agentId", select: "_id fullName wallet contactNumber" });
   console.log(result)
   return result
 }
@@ -369,7 +385,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
       // verfy agent based on userID and password
 
-      const agentData = await deliveryAgentModel.findOne({ userID: agentInput.userID })
+      const agentData = await deliveryAgentModel.findOne({ userID: agentInput.userID ,isActive:true})
 
       // agent data not found
 
@@ -521,7 +537,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 }
 
 
-export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, orderId: Types.ObjectId, pymentType: string, deliveryStatus: string }) => {
+export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId,  pymentType: string, deliveryStatus: string, remarks?: string }) => {
 
 
   return new Promise(async (resolve, reject) => {
@@ -530,29 +546,31 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
       // change order product delivery status 
 
-        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+      await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
         $set: {
 
           shippingStatus: data.deliveryStatus
         }
-         })
+      })
 
-         // uppdate this order product pymentmode
+      // check this order status DELIVERED
+
+      if (data.deliveryStatus === "DELIVERED") {
+
+        // uppdate this order product pymentmode
 
         await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
           $set: {
-  
-            paymentMode:data.pymentType
+
+            paymentMode: data.pymentType
           }
         })
-  
-           
 
-      // check this order status DELIVERED
 
-      if (data.deliveryStatus === "DELIVERED"){
+        // add order product delivery data
+
 
 
         // update delivery agent numberOfOrderDelivered count
@@ -567,25 +585,58 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
         // check this order pyment type is COD
 
-        if(data.pymentType==="COD"){
+        if (data.pymentType === "COD") {
 
-            // update delivery agent wallet cashInHand and grandTotal
+          // update this order product pyment status 
 
-            // get this order product price 
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
-            const orderProduct= await orderProductModel.findOne({_id:data.orderItemId})
-            const productPrice=orderProduct?.sellingPrice
+            $set: {
+  
+              paymentStatus:"COMPLETED"
+            }
+          })
+  
 
-            // genarat transaction logs 
+          // get this order product price 
 
-               
+          const orderProduct = await orderProductModel.findOne({ _id: data.orderItemId })
+          let productPrice: any = orderProduct?.sellingPrice
+          productPrice = parseFloat(productPrice)
 
-            resolve({flag:true})
+          // genarat transaction logs 
 
-             
-        }else{
+          const obj = {
 
-           resolve({flag:true})
+            agentId: data.deliveryAgentId,
+            amount: productPrice,
+            orderId: data.orderItemId,
+            remarks: data.remarks
+
+
+          }
+
+          await transactionlogs.orderDeliverytimeTransactionLogs(obj)
+
+          // update delivery agent wallet 
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+
+            $inc: {
+
+              'wallet.cashInHand': productPrice,
+
+              'wallet.grandTotal': productPrice,
+
+            }
+          })
+
+          resolve({ flag: true })
+
+        } else {
+
+          resolve({ flag: true })
         }
 
       } else {
@@ -602,4 +653,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
   })
 
 }
+
+
+
 

@@ -23,3 +23,20 @@ export const deliveryAgentCreateByAdminValidator = [
     body('variables.input.deliveryAgentName').trim().notEmpty(),
 
   ]
+
+
+  export const orderDelivedbyAgentValidator=[
+
+    body('variables.input.orderItemId').trim().optional({ checkFalsy: true }).isMongoId(),
+    body('variables.input.pymentType').trim().notEmpty(),
+    body('variables.input.deliveryStatus').trim().notEmpty(),
+
+  ]
+
+  export const loginDeliveryAgentValidator=[
+
+    body('variables.input.userID').trim().notEmpty(),
+    body('variables.input.contactNumber').trim().notEmpty(),
+    body('variables.input.password').trim().notEmpty(),
+
+  ]

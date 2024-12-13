@@ -4,6 +4,7 @@ import { verifySuperAdmin } from "./verifySuperAdmin";
 import { verifyVendor } from "./verifyVendor";
 import { verifyUser } from "./verifyUser";
 import { verifyMobileUser } from "./verifyMobileUser";
+import {verifyDeliveryAgent} from "./verfydeliveryagent"
 
 
 
@@ -14,5 +15,7 @@ export {
     verifySuperAdmin,
     verifyVendor,
     verifyUser,
-    verifyMobileUser
+    verifyMobileUser,
+    verifyDeliveryAgent
+
 }   

@@ -1,10 +1,11 @@
 import { jwtService, spaceService, otpService, deliveryAgentService } from "../../services";
+
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import path from "path";
 import * as validators from "./deliveryAgentValidator";
 import { GraphQLError } from "graphql";
-import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor,verifyDeliveryAgent } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 import { deliveryAgentModel, settlementModel } from "src/models";
@@ -323,7 +324,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     // delivery agent data edit 
-    editDeliveryAgentData: async (parent, { input }, { req }, info): Promise<boolean> => {
+    editDeliveryAgentData: async (parent, { input ,image }, { req }, info): Promise<boolean> => {
 
       await verifyAdmin(req);
 
@@ -338,7 +339,32 @@ export const deliveryAgentResolver: Resolvers = {
 
       } else {
 
-        const result: EditAgentResult = await deliveryAgentService.editAgentData(input)
+        // licence uploding 
+
+        const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+  
+        const uolodlicence = {
+            fileType: "PUBLIC",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          }
+
+          const agentData={
+
+            fullName:input.fullName,
+            contactNumber:input.contactNumber,
+            userID:input.userID,
+            agentType:input.agentType,
+            vendorID:input.vendorID,
+            licence:uolodlicence
+          }
+
+
+        const result: EditAgentResult = await deliveryAgentService.editAgentData(agentData)
 
         if (result.flag) {
 
@@ -363,6 +389,12 @@ export const deliveryAgentResolver: Resolvers = {
     // delivery agent login 
 
     loginDeliveryAgent: async (parent, { input }, { req }, info): Promise<any> => {
+
+     try {
+
+        // input validation
+
+        await validateInput(validators.loginDeliveryAgentValidator,req)
 
       // agent login 
       const result: any = await deliveryAgentService.loginDeliveryAgent(input as DeliveryLoginData)
@@ -404,11 +436,17 @@ export const deliveryAgentResolver: Resolvers = {
           msg: result.msg
         }
       }
-
-
-
-
-
+    
+    } catch (error) {
+      
+      throw new GraphQLError("Unable to login delivery agent", {
+        extensions: {
+          code: "INTERNAL_SERVER_ERROR",
+          errors: [],
+        },
+      });
+           
+     }
 
 
     },
@@ -426,7 +464,11 @@ export const deliveryAgentResolver: Resolvers = {
  
        if (result.flag) {
  
-         return true // order assign to delivery agent 
+         return {  // order assign to delivery agent
+
+               status:true,
+               msg:"order assign to delivery agent"
+         }  
  
        } else {
  
@@ -456,10 +498,62 @@ export const deliveryAgentResolver: Resolvers = {
 
     orderDelivedbyAgent:async(parent, { input }, { req }, info)=>{
 
-      
-           
 
-            return true
+         try {
+ 
+             // check delivery agent login or not
+
+          const deliveryAgentData= await  verifyDeliveryAgent(req)
+
+          if(!deliveryAgentData){
+
+            throw new GraphQLError("Unauthorized", {
+              extensions: {
+                  code: "UNAUTHORIZED",
+                  errors: []
+              },
+          });
+       
+        }
+
+             // input validation
+
+             await validateInput(validators.orderDelivedbyAgentValidator,req)
+
+             //  delivery agent order delived service
+
+              const obj={
+
+                deliveryAgentId:deliveryAgentData.id,
+                orderItemId:input.orderItemId,
+                pymentType:input.pymentType,
+                deliveryStatus:input.deliveryStatus,
+                remarks:input.remarks || ""
+                
+
+                
+              }
+
+             const result=await deliveryAgentService.orderDelivedbyAgent(obj)
+
+             return {
+
+                 status:true,
+                 msg:"delivery status updated"
+             }
+             
+            
+           } catch (error) {
+            
+            throw new GraphQLError("Unable to update this order status ", {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: [],
+              },
+            });
+           }
+
+            
     }
 
 
