@@ -70,13 +70,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
 
-      if (!licence) {
-        throw new GraphQLError("Licence file is required", {
-          extensions: {
-            code: "BAD_REQUEST",
-          },
-        });
-      }
+    
 
       // Check if the contactNumber already exists
       const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
@@ -113,6 +107,14 @@ export const deliveryAgentResolver: Resolvers = {
             extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
           });
         }
+      }
+
+      if (!licence) {
+        throw new GraphQLError("Licence file is required", {
+          extensions: {
+            code: "BAD_REQUEST",
+          },
+        });
       }
 
       let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
