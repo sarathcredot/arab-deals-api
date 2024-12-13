@@ -3,12 +3,9 @@ import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, T
 import { deliveryAgentModel, settlementModel } from '../models'
 import { orderProductModel } from '../models'
 import { collections } from "../configs";
-<<<<<<< HEAD
 import excel from 'exceljs';
 import path from 'path';
-=======
 import { transactionlogs } from "../services"
->>>>>>> daefbc4a72a98ff2e7ff3eb171f7339688771054
 
 
 
