@@ -345,6 +345,7 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
           userID: data.userID,
           vendorID: data.vendorID,
           agentType: data.agentType,
+          licence:data.licence
         }
       })
 
