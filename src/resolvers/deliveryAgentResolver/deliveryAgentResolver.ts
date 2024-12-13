@@ -498,7 +498,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     orderDelivedbyAgent:async(parent, { input }, { req }, info)=>{
 
-
+ 
          try {
  
              // check delivery agent login or not
