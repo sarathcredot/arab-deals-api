@@ -39,7 +39,6 @@ export interface ISettlement {
   _id?: Types.ObjectId;
   type: string;
   agentId: Types.ObjectId;
-<<<<<<< HEAD
   amount:number;
   date?:Date;
   remarks?:string;
@@ -56,13 +55,6 @@ export interface IAdminSettlementHistoryOptions {
   endDate?: Date;
   page: number;
   size: number;
-=======
-  amount: number;
-  date: Date;
-  remarks?: string;
-  totalAmount?: number;
-  balance?: number;
->>>>>>> daefbc4a72a98ff2e7ff3eb171f7339688771054
 }
 
 
@@ -83,11 +75,7 @@ export interface IDeliveryAgentFilter {
     numberOfOrderAssigned: number;
     numberOfOrderDelivered: number;
   };
-<<<<<<< HEAD
   settlementHistory:Types.ObjectId[] | ISettlement[];
-=======
-  settlementHistory: Types.ObjectId[];
->>>>>>> daefbc4a72a98ff2e7ff3eb171f7339688771054
 }
 
 export interface IDeliveryAgentDocument extends Document {
