@@ -69,7 +69,7 @@ const deliveryAgentSchema = new Schema(
           wallet:{
             cashInHand:  {                    //balance  amount agent has in his wallet
               type: Number, 
-              default:200 
+              default:0 
             },
             lastSettlementDate:  { 
               type: Date 

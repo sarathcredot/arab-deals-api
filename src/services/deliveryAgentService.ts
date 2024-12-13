@@ -234,7 +234,7 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
       { $sort: { date: 1, _id: 1 } },
       {
           $lookup: {
-              from: collections.SETTLEMENTS,
+              from: collections.DELIVERYAGENT,
               localField: "agentId",
               foreignField: "_id",
               as: "agentInfo"

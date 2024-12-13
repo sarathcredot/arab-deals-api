@@ -70,13 +70,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
 
-      if (!licence) {
-        throw new GraphQLError("Licence file is required", {
-          extensions: {
-            code: "BAD_REQUEST",
-          },
-        });
-      }
+    
 
       // Check if the contactNumber already exists
       const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
@@ -113,6 +107,14 @@ export const deliveryAgentResolver: Resolvers = {
             extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
           });
         }
+      }
+
+      if (!licence) {
+        throw new GraphQLError("Licence file is required", {
+          extensions: {
+            code: "BAD_REQUEST",
+          },
+        });
       }
 
       let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
@@ -346,7 +348,7 @@ export const deliveryAgentResolver: Resolvers = {
           const stream = createReadStream();
           const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
   
-        const uolodlicence = {
+        const uploaddlicence = {
             fileType: "PUBLIC",
             fileURL: file.location,
             mimeType: mimetype,
@@ -360,7 +362,7 @@ export const deliveryAgentResolver: Resolvers = {
             userID:input.userID,
             agentType:input.agentType,
             vendorID:input.vendorID,
-            licence:uolodlicence
+            licence:uploaddlicence
           }
 
 
@@ -558,8 +560,6 @@ export const deliveryAgentResolver: Resolvers = {
 
 
   },
-
-
 
   Query: {
 
