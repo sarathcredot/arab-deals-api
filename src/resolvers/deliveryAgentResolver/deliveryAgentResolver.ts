@@ -33,8 +33,6 @@ type OrderAssignDeliveryAgentInput = {
 
 
 
-
-
 export const deliveryAgentResolver: Resolvers = {
 
   Upload: GraphQLUpload,
@@ -255,19 +253,19 @@ export const deliveryAgentResolver: Resolvers = {
        const { settlementId, amount } = input;
        const remarks: string | undefined = input?.remarks ?? undefined;
 
-       try {
+              try {
 
-        const existingSettlement = await deliveryAgentService.findSettlementtWithFilters(
-          { _id: settlementId },
-          { _id: 1, type:1,agentId:1,amount:1,date:1,remarks:1,totalAmount:1,balance:1},
-          { lean: false });
+              const existingSettlement = await deliveryAgentService.findSettlementtWithFilters(
+                { _id: settlementId },
+                { _id: 1, type:1,agentId:1,amount:1,createdAt:1,remarks:1,totalAmount:1,balance:1},
+                { lean: false });
 
 
-        if (!existingSettlement) {
-          throw new GraphQLError("Settlement not found", {
-            extensions: { code: "NOT_FOUND" },
-          });
-        }
+                if (!existingSettlement) {
+                  throw new GraphQLError("Settlement not found", {
+                    extensions: { code: "NOT_FOUND" },
+                  });
+                }
 
                 // Check if the delivery agent exists
                 const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
