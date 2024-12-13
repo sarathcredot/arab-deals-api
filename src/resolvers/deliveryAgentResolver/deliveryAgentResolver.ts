@@ -11,6 +11,7 @@ import { Types } from "mongoose";
 import { deliveryAgentModel, settlementModel } from "src/models";
 import { error } from "console";
 
+import { v4 as uuidv4 } from 'uuid';
 
 interface EditAgentResult {
   flag: boolean;
@@ -117,6 +118,8 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
 
+      const ID = uuidv4();
+
       let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
         fullName,
         contactNumber,
@@ -124,7 +127,8 @@ export const deliveryAgentResolver: Resolvers = {
         password,
         agentType,
         vendorID,
-        licence
+        licence,
+        ID
       };
 
       // Create the delivery agent record in the database
@@ -593,6 +597,7 @@ export const deliveryAgentResolver: Resolvers = {
             isActive: 1,
             licence:1,
             wallet:1,
+            ID:1,
             settlementHistory:1
           },
           { lean: true }
