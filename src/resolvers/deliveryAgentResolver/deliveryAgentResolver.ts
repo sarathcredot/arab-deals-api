@@ -559,8 +559,6 @@ export const deliveryAgentResolver: Resolvers = {
 
   },
 
-
-
   Query: {
 
     getDeliveryAgent: async (parent, { input }, { req }, info) => {
