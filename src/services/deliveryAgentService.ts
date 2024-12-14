@@ -30,9 +30,6 @@ export interface IDeliveryAgent {
 }
 
 
-
-
-
 export interface ISettlement {
   _id?: Types.ObjectId;
   type: string;
@@ -203,6 +200,7 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
   return await deliveryAgentModel.findOne(filters, projection, options) .populate({
     path: "settlementHistory", 
     select: "_id type amount remarks totalAmount balance createdAt", 
+    options: { sort: { createdAt: -1 } },
   });
 };
 
@@ -227,7 +225,7 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
   }
 
   pipeline.push(
-      { $sort: { date: 1, _id: 1 } },
+      { $sort: { createdAt: -1 } },
       {
           $lookup: {
               from: collections.DELIVERYAGENT,
