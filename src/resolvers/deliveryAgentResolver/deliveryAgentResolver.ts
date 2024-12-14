@@ -567,9 +567,64 @@ export const deliveryAgentResolver: Resolvers = {
 
   Query: {
 
-    getDeliveryAgent: async (parent, { input }, { req }, info) => {
 
+    //get delivery agent by admin
+    getDeliveryAgent: async (parent, { input }, { req }, info) => {
+      await verifyAdmin(req);
       const { agentId } = input;
+
+      if (!agentId) {
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        // Fetch the delivery agent by agentId
+        const deliveryAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { _id: agentId },
+          {
+            _id: 1,
+            fullName: 1,
+            contactNumber: 1,
+            userID: 1,
+            agentType: 1,
+            vendorID: 1,
+            isActive: 1,
+            licence:1,
+            wallet:1,
+            ID:1,
+            settlementHistory:1
+          },
+          { lean: true }
+        );
+
+        if (!deliveryAgent) {
+          throw new GraphQLError("Delivery Agent not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+
+        return deliveryAgent;
+
+      } catch (error: any) {
+        throw new GraphQLError(error.message || "Error fetching Delivery Agent", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+
+ 
+    //get delivery agent details in  agent dashboard
+    getDeliveryAgentByAgent: async (parent, { }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       if (!agentId) {
         throw new GraphQLError("Agent ID is required", {
@@ -645,7 +700,7 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
 
-
+   //get all settlement history by admin
     getSettlementHistoryByAdmin: async (parent, {}, { req }, info) => {
       await verifyAdmin(req);
       try {

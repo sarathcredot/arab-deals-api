@@ -304,7 +304,6 @@ export const exportAllSettlementHistoryWithFilters = async (options:IAllSettleme
   let pipeline: PipelineStage[] = [];
 
   pipeline.push(
-      { $sort: { date: 1} },
       {
           $project: {
             wallet:1,

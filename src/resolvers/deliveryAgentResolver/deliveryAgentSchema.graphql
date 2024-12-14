@@ -21,6 +21,7 @@ type Query{
   
   getAllAgentData:[AllAgents]!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgent
+  getDeliveryAgentByAgent: DeliveryAgent
   getSettlementHistoryByAdmin:[Settlement]!
     
 }
