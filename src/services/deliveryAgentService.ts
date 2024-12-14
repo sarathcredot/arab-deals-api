@@ -26,15 +26,7 @@ export interface IDeliveryAgent {
   agentType: string;
   vendorID?: Types.ObjectId;
   licence: FileData;
-  wallet?: {
-    cashInHand: number;
-    lastSettlementDate: Date;
-    grandTotal: number;
-    totalSettlement: number;
-    numberOfOrderAssigned: number;
-    numberOfOrderDelivered: number;
-  };
-
+  ID: string;
 }
 
 
@@ -69,6 +61,7 @@ export interface IDeliveryAgentFilter {
   fullName: string;
   contactNumber: string;
   userID: string;
+  ID:string;
   password: string;
   agentType: string;
   vendorID?: Types.ObjectId;
@@ -90,6 +83,7 @@ export interface IDeliveryAgentDocument extends Document {
   contactNumber: string;
   userID: string;
   password: string;
+  ID:string;
   agentType: string;
   vendorID?: Types.ObjectId;
   licence: FileData;

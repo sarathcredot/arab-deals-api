@@ -96,6 +96,7 @@ type DeliveryAgent{
     fullName:String!
     contactNumber:String!
     userID:String!
+    ID:String
     agentType:String!
     isActive:Boolean!
     vendorID:ObjectId

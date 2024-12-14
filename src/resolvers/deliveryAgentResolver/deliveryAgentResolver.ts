@@ -11,6 +11,7 @@ import { Types } from "mongoose";
 import { deliveryAgentModel, settlementModel } from "src/models";
 import { error } from "console";
 
+import { v4 as uuidv4 } from 'uuid';
 
 interface EditAgentResult {
   flag: boolean;
@@ -156,6 +157,40 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
       }
+<<<<<<< HEAD
+=======
+
+      const ID = uuidv4();
+
+      let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
+        fullName,
+        contactNumber,
+        userID,
+        password,
+        agentType,
+        vendorID,
+        licence,
+        ID
+      };
+
+      // Create the delivery agent record in the database
+      const result = await deliveryAgentService.createDeliveryAgent(newDeliveryAgentData, password);
+
+      if (!result) {
+        throw new GraphQLError("Unable to create delivery agent", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+
+      return {
+        _id: result._id,
+        message: "Delivery Agent successfully created",
+      };
+
+>>>>>>> 95761ff79ac9dce8ae1d18b06ccc8d29bfe9f03b
     },
 
     // delivery agent suspension from admin side
@@ -647,9 +682,10 @@ export const deliveryAgentResolver: Resolvers = {
             agentType: 1,
             vendorID: 1,
             isActive: 1,
-            licence: 1,
-            wallet: 1,
-            settlementHistory: 1
+            licence:1,
+            wallet:1,
+            ID:1,
+            settlementHistory:1
           },
           { lean: true }
         );

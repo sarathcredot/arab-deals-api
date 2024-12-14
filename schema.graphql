@@ -48,6 +48,11 @@ type Mutation {
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
   updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
+  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
@@ -55,11 +60,6 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
-  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
@@ -79,6 +79,9 @@ type Mutation {
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
+  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
+  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
+  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -87,13 +90,10 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
-  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
-  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
-  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
-  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
-  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
   editAttribute(input: AttributeEditInput!): AttributeEditResponse!
+  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
+  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image: Upload): UpdateAdminResponse!
@@ -148,6 +148,10 @@ type Query {
   getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
   getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
   getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -170,10 +174,6 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
-  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAllAgentData: [AllAgents]!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgent
   getSettlementHistoryByAdmin: [Settlement]!
@@ -219,8 +219,6 @@ type Query {
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -230,7 +228,8 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
-  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -239,6 +238,7 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAdminRecord: getAdminRecordResponse
 }
 
@@ -1601,6 +1601,89 @@ type GetProductsMaxPriceInMobileResponse {
   message: String
 }
 
+input ExportAdminOrdersInput {
+  _id: ObjectId
+  userId: ObjectId
+  orderId: String
+  paymentMode: String
+  orderStatus: String
+  startDate: Date
+  endDate: Date
+  postCode: String
+  page: Int
+  size: Int
+}
+
+input GetJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+}
+
+input GetAdminDownloadTokenInput {
+  _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+  _id: ObjectId
+  userId: ObjectId
+  vendorId: ObjectId
+  orderId: String
+  productId: ObjectId
+  itemId: String
+  skuId: String
+  paymentMode: String
+  paymentStatus: String
+  shippingStatus: String
+  orderStartDate: Date
+  orderEndDate: Date
+  shippingStartDate: Date
+  shippingEndDate: Date
+  deliveryStartDate: Date
+  deliveryEndDate: Date
+  cancelledStartDate: Date
+  cancelledEndDate: Date
+  courierId: String
+  invoiceNumber: String
+  page: Int
+  size: Int
+  sort: String
+}
+
+input ExportAdminSettlementHistoryInput {
+  _id: ObjectId
+  agentId: ObjectId
+  startDate: Date
+  endDate: Date
+  page: Int
+  size: Int
+}
+
+type ExportAdminOrdersResponse {
+  message: String
+}
+
+type ExportAdminShippingProductsResponse {
+  message: String
+}
+
+type JobRecord {
+  _id: ObjectId
+  name: String
+  status: String
+  isExpired: Boolean
+  createdAt: Date
+}
+
+type GetJobQueueResponse {
+  maxRecords: Int
+  records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+  url: String!
+}
+
 input CreateUserOrderInput {
   shippingAddressId: ObjectId!
   paymentMode: String!
@@ -2325,89 +2408,6 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
-input ExportAdminOrdersInput {
-  _id: ObjectId
-  userId: ObjectId
-  orderId: String
-  paymentMode: String
-  orderStatus: String
-  startDate: Date
-  endDate: Date
-  postCode: String
-  page: Int
-  size: Int
-}
-
-input GetJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-}
-
-input GetAdminDownloadTokenInput {
-  _id: ObjectId!
-}
-
-input ExportAdminShippingProductsInput {
-  _id: ObjectId
-  userId: ObjectId
-  vendorId: ObjectId
-  orderId: String
-  productId: ObjectId
-  itemId: String
-  skuId: String
-  paymentMode: String
-  paymentStatus: String
-  shippingStatus: String
-  orderStartDate: Date
-  orderEndDate: Date
-  shippingStartDate: Date
-  shippingEndDate: Date
-  deliveryStartDate: Date
-  deliveryEndDate: Date
-  cancelledStartDate: Date
-  cancelledEndDate: Date
-  courierId: String
-  invoiceNumber: String
-  page: Int
-  size: Int
-  sort: String
-}
-
-input ExportAdminSettlementHistoryInput {
-  _id: ObjectId
-  agentId: ObjectId
-  startDate: Date
-  endDate: Date
-  page: Int
-  size: Int
-}
-
-type ExportAdminOrdersResponse {
-  message: String
-}
-
-type ExportAdminShippingProductsResponse {
-  message: String
-}
-
-type JobRecord {
-  _id: ObjectId
-  name: String
-  status: String
-  isExpired: Boolean
-  createdAt: Date
-}
-
-type GetJobQueueResponse {
-  maxRecords: Int
-  records: [JobRecord]
-}
-
-type GetAdminDownloadTokenResponse {
-  url: String!
-}
-
 input GetAdminSignedFileUrlInput {
   fileURL: String!
   mimeType: String!
@@ -2458,6 +2458,7 @@ type DeliveryAgent {
   fullName: String!
   contactNumber: String!
   userID: String!
+  ID: String
   agentType: String!
   isActive: Boolean!
   vendorID: ObjectId
@@ -3096,108 +3097,6 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-input BulkAddToCartInMobileInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type BulkAddToCartInMobileResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
-  name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
-}
-
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-}
-
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-}
-
 input AddBrandInput {
   brandName: String!
   isBlocked: Boolean
@@ -3343,54 +3242,106 @@ type CategoryInBrands {
   description: String
 }
 
-type AttributeValue {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
 }
 
-input CreateAttributeValueInput {
-  attributeId: String!
-  value: String!
-  colorCode: String!
-  priority: Int!
-  isBlocked: Boolean
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
 }
 
-input AttributeValueEditInput {
-  attributeValueId: String!
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
+input removeFromCartInput {
+  productId: String!
 }
 
-type CreateAttributeValueResponse {
-  _id: String
+input removeFromCartInMobileInput {
+  productId: String!
+}
+
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
   message: String
 }
 
-input AttributeValueRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
+type BulkAddToCartResponse {
+  message: String
 }
 
-type AttributeValueRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
+type BulkAddToCartInMobileResponse {
+  message: String
 }
 
-type AttributeValueEditResponse {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
+type addToCartInMObileResponse {
+  message: String
+}
+
+type removeFromCartResponse {
+  message: String
+}
+
+type removeFromCartInMobileResponse {
+  message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
 }
 
 type Attribute {
@@ -3499,6 +3450,56 @@ type AttributesDetailsWithCategoryResponse {
 type AttributesDetailsWithCategoryInMobileResponse {
   record: CategoryWithCategory
   message: String
+}
+
+type AttributeValue {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+input CreateAttributeValueInput {
+  attributeId: String!
+  value: String!
+  colorCode: String!
+  priority: Int!
+  isBlocked: Boolean
+}
+
+input AttributeValueEditInput {
+  attributeValueId: String!
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type CreateAttributeValueResponse {
+  _id: String
+  message: String
+}
+
+input AttributeValueRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type AttributeValueRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
 }
 
 type LogoutAdminResponse {
