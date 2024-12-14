@@ -42,117 +42,121 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent creation from admin side
     createDeliveryAgent: async (parent, { input, image }, { req }, info) => {
-      await verifyAdmin(req);
-      await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
-
-      let fullName: string = input.fullName;
-      let contactNumber: string = input.contactNumber;
-      let userID: string = input.userID;
-      let password: string = input.password;
-      let agentType: string = input.agentType;
-      let vendorID: Types.ObjectId = input?.vendorID;
-      let licence: deliveryAgentService.FileData | undefined;
-
-      console.log(input)
-
-      // Check if userid already exists
-      const isUserExists = await deliveryAgentService.findDeliveryAgentWithFilters(
-        { userID },
-        { _id: 1 },
-        { lean: true }
-      );
-
-      if (isUserExists) {
-        throw new GraphQLError("UserID already exists", {
-          extensions: {
-            code: "USER_ALREADY_EXISTS",
-            errors: [],
-          },
-        });
-      }
-
     
-
-      // Check if the contactNumber already exists
-      const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
-        { contactNumber },
-        { _id: 1 },
-        { lean: true }
-
-      );
-      if (existingContact) {
-        throw new GraphQLError("Contact number already taken", {
-          extensions: {
-            code: "CONTACT_NUMBER_ALREADY_EXISTS",
-            errors: [],
-          },
-        });
-      }
-
-
-      if (image) {
-        try {
-          const { createReadStream, filename, mimetype, encoding } = await image;
-          const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
-          const stream = createReadStream();
-          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+        await verifyAdmin(req);
+        await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
   
-          licence = {
-            fileType: "PUBLIC",
-            fileURL: file.location,
-            mimeType: mimetype,
-            originalName: filename
-          }
-        } catch (error) {
-          throw new GraphQLError("License upload failed", {
-            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        let fullName: string = input.fullName;
+        let contactNumber: string = input.contactNumber;
+        let userID: string = input.userID;
+        let password: string = input.password;
+        let agentType: string = input.agentType;
+        let vendorID: Types.ObjectId = input?.vendorID;
+        let licence: deliveryAgentService.FileData | undefined;
+  
+        console.log(input)
+      try {
+        // Check if userid already exists
+        const isUserExists = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { userID },
+          { _id: 1,userID:1,fullName:1 },
+          { lean: true }
+        );
+  
+        console.log("isUserExists,",isUserExists)
+
+
+        if (isUserExists?.userID === userID) {
+          console.log("user exist")
+          throw new GraphQLError("User email already exist", {
+            extensions: { code: "BAD_REQUEST" },
           });
         }
-      }
-
-      if (!licence) {
-        throw new GraphQLError("Licence file is required", {
-          extensions: {
-            code: "BAD_REQUEST",
-          },
+  
+  
+        // Check if the contactNumber already exists
+        const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { contactNumber },
+          { _id: 1 },
+          { lean: true }
+  
+        );
+        if (existingContact) {
+          throw new GraphQLError("Contact number already taken", {
+            extensions: {
+              code: "CONTACT_NUMBER_ALREADY_EXISTS"
+            },
+          });
+        }
+  
+  
+        if (image) {
+          try {
+            const { createReadStream, filename, mimetype, encoding } = await image;
+            const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
+            const stream = createReadStream();
+            const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+    
+            licence = {
+              fileType: "PUBLIC",
+              fileURL: file.location,
+              mimeType: mimetype,
+              originalName: filename
+            }
+          } catch (error) {
+            throw new GraphQLError("License upload failed", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            });
+          }
+        }
+  
+        if (!licence) {
+          throw new GraphQLError("Licence file is required", {
+            extensions: {
+              code: "BAD_REQUEST",
+            },
+          });
+        }
+  
+        const ID = uuidv4();
+  
+        let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
+          fullName,
+          contactNumber,
+          userID,
+          password,
+          agentType,
+          vendorID,
+          licence,
+          ID
+        };
+  
+        // Create the delivery agent record in the database
+        const result = await deliveryAgentService.createDeliveryAgent(newDeliveryAgentData, password);
+  
+        if (!result) {
+          throw new GraphQLError("Unable to create delivery agent", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR"
+            },
+          });
+        }
+  
+        return {
+          _id: result._id,
+          message: "Delivery Agent successfully created",
+        };
+  
+      }catch (error: any) {
+        throw new GraphQLError(error.message || "Error Creating  agent", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
       }
-
-      const ID = uuidv4();
-
-      let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
-        fullName,
-        contactNumber,
-        userID,
-        password,
-        agentType,
-        vendorID,
-        licence,
-        ID
-      };
-
-      // Create the delivery agent record in the database
-      const result = await deliveryAgentService.createDeliveryAgent(newDeliveryAgentData, password);
-
-      if (!result) {
-        throw new GraphQLError("Unable to create delivery agent", {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            errors: [],
-          },
-        });
-      }
-
-      return {
-        _id: result._id,
-        message: "Delivery Agent successfully created",
-      };
-
     },
 
     // delivery agent suspension from admin side
     suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
-      await verifyAdmin(req);
+      // await verifyAdmin(req);
       const { agentId, isActive } = input;
 
       // Validate the input
@@ -327,7 +331,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
-
+ 
 
     // delivery agent data edit 
     editDeliveryAgentData: async (parent, { input ,image }, { req }, info): Promise<boolean> => {
@@ -675,8 +679,6 @@ export const deliveryAgentResolver: Resolvers = {
 
     // get all delivery agent data 
     async getAllAgentData(): Promise<any> {
-
-
       try {
 
         const result = await deliveryAgentService.viewAllDeliveryAgents()

@@ -104,7 +104,6 @@ export interface IDeliveryAgentDocument extends Document {
 }
 
 
-
 type DeliveryLoginData = {
   userID: string;
   contactNumber: string;
