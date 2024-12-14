@@ -26,6 +26,15 @@ export interface IDeliveryAgent {
   agentType: string;
   vendorID?: Types.ObjectId;
   licence: FileData;
+  wallet?: {
+    cashInHand: number;
+    lastSettlementDate: Date;
+    grandTotal: number;
+    totalSettlement: number;
+    numberOfOrderAssigned: number;
+    numberOfOrderDelivered: number;
+  };
+
 }
 
 
@@ -36,13 +45,13 @@ export interface ISettlement {
   _id?: Types.ObjectId;
   type: string;
   agentId: Types.ObjectId;
-  amount:number;
-  date?:Date;
-  remarks?:string;
-  totalAmount?:number;
-  balance?:number;
-  createdAt?:Date;
-  updatedAt?:Date;
+  amount: number;
+  date?: Date;
+  remarks?: string;
+  totalAmount?: number;
+  balance?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IAdminSettlementHistoryOptions {
@@ -72,7 +81,7 @@ export interface IDeliveryAgentFilter {
     numberOfOrderAssigned: number;
     numberOfOrderDelivered: number;
   };
-  settlementHistory:Types.ObjectId[] | ISettlement[];
+  settlementHistory: Types.ObjectId[] | ISettlement[];
 }
 
 export interface IDeliveryAgentDocument extends Document {
@@ -207,95 +216,95 @@ export const findSettlementtWithFilters = async (filters: object, projection: ob
 };
 
 export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgentFilter | null> => {
-  return await deliveryAgentModel.findOne(filters, projection, options) .populate({
-    path: "settlementHistory", 
-    select: "_id type amount remarks totalAmount balance createdAt", 
+  return await deliveryAgentModel.findOne(filters, projection, options).populate({
+    path: "settlementHistory",
+    select: "_id type amount remarks totalAmount balance createdAt",
   });
 };
 
 
-export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSettlementHistoryOptions, exportFolder: string): Promise<string> => {
+export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSettlementHistoryOptions, exportFolder: string): Promise<string> => {
   let pipeline: PipelineStage[] = [];
 
   if (options._id) {
-      pipeline.push({ $match: { _id: options._id } });
+    pipeline.push({ $match: { _id: options._id } });
   }
   if (options.agentId) {
-      pipeline.push({ $match: { agentId: options.agentId } });
+    pipeline.push({ $match: { agentId: options.agentId } });
   }
   if (options.startDate) {
-      pipeline.push({ $match: { date: { $gte: options.startDate } } });
+    pipeline.push({ $match: { date: { $gte: options.startDate } } });
   }
   if (options.endDate) {
-      pipeline.push({ $match: { date: { $lte: options.endDate } } });
+    pipeline.push({ $match: { date: { $lte: options.endDate } } });
   }
 
   pipeline.push(
-      { $sort: { date: 1, _id: 1 } },
-      {
-          $lookup: {
-              from: collections.DELIVERYAGENT,
-              localField: "agentId",
-              foreignField: "_id",
-              as: "agentInfo"
-          }
-      },
-      {
-          $unwind: {
-              path: "$agentInfo",
-              preserveNullAndEmptyArrays: true
-          }
-      },
-      {
-          $project: {
-              _id: 1,
-              type:1,
-              agentId: 1,
-              amount: 1,
-              balance: 1,
-              createdAt:1,
-              remarks: 1,
-              totalAmount: 1,
-          }
+    { $sort: { date: 1, _id: 1 } },
+    {
+      $lookup: {
+        from: collections.DELIVERYAGENT,
+        localField: "agentId",
+        foreignField: "_id",
+        as: "agentInfo"
       }
+    },
+    {
+      $unwind: {
+        path: "$agentInfo",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        type: 1,
+        agentId: 1,
+        amount: 1,
+        balance: 1,
+        createdAt: 1,
+        remarks: 1,
+        totalAmount: 1,
+      }
+    }
   );
 
   const settlements = await settlementModel.aggregate(pipeline);
   let filename = '';
 
   if (settlements && settlements.length) {
-      let formattedData = settlements.map((settlement) => ({
-          ...settlement,
-          agentId: settlement.agentId.toString(),
-      }));
+    let formattedData = settlements.map((settlement) => ({
+      ...settlement,
+      agentId: settlement.agentId.toString(),
+    }));
 
-      let workbook = new excel.Workbook();
-      let worksheet = workbook.addWorksheet("Settlement History");
-      worksheet.columns = [
-          { header: "Type", key: "type", width: 20 },
-          { header: "Date", key: "createdAt", width: 20 },
-          { header: "Agent ID", key: "agentId", width: 25 },
-          { header: "Agent Name", key: "fullName", width: 25 },
-          { header: "Amount", key: "amount", width: 20 },
-          { header: "Balance", key: "balance", width: 20 },
-          { header: "Total Amount", key: "totalAmount", width: 20 },
-          { header: "Remarks", key: "remarks", width: 50 }
-      ];
+    let workbook = new excel.Workbook();
+    let worksheet = workbook.addWorksheet("Settlement History");
+    worksheet.columns = [
+      { header: "Type", key: "type", width: 20 },
+      { header: "Date", key: "createdAt", width: 20 },
+      { header: "Agent ID", key: "agentId", width: 25 },
+      { header: "Agent Name", key: "fullName", width: 25 },
+      { header: "Amount", key: "amount", width: 20 },
+      { header: "Balance", key: "balance", width: 20 },
+      { header: "Total Amount", key: "totalAmount", width: 20 },
+      { header: "Remarks", key: "remarks", width: 50 }
+    ];
 
-      let firstRow = worksheet.getRow(1);
-      firstRow.eachCell((cell: any) => {
-          cell.font = { bold: true };
-      });
+    let firstRow = worksheet.getRow(1);
+    firstRow.eachCell((cell: any) => {
+      cell.font = { bold: true };
+    });
 
-      worksheet.addRows(formattedData);
+    worksheet.addRows(formattedData);
 
-      console.log(formattedData)
+    console.log(formattedData)
 
-      filename = `settlement-history-${Date.now()}.xlsx`;
-      let filePath = path.join(exportFolder, filename);
-      await workbook.xlsx.writeFile(filePath).then(() => {
-          console.log("File saved!");
-      });
+    filename = `settlement-history-${Date.now()}.xlsx`;
+    let filePath = path.join(exportFolder, filename);
+    await workbook.xlsx.writeFile(filePath).then(() => {
+      console.log("File saved!");
+    });
   }
 
   return filename;
@@ -303,7 +312,8 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
 
 
 type Editrespo = {
-  flag: boolean
+  flag?: boolean
+  numberExit?: boolean
 }
 
 
@@ -314,7 +324,7 @@ export const viewAllDeliveryAgents = async (): Promise<IDeliveryAgent[] | []> =>
 
     try {
 
-      const allData = await deliveryAgentModel.find()
+      const allData = await deliveryAgentModel.find().sort({ createdAt: -1 })
 
       resolve(allData)
 
@@ -334,30 +344,194 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
 
   return new Promise(async (resolve, reject) => {
 
+
     try {
 
-      await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+      // new mobile number check 
 
-        $set: {
+      const result = await deliveryAgentModel.findOne({
 
-          fullName: data.fullName,
-          contactNumber: data.contactNumber,
-          userID: data.userID,
-          vendorID: data.vendorID,
-          agentType: data.agentType,
-          licence:data.licence
-        }
+        $or: [
+          { contactNumber: data.contactNumber },
+          { userID: data.userID }
+        ]
       })
 
-      resolve({ flag: true })
+      console.log("res", result)
+      console.log("input", data)
 
-    } catch (error) {
+      if (result) {
+
+        if (result._id.toString() !== data._id.toString()) {
+
+          resolve({ numberExit: true })
+          console.log("number exit promis")
+          return;
+
+        }
 
 
-      reject({ flag: false })
+
+      } 
+
+
+
+        console.log("data edit")
+
+        if (data.licence) {
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+            $set: {
+
+              fullName: data.fullName,
+              contactNumber: data.contactNumber,
+              userID: data.userID,
+              vendorID: data.vendorID,
+              agentType: data.agentType,
+              licence: data.licence
+            }
+          })
+        } else {
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+            $set: {
+
+              fullName: data.fullName,
+              contactNumber: data.contactNumber,
+              userID: data.userID,
+              vendorID: data.vendorID,
+              agentType: data.agentType,
+
+            }
+          })
+        }
+
+        console.log("edited")
+        resolve({ flag: true })
+      
+
+
+
+    } catch (error: any) {
+
+      console.log(error.message)
+
+      console.log("edit error")
+      reject()
     }
   })
 }
+
+// test edit 
+
+
+
+
+
+// export const editAgentData = async (data: any): Promise<Editrespo> => {
+
+
+//   return new Promise(async (resolve, reject) => {
+
+
+//     try {
+
+//       // new mobile number check 
+
+//       const result = await deliveryAgentModel.findOne({ 
+
+//         $or: [
+//           { contactNumber: data.contactNumber },
+//           { userID: data.userID }
+//         ]
+//        })
+
+
+//          if(result){
+
+//               if(result._id.toString()!==data._id.toString()){
+
+//                   resolve({ numberExit: true })
+//                   console.log("exit")
+//                   return;
+//               }
+
+//           }
+
+//           console.log("editnew")
+//           resolve({flag:true})
+
+//       // console.log("res", result)
+//       // console.log("input", data)
+
+//       // if (result) {
+
+//       //   if (result._id.toString() !== data._id.toString()) {
+
+//       //     resolve({ numberExit: true })
+//       //     console.log("number exit promis")
+//       //   }
+
+
+
+//       // }
+
+//       // console.log("data edit")
+
+//       // if (data.licence) {
+
+//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+//       //     $set: {
+
+//       //       fullName: data.fullName,
+//       //       contactNumber: data.contactNumber,
+//       //       userID: data.userID,
+//       //       vendorID: data.vendorID,
+//       //       agentType: data.agentType,
+//       //       licence: data.licence
+//       //     }
+//       //   })
+//       // } else {
+
+//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+//       //     $set: {
+
+//       //       fullName: data.fullName,
+//       //       contactNumber: data.contactNumber,
+//       //       userID: data.userID,
+//       //       vendorID: data.vendorID,
+//       //       agentType: data.agentType,
+
+//       //     }
+//       //   })
+//       // }
+
+//       // console.log("edited")
+//       // resolve({ flag: true })
+
+
+
+
+//     } catch (error: any) {
+
+//       console.log(error.message)
+
+//       console.log("edit error")
+//       reject()
+//     }
+//   })
+// }
+
+
+
+
+
+
+
 
 
 // delivery agent login
@@ -371,7 +545,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
       // verfy agent based on userID and password
 
-      const agentData = await deliveryAgentModel.findOne({ userID: agentInput.userID ,isActive:true})
+      const agentData = await deliveryAgentModel.findOne({ userID: agentInput.userID, isActive: true })
 
       // agent data not found
 
@@ -417,7 +591,9 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
       }
 
-    } catch (error) {
+    } catch (error: any) {
+
+      console.log(error.message)
 
       reject()
     }
@@ -523,7 +699,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 }
 
 
-export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId,  pymentType: string, deliveryStatus: string, remarks?: string }) => {
+export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, pymentType: string, deliveryStatus: string, remarks?: string }) => {
 
 
   return new Promise(async (resolve, reject) => {
@@ -578,11 +754,11 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
             $set: {
-  
-              paymentStatus:"COMPLETED"
+
+              paymentStatus: "COMPLETED"
             }
           })
-  
+
 
           // get this order product price 
 
@@ -638,6 +814,22 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
     }
   })
 
+}
+
+
+export const getAssignedOrderByDeliveryAgent=async(data:{_id:Types.ObjectId})=>{
+
+          return new Promise(async(resolve,reject)=>{
+
+                  
+                   try {
+
+                      const result=await orderProductModel.find({deliveryAgentId:data._id})
+                   
+                   } catch (error) {
+                    
+                   }
+          })
 }
 
 

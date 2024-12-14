@@ -4,7 +4,8 @@ scalar Upload
 
 type Mutation {
   
-  editDeliveryAgentData(input:EditAgentDataInput!,image:Upload):Boolean!
+  editDeliveryAgentData(input:EditAgentDataInput!,image:Upload):EditAgentDataInputResponse!
+  # editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
   createDeliveryAgent(input: CreateDeliveryAgentInput!,image:Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
@@ -22,14 +23,42 @@ type Query{
   getAllAgentData:[AllAgents]!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgent
   getSettlementHistoryByAdmin:[Settlement]!
+  getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
+  getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):Boolean!
     
 }
+
+
+ input DeliveryAgentAssignedOrderInput{
+
+     _id:ObjectId!
+ }
+
+ input GetAssignedOrderByDeliveryAgentInput{
+
+        _id:ObjectId!
+ }
+
 
 type OrderAssignDeliveryAgentResponse{
 
        status:Boolean!
       msg:String
 
+}
+
+type EditAgentDataInputResponse{
+
+     status:Boolean!
+      msg:String
+
+}
+
+type GetAllAssignOrderAgentProfileResponse{
+
+      status:Boolean!
+      msg:String
+     
 }
 
 type ImageData {
@@ -47,6 +76,8 @@ type OrderDelivedbyAgentResponse{
 }
 
 
+
+
 type AllAgents{
     _id:ObjectId!
     fullName:String!
@@ -56,6 +87,7 @@ type AllAgents{
     agentType:String!
     isActive:Boolean!
     vendorID:ObjectId
+    wallet:Wallet
 
 }
 
