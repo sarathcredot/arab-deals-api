@@ -42,7 +42,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent creation from admin side
     createDeliveryAgent: async (parent, { input, image }, { req }, info) => {
-      // await verifyAdmin(req);
+      await verifyAdmin(req);
       await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
 
       let fullName: string = input.fullName;
@@ -200,7 +200,7 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
     createSettlement:async(parent, { input }, { req }, info) =>{
-      //  await verifyAdmin(req);
+       await verifyAdmin(req);
 
        const {agentId,amount}=input;
        const remarks: string | undefined = input?.remarks ?? undefined;
@@ -255,7 +255,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     editSettlement:async(parent, { input }, { req }, info) =>{
-      //  await verifyAdmin(req);
+       await verifyAdmin(req);
 
        const { settlementId, amount } = input;
        const remarks: string | undefined = input?.remarks ?? undefined;
@@ -646,7 +646,8 @@ export const deliveryAgentResolver: Resolvers = {
 
 
 
-    getSettlementHistoryByAdmin: async () => {
+    getSettlementHistoryByAdmin: async (parent, {}, { req }, info) => {
+      await verifyAdmin(req);
       try {
         const result = await deliveryAgentService.getSettlementHistoryByAdmin({});
     

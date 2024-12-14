@@ -6,7 +6,7 @@ const jobSchema = new Schema(
         name: {
             type: String,
             required: true,
-            enum: ["ORDER_EXPORT", "SHIPPING_EXPORT", "RETURN_EXPORT", "REFUND_EXPORT","SETTLEMENT_EXPORT"]
+            enum: ["ORDER_EXPORT", "SHIPPING_EXPORT", "RETURN_EXPORT", "REFUND_EXPORT","SETTLEMENT_EXPORT","WALLET_EXPORT"]
         },
         status: {
             type: String,

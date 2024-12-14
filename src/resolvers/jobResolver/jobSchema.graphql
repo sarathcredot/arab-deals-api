@@ -54,9 +54,15 @@ input ExportAdminShippingProductsInput {
 
 input ExportAdminSettlementHistoryInput{
     _id: ObjectId
+    type:String
     agentId: ObjectId
     startDate: Date
     endDate: Date
+    page: Int
+    size: Int
+}
+
+input ExportAllSettlementHistoryInput{
     page: Int
     size: Int
 }
@@ -95,7 +101,7 @@ type Mutation {
     exportAdminShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
     exportVendorShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
     exportAdminSettlementHistory(input:ExportAdminSettlementHistoryInput!):ExportAdminShippingProductsResponse!
-
+    exportAllSettlementHistory(input:ExportAllSettlementHistoryInput!):ExportAdminShippingProductsResponse!
 }
 
 

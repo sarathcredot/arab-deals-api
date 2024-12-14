@@ -190,6 +190,9 @@ export const jobResolver: Resolvers = {
             if (input._id) {
                 filters._id = input._id;
             }
+            if (input.type) {
+                filters.type = input.type;
+            }
             if (input.agentId) {
                 filters.agentId = input.agentId;
             }
@@ -216,6 +219,45 @@ export const jobResolver: Resolvers = {
                 const record = await jobQueueService.createJob(job);
         
                 const filename = await deliveryAgentService.exportAdminSettlementHistoryWithFilters(filters, EXPORT_FOLDER);
+        
+                if (filename) {
+                    record.status = "COMPLETED";
+                    record.metadata = {
+                        filePath: `exports/${filename}`
+                    };
+                } else {
+                    record.status = "FAILED";
+                }
+                await record.save();
+            }, 1000);
+        
+            return {
+                message: "Export successful"
+            };
+        },
+
+        exportAllSettlementHistory: async (parent, { input }, { req }, info) => {
+            // await verifyAdmin(req);
+        
+            let filters:deliveryAgentService.IAllSettlementHistoryOptions  = { page: 0, size: 10 };
+        
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+        
+            setTimeout(async () => {
+                const job = {
+                    name: "WALLET_EXPORT",
+                    status: "IN_PROGRESS",
+                    userType: "ADMIN",
+                    metadata: {}
+                };
+                const record = await jobQueueService.createJob(job);
+        
+                const filename = await deliveryAgentService.exportAllSettlementHistoryWithFilters(filters, EXPORT_FOLDER);
         
                 if (filename) {
                     record.status = "COMPLETED";
@@ -532,4 +574,4 @@ export const jobResolver: Resolvers = {
             return response;
         },
     },
-}
+} 

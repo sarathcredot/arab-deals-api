@@ -48,9 +48,15 @@ export interface ISettlement {
 
 export interface IAdminSettlementHistoryOptions {
   _id?: Types.ObjectId;
+  type?:string;
   agentId?: Types.ObjectId;
   startDate?: Date;
   endDate?: Date;
+  page: number;
+  size: number;
+}
+
+export interface IAllSettlementHistoryOptions {
   page: number;
   size: number;
 }
@@ -173,22 +179,6 @@ export const editSettlement = async (
 };
 
 
-// export const getSettlementHistoryByAdmin = async (): Promise<ISettlement[]> => {
-//   try {
-//     const result = await settlementModel.find({})
-//     .populate({
-//         path: "agentId",
-//         select: "fullName",
-//     })
-//     .lean();
-
-//   console.log(result);   
-//   return result
-//   } catch (error) {
-//     throw new Error("Error fetching settlements");
-//   }
-// };
-
 
 export const getSettlementHistoryByAdmin = async (filters: FilterQuery<ISettlement>, projection: ProjectionFields<ISettlement> = {}, options: QueryOptions = {}): Promise<any[] | []> => {
   const result = await settlementModel.find(filters, projection, options).populate({ path: "agentId", select: "_id fullName wallet contactNumber" });
@@ -226,6 +216,9 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
   if (options.agentId) {
       pipeline.push({ $match: { agentId: options.agentId } });
   }
+  if (options.type) {
+    pipeline.push({ $match: { type: options.type } });
+}
   if (options.startDate) {
       pipeline.push({ $match: { date: { $gte: options.startDate } } });
   }
@@ -259,6 +252,7 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
               createdAt:1,
               remarks: 1,
               totalAmount: 1,
+              "agentInfo.fullName": 1,
           }
       }
   );
@@ -268,16 +262,20 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
 
   if (settlements && settlements.length) {
       let formattedData = settlements.map((settlement) => ({
-          ...settlement,
-          agentId: settlement.agentId.toString(),
+        type: settlement.type || "",
+        createdAt: settlement.createdAt ? settlement.createdAt.toISOString() : "",
+        fullName: settlement.agentInfo?.fullName || "",
+        amount: settlement.amount || 0,
+        balance: settlement.balance || 0,
+        totalAmount: settlement.totalAmount || 0,
+        remarks: settlement.remarks || "",
       }));
 
       let workbook = new excel.Workbook();
       let worksheet = workbook.addWorksheet("Settlement History");
       worksheet.columns = [
           { header: "Type", key: "type", width: 20 },
-          { header: "Date", key: "createdAt", width: 20 },
-          { header: "Agent ID", key: "agentId", width: 25 },
+          { header: "Date", key: "createdAt", width: 20 }, 
           { header: "Agent Name", key: "fullName", width: 25 },
           { header: "Amount", key: "amount", width: 20 },
           { header: "Balance", key: "balance", width: 20 },
@@ -295,6 +293,66 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
       console.log(formattedData)
 
       filename = `settlement-history-${Date.now()}.xlsx`;
+      let filePath = path.join(exportFolder, filename);
+      await workbook.xlsx.writeFile(filePath).then(() => {
+          console.log("File saved!");
+      });
+  }
+
+  return filename;
+};
+
+export const exportAllSettlementHistoryWithFilters = async (options:IAllSettlementHistoryOptions, exportFolder: string): Promise<string> => {
+  let pipeline: PipelineStage[] = [];
+
+  pipeline.push(
+      { $sort: { date: 1} },
+      {
+          $project: {
+            wallet:1,
+            fullName:1,
+            contactNumber:1
+          }
+      }
+  );
+
+  const wallet = await deliveryAgentModel.aggregate(pipeline);
+  let filename = '';
+
+  // if (wallet && wallet.length) {
+  //     let formattedData = wallet.map((wallet) => ({
+  //         ...wallet,
+  //     }));
+
+  if (wallet && wallet.length) {
+    let formattedData = wallet.map(({ wallet, ...rest }) => ({
+        ...rest,
+        cashInHand: wallet?.cashInHand || 0,
+        totalSettlement: wallet?.totalSettlement || 0,
+        lastSettlementDate: wallet?.lastSettlementDate || null,
+    }));
+
+
+      let workbook = new excel.Workbook();
+      let worksheet = workbook.addWorksheet("Settlement History");
+      worksheet.columns = [
+          { header: "contact number", key: "contactNumber", width: 20 },
+          { header: "Agent Name", key: "fullName", width: 25 },
+          { header: "Last Settlement ", key: "lastSettlementDate", width: 20 },
+          { header: "Balance", key: "cashInHand", width: 20 },
+          { header: "Total Settlement", key: "totalSettlement", width: 20 },
+      ];
+
+      let firstRow = worksheet.getRow(1);
+      firstRow.eachCell((cell: any) => {
+          cell.font = { bold: true };
+      });
+
+      worksheet.addRows(formattedData);
+
+      console.log(formattedData)
+
+      filename = `wallet-history-${Date.now()}.xlsx`;
       let filePath = path.join(exportFolder, filename);
       await workbook.xlsx.writeFile(filePath).then(() => {
           console.log("File saved!");
