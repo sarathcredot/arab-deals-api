@@ -22,6 +22,8 @@ type Query{
   
   getAllAgentData:[AllAgents]!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgent
+  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):[Settlement]!
+  getAgentSettlementHistoryByAgent:[Settlement]!
   getDeliveryAgentByAgent: DeliveryAgent
   getSettlementHistoryByAdmin:[Settlement]!
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
@@ -38,6 +40,10 @@ type Query{
  input GetAssignedOrderByDeliveryAgentInput{
 
         _id:ObjectId!
+ }
+
+ input getAgentSettlementHistoryInput{
+       agentId:ObjectId!
  }
 
 

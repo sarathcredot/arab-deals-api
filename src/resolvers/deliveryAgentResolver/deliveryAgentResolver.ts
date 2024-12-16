@@ -12,6 +12,7 @@ import { deliveryAgentModel } from "../../models/deliveryAgentModel";
 import { error } from "console";
 
 import { v4 as uuidv4 } from 'uuid';
+import { settlementModel } from "../../models/settlementModel";
 
 interface EditAgentResult {
   flag: boolean;
@@ -208,6 +209,9 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+
+    //to create settlement by admin 
+
     createSettlement:async(parent, { input }, { req }, info) =>{
        await verifyAdmin(req);
 
@@ -262,6 +266,8 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+
+    //to edit settlement by admin
 
     editSettlement: async (parent, { input }, { req }, info) => {
       //  await verifyAdmin(req);
@@ -621,7 +627,7 @@ export const deliveryAgentResolver: Resolvers = {
   Query: {
 
 
-    //get delivery agent by admin
+    //get delivery agent details by admin
     getDeliveryAgent: async (parent, { input }, { req }, info) => {
       await verifyAdmin(req);
       const { agentId } = input;
@@ -772,6 +778,76 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+
+    //to get agent's settlement history in admin portal
+    getAgentSettlementHistory: async (parent, {input}, { req }, info) => {
+      const {agentId} = input
+
+      if (!agentId) {
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        const result = await settlementModel.find({agentId:agentId});
+
+        if (!result || result.length === 0) {
+          throw new GraphQLError("No settlements found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+
+        return result;
+
+      } catch (error: any) {
+        throw new GraphQLError("Error fetching settlements", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", details: error.message },
+        });
+      }
+    },
+
+    //to get agent's settlemnt history in agent dashboard
+    
+    getAgentSettlementHistoryByAgent: async (parent, {}, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      if (!agentId) {
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        const result = await settlementModel.find({agentId:agentId});
+
+        if (!result || result.length === 0) {
+          throw new GraphQLError("No settlements found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+
+        return result;
+
+      } catch (error: any) {
+        throw new GraphQLError("Error fetching settlements", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", details: error.message },
+        });
+      }
+    },
     // get one agent assigned order full data admin port 
 
     getAssignedOrderByDeliveryAgent:async(parent, { input }, { req }, info)=>{
