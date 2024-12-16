@@ -5,7 +5,7 @@ import { GraphQLUpload } from "graphql-upload-ts";
 import path from "path";
 import * as validators from "./deliveryAgentValidator";
 import { GraphQLError } from "graphql";
-import { validateInput, verifyAdmin, verifyVendor,verifyDeliveryAgent } from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor, verifyDeliveryAgent } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 import { deliveryAgentModel, settlementModel } from "src/models";
@@ -206,14 +206,14 @@ export const deliveryAgentResolver: Resolvers = {
     createSettlement:async(parent, { input }, { req }, info) =>{
        await verifyAdmin(req);
 
-       const {agentId,amount}=input;
-       const remarks: string | undefined = input?.remarks ?? undefined;
+      const { agentId, amount } = input;
+      const remarks: string | undefined = input?.remarks ?? undefined;
 
-       try {
+      try {
         // Check if the delivery agent exists
         const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
           { _id: agentId },
-          { _id: 1, wallet:1 },
+          { _id: 1, wallet: 1 },
           { lean: false }
         );
 
@@ -222,8 +222,8 @@ export const deliveryAgentResolver: Resolvers = {
             extensions: { code: "NOT_FOUND" },
           });
         }
-       
-        if(existingAgent.wallet.cashInHand < amount){
+
+        if (existingAgent.wallet.cashInHand < amount) {
           throw new GraphQLError("Insufficient funds. The agent does not have enough money for this settlement.", {
             extensions: { code: "BAD_REQUEST" },
           });
@@ -231,10 +231,10 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         let settlementData: deliveryAgentService.ISettlement = {
-          type:"SETTLED",agentId,amount,remarks,totalAmount:existingAgent.wallet.cashInHand,balance:existingAgent.wallet.cashInHand-amount
+          type: "SETTLED", agentId, amount, remarks, totalAmount: existingAgent.wallet.cashInHand, balance: existingAgent.wallet.cashInHand - amount
         };
 
-        const result = await deliveryAgentService.createSettlement(settlementData,agentId);
+        const result = await deliveryAgentService.createSettlement(settlementData, agentId);
 
         if (!result) {
           throw new GraphQLError("Unable to create settlement", {
@@ -249,8 +249,8 @@ export const deliveryAgentResolver: Resolvers = {
           _id: result._id,
           message: "settlement successfully created",
         };
-        
-       } catch (error: any) {
+
+      } catch (error: any) {
         throw new GraphQLError(error.message || "Error Creating  settlement", {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
@@ -258,74 +258,74 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
 
-    editSettlement:async(parent, { input }, { req }, info) =>{
-       await verifyAdmin(req);
+    editSettlement: async (parent, { input }, { req }, info) => {
+      //  await verifyAdmin(req);
 
-       const { settlementId, amount } = input;
-       const remarks: string | undefined = input?.remarks ?? undefined;
+      const { settlementId, amount } = input;
+      const remarks: string | undefined = input?.remarks ?? undefined;
 
-              try {
+      try {
 
-              const existingSettlement = await deliveryAgentService.findSettlementtWithFilters(
-                { _id: settlementId },
-                { _id: 1, type:1,agentId:1,amount:1,createdAt:1,remarks:1,totalAmount:1,balance:1},
-                { lean: false });
+        const existingSettlement = await deliveryAgentService.findSettlementtWithFilters(
+          { _id: settlementId },
+          { _id: 1, type: 1, agentId: 1, amount: 1, createdAt: 1, remarks: 1, totalAmount: 1, balance: 1 },
+          { lean: false });
 
 
-                if (!existingSettlement) {
-                  throw new GraphQLError("Settlement not found", {
-                    extensions: { code: "NOT_FOUND" },
-                  });
-                }
+        if (!existingSettlement) {
+          throw new GraphQLError("Settlement not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
 
-                // Check if the delivery agent exists
-                const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
-                  { _id: existingSettlement.agentId },
-                  { _id: 1, wallet:1 },
-                  { lean: false }
-                );
+        // Check if the delivery agent exists
+        const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { _id: existingSettlement.agentId },
+          { _id: 1, wallet: 1 },
+          { lean: false }
+        );
 
-                if (!existingAgent) {
-                  throw new GraphQLError("Delivery Agent not found", {
-                    extensions: { code: "NOT_FOUND" },
-                  });
-                }
-            
-                // Calculate the wallet adjustment
-                const originalAmount = existingSettlement.amount;
-                const walletAdjustment = amount - originalAmount;
+        if (!existingAgent) {
+          throw new GraphQLError("Delivery Agent not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
 
-                if (existingAgent.wallet.cashInHand < walletAdjustment) {
-                  throw new GraphQLError("Insufficient funds. The agent does not have enough money for this adjustment.", {
-                    extensions: { code: "BAD_REQUEST" },
-                  });
-                }
-              // Update settlement data
-              const updatedSettlementData = {
-                amount,
-                type:"SETTLED",
-                agentId:existingSettlement.agentId ,
-                remarks,
-                balance: existingAgent.wallet.cashInHand - walletAdjustment,
-              };
+        // Calculate the wallet adjustment
+        const originalAmount = existingSettlement.amount;
+        const walletAdjustment = amount - originalAmount;
 
-              const result = await deliveryAgentService.editSettlement(settlementId, updatedSettlementData, walletAdjustment,existingSettlement.agentId);
+        if (existingAgent.wallet.cashInHand < walletAdjustment) {
+          throw new GraphQLError("Insufficient funds. The agent does not have enough money for this adjustment.", {
+            extensions: { code: "BAD_REQUEST" },
+          });
+        }
+        // Update settlement data
+        const updatedSettlementData = {
+          amount,
+          type: "SETTLED",
+          agentId: existingSettlement.agentId,
+          remarks,
+          balance: existingAgent.wallet.cashInHand - walletAdjustment,
+        };
 
-              if (!result) {
-                throw new GraphQLError("Unable to update settlement", {
-                  extensions: {
-                    code: "INTERNAL_SERVER_ERROR",
-                    errors: [],
-                  },
-                });
-              }
+        const result = await deliveryAgentService.editSettlement(settlementId, updatedSettlementData, walletAdjustment, existingSettlement.agentId);
 
-              return {
-                _id: result._id,
-                message: "Settlement successfully updated",
-              };
-  
-       } catch (error: any) {
+        if (!result) {
+          throw new GraphQLError("Unable to update settlement", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+        }
+
+        return {
+          _id: result._id,
+          message: "Settlement successfully updated",
+        };
+
+      } catch (error: any) {
         throw new GraphQLError(error.message || "Error Creating  settlement", {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
@@ -334,129 +334,173 @@ export const deliveryAgentResolver: Resolvers = {
  
 
     // delivery agent data edit 
-    editDeliveryAgentData: async (parent, { input ,image }, { req }, info): Promise<boolean> => {
+    editDeliveryAgentData: async (parent, { input, image }, { req }, info) => {
 
-      await verifyAdmin(req);
+      try {
 
-      // delivery agent edit input validation
-      await validateInput(validators.deliveryAgentEditByAdminValidator, req);
+        console.log("edit req")
 
-      if (!input._id) {
+        await verifyAdmin(req);
 
-        throw new GraphQLError("Agent ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
+        // delivery agent edit input validation
+        await validateInput(validators.deliveryAgentEditByAdminValidator, req);
 
-      } else {
+        if (!input._id) {
 
-        // licence uploding 
-
-        const { createReadStream, filename, mimetype, encoding } = await image;
-          const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
-          const stream = createReadStream();
-          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
-  
-        const uploaddlicence = {
-            fileType: "PUBLIC",
-            fileURL: file.location,
-            mimeType: mimetype,
-            originalName: filename
-          }
-
-          const agentData={
-
-            fullName:input.fullName,
-            contactNumber:input.contactNumber,
-            userID:input.userID,
-            agentType:input.agentType,
-            vendorID:input.vendorID,
-            licence:uploaddlicence
-          }
-
-
-        const result: EditAgentResult = await deliveryAgentService.editAgentData(agentData)
-
-        if (result.flag) {
-
-          return true  // agent data edited
+          throw new GraphQLError("Agent ID is required", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
 
         } else {
 
-          throw new GraphQLError("Unable to edit delivery agent", {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              errors: [],
-            },
-          });
 
-          // agent data edit failed
+          let agentData = {}
+
+
+          if (image) {
+
+            // licence uploding 
+
+            console.log("licnce")
+
+            const { createReadStream, filename, mimetype, encoding } = await image;
+            const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
+            const stream = createReadStream();
+            const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+            const uploaddlicence = {
+              fileType: "PUBLIC",
+              fileURL: file.location,
+              mimeType: mimetype,
+              originalName: filename
+            }
+
+            agentData = {
+
+              _id: input._id,
+              fullName: input.fullName,
+              contactNumber: input.contactNumber,
+              userID: input.userID,
+              agentType: input.agentType,
+              vendorID: input.vendorID,
+              licence: uploaddlicence
+            }
+
+          } else { // without  licence updation
+
+            agentData = {
+              _id: input._id,
+              fullName: input.fullName,
+              contactNumber: input.contactNumber,
+              userID: input.userID,
+              agentType: input.agentType,
+              vendorID: input.vendorID,
+
+            }
+          }
+
+
+
+          const result = await deliveryAgentService.editAgentData(agentData)
+
+          // check mobile number exit or not 
+          if (result.numberExit) {
+
+            console.log("number exit res")
+
+            throw new GraphQLError("this email or mobile number already exit ", {
+              extensions: {
+                code: "BAD_USER_INPUT",
+                errors: [],
+              },
+            });
+
+
+          }
+
+          return {
+
+            status: true,
+            msg: "agent data edited"
+          }  // agent data edited
+
         }
 
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
       }
 
+
     },
+
 
     // delivery agent login 
 
     loginDeliveryAgent: async (parent, { input }, { req }, info): Promise<any> => {
 
-     try {
+      try {
 
         // input validation
 
-        await validateInput(validators.loginDeliveryAgentValidator,req)
+        await validateInput(validators.loginDeliveryAgentValidator, req)
 
-      // agent login 
-      const result: any = await deliveryAgentService.loginDeliveryAgent(input as DeliveryLoginData)
+        // agent login 
+        const result: any = await deliveryAgentService.loginDeliveryAgent(input as DeliveryLoginData)
 
-      if (result.login) {
+        if (result.login) {
 
-        const token = await jwtService.createDeliveryAgentLoginJWT({ id: result._id, userID: result.userId })
+          const token = await jwtService.createDeliveryAgentLoginJWT({ id: result._id, userID: result.userId })
 
-        console.log(result)
+          console.log(result)
 
-        return {   // agent login done
+          return {   // agent login done
 
-          status: "login",
-          fullName: result.fullname,
-          token: token,
-          msg: result.msg
+            status: "login",
+            fullName: result.fullname,
+            token: token,
+            msg: result.msg
+          }
+
+
+
+        } else if (result.notfount) {
+
+
+          return {
+
+            status: "notfount",
+            fullName: "#",
+            token: "#",
+            msg: result.msg
+          }
+        } else {
+
+          console.log(result)
+          return {
+
+            status: "mismatch",
+            fullName: "#",
+            token: "#",
+            msg: result.msg
+          }
         }
 
+      } catch (error) {
 
+        throw new GraphQLError("Unable to login delivery agent", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
 
-      } else if (result.notfount) {
-
-
-        return {
-
-          status: "notfount",
-          fullName: "#",
-          token: "#",
-          msg: result.msg
-        }
-      } else {
-
-        console.log(result)
-        return {
-
-          status: "mismatch",
-          fullName: "#",
-          token: "#",
-          msg: result.msg
-        }
       }
-    
-    } catch (error) {
-      
-      throw new GraphQLError("Unable to login delivery agent", {
-        extensions: {
-          code: "INTERNAL_SERVER_ERROR",
-          errors: [],
-        },
-      });
-           
-     }
 
 
     },
@@ -465,105 +509,105 @@ export const deliveryAgentResolver: Resolvers = {
 
     orderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
 
-     try {
+      try {
 
-       // input validation
-       await validateInput(validators.orderAssignDeliveryAgentValidator, req)
-      
-       const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
- 
-       if (result.flag) {
- 
-         return {  // order assign to delivery agent
+        // input validation
+        await validateInput(validators.orderAssignDeliveryAgentValidator, req)
 
-               status:true,
-               msg:"order assign to delivery agent"
-         }  
- 
-       } else {
- 
-         throw new GraphQLError("Unable to assigen delivery agent", {
-           extensions: {
-             code: "INTERNAL_SERVER_ERROR",
-             errors: [],
-           },
-         });
- 
-       }
- 
- 
-    } catch (error) {
-      
-      throw new GraphQLError("Unable to assigen delivery agent", {
-        extensions: {
-          code: "INTERNAL_SERVER_ERROR",
-          errors: [],
-        },
-      });
+        const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
 
-     }
+        if (result.flag) {
+
+          return {  // order assign to delivery agent
+
+            status: true,
+            msg: "order assign to delivery agent"
+          }
+
+        } else {
+
+          throw new GraphQLError("Unable to assigen delivery agent", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+
+        }
+
+
+      } catch (error) {
+
+        throw new GraphQLError("Unable to assigen delivery agent", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+      }
 
 
     },
 
-    orderDelivedbyAgent:async(parent, { input }, { req }, info)=>{
+    orderDelivedbyAgent: async (parent, { input }, { req }, info) => {
 
- 
-         try {
- 
-             // check delivery agent login or not
 
-          const deliveryAgentData= await  verifyDeliveryAgent(req)
+      try {
 
-          if(!deliveryAgentData){
+        // check delivery agent login or not
 
-            throw new GraphQLError("Unauthorized", {
-              extensions: {
-                  code: "UNAUTHORIZED",
-                  errors: []
-              },
+        const deliveryAgentData = await verifyDeliveryAgent(req)
+
+        if (!deliveryAgentData) {
+
+          throw new GraphQLError("Unauthorized", {
+            extensions: {
+              code: "UNAUTHORIZED",
+              errors: []
+            },
           });
-       
+
         }
 
-             // input validation
+        // input validation
 
-             await validateInput(validators.orderDelivedbyAgentValidator,req)
+        await validateInput(validators.orderDelivedbyAgentValidator, req)
 
-             //  delivery agent order delived service
+        //  delivery agent order delived service
 
-              const obj={
+        const obj = {
 
-                deliveryAgentId:deliveryAgentData.id,
-                orderItemId:input.orderItemId,
-                pymentType:input.pymentType,
-                deliveryStatus:input.deliveryStatus,
-                remarks:input.remarks || ""
-                
+          deliveryAgentId: deliveryAgentData.id,
+          orderItemId: input.orderItemId,
+          pymentType: input.pymentType,
+          deliveryStatus: input.deliveryStatus,
+          remarks: input.remarks || ""
 
-                
-              }
 
-             const result=await deliveryAgentService.orderDelivedbyAgent(obj)
 
-             return {
+        }
 
-                 status:true,
-                 msg:"delivery status updated"
-             }
-             
-            
-           } catch (error) {
-            
-            throw new GraphQLError("Unable to update this order status ", {
-              extensions: {
-                code: "INTERNAL_SERVER_ERROR",
-                errors: [],
-              },
-            });
-           }
+        const result = await deliveryAgentService.orderDelivedbyAgent(obj)
 
-            
+        return {
+
+          status: true,
+          msg: "delivery status updated"
+        }
+
+
+      } catch (error) {
+
+        throw new GraphQLError("Unable to update this order status ", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+
+
     }
 
 
@@ -707,22 +751,31 @@ export const deliveryAgentResolver: Resolvers = {
       await verifyAdmin(req);
       try {
         const result = await deliveryAgentService.getSettlementHistoryByAdmin({});
-    
+
         if (!result || result.length === 0) {
           throw new GraphQLError("No settlements found", {
             extensions: { code: "NOT_FOUND" },
           });
         }
-    
+
         return result;
 
-      } catch (error:any) {
+      } catch (error: any) {
         throw new GraphQLError("Error fetching settlements", {
           extensions: { code: "INTERNAL_SERVER_ERROR", details: error.message },
         });
       }
+    },
+
+    // get one agent assigned order full data admin port 
+
+    getAssignedOrderByDeliveryAgent:async(parent, { input }, { req }, info)=>{
+
+           return true
     }
-    
+      
+
+
   }
 
 

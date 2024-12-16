@@ -34,13 +34,13 @@ export interface ISettlement {
   _id?: Types.ObjectId;
   type: string;
   agentId: Types.ObjectId;
-  amount:number;
-  date?:Date;
-  remarks?:string;
-  totalAmount?:number;
-  balance?:number;
-  createdAt?:Date;
-  updatedAt?:Date;
+  amount: number;
+  date?: Date;
+  remarks?: string;
+  totalAmount?: number;
+  balance?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IAdminSettlementHistoryOptions {
@@ -77,7 +77,7 @@ export interface IDeliveryAgentFilter {
     numberOfOrderAssigned: number;
     numberOfOrderDelivered: number;
   };
-  settlementHistory:Types.ObjectId[] | ISettlement[];
+  settlementHistory: Types.ObjectId[] | ISettlement[];
 }
 
 export interface IDeliveryAgentDocument extends Document {
@@ -204,23 +204,23 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
 };
 
 
-export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSettlementHistoryOptions, exportFolder: string): Promise<string> => {
+export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSettlementHistoryOptions, exportFolder: string): Promise<string> => {
   let pipeline: PipelineStage[] = [];
 
   if (options._id) {
-      pipeline.push({ $match: { _id: options._id } });
+    pipeline.push({ $match: { _id: options._id } });
   }
   if (options.agentId) {
-      pipeline.push({ $match: { agentId: options.agentId } });
+    pipeline.push({ $match: { agentId: options.agentId } });
   }
   if (options.type) {
     pipeline.push({ $match: { type: options.type } });
 }
   if (options.startDate) {
-      pipeline.push({ $match: { date: { $gte: options.startDate } } });
+    pipeline.push({ $match: { date: { $gte: options.startDate } } });
   }
   if (options.endDate) {
-      pipeline.push({ $match: { date: { $lte: options.endDate } } });
+    pipeline.push({ $match: { date: { $lte: options.endDate } } });
   }
 
   pipeline.push(
@@ -280,20 +280,20 @@ export const exportAdminSettlementHistoryWithFilters = async (options:IAdminSett
           { header: "Remarks", key: "remarks", width: 50 }
       ];
 
-      let firstRow = worksheet.getRow(1);
-      firstRow.eachCell((cell: any) => {
-          cell.font = { bold: true };
-      });
+    let firstRow = worksheet.getRow(1);
+    firstRow.eachCell((cell: any) => {
+      cell.font = { bold: true };
+    });
 
-      worksheet.addRows(formattedData);
+    worksheet.addRows(formattedData);
 
-      console.log(formattedData)
+    console.log(formattedData)
 
-      filename = `settlement-history-${Date.now()}.xlsx`;
-      let filePath = path.join(exportFolder, filename);
-      await workbook.xlsx.writeFile(filePath).then(() => {
-          console.log("File saved!");
-      });
+    filename = `settlement-history-${Date.now()}.xlsx`;
+    let filePath = path.join(exportFolder, filename);
+    await workbook.xlsx.writeFile(filePath).then(() => {
+      console.log("File saved!");
+    });
   }
 
   return filename;
@@ -360,7 +360,8 @@ export const exportAllSettlementHistoryWithFilters = async (options:IAllSettleme
 
 
 type Editrespo = {
-  flag: boolean
+  flag?: boolean
+  numberExit?: boolean
 }
 
 
@@ -371,7 +372,7 @@ export const viewAllDeliveryAgents = async (): Promise<IDeliveryAgent[] | []> =>
 
     try {
 
-      const allData = await deliveryAgentModel.find()
+      const allData = await deliveryAgentModel.find().sort({ createdAt: -1 })
 
       resolve(allData)
 
@@ -391,30 +392,194 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
 
   return new Promise(async (resolve, reject) => {
 
+
     try {
 
-      await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+      // new mobile number check 
 
-        $set: {
+      const result = await deliveryAgentModel.findOne({
 
-          fullName: data.fullName,
-          contactNumber: data.contactNumber,
-          userID: data.userID,
-          vendorID: data.vendorID,
-          agentType: data.agentType,
-          licence:data.licence
-        }
+        $or: [
+          { contactNumber: data.contactNumber },
+          { userID: data.userID }
+        ]
       })
 
-      resolve({ flag: true })
+      console.log("res", result)
+      console.log("input", data)
 
-    } catch (error) {
+      if (result) {
+
+        if (result._id.toString() !== data._id.toString()) {
+
+          resolve({ numberExit: true })
+          console.log("number exit promis")
+          return;
+
+        }
 
 
-      reject({ flag: false })
+
+      } 
+
+
+
+        console.log("data edit")
+
+        if (data.licence) {
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+            $set: {
+
+              fullName: data.fullName,
+              contactNumber: data.contactNumber,
+              userID: data.userID,
+              vendorID: data.vendorID,
+              agentType: data.agentType,
+              licence: data.licence
+            }
+          })
+        } else {
+
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+            $set: {
+
+              fullName: data.fullName,
+              contactNumber: data.contactNumber,
+              userID: data.userID,
+              vendorID: data.vendorID,
+              agentType: data.agentType,
+
+            }
+          })
+        }
+
+        console.log("edited")
+        resolve({ flag: true })
+      
+
+
+
+    } catch (error: any) {
+
+      console.log(error.message)
+
+      console.log("edit error")
+      reject()
     }
   })
 }
+
+// test edit 
+
+
+
+
+
+// export const editAgentData = async (data: any): Promise<Editrespo> => {
+
+
+//   return new Promise(async (resolve, reject) => {
+
+
+//     try {
+
+//       // new mobile number check 
+
+//       const result = await deliveryAgentModel.findOne({ 
+
+//         $or: [
+//           { contactNumber: data.contactNumber },
+//           { userID: data.userID }
+//         ]
+//        })
+
+
+//          if(result){
+
+//               if(result._id.toString()!==data._id.toString()){
+
+//                   resolve({ numberExit: true })
+//                   console.log("exit")
+//                   return;
+//               }
+
+//           }
+
+//           console.log("editnew")
+//           resolve({flag:true})
+
+//       // console.log("res", result)
+//       // console.log("input", data)
+
+//       // if (result) {
+
+//       //   if (result._id.toString() !== data._id.toString()) {
+
+//       //     resolve({ numberExit: true })
+//       //     console.log("number exit promis")
+//       //   }
+
+
+
+//       // }
+
+//       // console.log("data edit")
+
+//       // if (data.licence) {
+
+//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+//       //     $set: {
+
+//       //       fullName: data.fullName,
+//       //       contactNumber: data.contactNumber,
+//       //       userID: data.userID,
+//       //       vendorID: data.vendorID,
+//       //       agentType: data.agentType,
+//       //       licence: data.licence
+//       //     }
+//       //   })
+//       // } else {
+
+//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+
+//       //     $set: {
+
+//       //       fullName: data.fullName,
+//       //       contactNumber: data.contactNumber,
+//       //       userID: data.userID,
+//       //       vendorID: data.vendorID,
+//       //       agentType: data.agentType,
+
+//       //     }
+//       //   })
+//       // }
+
+//       // console.log("edited")
+//       // resolve({ flag: true })
+
+
+
+
+//     } catch (error: any) {
+
+//       console.log(error.message)
+
+//       console.log("edit error")
+//       reject()
+//     }
+//   })
+// }
+
+
+
+
+
+
+
 
 
 // delivery agent login
@@ -428,7 +593,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
       // verfy agent based on userID and password
 
-      const agentData = await deliveryAgentModel.findOne({ userID: agentInput.userID ,isActive:true})
+      const agentData = await deliveryAgentModel.findOne({ userID: agentInput.userID, isActive: true })
 
       // agent data not found
 
@@ -474,7 +639,9 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
       }
 
-    } catch (error) {
+    } catch (error: any) {
+
+      console.log(error.message)
 
       reject()
     }
@@ -580,7 +747,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 }
 
 
-export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId,  pymentType: string, deliveryStatus: string, remarks?: string }) => {
+export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, pymentType: string, deliveryStatus: string, remarks?: string }) => {
 
 
   return new Promise(async (resolve, reject) => {
@@ -635,11 +802,11 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
             $set: {
-  
-              paymentStatus:"COMPLETED"
+
+              paymentStatus: "COMPLETED"
             }
           })
-  
+
 
           // get this order product price 
 
@@ -695,6 +862,22 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
     }
   })
 
+}
+
+
+export const getAssignedOrderByDeliveryAgent=async(data:{_id:Types.ObjectId})=>{
+
+          return new Promise(async(resolve,reject)=>{
+
+                  
+                   try {
+
+                      const result=await orderProductModel.find({deliveryAgentId:data._id})
+                   
+                   } catch (error) {
+                    
+                   }
+          })
 }
 
 
