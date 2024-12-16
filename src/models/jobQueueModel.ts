@@ -21,6 +21,9 @@ const jobSchema = new Schema(
         vendorId: {
             type: Types.ObjectId,
         },
+        agentId:{
+            type: Types.ObjectId,
+        },
         userType: {
             type: String,
             enum: ["VENDOR", "ADMIN"],

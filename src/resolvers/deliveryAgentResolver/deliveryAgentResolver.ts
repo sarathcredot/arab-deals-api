@@ -151,26 +151,11 @@ export const deliveryAgentResolver: Resolvers = {
         };
   
       }catch (error:any) {
-        // If it's already a GraphQLError, rethrow it directly
-          if (error instanceof GraphQLError) {
-            console.error("GraphQL Error in createDeliveryAgent:", error);
-            throw error;
-          }
-
-          // Log the full error details
-          console.error("Error in createDeliveryAgent resolver:", {
-            message: error.message,
-            name: error.name,
-            stack: error.stack
-          });
-
-          // Create a new GraphQLError with the original error's message
-          throw new GraphQLError(error.message || "An unexpected error occurred", {
-            extensions: { 
-              code: "INTERNAL_SERVER_ERROR",
-              originalError: error
-            }
-          });
+        console.error("Error in createDeliveryAgent resolver:", error);
+        throw new GraphQLError(error, {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+       
       }
     },
 

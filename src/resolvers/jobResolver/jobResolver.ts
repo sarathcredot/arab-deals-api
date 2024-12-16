@@ -41,6 +41,34 @@ export const jobResolver: Resolvers = {
             return response;
         },
 
+        getAgentJobsQueue: async (parent, { input }, { req }, info) => {
+
+            // await verifyAdmin(req);
+            await validateInput(validators.getJobsValidator, req);
+
+            const { page, size, name, agentId } = input;
+
+            let options: jobQueueService.IGetJobsOptions = { page: 0, size: 10, name: '' };
+
+            if (page) {
+                options.page = page;
+            }
+            if (size) {
+                options.size = size;
+            }
+            if (name) {
+                options.name = name;
+            }
+
+            if (agentId) {
+                options.agentId = agentId;
+            }
+
+            const response = await jobQueueService.getJobs(options);
+            return response;
+        },
+
+
         getVendorJobsQueue: async (parent, { input }, { req }, info) => {
 
             await verifyVendor(req);
@@ -183,7 +211,7 @@ export const jobResolver: Resolvers = {
 
 
         exportAdminSettlementHistory: async (parent, { input }, { req }, info) => {
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
         
             let filters:deliveryAgentService.IAdminSettlementHistoryOptions  = { page: 0, size: 10 };
             
@@ -211,6 +239,7 @@ export const jobResolver: Resolvers = {
                     name: "SETTLEMENT_EXPORT",
                     status: "IN_PROGRESS",
                     userType: "ADMIN",
+                    agentId:input.agentId,
                     metadata: {}
                 };
                 const record = await jobQueueService.createJob(job);

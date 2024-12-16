@@ -36,6 +36,7 @@ export interface IGetJobsOptions {
     page: number;
     size: number;
     name?: string;
+    agentId?:Types.ObjectId
 }
 
 
@@ -59,6 +60,11 @@ export const getJobs = async (options: IGetJobsOptions): Promise<IGetJobsRespons
             {
                 $match: {
                     name: options.name
+                }
+            },
+            {
+                $match: {
+                    agentId: options.agentId
                 }
             },
         )
