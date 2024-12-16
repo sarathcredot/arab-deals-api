@@ -8,7 +8,7 @@ import { GraphQLError } from "graphql";
 import { validateInput, verifyAdmin, verifyVendor, verifyDeliveryAgent } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
-import { deliveryAgentModel, settlementModel } from "src/models";
+import { deliveryAgentModel } from "../../models/deliveryAgentModel";
 import { error } from "console";
 
 import { v4 as uuidv4 } from 'uuid';
@@ -55,24 +55,27 @@ export const deliveryAgentResolver: Resolvers = {
         let licence: deliveryAgentService.FileData | undefined;
   
         console.log(input)
+
+        const throwIfExists = (condition: boolean, message: string, code: string) => {
+          if (condition) {
+            console.log("message",message)
+            throw new GraphQLError(message, { extensions: { code } });
+          }
+        };
+
+
       try {
-        // Check if userid already exists
         const isUserExists = await deliveryAgentService.findDeliveryAgentWithFilters(
           { userID },
-          { _id: 1,userID:1,fullName:1 },
+          { _id: 1, userID: 1, fullName: 1 },
           { lean: true }
         );
-  
-        console.log("isUserExists,",isUserExists)
 
-
-        if (isUserExists?.userID === userID) {
-          console.log("user exist")
-          throw new GraphQLError("User email already exist", {
-            extensions: { code: "BAD_REQUEST" },
-          });
-        }
-  
+        throwIfExists(
+          isUserExists?.userID === userID,
+          "User email already exists",
+          "BAD_REQUEST"
+        );
   
         // Check if the contactNumber already exists
         const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
@@ -111,7 +114,7 @@ export const deliveryAgentResolver: Resolvers = {
         }
   
         if (!licence) {
-          throw new GraphQLError("Licence file is required", {
+          throw new GraphQLError("License upload failed", {
             extensions: {
               code: "BAD_REQUEST",
             },
@@ -147,10 +150,27 @@ export const deliveryAgentResolver: Resolvers = {
           message: "Delivery Agent successfully created",
         };
   
-      }catch (error: any) {
-        throw new GraphQLError(error.message || "Error Creating  agent", {
-          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-        });
+      }catch (error:any) {
+        // If it's already a GraphQLError, rethrow it directly
+          if (error instanceof GraphQLError) {
+            console.error("GraphQL Error in createDeliveryAgent:", error);
+            throw error;
+          }
+
+          // Log the full error details
+          console.error("Error in createDeliveryAgent resolver:", {
+            message: error.message,
+            name: error.name,
+            stack: error.stack
+          });
+
+          // Create a new GraphQLError with the original error's message
+          throw new GraphQLError(error.message || "An unexpected error occurred", {
+            extensions: { 
+              code: "INTERNAL_SERVER_ERROR",
+              originalError: error
+            }
+          });
       }
     },
 

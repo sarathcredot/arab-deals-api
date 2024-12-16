@@ -16,7 +16,7 @@ export const exportAdminOrdersValidator = [
 export const getJobsValidator = [
     body('variables.input.page').optional({ checkFalsy: true }).custom(val => val >= 0),
     body('variables.input.size').optional({ checkFalsy: true }).custom(val => val > 0),
-    body('variables.input.name').trim().optional({ checkFalsy: true }).isIn(["ORDER_EXPORT", "SHIPPING_EXPORT"]),
+    body('variables.input.name').trim().optional({ checkFalsy: true }).isIn(["ORDER_EXPORT", "SHIPPING_EXPORT","SETTLEMENT_EXPORT","WALLET_EXPORT"]),
 ];
 export const getAdminDownloadTokenValidator = [
     body('variables.input._id').isMongoId(),

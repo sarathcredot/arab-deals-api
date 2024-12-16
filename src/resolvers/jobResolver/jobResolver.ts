@@ -183,13 +183,10 @@ export const jobResolver: Resolvers = {
 
 
         exportAdminSettlementHistory: async (parent, { input }, { req }, info) => {
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
         
             let filters:deliveryAgentService.IAdminSettlementHistoryOptions  = { page: 0, size: 10 };
-        
-            if (input._id) {
-                filters._id = input._id;
-            }
+            
             if (input.type) {
                 filters.type = input.type;
             }
@@ -237,7 +234,7 @@ export const jobResolver: Resolvers = {
         },
 
         exportAllSettlementHistory: async (parent, { input }, { req }, info) => {
-            // await verifyAdmin(req);
+            await verifyAdmin(req);
         
             let filters:deliveryAgentService.IAllSettlementHistoryOptions  = { page: 0, size: 10 };
         

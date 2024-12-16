@@ -44,7 +44,6 @@ export interface ISettlement {
 }
 
 export interface IAdminSettlementHistoryOptions {
-  _id?: Types.ObjectId;
   type?:string;
   agentId?: Types.ObjectId;
   startDate?: Date;
@@ -207,9 +206,6 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
 export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSettlementHistoryOptions, exportFolder: string): Promise<string> => {
   let pipeline: PipelineStage[] = [];
 
-  if (options._id) {
-    pipeline.push({ $match: { _id: options._id } });
-  }
   if (options.agentId) {
     pipeline.push({ $match: { agentId: options.agentId } });
   }
