@@ -632,7 +632,7 @@ export const deliveryAgentResolver: Resolvers = {
       // await verifyAdmin(req);
       const { agentId ,startDate,endDate,type} = input;
 
-      const page: number = input?.page || 0;
+      const page: number = input?.page || 1;
       const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
@@ -716,7 +716,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       const { startDate,endDate,type} = input;
 
-      const page: number = input?.page || 0;
+      const page: number = input?.page || 1;
       const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
@@ -839,7 +839,10 @@ export const deliveryAgentResolver: Resolvers = {
 
     //to get agent's settlement history in admin portal
     getAgentSettlementHistory: async (parent, {input}, { req }, info) => {
-      const {agentId} = input
+      const { agentId ,startDate,endDate,type} = input;
+
+      const page: number = input?.page || 1;
+      const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
         throw new GraphQLError("Agent ID is required", {
@@ -853,8 +856,30 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
 
+
+      
+        // Construct dynamic filter for settlement history
+        const settlementHistoryFilter: Record<string, any> = {};
+
+        if (startDate) {
+          settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $gte: new Date(startDate) };
+        }
+
+        if (endDate) {
+          settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $lte: new Date(endDate) };
+        }
+
+        if (type) {
+          settlementHistoryFilter.type = type;
+        }
+        
+
       try {
-        const result = await settlementModel.find({agentId:agentId}).sort({createdAt:-1});
+        const result = await settlementModel
+        .find({ agentId, ...settlementHistoryFilter }) 
+        .sort({ createdAt: -1 }) 
+        .skip((page - 1) * limit) 
+        .limit(limit);
 
         if (!result || result.length === 0) {
           throw new GraphQLError("No settlements found", {
@@ -862,7 +887,18 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        return result;
+        const totalSettlements = await settlementModel.countDocuments({
+          agentId,
+          ...settlementHistoryFilter,
+        });
+    
+
+        return {
+          settlements: result, 
+          totalItems: totalSettlements, 
+          currentPage: page, 
+          totalPages: Math.ceil(totalSettlements / limit), 
+        };
 
       } catch (error: any) {
         throw new GraphQLError("Error fetching settlements", {

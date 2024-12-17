@@ -22,7 +22,7 @@ type Query{
   
   getAllAgentData:[AllAgents]!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
-  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):[Settlement]!
+  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):SettlementResponse!
   getAgentSettlementHistoryByAgent:[Settlement]!
   getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
   getSettlementHistoryByAdmin:[Settlement]!
@@ -44,6 +44,11 @@ type Query{
 
  input getAgentSettlementHistoryInput{
        agentId:ObjectId!
+         page: Int
+        limit: Int
+        startDate: Date
+        endDate: Date
+        type:String
  }
 
 
@@ -113,10 +118,18 @@ type DeliveryAgent{
 }
 
 type DeliveryAgentResponse{
-  deliveryAgent:DeliveryAgent,
-  totalItems:Float,
-  currentPage: Float,
+  deliveryAgent:DeliveryAgent
+  totalItems:Float
+  currentPage: Float
   totalPages: Float
+}
+
+type SettlementResponse{
+  settlements:[Settlements]
+  totalItems:Float
+  currentPage: Float
+  totalPages: Float
+
 }
 
 type Wallet {
@@ -156,6 +169,19 @@ type Settlement {
   _id: ObjectId
   type: String
   agentId: Agent
+  amount: Float
+  date: Date
+  remarks: String
+  totalAmount: Float
+  balance: Float
+  createdAt:Date
+  updatedAt:Date
+}
+
+type Settlements {
+  _id: ObjectId
+  type: String
+  agentId: ObjectId
   amount: Float
   date: Date
   remarks: String
