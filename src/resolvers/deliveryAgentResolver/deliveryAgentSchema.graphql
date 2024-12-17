@@ -7,10 +7,10 @@ type Mutation {
   editDeliveryAgentData(input:EditAgentDataInput!,image:Upload):EditAgentDataInputResponse!
   # editDeliveryAgentData(input:EditAgentDataInput!):Boolean!
   createDeliveryAgent(input: CreateDeliveryAgentInput!,image:Upload): CreateDeliveryAgentResponse!
-  suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):CreateDeliveryAgentResponse!
+  suspendDeliveryAgent(input: SuspendDeliveryAgentInput!):AllDeliveryAgentResponse!
   loginDeliveryAgent(input:LoginDeliveryAgentInput):LoginDeliveryAgentResponse!
-  createSettlement(input:CreateSettlementInput!):CreateDeliveryAgentResponse!
-  editSettlement(input: EditSettlementInput!):CreateDeliveryAgentResponse!
+  createSettlement(input:CreateSettlementInput!):AllDeliveryAgentResponse!
+  editSettlement(input: EditSettlementInput!):AllDeliveryAgentResponse!
   orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
   orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):OrderDelivedbyAgentResponse!
   
@@ -203,9 +203,16 @@ type SettlementHistory {
 
 
 # Response type for createDeliveryAgent Mutation
+type AllDeliveryAgentResponse {
+  _id: ObjectId
+  message: String!
+}
+ 
+# Response type for createDeliveryAgent Mutation
 type CreateDeliveryAgentResponse {
   _id: ObjectId
   message: String!
+  error:Boolean
 }
  
 # Input type for creating a Delivery Agent

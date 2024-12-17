@@ -13,6 +13,7 @@ import { error } from "console";
 
 import { v4 as uuidv4 } from 'uuid';
 import { settlementModel } from "../../models/settlementModel";
+import moment from "moment";
 
 interface EditAgentResult {
   flag: boolean;
@@ -43,6 +44,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent creation from admin side
     createDeliveryAgent: async (parent, { input, image }, { req }, info) => {
+     
     
         await verifyAdmin(req);
         await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
@@ -57,26 +59,7 @@ export const deliveryAgentResolver: Resolvers = {
   
         console.log(input)
 
-        const throwIfExists = (condition: boolean, message: string, code: string) => {
-          if (condition) {
-            console.log("message",message)
-            throw new GraphQLError(message, { extensions: { code } });
-          }
-        };
-
-
       try {
-        const isUserExists = await deliveryAgentService.findDeliveryAgentWithFilters(
-          { userID },
-          { _id: 1, userID: 1, fullName: 1 },
-          { lean: true }
-        );
-
-        throwIfExists(
-          isUserExists?.userID === userID,
-          "User email already exists",
-          "BAD_REQUEST"
-        );
   
         // Check if the contactNumber already exists
         const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
@@ -86,11 +69,13 @@ export const deliveryAgentResolver: Resolvers = {
   
         );
         if (existingContact) {
-          throw new GraphQLError("Contact number already taken", {
-            extensions: {
-              code: "CONTACT_NUMBER_ALREADY_EXISTS"
-            },
-          });
+        console.log("existing contact");
+        
+          return {
+            _id: existingContact._id,
+            message: "Delivery Agent with this contact number already exist",
+            error:true
+          };
         }
   
   
@@ -149,6 +134,7 @@ export const deliveryAgentResolver: Resolvers = {
         return {
           _id: result._id,
           message: "Delivery Agent successfully created",
+          error:false
         };
   
       }catch (error:any) {
@@ -630,9 +616,11 @@ export const deliveryAgentResolver: Resolvers = {
     //get delivery agent details by admin
     getDeliveryAgent: async (parent, { input }, { req }, info) => {
       // await verifyAdmin(req);
+
+      console.log(input)
       const { agentId ,startDate,endDate,type} = input;
 
-      const page: number = input?.page || 1;
+      const page: number = input?.page || 0;
       const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
@@ -651,14 +639,22 @@ export const deliveryAgentResolver: Resolvers = {
         // Construct dynamic filter for settlement history
           const settlementHistoryFilter: Record<string, any> = {};
 
+      
+
           if (startDate) {
-            settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $gte: new Date(startDate) };
+            const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
+            settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
           }
-
+        
           if (endDate) {
-            settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $lte: new Date(endDate) };
+            const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
+            settlementHistoryFilter.createdAt = {
+              ...settlementHistoryFilter.createdAt,
+              $lte: normalizedEndDate,
+            };
           }
 
+          
           if (type) {
             settlementHistoryFilter.type = type;
           }
@@ -676,12 +672,11 @@ export const deliveryAgentResolver: Resolvers = {
             agentType: 1,
             vendorID: 1,
             isActive: 1,
-            licence:1,
-            wallet:1,
-            ID:1,
-            settlementHistory: { $slice: [(page - 1) * limit, limit] }, // Apply pagination
+            licence: 1,
+            wallet: 1,
+            ID: 1,
           },
-          { lean: true },
+          { lean: true, page, limit },
           settlementHistoryFilter
         );
 

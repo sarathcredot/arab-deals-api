@@ -89,6 +89,7 @@ export interface IDeliveryAgentDocument extends Document {
   agentType: string;
   vendorID?: Types.ObjectId;
   licence: FileData;
+  isActive: boolean;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -195,12 +196,23 @@ export const findSettlementtWithFilters = async (filters: object, projection: ob
 };
 
 export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object , settlementHistoryFilter?: object ): Promise<IDeliveryAgentFilter | null> => {
-  return await deliveryAgentModel.findOne(filters, projection, options) .populate({
-    path: "settlementHistory", 
-    select: "_id type amount remarks totalAmount balance createdAt", 
-    match: settlementHistoryFilter,
-    options: { sort: { createdAt: -1 } },
-  });
+  const deliveryAgent = await deliveryAgentModel
+    .findOne(filters, projection, options)
+    .populate({
+      path: "settlementHistory",
+      select: "_id type amount remarks totalAmount balance createdAt",
+      options: { sort: { createdAt: -1 } }, // Sort first
+      match: settlementHistoryFilter, // Apply filters next
+    });
+
+  // Apply pagination manually to the populated `settlementHistory`
+  if (deliveryAgent && deliveryAgent.settlementHistory) {
+    const startIndex = (options as any)?.page * (options as any)?.limit || 0;
+    const endIndex = startIndex + (options as any)?.limit || deliveryAgent.settlementHistory.length;
+    deliveryAgent.settlementHistory = deliveryAgent.settlementHistory.slice(startIndex, endIndex);
+  }
+
+  return deliveryAgent;
 };
 
 export const countSettlementHistory = async (agentId: Types.ObjectId,settlementHistoryFilter?: object ): Promise<number> => {
