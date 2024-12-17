@@ -21,10 +21,10 @@ type Mutation {
 type Query{
   
   getAllAgentData:[AllAgents]!
-  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgent
+  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):[Settlement]!
   getAgentSettlementHistoryByAgent:[Settlement]!
-  getDeliveryAgentByAgent: DeliveryAgent
+  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
   getSettlementHistoryByAdmin:[Settlement]!
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
   getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):Boolean!
@@ -110,6 +110,13 @@ type DeliveryAgent{
     licence:ImageData
     wallet:Wallet
     settlementHistory:[SettlementHistory]
+}
+
+type DeliveryAgentResponse{
+  deliveryAgent:DeliveryAgent,
+  totalItems:Float,
+  currentPage: Float,
+  totalPages: Float
 }
 
 type Wallet {
@@ -205,6 +212,19 @@ input SuspendDeliveryAgentInput {
 
 input GetDeliveryAgentInput {
   agentId:ObjectId!
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type:String
+}
+
+input GetDeliveryAgentByAgentInput{
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type:String
 }
 
 input EditAgentDataInput{

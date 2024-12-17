@@ -629,11 +629,14 @@ export const deliveryAgentResolver: Resolvers = {
 
     //get delivery agent details by admin
     getDeliveryAgent: async (parent, { input }, { req }, info) => {
-      await verifyAdmin(req);
-      const { agentId } = input;
+      // await verifyAdmin(req);
+      const { agentId ,startDate,endDate,type} = input;
+
+      const page: number = input?.page || 0;
+      const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
-        throw new GraphQLError("Agent ID is required", {
+        throw new GraphQLError("All Fields are required", {
           extensions: { code: "BAD_USER_INPUT" },
         });
       }
@@ -643,6 +646,23 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "BAD_USER_INPUT" },
         });
       }
+
+
+        // Construct dynamic filter for settlement history
+          const settlementHistoryFilter: Record<string, any> = {};
+
+          if (startDate) {
+            settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $gte: new Date(startDate) };
+          }
+
+          if (endDate) {
+            settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $lte: new Date(endDate) };
+          }
+
+          if (type) {
+            settlementHistoryFilter.type = type;
+          }
+
 
       try {
         // Fetch the delivery agent by agentId
@@ -659,9 +679,10 @@ export const deliveryAgentResolver: Resolvers = {
             licence:1,
             wallet:1,
             ID:1,
-            settlementHistory:1
+            settlementHistory: { $slice: [(page - 1) * limit, limit] }, // Apply pagination
           },
-          { lean: true }
+          { lean: true },
+          settlementHistoryFilter
         );
 
         if (!deliveryAgent) {
@@ -670,7 +691,15 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        return deliveryAgent;
+          // Fetch total count of settlementHistory for pagination metadata
+        const totalSettlementHistory = await deliveryAgentService.countSettlementHistory(agentId,settlementHistoryFilter);
+
+        return {
+          deliveryAgent,
+          totalItems: totalSettlementHistory,
+          currentPage: page,
+          totalPages: Math.ceil(totalSettlementHistory / limit),
+        }
 
       } catch (error: any) {
         throw new GraphQLError(error.message || "Error fetching Delivery Agent", {
@@ -681,9 +710,14 @@ export const deliveryAgentResolver: Resolvers = {
 
  
     //get delivery agent details in  agent dashboard
-    getDeliveryAgentByAgent: async (parent, { }, { req }, info) => {
+    getDeliveryAgentByAgent: async (parent, {input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      const { startDate,endDate,type} = input;
+
+      const page: number = input?.page || 0;
+      const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
         throw new GraphQLError("Agent ID is required", {
@@ -696,6 +730,22 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "BAD_USER_INPUT" },
         });
       }
+
+       // Construct dynamic filter for settlement history
+       const settlementHistoryFilter: Record<string, any> = {};
+
+       if (startDate) {
+         settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $gte: new Date(startDate) };
+       }
+
+       if (endDate) {
+         settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $lte: new Date(endDate) };
+       }
+
+       if (type) {
+         settlementHistoryFilter.type = type;
+       }
+
 
       try {
         // Fetch the delivery agent by agentId
@@ -712,9 +762,10 @@ export const deliveryAgentResolver: Resolvers = {
             licence:1,
             wallet:1,
             ID:1,
-            settlementHistory:1
+            settlementHistory: { $slice: [(page - 1) * limit, limit] }, // Apply pagination
           },
-          { lean: true }
+          { lean: true },
+          settlementHistoryFilter
         );
 
         if (!deliveryAgent) {
@@ -723,7 +774,14 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        return deliveryAgent;
+        const totalSettlementHistory = await deliveryAgentService.countSettlementHistory(agentId,settlementHistoryFilter);
+
+        return {
+          deliveryAgent,
+          totalItems: totalSettlementHistory,
+          currentPage: page,
+          totalPages: Math.ceil(totalSettlementHistory / limit),
+        }
 
       } catch (error: any) {
         throw new GraphQLError(error.message || "Error fetching Delivery Agent", {
@@ -796,7 +854,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       try {
-        const result = await settlementModel.find({agentId:agentId});
+        const result = await settlementModel.find({agentId:agentId}).sort({createdAt:-1});
 
         if (!result || result.length === 0) {
           throw new GraphQLError("No settlements found", {

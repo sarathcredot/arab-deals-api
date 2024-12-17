@@ -194,12 +194,21 @@ export const findSettlementtWithFilters = async (filters: object, projection: ob
   return await settlementModel.findOne(filters, projection, options);
 };
 
-export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object): Promise<IDeliveryAgentFilter | null> => {
+export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object , settlementHistoryFilter?: object ): Promise<IDeliveryAgentFilter | null> => {
   return await deliveryAgentModel.findOne(filters, projection, options) .populate({
     path: "settlementHistory", 
     select: "_id type amount remarks totalAmount balance createdAt", 
+    match: settlementHistoryFilter,
     options: { sort: { createdAt: -1 } },
   });
+};
+
+export const countSettlementHistory = async (agentId: Types.ObjectId,settlementHistoryFilter?: object ): Promise<number> => {
+  const agent = await deliveryAgentModel.findOne(agentId).populate({
+    path: "settlementHistory", 
+    match: settlementHistoryFilter,
+  }).lean();
+  return agent?.settlementHistory.length || 0; 
 };
 
 
@@ -213,10 +222,10 @@ export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSet
     pipeline.push({ $match: { type: options.type } });
 }
   if (options.startDate) {
-    pipeline.push({ $match: { date: { $gte: options.startDate } } });
+    pipeline.push({ $match: { createdAt: { $gte: options.startDate } } });
   }
   if (options.endDate) {
-    pipeline.push({ $match: { date: { $lte: options.endDate } } });
+    pipeline.push({ $match: { createdAt: { $lte: options.endDate } } });
   }
 
   pipeline.push(
