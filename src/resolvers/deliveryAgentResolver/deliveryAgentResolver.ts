@@ -199,7 +199,7 @@ export const deliveryAgentResolver: Resolvers = {
     //to create settlement by admin 
 
     createSettlement:async(parent, { input }, { req }, info) =>{
-       await verifyAdmin(req);
+      //  await verifyAdmin(req);
 
       const { agentId, amount } = input;
       const remarks: string | undefined = input?.remarks ?? undefined;
@@ -259,6 +259,8 @@ export const deliveryAgentResolver: Resolvers = {
       //  await verifyAdmin(req);
 
       const { settlementId, amount } = input;
+      console.log(settlementId)
+
       const remarks: string | undefined = input?.remarks ?? undefined;
 
       try {
@@ -275,10 +277,11 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
+
         // Check if the delivery agent exists
         const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
           { _id: existingSettlement.agentId },
-          { _id: 1, wallet: 1 },
+          { _id: 1, wallet: 1,lastSettlementID:1 },
           { lean: false }
         );
 
@@ -287,6 +290,16 @@ export const deliveryAgentResolver: Resolvers = {
             extensions: { code: "NOT_FOUND" },
           });
         }
+
+        console.log(existingAgent.lastSettlementID)
+
+
+       if (existingAgent.lastSettlementID.toString() !== settlementId.toString()) {
+        throw new GraphQLError("This Settlement cannot be edited", {
+          extensions: { code: "UNAUTHORIZED_ACTION" },
+        });
+      }
+
 
         // Calculate the wallet adjustment
         const originalAmount = existingSettlement.amount;
@@ -673,12 +686,15 @@ export const deliveryAgentResolver: Resolvers = {
             vendorID: 1,
             isActive: 1,
             licence: 1,
+            lastSettlementID:1,
             wallet: 1,
             ID: 1,
           },
           { lean: true, page, limit },
           settlementHistoryFilter
         );
+
+
 
         if (!deliveryAgent) {
           throw new GraphQLError("Delivery Agent not found", {

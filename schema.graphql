@@ -60,6 +60,7 @@ type Mutation {
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
   exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
   exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
   exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
@@ -1646,9 +1647,26 @@ input UpdateAdminOrderProductInput {
   shippingCharge: Float
 }
 
+type BankDetails {
+  accountHolderName: String
+  accountNumber: String
+  ifscCode: String
+  bankName: String
+  branchName: String
+}
+
+input BankDetailsInput {
+  accountHolderName: String
+  accountNumber: String
+  ifscCode: String
+  bankName: String
+  branchName: String
+}
+
 input ReturnUserOrderProductInput {
   _id: ObjectId!
   returnUserReason: String!
+  bankDetails: BankDetailsInput
 }
 
 input ReturnUserOrderProductInMobileInput {
@@ -2397,6 +2415,13 @@ input ExportAdminSettlementHistoryInput {
   size: Int
 }
 
+input AssignOrderInput {
+  shippingStatus: String
+  agentId: ObjectId
+  page: Int
+  size: Int
+}
+
 input ExportAllSettlementHistoryInput {
   page: Int
   size: Int
@@ -2562,6 +2587,7 @@ type DeliveryAgent {
   vendorID: ObjectId
   licence: ImageData
   wallet: Wallet
+  lastSettlementID: ObjectId
   settlementHistory: [SettlementHistory]
 }
 

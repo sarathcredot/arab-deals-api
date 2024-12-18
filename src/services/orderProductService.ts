@@ -145,6 +145,13 @@ export interface IOrderProductDocument extends Document {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
+    refundBankDetails?:{
+        accountHolderName?: string,
+        accountNumber?: string,
+        ifscCode?: string,
+        bankName?: string,
+        branchName?:string,
+    }
 }
 
 export interface IOrderProductUpdateQuery {

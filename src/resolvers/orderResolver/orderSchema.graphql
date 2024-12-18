@@ -59,9 +59,26 @@ input UpdateAdminOrderProductInput {
    shippingCharge: Float
 }
 
+type BankDetails {
+    accountHolderName: String
+    accountNumber: String
+    ifscCode: String
+    bankName: String
+    branchName: String
+}
+
+input BankDetailsInput {
+    accountHolderName: String
+    accountNumber: String
+    ifscCode: String
+    bankName: String
+    branchName: String
+}
+
 input ReturnUserOrderProductInput {
     _id: ObjectId!
     returnUserReason: String!
+    bankDetails: BankDetailsInput
 }
 
 input ReturnUserOrderProductInMobileInput {

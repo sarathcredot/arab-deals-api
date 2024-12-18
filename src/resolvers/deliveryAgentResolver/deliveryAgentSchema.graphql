@@ -204,6 +204,7 @@ type DeliveryAgent{
     vendorID:ObjectId
     licence:ImageData
     wallet:Wallet
+    lastSettlementID:ObjectId
     settlementHistory:[SettlementHistory]
 }
 

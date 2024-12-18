@@ -68,6 +68,13 @@ input ExportAdminSettlementHistoryInput{
     size: Int
 }
 
+input AssignOrderInput {
+    shippingStatus:String
+    agentId: ObjectId
+    page: Int
+    size: Int
+}
+
 input ExportAllSettlementHistoryInput{
     page: Int
     size: Int
@@ -107,6 +114,7 @@ type Mutation {
     exportAdminShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
     exportVendorShippingProducts(input:ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
     exportAdminSettlementHistory(input:ExportAdminSettlementHistoryInput!):ExportAdminShippingProductsResponse!
+    exportAssignOrders(input: AssignOrderInput!):ExportAdminShippingProductsResponse!
     exportAllSettlementHistory(input:ExportAllSettlementHistoryInput!):ExportAdminShippingProductsResponse!
 }
 

@@ -52,6 +52,13 @@ export interface IAdminSettlementHistoryOptions {
   size: number;
 }
 
+export interface IAdminAssignOrdersOptions {
+  shippingStatus?:string;
+  agentId?: Types.ObjectId;
+  page: number;
+  size: number;
+}
+
 export interface IAllSettlementHistoryOptions {
   page: number;
   size: number;
@@ -68,6 +75,7 @@ export interface IDeliveryAgentFilter {
   agentType: string;
   vendorID?: Types.ObjectId;
   isActive: boolean;
+  lastSettlementID: Types.ObjectId;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -98,6 +106,7 @@ export interface IDeliveryAgentDocument extends Document {
     numberOfOrderAssigned: number;
     numberOfOrderDelivered: number;
   };
+  lastSettlementID:Types.ObjectId;
   settlementHistory: Types.ObjectId[];
   setHash(password: string): Promise<void>;
   verifyHash(password: string): Promise<boolean>;
@@ -130,6 +139,7 @@ export const createSettlement = async (settlementData: ISettlement, agentId: Typ
   existingAgent.wallet.cashInHand -= settlement.amount;
   existingAgent.wallet.totalSettlement += settlement.amount;
   existingAgent.wallet.lastSettlementDate = new Date(Date.now());
+  existingAgent.lastSettlementID=settlement._id
   existingAgent.settlementHistory.push(settlement._id);
 
   await existingAgent.save();
@@ -200,7 +210,7 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
     .findOne(filters, projection, options)
     .populate({
       path: "settlementHistory",
-      select: "_id type amount remarks totalAmount balance createdAt",
+      select: "_id type amount remarks totalAmount balance createdAt updatedAt",
       options: { sort: { createdAt: -1 } }, // Sort first
       match: settlementHistoryFilter, // Apply filters next
     });
@@ -246,6 +256,93 @@ export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSet
           $lookup: {
               from: collections.DELIVERYAGENT,
               localField: "agentId",
+              foreignField: "_id",
+              as: "agentInfo"
+          }
+      },
+      {
+          $unwind: {
+              path: "$agentInfo",
+              preserveNullAndEmptyArrays: true
+          }
+      },
+      {
+          $project: {
+              _id: 1,
+              type:1,
+              agentId: 1,
+              amount: 1,
+              balance: 1,
+              createdAt:1,
+              remarks: 1,
+              totalAmount: 1,
+              "agentInfo.fullName": 1,
+          }
+      }
+  );
+
+  const settlements = await settlementModel.aggregate(pipeline);
+  let filename = '';
+
+  if (settlements && settlements.length) {
+      let formattedData = settlements.map((settlement) => ({
+        type: settlement.type || "",
+        createdAt: settlement.createdAt ? settlement.createdAt.toISOString() : "",
+        fullName: settlement.agentInfo?.fullName || "",
+        amount: settlement.amount || 0,
+        balance: settlement.balance || 0,
+        totalAmount: settlement.totalAmount || 0,
+        remarks: settlement.remarks || "",
+      }));
+
+      let workbook = new excel.Workbook();
+      let worksheet = workbook.addWorksheet("Settlement History");
+      worksheet.columns = [
+          { header: "Type", key: "type", width: 20 },
+          { header: "Date", key: "createdAt", width: 20 }, 
+          { header: "Agent Name", key: "fullName", width: 25 },
+          { header: "Amount", key: "amount", width: 20 },
+          { header: "Balance", key: "balance", width: 20 },
+          { header: "Total Amount", key: "totalAmount", width: 20 },
+          { header: "Remarks", key: "remarks", width: 50 }
+      ];
+
+    let firstRow = worksheet.getRow(1);
+    firstRow.eachCell((cell: any) => {
+      cell.font = { bold: true };
+    });
+
+    worksheet.addRows(formattedData);
+
+    console.log(formattedData)
+
+    filename = `settlement-history-${Date.now()}.xlsx`;
+    let filePath = path.join(exportFolder, filename);
+    await workbook.xlsx.writeFile(filePath).then(() => {
+      console.log("File saved!");
+    });
+  }
+
+  return filename;
+};
+
+
+export const exportAssignOrdersWithFilters = async (options: IAdminAssignOrdersOptions, exportFolder: string): Promise<string> => {
+  let pipeline: PipelineStage[] = [];
+
+  if (options.agentId) {
+    pipeline.push({ $match: { deliveryAgentId: options.agentId } });
+  }
+  if (options.shippingStatus) {
+    pipeline.push({ $match: { shippingStatus: options.shippingStatus } });
+  }
+
+  pipeline.push(
+      { $sort: { createdAt: -1 } },
+      {
+          $lookup: {
+              from: collections.DELIVERYAGENT,
+              localField: "deliveryAgentId",
               foreignField: "_id",
               as: "agentInfo"
           }

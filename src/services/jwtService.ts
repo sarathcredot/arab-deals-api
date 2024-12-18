@@ -16,6 +16,8 @@ export const getAuthTokenFromHeaders = (req: Request): string => {
     try {
         const { headers: { authorization } } = req;
 
+       
+
         if (authorization && authorization.split(" ")[0] === "Bearer") {
             const token = authorization.split(" ")[1];
             return token;

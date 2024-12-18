@@ -1,7 +1,8 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 import argon2 from "argon2";
 import { collections } from "../configs";
 import { IDeliveryAgentDocument } from "src/services/deliveryAgentService";
+
 
 const fileSchema = new Schema(
   {
@@ -93,6 +94,9 @@ const deliveryAgentSchema = new Schema(
             numberOfOrderDelivered:{
               type: Number, 
             }
+          },
+          lastSettlementID:{
+            type: Types.ObjectId,
           },
           settlementHistory: [
                 {
