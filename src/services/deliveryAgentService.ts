@@ -383,15 +383,171 @@ type Editrespo = {
 
 
 // all delivery agent details find 
-export const viewAllDeliveryAgents = async (): Promise<IDeliveryAgent[] | []> => {
+export const viewAllDeliveryAgents = async (options: { page: number, size: number,isActive?:any,agentType?:any }): Promise<IDeliveryAgent[] | []> => {
 
   return new Promise(async (resolve, reject) => {
+    let dataSize:any
 
     try {
 
-      const allData = await deliveryAgentModel.find().sort({ createdAt: -1 })
+      // const totalCount = await deliveryAgentModel.countDocuments();
+      let pipeline: any[]
+      
 
-      resolve(allData)
+     if(options.isActive && options.agentType){
+            
+       const active=JSON.parse(options.isActive)
+
+       dataSize=await deliveryAgentModel.find({isActive:active,agentType:options.agentType})
+
+
+         pipeline = [
+          { $sort: { createdAt: -1 } }, 
+          {$match:{isActive:active}},
+          {$match:{agentType:options.agentType}},
+          { $skip: options.page * options.size }, 
+          { $limit: options.size }, 
+          
+       
+          {
+            $project: {
+              _id: 1, 
+              fullName: 1,
+              contactNumber: 1,
+              userID: 1, 
+              ID: 1,
+              password:1,
+              licence: 1, 
+              agentType: 1, 
+              isActive: 1, 
+              wallet: 1, 
+              settlementHistory: 1,
+              createdAt: 1, 
+              updatedAt: 1,
+              
+            }
+          }
+        ];
+     
+       }else if(options.isActive){
+
+        const active=JSON.parse(options.isActive)
+      
+        dataSize=await deliveryAgentModel.find({isActive:active})
+
+        console.log("is active")
+         pipeline = [
+          { $sort: { createdAt: -1 } }, 
+          {$match:{isActive:active}},
+          { $skip: options.page * options.size }, 
+          { $limit: options.size }, 
+          
+       
+          {
+            $project: {
+              _id: 1, 
+              fullName: 1,
+              contactNumber: 1,
+              userID: 1, 
+              ID: 1,
+              password:1,
+              licence: 1, 
+              agentType: 1, 
+              isActive: 1, 
+              wallet: 1, 
+              settlementHistory: 1,
+              createdAt: 1, 
+              updatedAt: 1,
+              
+            }
+          }
+        ];
+           
+       
+      }else if(options.agentType){
+
+        dataSize=await deliveryAgentModel.find({agentType:options.agentType})
+
+         pipeline = [
+          { $sort: { createdAt: -1 } }, 
+          {$match:{agentType:options.agentType}},
+          { $skip: options.page * options.size }, 
+          { $limit: options.size }, 
+          
+       
+          {
+            $project: {
+              _id: 1, 
+              fullName: 1,
+              contactNumber: 1,
+              userID: 1, 
+              ID: 1,
+              password:1,
+              licence: 1, 
+              agentType: 1, 
+              isActive: 1, 
+              wallet: 1, 
+              settlementHistory: 1,
+              createdAt: 1, 
+              updatedAt: 1,
+              
+            }
+          }
+        ];
+
+          
+      }else{
+
+
+        dataSize=await deliveryAgentModel.find()
+
+         pipeline = [
+          { $sort: { createdAt: -1 } }, 
+          { $skip: options.page * options.size }, 
+          { $limit: options.size }, 
+          
+       
+          {
+            $project: {
+              _id: 1, 
+              fullName: 1,
+              contactNumber: 1,
+              userID: 1, 
+              ID: 1,
+              password:1,
+              licence: 1, 
+              agentType: 1, 
+              isActive: 1, 
+              wallet: 1, 
+              settlementHistory: 1,
+              createdAt: 1, 
+              updatedAt: 1,
+              
+            }
+          }
+        ];
+          
+      }
+
+
+      console.log(options.agentType , options.isActive)
+      
+      const result = await deliveryAgentModel.aggregate(pipeline);
+      
+    
+      
+      let response:any = {
+        records: [],
+        maxRecords: 0
+      };
+
+     
+      if (result.length) {
+        response.records = result || [];
+        response.maxRecords =dataSize?.length  || 0;
+      }
+
+      resolve(response);
 
     } catch (error) {
 
@@ -401,6 +557,7 @@ export const viewAllDeliveryAgents = async (): Promise<IDeliveryAgent[] | []> =>
   })
 
 }
+
 
 // delivery agent data edit 
 
@@ -882,20 +1039,247 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 }
 
 
-export const getAssignedOrderByDeliveryAgent=async(data:{_id:Types.ObjectId})=>{
 
-          return new Promise(async(resolve,reject)=>{
 
-                  
-                   try {
+export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId,page:number,size:number ,shippingStatus:string}): Promise<any> => {
 
-                      const result=await orderProductModel.find({deliveryAgentId:data._id})
-                   
-                   } catch (error) {
-                    
-                   }
-          })
+  return new Promise(async (resolve, reject) => {
+
+
+    try {
+
+       let dataSize:any
+       let result:any
+
+     dataSize=await orderProductModel.find({deliveryAgentId:data._id})
+
+     if(data.shippingStatus){
+
+      dataSize=await orderProductModel.find({deliveryAgentId:data._id,shippingStatus:data.shippingStatus})
+
+      result = await orderProductModel.aggregate([
+        {
+         
+          $match: {
+            deliveryAgentId: data._id,
+            shippingStatus:data.shippingStatus
+            
+          },
+        },
+        {
+        
+          $lookup: {
+            from: 'orders', 
+            localField: 'orderId',  
+            foreignField: 'orderId',  
+            as: 'userDetails',  
+          },
+        },
+        {
+         
+          $unwind: {
+            path: '$userDetails',
+            preserveNullAndEmptyArrays: true,  
+          },
+        },
+        { 
+          $skip: data.page * data.size,
+        },
+        {
+          $limit: data.size,
+        },
+        {
+        
+          $project: {
+            _id: 1,
+            orderId: 1,
+            userId: 1,
+            productName: 1,
+            sellingPrice: 1,
+            paymentStatus: 1,
+            orderDate: 1,
+            shippingStatus: 1,
+            deliveryAgentId: 1,
+          
+            userName: "$userDetails.shippingAddress.firstname",
+            email: "$userDetails.shippingAddress.email",
+            mobileNumber: "$userDetails.shippingAddress.mobile",
+            country: "$userDetails.shippingAddress.country",
+            houseNumber: "$userDetails.shippingAddress.houseNumber",
+            streetName: "$userDetails.shippingAddress.streetName",
+            apartment: "$userDetails.shippingAddress.apartment",
+            suite: "$userDetails.shippingAddress.suite",
+            unit: "$userDetails.shippingAddress.unit",
+            city: "$userDetails.shippingAddress.city",
+            postCode: "$userDetails.shippingAddress.postCode"
+
+          },
+        },
+      ]);
+
+           
+     }else{
+ 
+      result = await orderProductModel.aggregate([
+        {
+         
+          $match: {
+            deliveryAgentId: data._id,
+          },
+        },
+        {
+        
+          $lookup: {
+            from: 'orders', 
+            localField: 'orderId',  
+            foreignField: 'orderId',  
+            as: 'userDetails',  
+          },
+        },
+        {
+         
+          $unwind: {
+            path: '$userDetails',
+            preserveNullAndEmptyArrays: true,  
+          },
+        },
+        { 
+          $skip: data.page * data.size,
+        },
+        {
+          $limit: data.size,
+        },
+        {
+        
+          $project: {
+            _id: 1,
+            orderId: 1,
+            userId: 1,
+            productName: 1,
+            sellingPrice: 1,
+            paymentStatus: 1,
+            orderDate: 1,
+            shippingStatus: 1,
+            deliveryAgentId: 1,
+          
+            userName: "$userDetails.shippingAddress.firstname",
+            email: "$userDetails.shippingAddress.email",
+            mobileNumber: "$userDetails.shippingAddress.mobile",
+            country: "$userDetails.shippingAddress.country",
+            houseNumber: "$userDetails.shippingAddress.houseNumber",
+            streetName: "$userDetails.shippingAddress.streetName",
+            apartment: "$userDetails.shippingAddress.apartment",
+            suite: "$userDetails.shippingAddress.suite",
+            unit: "$userDetails.shippingAddress.unit",
+            city: "$userDetails.shippingAddress.city",
+            postCode: "$userDetails.shippingAddress.postCode"
+
+          },
+        },
+      ]);
+         
+     }
+
+      
+
+      let response:any = {
+        records: [],
+        maxRecords: 0
+      };
+
+     
+      if (result.length) {
+        response.records = result || [];
+        response.maxRecords =dataSize?.length  || 0;
+      }
+
+      resolve(response);
+
+    } catch (error) {
+
+      reject(error);
+    }
+  })
 }
+
+
+
+
+export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.ObjectId }):Promise<any> => {
+
+  return new Promise(async (resolve, reject) => {
+
+
+    try {
+
+      // const result=await orderProductModel.find({deliveryAgentId:data._id})
+
+      const final = await orderProductModel.aggregate([
+        {
+          // Match orders assigned to the specific delivery agent
+          $match: {
+            _id:data._id
+          },
+        },
+        {
+          // Lookup the user details by userId from orderProductSchema
+          $lookup: {
+            from: 'orders',  // 'users' is the collection name for User model
+            localField: 'orderId',  // Field in orderProductSchema
+            foreignField: 'orderId',  // Field in User model
+            as: 'userDetails',  // The alias to store the matched user data
+          },
+        },
+        {
+          // Optionally, unwind userDetails to flatten the array into a single object
+          $unwind: {
+            path: '$userDetails',
+            preserveNullAndEmptyArrays: true,  // If no matching user, the field will be empty
+          },
+        },
+        {
+          // Project only the required fields (order product data + user data)
+          $project: {
+            _id: 1,
+            orderId: 1,
+            userId: 1,
+            productName: 1,
+            sellingPrice: 1,
+            paymentStatus: 1,
+            orderDate: 1,
+            shippingStatus: 1,
+            deliveryAgentId: 1,
+            // User information from the aggregated userDetails
+            userName: "$userDetails.shippingAddress.firstname",
+            email: "$userDetails.shippingAddress.email",
+            mobileNumber: "$userDetails.shippingAddress.mobile",
+            country: "$userDetails.shippingAddress.country",
+            houseNumber: "$userDetails.shippingAddress.houseNumber",
+            streetName: "$userDetails.shippingAddress.streetName",
+            apartment: "$userDetails.shippingAddress.apartment",
+            suite: "$userDetails.shippingAddress.suite",
+            unit: "$userDetails.shippingAddress.unit",
+            city: "$userDetails.shippingAddress.city",
+            postCode: "$userDetails.shippingAddress.postCode"
+
+          },
+        },
+      ]);
+      
+      const result=final[0]
+
+      resolve(result)
+
+    } catch (error) {
+
+      reject(error);
+    }
+  })
+   
+      
+
+}         
+
 
 
 

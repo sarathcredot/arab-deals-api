@@ -790,10 +790,33 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
     // get all delivery agent data 
-    async getAllAgentData(): Promise<any> {
+    async getAllAgentData(parent, { input }, { req }, info): Promise<any> {
+      
       try {
 
-        const result = await deliveryAgentService.viewAllDeliveryAgents()
+        console.log("req",input)
+
+        await verifyAdmin(req)
+
+        const page: number = input?.page || 0;
+        const size: number = input?.size || 10;
+
+        const options:any={
+
+             page,
+             size,
+             isActive:input?.isActive,
+             agentType:input?.agentType
+            
+
+
+        }
+
+         
+
+        const result = await deliveryAgentService.viewAllDeliveryAgents(options)
+
+        console.log(result)
 
         return result
 
@@ -812,7 +835,6 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     },
-
 
    //get all settlement history by admin
     getSettlementHistoryByAdmin: async (parent, {}, { req }, info) => {
@@ -946,13 +968,155 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
+
+    // delivery agent port assigned order list
+
+    getAssignedOrderByAgentProfile:async(parent, {  }, { req }, info)=>{
+
+      try {
+
+        //  delivery agent verfy
+
+        const deliveryAgentData = await verifyDeliveryAgent(req)
+
+        if (!deliveryAgentData) {
+
+          throw new GraphQLError("Unauthorized", {
+            extensions: {
+              code: "UNAUTHORIZED",
+              errors: []
+            },
+          });
+
+        }
+
+        const _id=deliveryAgentData?.id
+
+      const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(_id)
+
+      return result
+
+          
+        
+      } catch (error:any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          },
+        });
+        
+      }
+},
+
+
     // get one agent assigned order full data admin port 
 
-    getAssignedOrderByDeliveryAgent:async(parent, { input }, { req }, info)=>{
+    getAssignedOrderByDeliveryAgent: async (parent, { input }, { req }, info) => {
 
-           return true
-    }
-      
+      try {
+        // admin verfy
+        await verifyAdmin(req)
+
+        console.log("req")
+
+        // check input
+       
+         if(!input?._id){
+   
+          throw new GraphQLError("invalied delivery boy id", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+
+               
+         }
+
+         const options={
+            
+             _id:input._id,
+             page:input?.page || 0,
+             size:input?.size || 10,
+             shippingStatus:input?.shippingStatus || " "
+         }
+
+        const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
+        console.log(result)
+
+        return result
+
+        
+      } catch (error) {
+
+        throw new GraphQLError("Error for fetching order details", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+      }
+
+
+    },
+
+
+
+
+// delivery agent port assigned order detail view
+
+    getAssignedeOrderDeatilsByAgentProfile:async(parent, { input }, { req }, info)=>{
+
+      try {
+
+
+       const deliveryAgentData = await verifyDeliveryAgent(req)
+
+       if (!deliveryAgentData) {
+
+         throw new GraphQLError("Unauthorized", {
+           extensions: {
+             code: "UNAUTHORIZED",
+             errors: []
+           },
+         });
+
+       }
+
+       // input check
+
+        if(!input._id){
+
+         throw new GraphQLError("Error for fetching order details", {
+           extensions: {
+             code: "INTERNAL_SERVER_ERROR",
+             errors: []
+           },
+         });
+        }
+
+       const result=deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(input._id)
+         
+       return result;
+         
+       
+      } catch (error:any) {
+       
+   
+       throw new GraphQLError(error, {
+         extensions: {
+           code: "INTERNAL_SERVER_ERROR",
+           errors: []
+         },
+       });
+
+           
+      }
+  }
+
 
 
   }

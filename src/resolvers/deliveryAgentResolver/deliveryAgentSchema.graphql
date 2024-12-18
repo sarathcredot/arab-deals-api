@@ -20,15 +20,17 @@ type Mutation {
 
 type Query{
   
-  getAllAgentData:[AllAgents]!
+   getAllAgentData(input:getAllAgentDataInput):getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):SettlementResponse!
   getAgentSettlementHistoryByAgent:[Settlement]!
   getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
   getSettlementHistoryByAdmin:[Settlement]!
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
-  getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):Boolean!
-    
+ 
+   getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):getAssignedOrderByAgentProfileResponse!
+   getAssignedOrderByAgentProfile:[getAssignedOrderByAgentProfileResponse]!
+   getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
 }
 
 
@@ -40,6 +42,76 @@ type Query{
  input GetAssignedOrderByDeliveryAgentInput{
 
         _id:ObjectId!
+        page:Int
+        size:Int
+        shippingStatus:String
+ }
+
+ type GetAssignedOrderByDeliveryAgentResponse{
+
+  
+     records: [GetAssignedOrderByDeliveryAgentResponseArry ],
+     maxRecords: Int
+
+
+
+   
+     
+ }
+
+ input getAssignedeOrderDeatilsByAgentProfileInput{
+
+        _id:ObjectId!
+ }
+
+ type  GetAssignedOrderByDeliveryAgentResponseArry{
+
+      _id: ObjectId!
+  orderId: String!
+  userId: ObjectId!
+  productName: String!
+  sellingPrice: Float!
+  paymentStatus: String!
+  orderDate: String!
+  shippingStatus: String!
+  deliveryAgentId: ObjectId!
+  userName: String!
+  email: String!
+  mobileNumber: String!
+   houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+ }
+
+ 
+ type getAssignedOrderByAgentProfileResponse{
+
+          _id: ObjectId!
+  orderId: String!
+  userId: ObjectId!
+  productName: String!
+  sellingPrice: Float!
+  paymentStatus: String!
+  orderDate: String!
+  shippingStatus: String!
+  deliveryAgentId: ObjectId!
+  userName: String!
+  email: String!
+  mobileNumber: String!
+   houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+        
  }
 
  input getAgentSettlementHistoryInput{
@@ -50,6 +122,24 @@ type Query{
         endDate: Date
         type:String
  }
+
+ type getAllAgentDataResponse{
+
+    maxRecords: Int!
+    records: [AllAgents]
+      
+}
+
+
+
+input getAllAgentDataInput{
+ 
+    page: Int
+    size: Int
+    isActive:String
+    agentType:String
+         
+}
 
 
 type OrderAssignDeliveryAgentResponse{
