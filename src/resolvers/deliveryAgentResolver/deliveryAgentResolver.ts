@@ -953,8 +953,6 @@ export const deliveryAgentResolver: Resolvers = {
            return true
     }
       
-
-
   }
 
 
