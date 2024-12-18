@@ -730,12 +730,17 @@ export const deliveryAgentResolver: Resolvers = {
        const settlementHistoryFilter: Record<string, any> = {};
 
        if (startDate) {
-         settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $gte: new Date(startDate) };
-       }
-
-       if (endDate) {
-         settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $lte: new Date(endDate) };
-       }
+        const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
+        settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
+      }
+    
+      if (endDate) {
+        const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
+        settlementHistoryFilter.createdAt = {
+          ...settlementHistoryFilter.createdAt,
+          $lte: normalizedEndDate,
+        };
+      }
 
        if (type) {
          settlementHistoryFilter.type = type;
@@ -754,12 +759,11 @@ export const deliveryAgentResolver: Resolvers = {
             agentType: 1,
             vendorID: 1,
             isActive: 1,
-            licence:1,
-            wallet:1,
-            ID:1,
-            settlementHistory: { $slice: [(page - 1) * limit, limit] }, // Apply pagination
+            licence: 1,
+            wallet: 1,
+            ID: 1,
           },
-          { lean: true },
+          { lean: true, page, limit },
           settlementHistoryFilter
         );
 
@@ -857,11 +861,16 @@ export const deliveryAgentResolver: Resolvers = {
         const settlementHistoryFilter: Record<string, any> = {};
 
         if (startDate) {
-          settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $gte: new Date(startDate) };
+          const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
+          settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
         }
-
+      
         if (endDate) {
-          settlementHistoryFilter.createdAt = { ...settlementHistoryFilter.createdAt, $lte: new Date(endDate) };
+          const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
+          settlementHistoryFilter.createdAt = {
+            ...settlementHistoryFilter.createdAt,
+            $lte: normalizedEndDate,
+          };
         }
 
         if (type) {
