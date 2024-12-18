@@ -1117,14 +1117,8 @@ export const deliveryAgentResolver: Resolvers = {
       }
   }
 
-<<<<<<< HEAD
-           return true
-    }
-      
-=======
 
 
->>>>>>> b1e8e4d885e91948cd23999174c081b5742bcff9
   }
 
 
