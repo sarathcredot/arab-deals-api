@@ -1138,7 +1138,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
 
 
-export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId,page:number,size:number ,shippingStatus:string}): Promise<any> => {
+export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId,page:number,size:number ,shippingStatus?:any}): Promise<any> => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -1147,6 +1147,8 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 
        let dataSize:any
        let result:any
+
+       console.log("input ",data)
 
      dataSize=await orderProductModel.find({deliveryAgentId:data._id})
 
@@ -1217,6 +1219,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
            
      }else{
  
+        console.log("w shipping")
       result = await orderProductModel.aggregate([
         {
          
@@ -1289,7 +1292,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
         response.records = result || [];
         response.maxRecords =dataSize?.length  || 0;
       }
-
+      console.log("res",response)
       resolve(response);
 
     } catch (error) {
