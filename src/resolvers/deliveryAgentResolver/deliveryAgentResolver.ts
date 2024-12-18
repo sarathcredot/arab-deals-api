@@ -1040,7 +1040,7 @@ export const deliveryAgentResolver: Resolvers = {
              _id:input._id,
              page:input?.page || 0,
              size:input?.size || 10,
-             shippingStatus:input?.shippingStatus || " "
+             shippingStatus:input?.shippingStatus
          }
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
@@ -1058,7 +1058,7 @@ export const deliveryAgentResolver: Resolvers = {
           },
         });
 
-      }
+      }             
 
 
     },
