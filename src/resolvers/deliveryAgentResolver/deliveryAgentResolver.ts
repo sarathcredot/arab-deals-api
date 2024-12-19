@@ -807,12 +807,10 @@ export const deliveryAgentResolver: Resolvers = {
 
     // get all delivery agent data 
     async getAllAgentData(parent, { input }, { req }, info): Promise<any> {
-      
+      // await verifyAdmin(req)
       try {
 
         console.log("req",input)
-
-        await verifyAdmin(req)
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
@@ -822,13 +820,9 @@ export const deliveryAgentResolver: Resolvers = {
              page,
              size,
              isActive:input?.isActive,
-             agentType:input?.agentType
-            
-
-
+             agentType:input?.agentType,
+             search:input?.search
         }
-
-         
 
         const result = await deliveryAgentService.viewAllDeliveryAgents(options)
 
