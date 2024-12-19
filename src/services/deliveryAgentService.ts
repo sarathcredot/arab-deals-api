@@ -335,63 +335,67 @@ export const exportAssignOrdersWithFilters = async (options: IAdminAssignOrdersO
   }
   if (options.shippingStatus) {
     pipeline.push({ $match: { shippingStatus: options.shippingStatus } });
-  }
+  }  
+
+
+  console.log(await orderProductModel.aggregate(pipeline.slice(0, 2))); 
 
   pipeline.push(
-      { $sort: { createdAt: -1 } },
+      { $sort: { orderDate: -1 } },
       {
-          $lookup: {
-              from: collections.DELIVERYAGENT,
-              localField: "deliveryAgentId",
-              foreignField: "_id",
-              as: "agentInfo"
-          }
+        $lookup: {
+          from: "users",
+          let: { userId: { $toString: "$userId" } },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$userId"] } } }
+          ],
+          as: "userInfo"
+        }
       },
       {
           $unwind: {
-              path: "$agentInfo",
+              path: "$userInfo",
               preserveNullAndEmptyArrays: true
           }
       },
       {
           $project: {
               _id: 1,
-              type:1,
-              agentId: 1,
-              amount: 1,
-              balance: 1,
-              createdAt:1,
-              remarks: 1,
-              totalAmount: 1,
-              "agentInfo.fullName": 1,
+              orderId:1,
+              productName: 1,
+              sellingPrice: 1,
+              orderDate: 1,
+              shippingStatus:1,
+              paymentStatus: 1,
+              "userInfo.firstName": 1,
           }
       }
   );
 
-  const settlements = await settlementModel.aggregate(pipeline);
+  const assignedOrders = await orderProductModel.aggregate(pipeline);
   let filename = '';
 
-  if (settlements && settlements.length) {
-      let formattedData = settlements.map((settlement) => ({
-        type: settlement.type || "",
-        createdAt: settlement.createdAt ? settlement.createdAt.toISOString() : "",
-        fullName: settlement.agentInfo?.fullName || "",
-        amount: settlement.amount || 0,
-        balance: settlement.balance || 0,
-        totalAmount: settlement.totalAmount || 0,
-        remarks: settlement.remarks || "",
+  if (assignedOrders && assignedOrders.length) {
+      let formattedData = assignedOrders.map((assignedOrder) => ({
+              orderId:assignedOrder.orderId || "",
+              productName: assignedOrder.productName || "",
+              sellingPrice: assignedOrder.sellingPrice || "",
+              orderDate: assignedOrder.orderDate || "",
+              shippingStatus:assignedOrder.shippingStatus || "",
+              paymentStatus: assignedOrder.paymentStatus || "",
+              firstName: assignedOrder.userInfo?.firstName || "",
       }));
 
       let workbook = new excel.Workbook();
-      let worksheet = workbook.addWorksheet("Settlement History");
+      let worksheet = workbook.addWorksheet("Assigned Orders");
       worksheet.columns = [
-          { header: "Type", key: "type", width: 20 },
-          { header: "Date", key: "createdAt", width: 20 }, 
-          { header: "Agent Name", key: "fullName", width: 25 },
-          { header: "Amount", key: "amount", width: 20 },
-          { header: "Balance", key: "balance", width: 20 },
-          { header: "Total Amount", key: "totalAmount", width: 20 },
-          { header: "Remarks", key: "remarks", width: 50 }
+          { header: "OrderID", key: "orderId", width: 20 },
+          { header: "User Name", key: "firstName", width: 20 }, 
+          { header: "product Name", key: "productName", width: 25 },
+          { header: "Price", key: "sellingPrice", width: 20 },
+          { header: "Order Date", key: "orderDate", width: 20 },
+          { header: "payment Status", key: "paymentStatus", width: 20 },
+          { header: "shipping Status", key: "shippingStatus", width: 50 }
       ];
 
     let firstRow = worksheet.getRow(1);
@@ -403,7 +407,7 @@ export const exportAssignOrdersWithFilters = async (options: IAdminAssignOrdersO
 
     console.log(formattedData)
 
-    filename = `settlement-history-${Date.now()}.xlsx`;
+    filename = `assigned-order-${Date.now()}.xlsx`;
     let filePath = path.join(exportFolder, filename);
     await workbook.xlsx.writeFile(filePath).then(() => {
       console.log("File saved!");
