@@ -1041,169 +1041,330 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
 
 
-export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId,page:number,size:number ,shippingStatus?:any}): Promise<any> => {
+// export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId,page:number,size:number ,shippingStatus?:any}): Promise<any> => {
 
-  return new Promise(async (resolve, reject) => {
+//   return new Promise(async (resolve, reject) => {
 
 
-    try {
+//     try {
 
-       let dataSize:any
-       let result:any
+//        let dataSize:any
+//        let result:any
 
-       console.log("input ",data)
+//        console.log("input ",data)
 
-     dataSize=await orderProductModel.find({deliveryAgentId:data._id})
+//      dataSize=await orderProductModel.find({deliveryAgentId:data._id})
 
-     if(data.shippingStatus){
+//      if(data.shippingStatus){
 
-      dataSize=await orderProductModel.find({deliveryAgentId:data._id,shippingStatus:data.shippingStatus})
+//       dataSize=await orderProductModel.find({deliveryAgentId:data._id,shippingStatus:data.shippingStatus})
 
-      result = await orderProductModel.aggregate([
-        {
+//       result = await orderProductModel.aggregate([
+//         {
          
-          $match: {
-            deliveryAgentId: data._id,
-            shippingStatus:data.shippingStatus
+//           $match: {
+//             deliveryAgentId: data._id,
+//             shippingStatus:data.shippingStatus
             
-          },
-        },
-        {
+//           },
+//         },
+//         {
         
-          $lookup: {
-            from: 'orders', 
-            localField: 'orderId',  
-            foreignField: 'orderId',  
-            as: 'userDetails',  
-          },
-        },
-        {
+//           $lookup: {
+//             from: 'orders', 
+//             localField: 'orderId',  
+//             foreignField: 'orderId',  
+//             as: 'userDetails',  
+//           },
+//         },
+//         {
          
-          $unwind: {
-            path: '$userDetails',
-            preserveNullAndEmptyArrays: true,  
-          },
-        },
-        { 
-          $skip: data.page * data.size,
-        },
-        {
-          $limit: data.size,
-        },
-        {
+//           $unwind: {
+//             path: '$userDetails',
+//             preserveNullAndEmptyArrays: true,  
+//           },
+//         },
+//         { 
+//           $skip: data.page * data.size,
+//         },
+//         {
+//           $limit: data.size,
+//         },
+//         {
         
-          $project: {
-            _id: 1,
-            orderId: 1,
-            userId: 1,
-            productName: 1,
-            sellingPrice: 1,
-            paymentStatus: 1,
-            orderDate: 1,
-            shippingStatus: 1,
-            deliveryAgentId: 1,
+//           $project: {
+//             _id: 1,
+//             orderId: 1,
+//             userId: 1,
+//             productName: 1,
+//             sellingPrice: 1,
+//             paymentStatus: 1,
+//             orderDate: 1,
+//             shippingStatus: 1,
+//             deliveryAgentId: 1,
           
-            userName: "$userDetails.shippingAddress.firstname",
-            email: "$userDetails.shippingAddress.email",
-            mobileNumber: "$userDetails.shippingAddress.mobile",
-            country: "$userDetails.shippingAddress.country",
-            houseNumber: "$userDetails.shippingAddress.houseNumber",
-            streetName: "$userDetails.shippingAddress.streetName",
-            apartment: "$userDetails.shippingAddress.apartment",
-            suite: "$userDetails.shippingAddress.suite",
-            unit: "$userDetails.shippingAddress.unit",
-            city: "$userDetails.shippingAddress.city",
-            postCode: "$userDetails.shippingAddress.postCode"
+//             userName: "$userDetails.shippingAddress.firstname",
+//             email: "$userDetails.shippingAddress.email",
+//             mobileNumber: "$userDetails.shippingAddress.mobile",
+//             country: "$userDetails.shippingAddress.country",
+//             houseNumber: "$userDetails.shippingAddress.houseNumber",
+//             streetName: "$userDetails.shippingAddress.streetName",
+//             apartment: "$userDetails.shippingAddress.apartment",
+//             suite: "$userDetails.shippingAddress.suite",
+//             unit: "$userDetails.shippingAddress.unit",
+//             city: "$userDetails.shippingAddress.city",
+//             postCode: "$userDetails.shippingAddress.postCode"
 
-          },
-        },
-      ]);
+//           },
+//         },
+//       ]);
 
            
-     }else{
+//      }else{
  
-        console.log("w shipping")
-      result = await orderProductModel.aggregate([
-        {
+//         console.log("w shipping")
+//       result = await orderProductModel.aggregate([
+//         {
          
-          $match: {
-            deliveryAgentId: data._id,
-          },
-        },
-        {
+//           $match: {
+//             deliveryAgentId: data._id,
+//           },
+//         },
+//         {
         
-          $lookup: {
-            from: 'orders', 
-            localField: 'orderId',  
-            foreignField: 'orderId',  
-            as: 'userDetails',  
-          },
-        },
-        {
+//           $lookup: {
+//             from: 'orders', 
+//             localField: 'orderId',  
+//             foreignField: 'orderId',  
+//             as: 'userDetails',  
+//           },
+//         },
+//         {
          
-          $unwind: {
-            path: '$userDetails',
-            preserveNullAndEmptyArrays: true,  
-          },
-        },
-        { 
-          $skip: data.page * data.size,
-        },
-        {
-          $limit: data.size,
-        },
-        {
+//           $unwind: {
+//             path: '$userDetails',
+//             preserveNullAndEmptyArrays: true,  
+//           },
+//         },
+//         { 
+//           $skip: data.page * data.size,
+//         },
+//         {
+//           $limit: data.size,
+//         },
+//         {
         
-          $project: {
-            _id: 1,
-            orderId: 1,
-            userId: 1,
-            productName: 1,
-            sellingPrice: 1,
-            paymentStatus: 1,
-            orderDate: 1,
-            shippingStatus: 1,
-            deliveryAgentId: 1,
+//           $project: {
+//             _id: 1,
+//             orderId: 1,
+//             userId: 1,
+//             productName: 1,
+//             sellingPrice: 1,
+//             paymentStatus: 1,
+//             orderDate: 1,
+//             shippingStatus: 1,
+//             deliveryAgentId: 1,
           
-            userName: "$userDetails.shippingAddress.firstname",
-            email: "$userDetails.shippingAddress.email",
-            mobileNumber: "$userDetails.shippingAddress.mobile",
-            country: "$userDetails.shippingAddress.country",
-            houseNumber: "$userDetails.shippingAddress.houseNumber",
-            streetName: "$userDetails.shippingAddress.streetName",
-            apartment: "$userDetails.shippingAddress.apartment",
-            suite: "$userDetails.shippingAddress.suite",
-            unit: "$userDetails.shippingAddress.unit",
-            city: "$userDetails.shippingAddress.city",
-            postCode: "$userDetails.shippingAddress.postCode"
+//             userName: "$userDetails.shippingAddress.firstname",
+//             email: "$userDetails.shippingAddress.email",
+//             mobileNumber: "$userDetails.shippingAddress.mobile",
+//             country: "$userDetails.shippingAddress.country",
+//             houseNumber: "$userDetails.shippingAddress.houseNumber",
+//             streetName: "$userDetails.shippingAddress.streetName",
+//             apartment: "$userDetails.shippingAddress.apartment",
+//             suite: "$userDetails.shippingAddress.suite",
+//             unit: "$userDetails.shippingAddress.unit",
+//             city: "$userDetails.shippingAddress.city",
+//             postCode: "$userDetails.shippingAddress.postCode"
 
-          },
-        },
-      ]);
+//           },
+//         },
+//       ]);
          
-     }
+//      }
 
       
 
+//       let response:any = {
+//         records: [],
+//         maxRecords: 0
+//       };
+
+     
+//       if (result.length) {
+//         response.records = result || [];
+//         response.maxRecords =dataSize?.length  || 0;
+//       }
+//       console.log("res",response)
+//       resolve(response);
+
+//     } catch (error) {
+
+//       reject(error);
+//     }
+//   })
+// }
+
+// updated
+
+export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId,page:number,size:number ,shippingStatus?:any}): Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+       let dataSize:any
+       let result:any
+       let matchObj: any = {deliveryAgentId: data._id }
+       console.log("input ",data)
+     dataSize=await orderProductModel.find({deliveryAgentId:data._id})
+     if(data.shippingStatus){
+      matchObj.shippingStatus = data.shippingStatus
+     }
+    //  if(data.shippingStatus){
+      dataSize=await orderProductModel.find({deliveryAgentId:data._id,shippingStatus:data.shippingStatus})
+      result = await orderProductModel.aggregate([
+        {
+          $match: matchObj,
+        },
+        {
+          $lookup: {
+            from: 'orders',
+            localField: 'orderId',
+            foreignField: 'orderId',
+            as: 'orderDetails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$orderDetails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "orderDetails.userId",
+            foreignField: "_id",
+            as: "userDetails"
+          }
+        },
+        {
+          $unwind: {
+            path: "$userDetails",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $skip: data.page * data.size,
+        },
+        {
+          $limit: data.size,
+        },
+        {
+          $project: {
+            _id: 1,
+            orderId: 1,
+            userId: 1,
+            productName: 1,
+            sellingPrice: 1,
+            paymentStatus: 1,
+            orderDate: 1,
+            shippingStatus: 1,
+            deliveryAgentId: 1,
+            userName: {
+               $concat: [ "$userDetails.firstName", " ", "$userDetails.lastName" ]
+            },
+            email: "$orderDetails.shippingAddress.email",
+            mobileNumber: "$orderDetails.shippingAddress.mobile",
+            country: "$orderDetails.shippingAddress.country",
+            houseNumber: "$orderDetails.shippingAddress.houseNumber",
+            streetName: "$orderDetails.shippingAddress.streetName",
+            apartment: "$orderDetails.shippingAddress.apartment",
+            suite: "$orderDetails.shippingAddress.suite",
+            unit: "$orderDetails.shippingAddress.unit",
+            city: "$orderDetails.shippingAddress.city",
+            postCode: "$orderDetails.shippingAddress.postCode"
+          },
+        },
+      ]);
+    //  }else{
+    //     console.log("w shipping")
+    //   result = await orderProductModel.aggregate([
+    //     {
+    //       $match: {
+    //         deliveryAgentId: data._id,
+    //       },
+    //     },
+    //     {
+    //       $lookup: {
+    //         from: 'orders',
+    //         localField: 'orderId',
+    //         foreignField: 'orderId',
+    //         as: 'userDetails',
+    //       },
+    //     },
+    //     {
+    //       $unwind: {
+    //         path: '$userDetails',
+    //         preserveNullAndEmptyArrays: true,
+    //       },
+    //     },
+    //     {
+    //       $skip: data.page * data.size,
+    //     },
+    //     {
+    //       $limit: data.size,
+    //     },
+    //     {
+    //       $project: {
+    //         _id: 1,
+    //         orderId: 1,
+    //         userId: 1,
+    //         productName: 1,
+    //         sellingPrice: 1,
+    //         paymentStatus: 1,
+    //         orderDate: 1,
+    //         shippingStatus: 1,
+    //         deliveryAgentId: 1,
+    //         userName: "$userDetails.shippingAddress.firstname",
+    //         email: "$userDetails.shippingAddress.email",
+    //         mobileNumber: "$userDetails.shippingAddress.mobile",
+    //         country: "$userDetails.shippingAddress.country",
+    //         houseNumber: "$userDetails.shippingAddress.houseNumber",
+    //         streetName: "$userDetails.shippingAddress.streetName",
+    //         apartment: "$userDetails.shippingAddress.apartment",
+    //         suite: "$userDetails.shippingAddress.suite",
+    //         unit: "$userDetails.shippingAddress.unit",
+    //         city: "$userDetails.shippingAddress.city",
+    //         postCode: "$userDetails.shippingAddress.postCode"
+    //       },
+    //     },
+    //   ]);
+    //  }
       let response:any = {
         records: [],
         maxRecords: 0
       };
-
-     
       if (result.length) {
         response.records = result || [];
         response.maxRecords =dataSize?.length  || 0;
       }
       console.log("res",response)
       resolve(response);
-
     } catch (error) {
-
       reject(error);
     }
   })
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
