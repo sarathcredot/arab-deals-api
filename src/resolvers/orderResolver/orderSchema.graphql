@@ -9,7 +9,7 @@ type Mutation {
     createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
     createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
     updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice:Upload): UpdateAdminOrderProductResponse!
-    returnUserOrderProduct(input: ReturnUserOrderProductInput!): ReturnUserOrderProductResponse!
+    returnUserOrderProduct(input: ReturnUserOrderProductInput!,image:Upload): ReturnUserOrderProductResponse!
     returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
     cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
     cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
@@ -75,10 +75,39 @@ input BankDetailsInput {
     branchName: String
 }
 
+type returnAddress {
+    firstname: String
+    email: String
+    mobile: String
+    streetName: String
+    city: String
+    houseNumber: String
+    country: String
+    postCode: String
+    apartment: String
+    suite: String
+    unit: String
+}
+
+input ReturnAddressInput{
+    firstname: String
+    email: String
+    mobile: String
+    streetName: String
+    city: String
+    houseNumber: String
+    country: String
+    postCode: String
+    apartment: String
+    suite: String
+    unit: String
+}
+
 input ReturnUserOrderProductInput {
     _id: ObjectId!
     returnUserReason: String!
     bankDetails: BankDetailsInput
+    returnAddress:ReturnAddressInput
 }
 
 input ReturnUserOrderProductInMobileInput {

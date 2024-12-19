@@ -31,6 +31,57 @@ const fileSchema = new Schema(
 );
 
 
+
+const returnAddressSchema = new Schema(
+    {
+        firstname: {
+            type: String,
+            required: true,
+        },
+        email: {
+            type: String,
+            lowercase: true,
+            trim: true,
+        },
+        mobile: {
+            type: String,
+            required: true,
+        },
+        country: {
+            type: String,
+            required: true,
+            default: "India", //TODO default need to change
+        },
+        houseNumber: {
+            type: String,
+            required: true,
+        },
+        streetName: {
+            type: String,
+            required: true,
+        },
+        apartment: {
+            type: String,
+        },
+        suite: {
+            type: String,
+        },
+        unit: {
+            type: String,
+        },
+        city: {
+            type: String,
+            required: true,
+        },
+        postCode: {
+            type: String,
+            required: true,
+        },
+    },
+    { _id: false, timestamps: true }
+);
+
+
 const orderProductSchema = new Schema(
     {
         orderId: {
@@ -139,6 +190,12 @@ const orderProductSchema = new Schema(
         },
         returnUserReason: {
             type: String,
+        },
+        returnProductImage: {
+            type: fileSchema,
+        },
+        returnAddress:{
+            type: returnAddressSchema
         },
         returnAdminComment: {
             type: String,
