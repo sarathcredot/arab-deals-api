@@ -139,6 +139,7 @@ input getAllAgentDataInput{
     isActive:String
     agentType:String
     search:String
+    settlement:Boolean
          
 }
 

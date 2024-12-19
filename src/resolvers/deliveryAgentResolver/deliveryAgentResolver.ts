@@ -821,7 +821,8 @@ export const deliveryAgentResolver: Resolvers = {
              size,
              isActive:input?.isActive,
              agentType:input?.agentType,
-             search:input?.search
+             search:input?.search,
+             settlement:input?.settlement
         }
 
         const result = await deliveryAgentService.viewAllDeliveryAgents(options)

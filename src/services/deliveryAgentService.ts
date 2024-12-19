@@ -662,7 +662,7 @@ type Editrespo = {
 // }
 
 
-export const viewAllDeliveryAgents = async (options: { page: number; size: number; isActive?: any; agentType?: any; search?: any }): Promise<IDeliveryAgent[] | []> => {
+export const viewAllDeliveryAgents = async (options: { page: number; size: number; isActive?: any; agentType?: any; search?: any,settlement?:any }): Promise<IDeliveryAgent[] | []> => {
   return new Promise(async (resolve, reject) => {
     let dataSize: any;
 
@@ -670,6 +670,7 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
       let pipeline: any[] = [];
       const active = options.isActive !== null ? JSON.parse(options.isActive) : undefined;
       const search = options.search?.trim() || ''; // Ensure search is a trimmed string or empty
+      const settlement = options.settlement 
 
       // Building the base match query
       const matchQuery: any = {};
@@ -682,9 +683,17 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
 
       console.log(dataSize?.length)
 
+      const sortField = settlement ? { 'wallet.lastSettlementDate': -1 } : { createdAt: -1 };
+
       // Aggregation pipeline
       pipeline = [
-        { $sort: { createdAt: -1 } }, // Sort by createdAt in descending order
+        { $sort: sortField },
+        { $match: matchQuery }, // Apply match query
+        ...(settlement
+          ? [
+              { $match: { 'wallet.totalSettlement': { $gt: 0 } } }, // Filter out agents with zero total settlement
+            ]
+          : []), 
         { $match: matchQuery }, // Apply match query
         ...(options.page !== null && options.size !== null
           ? [
@@ -816,117 +825,6 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
   })
 }
 
-// test edit 
-
-
-
-
-
-// export const editAgentData = async (data: any): Promise<Editrespo> => {
-
-
-//   return new Promise(async (resolve, reject) => {
-
-
-//     try {
-
-//       // new mobile number check 
-
-//       const result = await deliveryAgentModel.findOne({ 
-
-//         $or: [
-//           { contactNumber: data.contactNumber },
-//           { userID: data.userID }
-//         ]
-//        })
-
-
-//          if(result){
-
-//               if(result._id.toString()!==data._id.toString()){
-
-//                   resolve({ numberExit: true })
-//                   console.log("exit")
-//                   return;
-//               }
-
-//           }
-
-//           console.log("editnew")
-//           resolve({flag:true})
-
-//       // console.log("res", result)
-//       // console.log("input", data)
-
-//       // if (result) {
-
-//       //   if (result._id.toString() !== data._id.toString()) {
-
-//       //     resolve({ numberExit: true })
-//       //     console.log("number exit promis")
-//       //   }
-
-
-
-//       // }
-
-//       // console.log("data edit")
-
-//       // if (data.licence) {
-
-//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
-
-//       //     $set: {
-
-//       //       fullName: data.fullName,
-//       //       contactNumber: data.contactNumber,
-//       //       userID: data.userID,
-//       //       vendorID: data.vendorID,
-//       //       agentType: data.agentType,
-//       //       licence: data.licence
-//       //     }
-//       //   })
-//       // } else {
-
-//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
-
-//       //     $set: {
-
-//       //       fullName: data.fullName,
-//       //       contactNumber: data.contactNumber,
-//       //       userID: data.userID,
-//       //       vendorID: data.vendorID,
-//       //       agentType: data.agentType,
-
-//       //     }
-//       //   })
-//       // }
-
-//       // console.log("edited")
-//       // resolve({ flag: true })
-
-
-
-
-//     } catch (error: any) {
-
-//       console.log(error.message)
-
-//       console.log("edit error")
-//       reject()
-//     }
-//   })
-// }
-
-
-
-
-
-
-
-
-
-// delivery agent login
 
 export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
