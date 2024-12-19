@@ -61,9 +61,17 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
+  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   editDeliveryAgentData(input: EditAgentDataInput!, image: Upload): EditAgentDataInputResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!, image: Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): AllDeliveryAgentResponse!
@@ -72,11 +80,6 @@ type Mutation {
   editSettlement(input: EditSettlementInput!): AllDeliveryAgentResponse!
   orderAssignDeliveryAgent(input: OrderAssignDeliveryAgentInput!): OrderAssignDeliveryAgentResponse!
   orderDelivedbyAgent(input: OrderDelivedbyAgentInput!): OrderDelivedbyAgentResponse!
-  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
-  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
-  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
@@ -176,6 +179,11 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
+  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
@@ -216,6 +224,16 @@ type Query {
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
+  getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
+  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
+  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
+  getAgentSettlementHistoryByAgent: [Settlement]!
+  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
+  getSettlementHistoryByAdmin: [Settlement]!
+  getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
+  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedOrderByAgentProfileResponse!
+  getAssignedOrderByAgentProfile: [getAssignedOrderByAgentProfileResponse]!
+  getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -1741,9 +1759,26 @@ input UpdateAdminOrderProductInput {
   shippingCharge: Float
 }
 
+type BankDetails {
+  accountHolderName: String
+  accountNumber: String
+  ifscCode: String
+  bankName: String
+  branchName: String
+}
+
+input BankDetailsInput {
+  accountHolderName: String
+  accountNumber: String
+  ifscCode: String
+  bankName: String
+  branchName: String
+}
+
 input ReturnUserOrderProductInput {
   _id: ObjectId!
   returnUserReason: String!
+  bankDetails: BankDetailsInput
 }
 
 input ReturnUserOrderProductInMobileInput {
@@ -2427,6 +2462,101 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
+input ExportAdminOrdersInput {
+  _id: ObjectId
+  userId: ObjectId
+  orderId: String
+  paymentMode: String
+  orderStatus: String
+  startDate: Date
+  endDate: Date
+  postCode: String
+  page: Int
+  size: Int
+}
+
+input GetJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+}
+
+input GetAgentJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+  agentId: ObjectId
+}
+
+input GetAdminDownloadTokenInput {
+  _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+  _id: ObjectId
+  userId: ObjectId
+  vendorId: ObjectId
+  orderId: String
+  productId: ObjectId
+  itemId: String
+  skuId: String
+  paymentMode: String
+  paymentStatus: String
+  shippingStatus: String
+  orderStartDate: Date
+  orderEndDate: Date
+  shippingStartDate: Date
+  shippingEndDate: Date
+  deliveryStartDate: Date
+  deliveryEndDate: Date
+  cancelledStartDate: Date
+  cancelledEndDate: Date
+  courierId: String
+  invoiceNumber: String
+  page: Int
+  size: Int
+  sort: String
+}
+
+input ExportAdminSettlementHistoryInput {
+  type: String
+  agentId: ObjectId
+  startDate: Date
+  endDate: Date
+  page: Int
+  size: Int
+}
+
+input ExportAllSettlementHistoryInput {
+  page: Int
+  size: Int
+}
+
+type ExportAdminOrdersResponse {
+  message: String
+}
+
+type ExportAdminShippingProductsResponse {
+  message: String
+}
+
+type JobRecord {
+  _id: ObjectId
+  name: String
+  status: String
+  isExpired: Boolean
+  createdAt: Date
+}
+
+type GetJobQueueResponse {
+  maxRecords: Int
+  records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+  url: String!
+}
+
 input GetAdminSignedFileUrlInput {
   fileURL: String!
   mimeType: String!
@@ -2982,6 +3112,23 @@ type CountryRecordsResponse {
   message: String
 }
 
+input GetAdminSignedFileUrlInput {
+  fileURL: String!
+  mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+  _id: ObjectId!
+}
+
+type GetAdminSignedFileUrlResponse {
+  url: String
+}
+
+type GetUserIvoiceUrlResponse {
+  url: String
+}
+
 input AddCmsInput {
   pageName: String!
   buttons: [ButtonDataInput]
@@ -3102,6 +3249,283 @@ type CmsRecordsResponse {
   maxRecords: Int!
   records: [CmsRecord!]
   message: String
+}
+
+input DeliveryAgentAssignedOrderInput {
+  _id: ObjectId!
+}
+
+input GetAssignedOrderByDeliveryAgentInput {
+  _id: ObjectId!
+  page: Int
+  size: Int
+  shippingStatus: String
+}
+
+type GetAssignedOrderByDeliveryAgentResponse {
+  records: [GetAssignedOrderByDeliveryAgentResponseArry]
+  maxRecords: Int
+}
+
+input getAssignedeOrderDeatilsByAgentProfileInput {
+  _id: ObjectId!
+}
+
+type GetAssignedOrderByDeliveryAgentResponseArry {
+  _id: ObjectId!
+  orderId: String!
+  userId: ObjectId!
+  productName: String!
+  sellingPrice: Float!
+  paymentStatus: String!
+  orderDate: String!
+  shippingStatus: String!
+  deliveryAgentId: ObjectId!
+  userName: String!
+  email: String!
+  mobileNumber: String!
+  houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+}
+
+type getAssignedOrderByAgentProfileResponse {
+  _id: ObjectId!
+  orderId: String!
+  userId: ObjectId!
+  productName: String!
+  sellingPrice: Float!
+  paymentStatus: String!
+  orderDate: String!
+  shippingStatus: String!
+  deliveryAgentId: ObjectId!
+  userName: String!
+  email: String!
+  mobileNumber: String!
+  houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+}
+
+input getAgentSettlementHistoryInput {
+  agentId: ObjectId!
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type: String
+}
+
+type getAllAgentDataResponse {
+  maxRecords: Int!
+  records: [AllAgents]
+}
+
+input getAllAgentDataInput {
+  page: Int
+  size: Int
+  isActive: String
+  agentType: String
+  search: String
+  settlement: Boolean
+}
+
+type OrderAssignDeliveryAgentResponse {
+  status: Boolean!
+  msg: String
+}
+
+type EditAgentDataInputResponse {
+  status: Boolean!
+  msg: String
+}
+
+type GetAllAssignOrderAgentProfileResponse {
+  status: Boolean!
+  msg: String
+}
+
+type OrderDelivedbyAgentResponse {
+  status: Boolean!
+  msg: String
+}
+
+type DeliveryAgent {
+  _id: ObjectId!
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  ID: String
+  agentType: String!
+  isActive: Boolean!
+  vendorID: ObjectId
+  licence: ImageData
+  wallet: Wallet
+  lastSettlementID: ObjectId
+  settlementHistory: [SettlementHistory]
+}
+
+type DeliveryAgentResponse {
+  deliveryAgent: DeliveryAgent
+  totalItems: Float
+  currentPage: Float
+  totalPages: Float
+}
+
+type SettlementResponse {
+  settlements: [Settlements]
+  totalItems: Float
+  currentPage: Float
+  totalPages: Float
+}
+
+type Wallet {
+  cashInHand: Float
+  lastSettlementDate: Date
+  totalSettlement: Float
+  grandTotal: Float
+}
+
+input OrderDelivedbyAgentInput {
+  orderItemId: ObjectId!
+  pymentType: String!
+  deliveryStatus: String!
+  remarks: String
+}
+
+input OrderAssignDeliveryAgentInput {
+  orderItemId: ObjectId!
+  deliveryAgentId: ObjectId!
+  deliveryAgentName: String
+}
+
+type Agent {
+  _id: ObjectId
+  fullName: String
+  contactNumber: String
+  wallet: Wallet
+}
+
+type Settlement {
+  _id: ObjectId
+  type: String
+  agentId: Agent
+  amount: Float
+  date: Date
+  remarks: String
+  totalAmount: Float
+  balance: Float
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Settlements {
+  _id: ObjectId
+  type: String
+  agentId: ObjectId
+  amount: Float
+  date: Date
+  remarks: String
+  totalAmount: Float
+  balance: Float
+  createdAt: Date
+  updatedAt: Date
+}
+
+type SettlementHistory {
+  _id: ObjectId
+  type: String
+  amount: Float
+  remarks: String
+  totalAmount: Float
+  balance: Float
+  createdAt: Date
+}
+
+type AllDeliveryAgentResponse {
+  _id: ObjectId
+  message: String!
+}
+
+type CreateDeliveryAgentResponse {
+  _id: ObjectId
+  message: String!
+  error: Boolean
+}
+
+input CreateDeliveryAgentInput {
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  password: String!
+  agentType: String!
+  vendorID: ObjectId
+}
+
+input CreateSettlementInput {
+  agentId: ObjectId!
+  amount: Float!
+  remarks: String
+}
+
+input EditSettlementInput {
+  settlementId: ObjectId!
+  amount: Float!
+  remarks: String
+}
+
+input SuspendDeliveryAgentInput {
+  agentId: ObjectId!
+  isActive: Boolean!
+}
+
+input GetDeliveryAgentInput {
+  agentId: ObjectId!
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type: String
+}
+
+input GetDeliveryAgentByAgentInput {
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type: String
+}
+
+input EditAgentDataInput {
+  _id: ObjectId!
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  agentType: String!
+  vendorID: ObjectId
+}
+
+input LoginDeliveryAgentInput {
+  userID: String!
+  contactNumber: String!
+  password: String!
+}
+
+type LoginDeliveryAgentResponse {
+  status: String!
+  fullName: String!
+  token: String!
+  msg: String!
 }
 
 input CreateCategoryInput {

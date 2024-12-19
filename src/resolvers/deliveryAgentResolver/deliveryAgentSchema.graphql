@@ -138,6 +138,8 @@ input getAllAgentDataInput{
     size: Int
     isActive:String
     agentType:String
+    search:String
+    settlement:Boolean
          
 }
 
@@ -204,6 +206,7 @@ type DeliveryAgent{
     vendorID:ObjectId
     licence:ImageData
     wallet:Wallet
+    lastSettlementID:ObjectId
     settlementHistory:[SettlementHistory]
 }
 

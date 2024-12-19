@@ -564,36 +564,67 @@ export const orderResolver: Resolvers = {
             return response;
         },
         returnUserOrderProduct: async (parent, { input }, { req }, info) => {
+                //add product image and return address
 
+                // Verify user and validate input
             await verifyUser(req);
             await validateInput(validators.returnUserOrderValidator, req);
-            const userId = req.authAccount._id;
-            let { _id, returnUserReason } = input;
 
-            const orderProduct = await orderProductService.getOrderProductWithFilters({ userId: userId, _id: _id });
+            // Extract user ID and input
+            const userId = req.authAccount?._id;
+            if (!userId) {
+                throw new GraphQLError("Unauthorized", {
+                    extensions: { code: "UNAUTHORIZED" },
+                });
+            }
+
+            const { _id, returnUserReason, bankDetails = {} } = input;
+
+            // Fetch order product
+            const orderProduct = await orderProductService.getOrderProductWithFilters({
+                _id,
+            });
+
+
 
             if (!orderProduct) {
                 throw new GraphQLError("Order not found", {
-                    extensions: {
-                        code: "BAD_REQUEST",
-                        errors: [],
-                    },
+                    extensions: { code: "BAD_REQUEST", errors: [] },
                 });
             }
 
-            const isReturnable = moment(orderProduct.deliveryDate).diff(moment(), 'days') <= (orderProduct.returnPeriod || 0);
+            console.log("Delivery Date:", orderProduct.deliveryDate);
+            console.log("Return Period:", orderProduct.returnPeriod);
+            console.log(
+                "Days Difference:",
+                moment(orderProduct.deliveryDate).diff(moment(), "days")   
+            );
+
+
+            // const isReturnable =moment(orderProduct.deliveryDate).diff(moment(), "days") <=(orderProduct.returnPeriod || 0);
+
+            const returnDeadline = moment(orderProduct.deliveryDate).add(orderProduct.returnPeriod || 0, "days");
+            const isReturnable = moment().isSameOrBefore(returnDeadline);
+
+            console.log(isReturnable)
 
             if (!isReturnable) {
                 throw new GraphQLError("Order can't be returned", {
-                    extensions: {
-                        code: "BAD_REQUEST",
-                        errors: [],
-                    },
+                    extensions: { code: "BAD_REQUEST", errors: [] },
                 });
             }
 
+            const validatedBankDetails = {
+                accountHolderName: bankDetails?.accountHolderName || "",
+                accountNumber: bankDetails?.accountNumber || "",
+                ifscCode: bankDetails?.ifscCode || "",
+                bankName: bankDetails?.bankName || "",
+                branchName: bankDetails?.branchName || "",
+            };
+
             orderProduct.returnUserReason = returnUserReason;
             orderProduct.returnRequestDate = moment().toDate();
+            orderProduct.refundBankDetails = validatedBankDetails;
             orderProduct.returnStatus = "PENDING";
 
             await orderProduct.save();

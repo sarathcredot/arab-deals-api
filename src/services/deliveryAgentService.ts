@@ -52,6 +52,13 @@ export interface IAdminSettlementHistoryOptions {
   size: number;
 }
 
+export interface IAdminAssignOrdersOptions {
+  shippingStatus?:string;
+  agentId?: Types.ObjectId;
+  page: number;
+  size: number;
+}
+
 export interface IAllSettlementHistoryOptions {
   page: number;
   size: number;
@@ -68,6 +75,7 @@ export interface IDeliveryAgentFilter {
   agentType: string;
   vendorID?: Types.ObjectId;
   isActive: boolean;
+  lastSettlementID: Types.ObjectId;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -98,6 +106,7 @@ export interface IDeliveryAgentDocument extends Document {
     numberOfOrderAssigned: number;
     numberOfOrderDelivered: number;
   };
+  lastSettlementID:Types.ObjectId;
   settlementHistory: Types.ObjectId[];
   setHash(password: string): Promise<void>;
   verifyHash(password: string): Promise<boolean>;
@@ -130,6 +139,7 @@ export const createSettlement = async (settlementData: ISettlement, agentId: Typ
   existingAgent.wallet.cashInHand -= settlement.amount;
   existingAgent.wallet.totalSettlement += settlement.amount;
   existingAgent.wallet.lastSettlementDate = new Date(Date.now());
+  existingAgent.lastSettlementID=settlement._id
   existingAgent.settlementHistory.push(settlement._id);
 
   await existingAgent.save();
@@ -200,7 +210,7 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
     .findOne(filters, projection, options)
     .populate({
       path: "settlementHistory",
-      select: "_id type amount remarks totalAmount balance createdAt",
+      select: "_id type amount remarks totalAmount balance createdAt updatedAt",
       options: { sort: { createdAt: -1 } }, // Sort first
       match: settlementHistoryFilter, // Apply filters next
     });
@@ -288,12 +298,11 @@ export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSet
       let workbook = new excel.Workbook();
       let worksheet = workbook.addWorksheet("Settlement History");
       worksheet.columns = [
-          { header: "Type", key: "type", width: 20 },
-          { header: "Date", key: "createdAt", width: 20 }, 
-          { header: "Agent Name", key: "fullName", width: 25 },
           { header: "Amount", key: "amount", width: 20 },
-          { header: "Balance", key: "balance", width: 20 },
-          { header: "Total Amount", key: "totalAmount", width: 20 },
+          { header: "Initial CIH", key: "totalAmount", width: 20 },
+          { header: "Current CIH", key: "balance", width: 20 },
+          { header: "Type", key: "type", width: 20 },
+          { header: "Settlement Date", key: "createdAt", width: 20 }, 
           { header: "Remarks", key: "remarks", width: 50 }
       ];
 
@@ -307,6 +316,97 @@ export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSet
     console.log(formattedData)
 
     filename = `settlement-history-${Date.now()}.xlsx`;
+    let filePath = path.join(exportFolder, filename);
+    await workbook.xlsx.writeFile(filePath).then(() => {
+      console.log("File saved!");
+    });
+  }
+
+  return filename;
+};
+
+
+export const exportAssignOrdersWithFilters = async (options: IAdminAssignOrdersOptions, exportFolder: string): Promise<string> => {
+  let pipeline: PipelineStage[] = [];
+
+  if (options.agentId) {
+    pipeline.push({ $match: { deliveryAgentId: options.agentId } });
+  }
+  if (options.shippingStatus) {
+    pipeline.push({ $match: { shippingStatus: options.shippingStatus } });
+  }  
+
+
+  console.log(await orderProductModel.aggregate(pipeline.slice(0, 2))); 
+
+  pipeline.push(
+      { $sort: { orderDate: -1 } },
+      {
+        $lookup: {
+          from: "users",
+          let: { userId: { $toString: "$userId" } },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$userId"] } } }
+          ],
+          as: "userInfo"
+        }
+      },
+      {
+          $unwind: {
+              path: "$userInfo",
+              preserveNullAndEmptyArrays: true
+          }
+      },
+      {
+          $project: {
+              _id: 1,
+              orderId:1,
+              productName: 1,
+              sellingPrice: 1,
+              orderDate: 1,
+              shippingStatus:1,
+              paymentStatus: 1,
+              "userInfo.firstName": 1,
+          }
+      }
+  );
+
+  const assignedOrders = await orderProductModel.aggregate(pipeline);
+  let filename = '';
+
+  if (assignedOrders && assignedOrders.length) {
+      let formattedData = assignedOrders.map((assignedOrder) => ({
+              orderId:assignedOrder.orderId || "",
+              productName: assignedOrder.productName || "",
+              sellingPrice: assignedOrder.sellingPrice || "",
+              orderDate: assignedOrder.orderDate || "",
+              shippingStatus:assignedOrder.shippingStatus || "",
+              paymentStatus: assignedOrder.paymentStatus || "",
+              firstName: assignedOrder.userInfo?.firstName || "",
+      }));
+
+      let workbook = new excel.Workbook();
+      let worksheet = workbook.addWorksheet("Assigned Orders");
+      worksheet.columns = [
+          { header: "OrderID", key: "orderId", width: 20 },
+          { header: "User Name", key: "firstName", width: 20 }, 
+          { header: "product Name", key: "productName", width: 25 },
+          { header: "Price", key: "sellingPrice", width: 20 },
+          { header: "Order Date", key: "orderDate", width: 20 },
+          { header: "payment Status", key: "paymentStatus", width: 20 },
+          { header: "shipping Status", key: "shippingStatus", width: 50 }
+      ];
+
+    let firstRow = worksheet.getRow(1);
+    firstRow.eachCell((cell: any) => {
+      cell.font = { bold: true };
+    });
+
+    worksheet.addRows(formattedData);
+
+    console.log(formattedData)
+
+    filename = `assigned-order-${Date.now()}.xlsx`;
     let filePath = path.join(exportFolder, filename);
     await workbook.xlsx.writeFile(filePath).then(() => {
       console.log("File saved!");
@@ -349,11 +449,11 @@ export const exportAllSettlementHistoryWithFilters = async (options:IAllSettleme
       let workbook = new excel.Workbook();
       let worksheet = workbook.addWorksheet("Settlement History");
       worksheet.columns = [
-          { header: "contact number", key: "contactNumber", width: 20 },
-          { header: "Agent Name", key: "fullName", width: 25 },
-          { header: "Last Settlement ", key: "lastSettlementDate", width: 20 },
-          { header: "Balance", key: "cashInHand", width: 20 },
+          { header: "Name", key: "fullName", width: 25 },
+          { header: "Phone Number", key: "contactNumber", width: 20 },
+          { header: "Last Settled Date ", key: "lastSettlementDate", width: 20 },
           { header: "Total Settlement", key: "totalSettlement", width: 20 },
+          { header: "Balance", key: "cashInHand", width: 20 },
       ];
 
       let firstRow = worksheet.getRow(1);
@@ -383,183 +483,262 @@ type Editrespo = {
 
 
 // all delivery agent details find 
-export const viewAllDeliveryAgents = async (options: { page: number, size: number,isActive?:any,agentType?:any }): Promise<IDeliveryAgent[] | []> => {
 
-  return new Promise(async (resolve, reject) => {
-    let dataSize:any
 
-    try {
+// export const viewAllDeliveryAgents = async (options: { page: number, size: number,isActive?:any,agentType?:any,search?:any }): Promise<IDeliveryAgent[] | []> => {
 
-      // const totalCount = await deliveryAgentModel.countDocuments();
-      let pipeline: any[]
+//   return new Promise(async (resolve, reject) => {
+//     let dataSize:any
+
+//     try {
+
+//       // const totalCount = await deliveryAgentModel.countDocuments();
+//       let pipeline: any[]
       
 
-     if(options.isActive && options.agentType){
+//      if(options.isActive && options.agentType && options.search){
             
-       const active=JSON.parse(options.isActive)
+//        const active=JSON.parse(options.isActive)
 
-       dataSize=await deliveryAgentModel.find({isActive:active,agentType:options.agentType})
+//        dataSize=await deliveryAgentModel.find({isActive:active,agentType:options.agentType,search: options.search})
 
 
-         pipeline = [
-          { $sort: { createdAt: -1 } }, 
-          {$match:{isActive:active}},
-          {$match:{agentType:options.agentType}},
-          { $skip: options.page * options.size }, 
-          { $limit: options.size }, 
+//          pipeline = [
+//           { $sort: { createdAt: -1 } }, 
+//           { $match: { fullName: { $regex: options.search, $options: 'i' } } },
+//           {$match:{isActive:active}},
+//           {$match:{agentType:options.agentType}},
+//           { $skip: options.page * options.size }, 
+//           { $limit: options.size }, 
           
        
-          {
-            $project: {
-              _id: 1, 
-              fullName: 1,
-              contactNumber: 1,
-              userID: 1, 
-              ID: 1,
-              password:1,
-              licence: 1, 
-              agentType: 1, 
-              isActive: 1, 
-              wallet: 1, 
-              settlementHistory: 1,
-              createdAt: 1, 
-              updatedAt: 1,
+//           {
+//             $project: {
+//               _id: 1, 
+//               fullName: 1,
+//               contactNumber: 1,
+//               userID: 1, 
+//               ID: 1,
+//               password:1,
+//               licence: 1, 
+//               agentType: 1, 
+//               isActive: 1, 
+//               wallet: 1, 
+//               settlementHistory: 1,
+//               createdAt: 1, 
+//               updatedAt: 1,
               
-            }
-          }
-        ];
+//             }
+//           }
+//         ];
      
-       }else if(options.isActive){
+//        }else if(options.isActive){
 
-        const active=JSON.parse(options.isActive)
+//         const active=JSON.parse(options.isActive)
       
-        dataSize=await deliveryAgentModel.find({isActive:active})
+//         dataSize=await deliveryAgentModel.find({isActive:active})
 
-        console.log("is active")
-         pipeline = [
-          { $sort: { createdAt: -1 } }, 
-          {$match:{isActive:active}},
-          { $skip: options.page * options.size }, 
-          { $limit: options.size }, 
+//         console.log("is active")
+//          pipeline = [
+//           { $sort: { createdAt: -1 } }, 
+//           {$match:{isActive:active}},
+//           { $skip: options.page * options.size }, 
+//           { $limit: options.size }, 
           
        
-          {
-            $project: {
-              _id: 1, 
-              fullName: 1,
-              contactNumber: 1,
-              userID: 1, 
-              ID: 1,
-              password:1,
-              licence: 1, 
-              agentType: 1, 
-              isActive: 1, 
-              wallet: 1, 
-              settlementHistory: 1,
-              createdAt: 1, 
-              updatedAt: 1,
+//           {
+//             $project: {
+//               _id: 1, 
+//               fullName: 1,
+//               contactNumber: 1,
+//               userID: 1, 
+//               ID: 1,
+//               password:1,
+//               licence: 1, 
+//               agentType: 1, 
+//               isActive: 1, 
+//               wallet: 1, 
+//               settlementHistory: 1,
+//               createdAt: 1, 
+//               updatedAt: 1,
               
-            }
-          }
-        ];
+//             }
+//           }
+//         ];
            
        
-      }else if(options.agentType){
+//       }else if(options.agentType){
 
-        dataSize=await deliveryAgentModel.find({agentType:options.agentType})
+//         dataSize=await deliveryAgentModel.find({agentType:options.agentType})
 
-         pipeline = [
-          { $sort: { createdAt: -1 } }, 
-          {$match:{agentType:options.agentType}},
-          { $skip: options.page * options.size }, 
-          { $limit: options.size }, 
+//          pipeline = [
+//           { $sort: { createdAt: -1 } }, 
+//           {$match:{agentType:options.agentType}},
+//           { $skip: options.page * options.size }, 
+//           { $limit: options.size }, 
           
        
-          {
-            $project: {
-              _id: 1, 
-              fullName: 1,
-              contactNumber: 1,
-              userID: 1, 
-              ID: 1,
-              password:1,
-              licence: 1, 
-              agentType: 1, 
-              isActive: 1, 
-              wallet: 1, 
-              settlementHistory: 1,
-              createdAt: 1, 
-              updatedAt: 1,
+//           {
+//             $project: {
+//               _id: 1, 
+//               fullName: 1,
+//               contactNumber: 1,
+//               userID: 1, 
+//               ID: 1,
+//               password:1,
+//               licence: 1, 
+//               agentType: 1, 
+//               isActive: 1, 
+//               wallet: 1, 
+//               settlementHistory: 1,
+//               createdAt: 1, 
+//               updatedAt: 1,
               
-            }
-          }
-        ];
+//             }
+//           }
+//         ];
 
           
-      }else{
+//       }else{
 
 
-        dataSize=await deliveryAgentModel.find()
+//         dataSize=await deliveryAgentModel.find()
 
-         pipeline = [
-          { $sort: { createdAt: -1 } }, 
-          { $skip: options.page * options.size }, 
-          { $limit: options.size }, 
+//          pipeline = [
+//           { $sort: { createdAt: -1 } }, 
+//           { $skip: options.page * options.size }, 
+//           { $limit: options.size }, 
           
        
-          {
-            $project: {
-              _id: 1, 
-              fullName: 1,
-              contactNumber: 1,
-              userID: 1, 
-              ID: 1,
-              password:1,
-              licence: 1, 
-              agentType: 1, 
-              isActive: 1, 
-              wallet: 1, 
-              settlementHistory: 1,
-              createdAt: 1, 
-              updatedAt: 1,
+//           {
+//             $project: {
+//               _id: 1, 
+//               fullName: 1,
+//               contactNumber: 1,
+//               userID: 1, 
+//               ID: 1,
+//               password:1,
+//               licence: 1, 
+//               agentType: 1, 
+//               isActive: 1, 
+//               wallet: 1, 
+//               settlementHistory: 1,
+//               createdAt: 1, 
+//               updatedAt: 1,
               
-            }
-          }
-        ];
+//             }
+//           }
+//         ];
           
-      }
+//       }
 
 
-      console.log(options.agentType , options.isActive)
+//       console.log(options.agentType , options.isActive)
       
-      const result = await deliveryAgentModel.aggregate(pipeline);
+//       const result = await deliveryAgentModel.aggregate(pipeline);
       
     
       
-      let response:any = {
-        records: [],
-        maxRecords: 0
-      };
+//       let response:any = {
+//         records: [],
+//         maxRecords: 0
+//       };
 
      
+//       if (result.length) {
+//         response.records = result || [];
+//         response.maxRecords =dataSize?.length  || 0;
+//       }
+
+//       resolve(response);
+
+//     } catch (error) {
+
+//       reject()
+//     }
+
+//   })
+
+// }
+
+
+export const viewAllDeliveryAgents = async (options: { page: number; size: number; isActive?: any; agentType?: any; search?: any,settlement?:any }): Promise<IDeliveryAgent[] | []> => {
+  return new Promise(async (resolve, reject) => {
+    let dataSize: any;
+
+    try {
+      let pipeline: any[] = [];
+      const active = options.isActive !== null ? JSON.parse(options.isActive) : undefined;
+      const search = options.search?.trim() || ''; // Ensure search is a trimmed string or empty
+      const settlement = options.settlement 
+
+      // Building the base match query
+      const matchQuery: any = {};
+      if (active !== undefined) matchQuery.isActive = active;
+      if (options.agentType) matchQuery.agentType = options.agentType;
+      if (search) matchQuery.fullName = { $regex: search, $options: 'i' };
+
+      // Count the total number of documents matching the criteria
+      dataSize = await deliveryAgentModel.find(matchQuery);
+
+      console.log(dataSize?.length)
+
+      const sortField = settlement ? { 'wallet.lastSettlementDate': -1 } : { createdAt: -1 };
+
+      // Aggregation pipeline
+      pipeline = [
+        { $sort: sortField },
+        { $match: matchQuery }, // Apply match query
+        ...(settlement
+          ? [
+              { $match: { 'wallet.totalSettlement': { $gt: 0 } } }, // Filter out agents with zero total settlement
+            ]
+          : []), 
+        { $match: matchQuery }, // Apply match query
+        ...(options.page !== null && options.size !== null
+          ? [
+              { $skip: options.page * options.size }, // Skip to the desired page
+              { $limit: options.size }, // Limit to the desired size
+            ]
+          : []),
+        {
+          $project: {
+            _id: 1,
+            fullName: 1,
+            contactNumber: 1,
+            userID: 1,
+            ID: 1,
+            password: 1,
+            licence: 1,
+            agentType: 1,
+            isActive: 1,
+            wallet: 1,
+            settlementHistory: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+      ];
+
+      const result = await deliveryAgentModel.aggregate(pipeline);
+
+      let response: any = {
+        records: [],
+        maxRecords: 0,
+      };
+
       if (result.length) {
-        response.records = result || [];
-        response.maxRecords =dataSize?.length  || 0;
+        response.records = result;
+        response.maxRecords = dataSize?.length || 0;
       }
 
       resolve(response);
-
     } catch (error) {
-
-      reject()
+      reject(error);
     }
+  });
+};
 
-  })
-
-}
-
-
-// delivery agent data edit 
 
 export const editAgentData = async (data: any): Promise<Editrespo> => {
 
@@ -646,117 +825,6 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
   })
 }
 
-// test edit 
-
-
-
-
-
-// export const editAgentData = async (data: any): Promise<Editrespo> => {
-
-
-//   return new Promise(async (resolve, reject) => {
-
-
-//     try {
-
-//       // new mobile number check 
-
-//       const result = await deliveryAgentModel.findOne({ 
-
-//         $or: [
-//           { contactNumber: data.contactNumber },
-//           { userID: data.userID }
-//         ]
-//        })
-
-
-//          if(result){
-
-//               if(result._id.toString()!==data._id.toString()){
-
-//                   resolve({ numberExit: true })
-//                   console.log("exit")
-//                   return;
-//               }
-
-//           }
-
-//           console.log("editnew")
-//           resolve({flag:true})
-
-//       // console.log("res", result)
-//       // console.log("input", data)
-
-//       // if (result) {
-
-//       //   if (result._id.toString() !== data._id.toString()) {
-
-//       //     resolve({ numberExit: true })
-//       //     console.log("number exit promis")
-//       //   }
-
-
-
-//       // }
-
-//       // console.log("data edit")
-
-//       // if (data.licence) {
-
-//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
-
-//       //     $set: {
-
-//       //       fullName: data.fullName,
-//       //       contactNumber: data.contactNumber,
-//       //       userID: data.userID,
-//       //       vendorID: data.vendorID,
-//       //       agentType: data.agentType,
-//       //       licence: data.licence
-//       //     }
-//       //   })
-//       // } else {
-
-//       //   await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
-
-//       //     $set: {
-
-//       //       fullName: data.fullName,
-//       //       contactNumber: data.contactNumber,
-//       //       userID: data.userID,
-//       //       vendorID: data.vendorID,
-//       //       agentType: data.agentType,
-
-//       //     }
-//       //   })
-//       // }
-
-//       // console.log("edited")
-//       // resolve({ flag: true })
-
-
-
-
-//     } catch (error: any) {
-
-//       console.log(error.message)
-
-//       console.log("edit error")
-//       reject()
-//     }
-//   })
-// }
-
-
-
-
-
-
-
-
-
-// delivery agent login
 
 export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 

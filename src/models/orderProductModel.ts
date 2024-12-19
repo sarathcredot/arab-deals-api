@@ -147,7 +147,7 @@ const orderProductSchema = new Schema(
             type: Date,
         },
         returnDate: {
-            type: Date,
+            type: Date,      // Date when the product was actually returned
         },
         returnRejectedDate: {
             type: Date,
@@ -202,7 +202,33 @@ const orderProductSchema = new Schema(
             type:String
         },
 
+        returndeliveryAgentId: {
 
+            type: Schema.Types.ObjectId,
+            ref: collections.DELIVERYAGENT
+        },
+
+        returndeliveryAgentName: {
+
+            type:String
+        },
+        refundBankDetails: {
+            accountHolderName: {
+                type: String,
+            },
+            accountNumber: {
+                type: String,
+            },
+            ifscCode: {
+                type: String,
+            },
+            bankName: {
+                type: String,
+            },
+            branchName: {
+                type: String,
+            },
+        },
 
     },
     {

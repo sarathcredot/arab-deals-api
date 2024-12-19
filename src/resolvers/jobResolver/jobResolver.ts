@@ -209,7 +209,7 @@ export const jobResolver: Resolvers = {
             return response;
         },
 
-
+       //export agent's settlement history
         exportAdminSettlementHistory: async (parent, { input }, { req }, info) => {
             // await verifyAdmin(req);
         
@@ -262,6 +262,56 @@ export const jobResolver: Resolvers = {
             };
         },
 
+
+        exportAssignOrders: async (parent, { input }, { req }, info) => {
+            // await verifyAdmin(req);
+        
+            let filters:deliveryAgentService.IAdminAssignOrdersOptions  = { page: 0, size: 10 };
+            
+            if (input.agentId) {
+                filters.agentId = input.agentId;
+            }
+            if (input.shippingStatus) {
+                filters.shippingStatus = input.shippingStatus;
+            }
+            
+            if (input.page) {
+                filters.page = input.page;
+            }
+            if (input.size) {
+                filters.size = input.size;
+            }
+        
+            setTimeout(async () => {
+                const job = {
+                    name: "ASSIGN_EXPORT",
+                    status: "IN_PROGRESS",
+                    userType: "ADMIN",
+                    agentId:input.agentId,
+                    metadata: {}
+                };
+                const record = await jobQueueService.createJob(job);
+        
+                const filename = await deliveryAgentService.exportAssignOrdersWithFilters(filters, EXPORT_FOLDER);
+        
+                if (filename) {
+                    record.status = "COMPLETED";
+                    record.metadata = {
+                        filePath: `exports/${filename}`
+                    };
+                } else {
+                    record.status = "FAILED";
+                }
+                await record.save();
+            }, 1000);
+        
+            return {
+                message: "Export successful"
+            };
+        },
+
+
+        //wallet export
         exportAllSettlementHistory: async (parent, { input }, { req }, info) => {
             await verifyAdmin(req);
         

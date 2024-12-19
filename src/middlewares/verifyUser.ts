@@ -14,6 +14,8 @@ interface CustomRequest extends Request {
 export const verifyUser = async (req: CustomRequest) => {
     try {
         let token = await jwtService.getAuthTokenFromHeaders(req);
+
+        
         if (!token) {
             throw new Error("Token not found");
         }
