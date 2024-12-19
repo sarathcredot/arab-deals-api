@@ -487,6 +487,9 @@ type AdminOrderProduct {
     username: String
     deliveryAgentId: ObjectId
     deliveryAgentName: String ,
+    refundBankDetails: BankDetails
+    returnAddress:returnAddress
+    returnProductImage:FileData
 }
 
 type VendorOrderProduct {
@@ -611,6 +614,9 @@ type GetAdminOrderProductResponse {
     courierId: String
     invoiceNumber: String
     invoice: FileData
+    refundBankDetails: BankDetails
+    returnAddress:returnAddress
+    returnProductImage:FileData
 }
 
 type GetVendorOrderProductResponse {
