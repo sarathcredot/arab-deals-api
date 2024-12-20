@@ -172,7 +172,9 @@ export interface IOrderProductDocument extends Document {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
-    returnProductImage?:FileData
+    returnProductImage?:FileData;
+    deliveryAssignedOn?:Date;
+    returnOrderAssignedOn?:Date;
     refundBankDetails?:{
         accountHolderName?: string,
         accountNumber?: string,
@@ -579,6 +581,54 @@ export const getVendorOrderProductById = async (_id: Types.ObjectId): Promise<an
 export const getOrderProductWithFilters = async (filters: FilterQuery<IOrderProduct>, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<IOrderProductDocument | null> => {
     return await orderProductModel.findOne(filters, projection, options);
 }
+
+
+
+
+// export const getReturnOrderProductWithFilters = async (filters: object, projection: object, options: object,returnFilter?:object ): Promise<IOrderProductDocument[]> => {
+//     return await orderProductModel.find(filters, projection, options)
+//     .sort({returnOrderAssignedOn:1})
+//   }
+
+
+
+interface Options {
+    lean:boolean;
+    page: number;
+    limit: number;
+  }
+export const getReturnOrderProductWithFilters = async (
+    filters: object,
+    projection: object,
+    options: Options,
+  ): Promise<{ records: IOrderProductDocument[]; totalCount: number }> => {
+
+    const { page , limit  } = options;
+    const skip = (page) * limit;
+
+    console.log(page,limit,skip)
+  
+    console.log(filters)
+    try {
+      // Fetch records with pagination, sorting, and filters
+        const records = await orderProductModel
+        .find(filters)
+        .sort({ returnOrderAssignedOn: 1 }) 
+        .skip(skip)
+        .limit(limit)
+  
+       
+      const totalCount = await orderProductModel.countDocuments(filters);
+      console.log(records)
+      console.log(totalCount)
+
+      return {records,totalCount}
+   
+    } catch (error:any) {
+      throw new Error(`Error fetching return orders: ${error.message}`);
+    }
+  };
+  
 
 
 export const updateOrderProduct = async (_id: Types.ObjectId, updateQuery: UpdateQuery<IOrderProductUpdateQuery>): Promise<IOrderProductDocument | null> => {

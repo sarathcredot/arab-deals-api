@@ -209,7 +209,27 @@ export const findSettlementtWithFilters = async (filters: object, projection: ob
   return await settlementModel.findOne(filters, projection, options);
 };
 
-export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object , settlementHistoryFilter?: object ): Promise<IDeliveryAgentFilter | null> => {
+export const  findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object , settlementHistoryFilter?: object ): Promise<IDeliveryAgentFilter | null> => {
+  const deliveryAgent = await deliveryAgentModel
+    .findOne(filters, projection, options)
+    .populate({
+      path: "settlementHistory",
+      select: "_id type amount remarks totalAmount balance createdAt updatedAt",
+      options: { sort: { createdAt: -1 } }, // Sort first
+      match: settlementHistoryFilter, // Apply filters next
+    });
+
+  // Apply pagination manually to the populated `settlementHistory`
+  if (deliveryAgent && deliveryAgent.settlementHistory) {
+    const startIndex = (options as any)?.page * (options as any)?.limit || 0;
+    const endIndex = startIndex + (options as any)?.limit || deliveryAgent.settlementHistory.length;
+    deliveryAgent.settlementHistory = deliveryAgent.settlementHistory.slice(startIndex, endIndex);
+  }
+
+  return deliveryAgent;
+};
+
+export const findAssignedDeliveryAgentWithFilters = async (filters: object, projection: object, options: object , settlementHistoryFilter?: object ): Promise<IDeliveryAgentDocument | null> => {
   const deliveryAgent = await deliveryAgentModel
     .findOne(filters, projection, options)
     .populate({
@@ -1289,12 +1309,11 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
        let result:any
        let matchObj: any = {deliveryAgentId: data._id }
        console.log("input ",data)
-     dataSize=await orderProductModel.find({deliveryAgentId:data._id})
      if(data.shippingStatus){
       matchObj.shippingStatus = data.shippingStatus
      }
     //  if(data.shippingStatus){
-      dataSize=await orderProductModel.find({deliveryAgentId:data._id,shippingStatus:data.shippingStatus})
+      dataSize=await orderProductModel.find(matchObj)
       result = await orderProductModel.aggregate([
         {
           $match: matchObj,

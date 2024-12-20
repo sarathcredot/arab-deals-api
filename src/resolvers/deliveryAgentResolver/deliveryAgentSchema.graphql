@@ -20,7 +20,7 @@ type Mutation {
 
 type Query{
   
-   getAllAgentData(input:getAllAgentDataInput):getAllAgentDataResponse!
+  getAllAgentData(input:getAllAgentDataInput):getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):SettlementResponse!
   getAgentSettlementHistoryByAgent:[Settlement]!
@@ -31,6 +31,8 @@ type Query{
    getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):getAssignedOrderByAgentProfileResponse!
    getAssignedOrderByAgentProfile:[getAssignedOrderByAgentProfileResponse]!
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
+
+   getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
 }
 
 
@@ -38,6 +40,74 @@ type Query{
 
      _id:ObjectId!
  }
+
+ input GetDeliveryAgentReturnOrderInput{
+      agentId:ObjectId!
+      returnCollectionStatus:String
+      page:Int
+      limit:Int
+ }
+
+
+ type AdminReturnOrderProduct {
+  _id: ObjectId
+  userId: ObjectId
+  productId: ObjectId
+  vendorId: ObjectId
+  vendorName: String
+  orderId: String
+  itemId: String
+  productName: String
+  shortDescription: String
+  skuId: String
+  warehouseSkuId: String
+  image: FileData
+  returnPeriod: Int
+  mrp: Float
+  sellingPrice: Float
+  shippingCharge: Float
+  paymentMode: String
+  paymentStatus: String
+  paymentRemark: String
+  orderDate: Date
+  shippingStatus: String
+  shippedDate: Date
+  deliveryDate: Date
+  returnStatus: String
+  returnUserReason: String
+  returnAdminComment: String
+  returnRequestDate: Date
+  returnRejectedDate: Date
+  returnDate: Date
+  refundStatus: String
+  refundAmount: Float
+  refundRequestDate: Date
+  refundDate: Date
+  refundComment: String
+  cancelUserReason: String
+  cancelAdminComment: String
+  cancelledDate: Date
+  courierId: String
+  invoiceNumber: String
+  invoice: FileData
+  username: String
+  deliveryAgentId: ObjectId
+  deliveryBoy: DeliveryAgentForOrderProduct
+  deliveryAgentName: String
+  refundBankDetails: BankDetails
+  returnAddress: returnAddress
+  returnProductImage: FileData
+  deliveryAssignedOn:Date
+  returnOrderAssignedOn:Date
+}
+
+type GetDeliveryAgentReturnOrderResponse{
+  records: [AdminReturnOrderProduct]!
+  totalCount:Float
+  page: Float
+  totalPages: Float 
+}
+
 
  input GetAssignedOrderByDeliveryAgentInput{
 

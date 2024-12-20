@@ -1,4 +1,4 @@
-import { jwtService, spaceService, otpService, deliveryAgentService } from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService } from "../../services";
 
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
@@ -719,7 +719,67 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
- 
+    //get delivery agent return order list from admin side
+    
+    getDeliveryAgentReturnOrder: async (parent, { input }, { req }, info) => {
+      // TODO: 1.usin agent id filter asigned order from orderproduct model 
+      //return all data 
+      //3. add pagination/filter
+      // await verifyAdmin(req);
+      const { agentId} = input;
+
+      const page: number = input?.page || 0;
+      const limit: number = input?.limit || Infinity;
+
+      if (!agentId) {
+        throw new GraphQLError("All Fields are required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      const returnFilter: Record<string, any> = {
+        returndeliveryAgentId: agentId 
+      };
+
+      if (input.returnCollectionStatus) {
+        returnFilter.returnCollectionStatus = input.returnCollectionStatus;
+      }
+
+
+      console.log("returnFilter",returnFilter)
+     
+        try {
+
+        const { records, totalCount } = await orderProductService.getReturnOrderProductWithFilters(
+          returnFilter, 
+          {}, 
+          {lean:true, page, limit }, 
+        );
+    
+
+        console.log(records)
+        console.log(totalCount)
+        
+        return {
+          records,
+          totalCount,
+          page,
+          totalPages: Math.ceil(totalCount / limit), 
+        };
+        
+      } catch (error:any) {
+        throw new GraphQLError(error.message || "Error fetching Delivery Agent return orders", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+
     //get delivery agent details in  agent dashboard
     getDeliveryAgentByAgent: async (parent, {input }, { req }, info) => {
       await verifyDeliveryAgent(req);

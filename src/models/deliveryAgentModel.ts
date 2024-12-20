@@ -94,10 +94,12 @@ const deliveryAgentSchema = new Schema(
               type: Number, 
             },
             numberOfReturnOrderAssigned:{
-              type: Number, 
+              type: Number,
+              default: 0, 
             },
             numberOfReturnOrderDelivered:{
-              type: Number, 
+              type: Number,
+              default: 0, 
             }
           },
           lastSettlementID:{

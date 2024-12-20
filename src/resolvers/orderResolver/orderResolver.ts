@@ -461,13 +461,19 @@ export const orderResolver: Resolvers = {
                     if (input.returnDate) {
                         product.returnDate = input.returnDate;
                     }
+
+                    console.log(product.sellingPrice)
+                    console.log(product.refundAmount)
+                    const refund= product.sellingPrice;
+                    product.refundAmount =refund
+                    product.refundStatus = "PENDING"; 
                 }
                 else {
                     product.returnDate = undefined;
                 }
                 if (input.returnAdminComment) {
                     product.returnAdminComment = input.returnAdminComment;
-                }
+                } 
 
                 if (input.returnUserReason) {
                     product.returnUserReason = input.returnUserReason;
@@ -475,20 +481,22 @@ export const orderResolver: Resolvers = {
 
                 if (input.agentId) {
                     product.returndeliveryAgentId = input.agentId;
+                    product.returnOrderAssignedOn=moment().toDate();
 
-                    const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+                    const existingAgent = await deliveryAgentService.findAssignedDeliveryAgentWithFilters(
                         { _id: input.agentId },
                         { _id: 1, isActive: 1,wallet:1,fullName:1 },
-                        { lean: true }
+                        {}
                      );
 
-                     console.log(existingAgent)
+                    console.log(existingAgent)
                     if (!existingAgent) {
                     throw new GraphQLError("Delivery Agent not found", {
                         extensions: { code: "NOT_FOUND" },
                     });
                     }
                     existingAgent.wallet.numberOfReturnOrderAssigned+=1
+                    existingAgent.save();
                 }
 
                 if (input.agentName) {
@@ -620,8 +628,17 @@ export const orderResolver: Resolvers = {
 
 
 
+
             if (!orderProduct) {
                 throw new GraphQLError("Order not found", {
+                    extensions: { code: "BAD_REQUEST", errors: [] },
+                });
+            }
+
+            console.log(orderProduct)
+
+            if (orderProduct.shippingStatus !== "DELIVERED"){
+                throw new GraphQLError("Order can't be returned", {
                     extensions: { code: "BAD_REQUEST", errors: [] },
                 });
             }

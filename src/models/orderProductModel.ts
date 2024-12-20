@@ -186,6 +186,12 @@ const orderProductSchema = new Schema(
             required: true,
             default: "NA",
         },
+        returnCollectionStatus: {
+            type: String,
+            enum: ["NA", "COLLECTED", "RETURNED TO WAREHOUSE", "REJECTED"],
+            required: true,
+            default: "NA",
+        },
         returnUserReason: {
             type: String,
         },
@@ -215,7 +221,7 @@ const orderProductSchema = new Schema(
         },
         refundAmount: {
             type: Number,
-            min: 0,
+            default: 0,
         },
         refundRequestDate: {
             type: Date,
@@ -259,7 +265,6 @@ const orderProductSchema = new Schema(
         },
         returnOrderAssignedOn: Date,
         returndeliveryAgentId: {
-
             type: Schema.Types.ObjectId,
             ref: collections.DELIVERYAGENT
         },
