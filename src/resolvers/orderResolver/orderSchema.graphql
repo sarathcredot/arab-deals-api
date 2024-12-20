@@ -414,6 +414,18 @@ type UserOrderProduct {
     invoice: FileData
 }
 
+type DeliveryAgentForOrderProduct {
+  _id: ObjectId
+  fullName: String
+  contactNumber: String
+  userID: String
+  password: String
+  agentType: String
+  vendorID: ObjectId
+  licence: FileData
+  ID: String
+}
+
 type AdminOrderProduct {
     _id: ObjectId
     userId: ObjectId
@@ -457,7 +469,8 @@ type AdminOrderProduct {
     invoice: FileData
     username: String
     deliveryAgentId: ObjectId
-    deliveryAgentName: String ,
+    deliveryAgentName: String
+    deliveryBoy: DeliveryAgentForOrderProduct
 }
 
 type VendorOrderProduct {

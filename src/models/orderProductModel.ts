@@ -191,6 +191,7 @@ const orderProductSchema = new Schema(
         invoice: {
             type: fileSchema
         },
+        deliveryAssignedOn: Date,
         deliveryAgentId: {
 
             type: Schema.Types.ObjectId,
@@ -201,17 +202,14 @@ const orderProductSchema = new Schema(
 
             type:String
         },
-
+        returnOrderAssignedOn: Date,
         returndeliveryAgentId: {
 
             type: Schema.Types.ObjectId,
             ref: collections.DELIVERYAGENT
         },
 
-        returndeliveryAgentName: {
-
-            type:String
-        },
+        returndeliveryAgentName: String,
         refundBankDetails: {
             accountHolderName: {
                 type: String,

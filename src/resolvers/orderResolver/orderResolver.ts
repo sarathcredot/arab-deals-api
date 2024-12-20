@@ -1127,10 +1127,11 @@ export const orderResolver: Resolvers = {
             await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductsValidator, req);
 
-            const result = await orderProductService.getOrderProductsWithFiltersIncludeVendor({ orderId: input.orderId });
+            const result = await orderProductService.getOrderProductsWithFiltersIncludeVendorNew({ orderId: input?.orderId });
 
             const response = {
-                products: result.map((item: any) => { return { ...item.toObject(), vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
+                // products: result.map((item: any) => { return { ...item.toObject(), vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
+                products: result.map((item: any) => { return { ...item, vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
             }
 
             return response;

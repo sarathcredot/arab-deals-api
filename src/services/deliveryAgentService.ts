@@ -668,16 +668,17 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
 
     try {
       let pipeline: any[] = [];
-      const active = options.isActive !== null ? JSON.parse(options.isActive) : undefined;
+      const active = options.isActive ? JSON.parse(options.isActive) : undefined;
       const search = options.search?.trim() || ''; // Ensure search is a trimmed string or empty
       const settlement = options.settlement 
-
+      console.log("try catch =",{active,search,settlement})
       // Building the base match query
       const matchQuery: any = {};
       if (active !== undefined) matchQuery.isActive = active;
       if (options.agentType) matchQuery.agentType = options.agentType;
       if (search) matchQuery.fullName = { $regex: search, $options: 'i' };
-
+      console.log("match query = ",matchQuery);
+      
       // Count the total number of documents matching the criteria
       dataSize = await deliveryAgentModel.find(matchQuery);
 
@@ -734,6 +735,8 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
 
       resolve(response);
     } catch (error) {
+      console.log("error  = ",error);
+      
       reject(error);
     }
   });
@@ -916,7 +919,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
             $set: {
-
+              deliveryAssignedOn: new Date(),
               deliveryAgentId: data.deliveryAgentId,
               deliveryAgentName: data.deliveryAgentName
             }
