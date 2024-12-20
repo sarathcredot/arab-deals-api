@@ -1338,10 +1338,11 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
             _id: 1,
             orderId: 1,
             userId: 1,
+            itemId:1,
             productName: 1,
             sellingPrice: 1,
             paymentStatus: 1,
-            orderDate: 1,
+            orderDate:1,
             shippingStatus: 1,
             deliveryAgentId: 1,
             userName: {

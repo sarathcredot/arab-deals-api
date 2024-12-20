@@ -479,12 +479,13 @@ type AdminOrderProduct {
   invoice: FileData
   username: String
   deliveryAgentId: ObjectId
-  deliveryAgentName: String
   deliveryBoy: DeliveryAgentForOrderProduct
   deliveryAgentName: String
   refundBankDetails: BankDetails
   returnAddress: returnAddress
   returnProductImage: FileData
+  deliveryAssignedOn:Date
+  returnOrderAssignedOn:Date
 }
 
 type VendorOrderProduct {

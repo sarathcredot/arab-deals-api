@@ -1205,7 +1205,7 @@ export const orderResolver: Resolvers = {
         },
         getAdminOrderProducts: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductsValidator, req);
 
             const result = await orderProductService.getOrderProductsWithFiltersIncludeVendorNew({ orderId: input?.orderId });

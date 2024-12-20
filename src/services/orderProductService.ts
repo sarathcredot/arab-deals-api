@@ -62,6 +62,8 @@ export interface IOrderProduct {
     cancelUserReason?: string;
     cancelAdminComment?: string;
     cancelledDate?: Date;
+    deliveryAssignedOn?:Date;
+    returnOrderAssignedOn?:Date;
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;

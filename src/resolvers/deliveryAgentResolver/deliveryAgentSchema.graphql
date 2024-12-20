@@ -70,9 +70,10 @@ type Query{
   orderId: String!
   userId: ObjectId!
   productName: String!
+  itemId:String!
   sellingPrice: Float!
   paymentStatus: String!
-  orderDate: String!
+  orderDate: Date!
   shippingStatus: String!
   deliveryAgentId: ObjectId!
   userName: String!

@@ -1027,9 +1027,13 @@ export const deliveryAgentResolver: Resolvers = {
 
     getAssignedOrderByDeliveryAgent: async (parent, { input }, { req }, info) => {
 
+
+      // await verifyAdmin(req)
+
+
       try {
         // admin verfy
-        await verifyAdmin(req)
+       
 
         console.log("req")
 
