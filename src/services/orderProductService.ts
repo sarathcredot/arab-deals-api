@@ -4,6 +4,8 @@ import { Types, Document, QueryOptions, PipelineStage, ProjectionFields, FilterQ
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
+import { IVendor } from "./vendorService";
+import { IDeliveryAgent } from "./deliveryAgentService";
 
 
 export interface IBestSellingProduct {
@@ -25,6 +27,8 @@ export interface IOrderProduct {
     _id?: Types.ObjectId;
     userId?: Types.ObjectId;
     vendorId?: Types.ObjectId;
+    vendor?: IVendor;
+    deliveryBoy?: IDeliveryAgent;
     productId?: Types.ObjectId;
     orderId?: string;
     itemId?: string;
@@ -425,6 +429,47 @@ export const getOrderProductsWithFilters = async (filters: FilterQuery<IOrderPro
 
 export const getOrderProductsWithFiltersIncludeVendor = async (filters: FilterQuery<IOrderProduct>, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<any[] | []> => {
     return await orderProductModel.find(filters, projection, options).populate({ path: "vendorId", select: "_id fullName" });
+}
+
+export const getOrderProductsWithFiltersIncludeVendorNew = async (filters: FilterQuery<IOrderProduct>, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<any[] | []> => {
+    // return await orderProductModel.find(filters, projection, options).populate({ path: "vendorId", select: "_id fullName" });
+    const pipeline: PipelineStage[] = [
+        {
+            $match: filters
+        },
+        {
+            $lookup: {
+                from: "vendors",
+                localField: "vendorId",
+                foreignField: "_id",
+                as: "vendor"
+            }
+        },
+        {
+            $unwind: {
+                path: "$vendor",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "deliveryagents",
+                localField: "deliveryAgentId",
+                foreignField: "_id",
+                as: "deliveryBoy"
+            }
+        },
+        {
+            $unwind: {
+                path: "$deliveryBoy",
+                preserveNullAndEmptyArrays: true
+            }
+        }
+    ]
+console.log(pipeline, 'PIPELINE, ORDER PRODUCTS')
+    const result = await orderProductModel.aggregate(pipeline).exec();
+    console.log(result, 'RESULT ORDER PRODUCT BY ORDER ID') 
+    return result
 }
 
 export const getOrderProductWithId = async (_id: Types.ObjectId, projection: ProjectionFields<IOrderProduct> = {}, options: QueryOptions = {}): Promise<IOrderProductDocument | null> => {

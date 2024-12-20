@@ -7,6 +7,8 @@ export const validateInput = async (validationChain: ValidationChain[], req: Req
     await Promise.all(validationChain.map(validation => validation(req, {}, (err) => { })));
     const errors = await validationResult(req);
     if (!errors.isEmpty()) {
+        console.log("errorrrrrrs = ",errors.array());
+        
         throw new GraphQLError("BAD_REQUEST", {
             extensions: {
                 code: "BAD_REQUEST",

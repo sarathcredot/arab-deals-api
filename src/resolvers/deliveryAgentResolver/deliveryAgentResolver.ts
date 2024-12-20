@@ -814,26 +814,27 @@ export const deliveryAgentResolver: Resolvers = {
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
-
+        
         const options:any={
-
-             page,
+          
+          page,
              size,
              isActive:input?.isActive,
              agentType:input?.agentType,
              search:input?.search,
              settlement:input?.settlement
         }
+        console.log(options);
 
         const result = await deliveryAgentService.viewAllDeliveryAgents(options)
 
-        console.log(result)
+        console.log("result = ",result)
 
         return result
 
       } catch (error) {
 
-        throw new GraphQLError("Unable ind all delivery agents", {
+        throw new GraphQLError("Unable find all delivery agents", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
