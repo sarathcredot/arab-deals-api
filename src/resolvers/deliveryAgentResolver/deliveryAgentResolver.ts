@@ -1076,8 +1076,6 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
 
-
-
 // delivery agent port assigned order detail view
 
     getAssignedeOrderDeatilsByAgentProfile:async(parent, { input }, { req }, info)=>{
@@ -1128,12 +1126,7 @@ export const deliveryAgentResolver: Resolvers = {
            
       }
   }
-
-
-
   }
-
-
 }
 
 
@@ -1144,3 +1137,4 @@ export const deliveryAgentResolver: Resolvers = {
 
 
 
+  

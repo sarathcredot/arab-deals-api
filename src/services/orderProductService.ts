@@ -65,6 +65,27 @@ export interface IOrderProduct {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
+    returnProductImage?:FileData
+    refundBankDetails?:{
+        accountHolderName?: string,
+        accountNumber?: string,
+        ifscCode?: string,
+        bankName?: string,
+        branchName?:string,
+    }
+    returnAddress?:{
+        firstname: string
+        email?: string
+        mobile?: string
+        streetName?: string
+        city?: string
+        houseNumber?: string
+        country?: string
+        postCode?: string
+        apartment?: string
+        suite?: string
+        unit?: string
+    }
 }
 
 export interface IVendorOrderProduct {
@@ -149,12 +170,26 @@ export interface IOrderProductDocument extends Document {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
+    returnProductImage?:FileData
     refundBankDetails?:{
         accountHolderName?: string,
         accountNumber?: string,
         ifscCode?: string,
         bankName?: string,
         branchName?:string,
+    }
+    returnAddress?:{
+        firstname: string
+        email?: string
+        mobile?: string
+        streetName?: string
+        city?: string
+        houseNumber?: string
+        country?: string
+        postCode?: string
+        apartment?: string
+        suite?: string
+        unit?: string
     }
 }
 
@@ -331,6 +366,14 @@ export interface IVendorRefundProductsOptions {
     size: number;
     sort: string;
 }
+
+export interface FileData {
+    _id?: string,
+    fileType?: string,
+    fileURL?: string,
+    mimeType?: string,
+    originalName?: string,
+  }
 
 
 export interface IOrderProductDetails extends IOrderProduct {

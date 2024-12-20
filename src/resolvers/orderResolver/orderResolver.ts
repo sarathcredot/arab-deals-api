@@ -563,7 +563,7 @@ export const orderResolver: Resolvers = {
 
             return response;
         },
-        returnUserOrderProduct: async (parent, { input }, { req }, info) => {
+        returnUserOrderProduct: async (parent, { input, image }, { req }, info) => {
                 //add product image and return address
 
                 // Verify user and validate input
@@ -578,7 +578,7 @@ export const orderResolver: Resolvers = {
                 });
             }
 
-            const { _id, returnUserReason, bankDetails = {} } = input;
+            const { _id, returnUserReason, bankDetails = {}, returnAddress } = input;
 
             // Fetch order product
             const orderProduct = await orderProductService.getOrderProductWithFilters({
@@ -593,15 +593,13 @@ export const orderResolver: Resolvers = {
                 });
             }
 
-            console.log("Delivery Date:", orderProduct.deliveryDate);
-            console.log("Return Period:", orderProduct.returnPeriod);
-            console.log(
-                "Days Difference:",
-                moment(orderProduct.deliveryDate).diff(moment(), "days")   
-            );
+            // console.log("Delivery Date:", orderProduct.deliveryDate);
+            // console.log("Return Period:", orderProduct.returnPeriod);
+            // console.log(
+            //     "Days Difference:",
+            //     moment(orderProduct.deliveryDate).diff(moment(), "days")   
+            // );
 
-
-            // const isReturnable =moment(orderProduct.deliveryDate).diff(moment(), "days") <=(orderProduct.returnPeriod || 0);
 
             const returnDeadline = moment(orderProduct.deliveryDate).add(orderProduct.returnPeriod || 0, "days");
             const isReturnable = moment().isSameOrBefore(returnDeadline);
@@ -614,6 +612,38 @@ export const orderResolver: Resolvers = {
                 });
             }
 
+            let returnProductImage: orderProductService.FileData | undefined;
+
+
+            if (image) {
+                try {
+                  const { createReadStream, filename, mimetype, encoding } = await image;
+                  const key = spaceService.getFileKey(filePaths.returnProduct, filename, []);
+                  const stream = createReadStream();
+                  const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+          
+                  returnProductImage = {
+                    fileType: "PUBLIC",
+                    fileURL: file.location,
+                    mimeType: mimetype,
+                    originalName: filename
+                  }
+                } catch (error) {
+                  throw new GraphQLError("image upload failed", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                  });
+                }
+              }
+
+
+              if(!returnProductImage){
+                throw new GraphQLError("image upload failed", {
+                    extensions: {
+                      code: "BAD_REQUEST",
+                    },
+                  });
+              }
+
             const validatedBankDetails = {
                 accountHolderName: bankDetails?.accountHolderName || "",
                 accountNumber: bankDetails?.accountNumber || "",
@@ -622,10 +652,28 @@ export const orderResolver: Resolvers = {
                 branchName: bankDetails?.branchName || "",
             };
 
+            const validatedReturnAddress = returnAddress ? {
+                firstname: returnAddress.firstname || "",
+                email: returnAddress.email || "",
+                mobile: returnAddress.mobile || "",
+                country: returnAddress.country || "India", // Default to "India"
+                houseNumber: returnAddress.houseNumber || "",
+                streetName: returnAddress.streetName || "",
+                apartment: returnAddress.apartment || "",
+                suite: returnAddress.suite || "",
+                unit: returnAddress.unit || "",
+                city: returnAddress.city || "",
+                postCode: returnAddress.postCode || "",
+            } : null;
+
             orderProduct.returnUserReason = returnUserReason;
             orderProduct.returnRequestDate = moment().toDate();
             orderProduct.refundBankDetails = validatedBankDetails;
+            if (validatedReturnAddress) {
+                    orderProduct.returnAddress = validatedReturnAddress;
+                }
             orderProduct.returnStatus = "PENDING";
+            orderProduct.returnProductImage=returnProductImage
 
             await orderProduct.save();
 
@@ -961,7 +1009,7 @@ export const orderResolver: Resolvers = {
         },
         getAdminReturnProducts: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.getAdminOrderReturnProductsValidator, req);
 
             let filters: orderProductService.IReturnProductsOptions = { page: 0, size: 10, sort: "" };
@@ -1124,7 +1172,7 @@ export const orderResolver: Resolvers = {
         },
         getAdminOrderProducts: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             await validateInput(validators.getAdminOrderProductsValidator, req);
 
             const result = await orderProductService.getOrderProductsWithFiltersIncludeVendorNew({ orderId: input?.orderId });

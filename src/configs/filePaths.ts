@@ -5,6 +5,7 @@ export const filePaths = {
     categoryImages: "public/category/image",
     vendorProfilePic: "public/vendor/profilePic",
     deliveryagentLicence:"public/deliveryagent/licence",
+    returnProduct:"public/returnProduct",
     brand: "public/brand",
     vendorCompany: "public/kyc/vendorCompany",
     vendorOutlet: "public/kyc/vendorOutlet",
