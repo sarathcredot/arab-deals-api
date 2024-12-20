@@ -131,8 +131,6 @@ const orderProductSchema = new Schema(
         returnPeriod: {
             type: Number,
         },
-
-
         mrp: {
             type: Number,
             required: true,

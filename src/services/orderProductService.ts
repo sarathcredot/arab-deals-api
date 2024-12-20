@@ -187,6 +187,8 @@ export interface IOrderProductDocument extends Document {
         suite?: string
         unit?: string
     }
+    returndeliveryAgentId?: Types.ObjectId
+    returndeliveryAgentName?: string
 }
 
 export interface IOrderProductUpdateQuery {

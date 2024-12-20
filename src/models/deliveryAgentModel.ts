@@ -43,7 +43,6 @@ const deliveryAgentSchema = new Schema(
           },
           userID: {              //this is email
             type: String,
-            unique: true,
             required: true,
             sparse: true,
             lowercase: true,
@@ -92,6 +91,12 @@ const deliveryAgentSchema = new Schema(
               type: Number, 
             },
             numberOfOrderDelivered:{
+              type: Number, 
+            },
+            numberOfReturnOrderAssigned:{
+              type: Number, 
+            },
+            numberOfReturnOrderDelivered:{
               type: Number, 
             }
           },

@@ -83,6 +83,8 @@ export interface IDeliveryAgentFilter {
     totalSettlement: number;
     numberOfOrderAssigned: number;
     numberOfOrderDelivered: number;
+    numberOfReturnOrderAssigned: number;
+    numberOfReturnOrderDelivered: number;
   };
   settlementHistory: Types.ObjectId[] | ISettlement[];
 }
@@ -105,6 +107,8 @@ export interface IDeliveryAgentDocument extends Document {
     totalSettlement: number;
     numberOfOrderAssigned: number;
     numberOfOrderDelivered: number;
+    numberOfReturnOrderAssigned: number;
+    numberOfReturnOrderDelivered: number;
   };
   lastSettlementID:Types.ObjectId;
   settlementHistory: Types.ObjectId[];

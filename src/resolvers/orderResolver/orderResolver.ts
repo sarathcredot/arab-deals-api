@@ -1,4 +1,4 @@
-import { cartService, orderProductService, orderService, productService, settingsService, spaceService, userShippingAddressService } from "../../services";
+import { cartService, deliveryAgentService, orderProductService, orderService, productService, settingsService, spaceService, userShippingAddressService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import * as validators from "./orderValidator";
 import { GraphQLError } from "graphql";
@@ -367,8 +367,18 @@ export const orderResolver: Resolvers = {
 
         },
         updateAdminOrderProduct: async (parent, { input, invoice }, { req }, info) => {
-            await verifyAdmin(req);
-            await validateInput(validators.updateAdminOrderProductValidator, req);
+
+            //TODO:  if return status approved  
+            //  input --agentid,agentname,date,comment,return status
+            //  1. approved date 
+            //  2. admin comment 
+            //  3. assign agent to return 
+            //  4. update refund amount 
+            //  5. update delivery agent no of asigned returned orders (no of return assigned ,no of return collected)
+            //  6. update refund status
+
+            // await verifyAdmin(req);
+            // await validateInput(validators.updateAdminOrderProductValidator, req);
 
             const _id = input._id;
 
@@ -455,13 +465,34 @@ export const orderResolver: Resolvers = {
                 else {
                     product.returnDate = undefined;
                 }
-
                 if (input.returnAdminComment) {
                     product.returnAdminComment = input.returnAdminComment;
                 }
 
                 if (input.returnUserReason) {
                     product.returnUserReason = input.returnUserReason;
+                }
+
+                if (input.agentId) {
+                    product.returndeliveryAgentId = input.agentId;
+
+                    const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+                        { _id: input.agentId },
+                        { _id: 1, isActive: 1,wallet:1,fullName:1 },
+                        { lean: true }
+                     );
+
+                     console.log(existingAgent)
+                    if (!existingAgent) {
+                    throw new GraphQLError("Delivery Agent not found", {
+                        extensions: { code: "NOT_FOUND" },
+                    });
+                    }
+                    existingAgent.wallet.numberOfReturnOrderAssigned+=1
+                }
+
+                if (input.agentName) {
+                    product.returndeliveryAgentName = input.agentName;
                 }
 
                 if (input.returnRequestDate) {
@@ -475,6 +506,8 @@ export const orderResolver: Resolvers = {
                 product.returnRequestDate = undefined;
                 product.returnDate = undefined;
                 product.returnRejectedDate = undefined;
+                product.returndeliveryAgentId= undefined;
+                product.returndeliveryAgentName= undefined;
             }
 
             if (input.refundStatus) {
