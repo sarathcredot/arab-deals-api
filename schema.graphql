@@ -55,9 +55,6 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
-  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
@@ -65,6 +62,9 @@ type Mutation {
   exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
   exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   editDeliveryAgentData(input: EditAgentDataInput!, image: Upload): EditAgentDataInputResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!, image: Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): AllDeliveryAgentResponse!
@@ -74,12 +74,14 @@ type Mutation {
   orderAssignDeliveryAgent(input: OrderAssignDeliveryAgentInput!): OrderAssignDeliveryAgentResponse!
   orderDelivedbyAgent(input: OrderDelivedbyAgentInput!): OrderDelivedbyAgentResponse!
   returnOrderAssignDeliveryAgent(input: OrderAssignDeliveryAgentInput!): OrderAssignDeliveryAgentResponse!
-  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
-  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
-  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
+  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
+  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
+  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -88,8 +90,6 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
@@ -178,18 +178,6 @@ type Query {
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
-  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
-  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
-  getAgentSettlementHistoryByAgent: [Settlement]!
-  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
-  getSettlementHistoryByAdmin: [Settlement]!
-  getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
-  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedOrderByAgentProfileResponse!
-  getAssignedOrderByAgentProfile: [getAssignedOrderByAgentProfileResponse]!
-  getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
-  getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
-  getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -212,6 +200,26 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
+  getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
+  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
+  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
+  getAgentSettlementHistoryByAgent: [Settlement]!
+  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
+  getSettlementHistoryByAdmin: [Settlement]!
+  getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
+  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedOrderByAgentProfileResponse!
+  getAssignedOrderByAgentProfile: [getAssignedOrderByAgentProfileResponse]!
+  getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
+  getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
+  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
+  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
+  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
+  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
+  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
+  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -222,16 +230,8 @@ type Query {
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
-  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
-  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
-  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
-  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
-  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
-  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -2403,23 +2403,6 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
-input GetAdminSignedFileUrlInput {
-  fileURL: String!
-  mimeType: String!
-}
-
-input GetUserIvoiceUrlInput {
-  _id: ObjectId!
-}
-
-type GetAdminSignedFileUrlResponse {
-  url: String
-}
-
-type GetUserIvoiceUrlResponse {
-  url: String
-}
-
 input ExportAdminOrdersInput {
   _id: ObjectId
   userId: ObjectId
@@ -2520,6 +2503,217 @@ type GetJobQueueResponse {
 
 type GetAdminDownloadTokenResponse {
   url: String!
+}
+
+input GetAdminSignedFileUrlInput {
+  fileURL: String!
+  mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+  _id: ObjectId!
+}
+
+type GetAdminSignedFileUrlResponse {
+  url: String
+}
+
+type GetUserIvoiceUrlResponse {
+  url: String
+}
+
+input GetDashboardUsersGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+}
+
+input GetDashboardVendorsGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+}
+
+input GetDashboardOrdersGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardOrdersGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+}
+
+input GetDashboardOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardReturnedOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardReturnedOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardRefundOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardRefundOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardOrdersAmountPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardOrdersAmountPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardShippingChargePieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardShippingChargePieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardOrderSummaryInput {
+  vendorId: ObjectId
+}
+
+input GetDashboardReturnedOrderSummaryInput {
+  vendorId: ObjectId
+}
+
+input getDashboardRefundOrdersSummaryInput {
+  vendorId: ObjectId
+}
+
+type GetDashboardUsersSummaryResponse {
+  totalUsers: Int
+  activeUsers: Int
+  blockedUsers: Int
+  todayUsers: Int
+  weekUsers: Int
+  monthUsers: Int
+  yearUsers: Int
+}
+
+type GetDashboardVendorsSummaryResponse {
+  totalVendors: Int
+  activeVendors: Int
+  blockedVendors: Int
+  todayVendors: Int
+  weekVendors: Int
+  monthVendors: Int
+  yearVendors: Int
+}
+
+type GetDashboardUsersGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetDashboardVendorsGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetDashboardOrderSummaryResponse {
+  pendingOrders: Int
+  progressOrders: Int
+  shippedOrders: Int
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetVendorDashboardOrderSummaryResponse {
+  pendingOrders: Int
+  progressOrders: Int
+  shippedOrders: Int
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetDashboardOrdersGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetVendorDashboardOrdersGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetDashboardOrdersPieChartDataResponse {
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetVendorDashboardOrdersPieChartDataResponse {
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetDashboardReturnedOrdersPieChartDataResponse {
+  pending: Int
+  approved: Int
+  rejected: Int
+}
+
+type GetDashboardReturnedOrderSummaryResponse {
+  pending: Int
+  approvedToday: Int
+  rejectedToday: Int
+}
+
+type GetDashboardRefundOrdersPieChartDataResponse {
+  pending: Float
+  paid: Float
+}
+
+type GetDashboardRefundOrderSummaryResponse {
+  pendingAmount: Int
+  paidToday: Int
+}
+
+type GetDashboardOrdersAmountPieChartDataResponse {
+  pending: Float
+  paid: Float
+}
+
+type GetDashboardShippingChargePieChartDataResponse {
+  pending: Float
+  paid: Float
 }
 
 input DeliveryAgentAssignedOrderInput {
@@ -2872,198 +3066,196 @@ type LoginDeliveryAgentResponse {
   msg: String!
 }
 
-input GetDashboardUsersGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
 }
 
-input GetDashboardVendorsGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
 }
 
-input GetDashboardOrdersGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
-  vendorId: ObjectId
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
 }
 
-input GetVendorDashboardOrdersGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
+type AddCountryResponse {
+  _id: String!
+  message: String
 }
 
-input GetDashboardOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
+type updateCountryResponse {
+  _id: String!
+  message: String
 }
 
-input GetVendorDashboardOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
 }
 
-input GetDashboardReturnedOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
+type BrandRecordId {
+  _id: String
 }
 
-input GetVendorDashboardReturnedOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
+input CountryIdInput {
+  _id: String!
 }
 
-input GetDashboardRefundOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
 }
 
-input GetVendorDashboardRefundOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
 }
 
-input GetDashboardOrdersAmountPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
 }
 
-input GetVendorDashboardOrdersAmountPieChartDataInput {
-  startDate: Date
-  endDate: Date
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
 }
 
-input GetDashboardShippingChargePieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
+input AddCmsInput {
+  pageName: String!
+  buttons: [ButtonDataInput]
 }
 
-input GetVendorDashboardShippingChargePieChartDataInput {
-  startDate: Date
-  endDate: Date
+input ButtonDataInput {
+  buttonText: String!
+  redirectionURL: String!
 }
 
-input GetDashboardOrderSummaryInput {
-  vendorId: ObjectId
+input UpdateCmsInput {
+  _id: String!
+  buttons: [ButtonDataInput]
 }
 
-input GetDashboardReturnedOrderSummaryInput {
-  vendorId: ObjectId
+input CmsRecordId {
+  _id: String!
 }
 
-input getDashboardRefundOrdersSummaryInput {
-  vendorId: ObjectId
+type AddCmsResponse {
+  _id: String!
+  message: String
 }
 
-type GetDashboardUsersSummaryResponse {
-  totalUsers: Int
-  activeUsers: Int
-  blockedUsers: Int
-  todayUsers: Int
-  weekUsers: Int
-  monthUsers: Int
-  yearUsers: Int
+type UpdateCmsResponse {
+  _id: String!
+  message: String
 }
 
-type GetDashboardVendorsSummaryResponse {
-  totalVendors: Int
-  activeVendors: Int
-  blockedVendors: Int
-  todayVendors: Int
-  weekVendors: Int
-  monthVendors: Int
-  yearVendors: Int
+type DeleteCmsResponse {
+  _id: String!
+  message: String
 }
 
-type GetDashboardUsersGraphResposne {
-  y1: [Int]
-  x: [String]
+input cmsRecordByAdminFilter {
+  _id: String!
 }
 
-type GetDashboardVendorsGraphResposne {
-  y1: [Int]
-  x: [String]
+input cmsRecordFilter {
+  sectionName: String!
+  pageName: String!
 }
 
-type GetDashboardOrderSummaryResponse {
-  pendingOrders: Int
-  progressOrders: Int
-  shippedOrders: Int
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
+input GetCmsRecordInMobileInput {
+  sectionName: String!
+  pageName: String!
 }
 
-type GetVendorDashboardOrderSummaryResponse {
-  pendingOrders: Int
-  progressOrders: Int
-  shippedOrders: Int
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
+input CmsRecordsFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
 }
 
-type GetDashboardOrdersGraphResposne {
-  y1: [Int]
-  x: [String]
+input GetAllCmsRecordsInMobileInput {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
 }
 
-type GetVendorDashboardOrdersGraphResposne {
-  y1: [Int]
-  x: [String]
+input CmsRecordsByAdminFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+  isBlocked: Boolean
 }
 
-type GetDashboardOrdersPieChartDataResponse {
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
+type ButtonData {
+  buttonText: String
+  redirectionURL: String
 }
 
-type GetVendorDashboardOrdersPieChartDataResponse {
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
+type CmsImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
 }
 
-type GetDashboardReturnedOrdersPieChartDataResponse {
-  pending: Int
-  approved: Int
-  rejected: Int
+type CmsRecord {
+  _id: String
+  pageName: String
+  sectionName: String
+  images: [CmsImageData]
+  buttons: [ButtonData]
+  isBlocked: Boolean
 }
 
-type GetDashboardReturnedOrderSummaryResponse {
-  pending: Int
-  approvedToday: Int
-  rejectedToday: Int
+type CmsRecordResponse {
+  record: CmsRecord!
+  message: String
 }
 
-type GetDashboardRefundOrdersPieChartDataResponse {
-  pending: Float
-  paid: Float
+type GetAllCmsRecordsInMobileResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
 }
 
-type GetDashboardRefundOrderSummaryResponse {
-  pendingAmount: Int
-  paidToday: Int
+type GetCmsRecordInMobileResponse {
+  record: CmsRecord!
+  message: String
 }
 
-type GetDashboardOrdersAmountPieChartDataResponse {
-  pending: Float
-  paid: Float
-}
-
-type GetDashboardShippingChargePieChartDataResponse {
-  pending: Float
-  paid: Float
+type CmsRecordsResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
 }
 
 input CreateCategoryInput {
@@ -3203,76 +3395,6 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
-  message: String
-}
-
 input addToCartInput {
   productId: ObjectId!
   quantity: Int!
@@ -3373,128 +3495,6 @@ type getCartInMobileResponse {
   grandTotal: Float
   subTotal: Float
   deliveryCharge: Int
-}
-
-input AddCmsInput {
-  pageName: String!
-  buttons: [ButtonDataInput]
-}
-
-input ButtonDataInput {
-  buttonText: String!
-  redirectionURL: String!
-}
-
-input UpdateCmsInput {
-  _id: String!
-  buttons: [ButtonDataInput]
-}
-
-input CmsRecordId {
-  _id: String!
-}
-
-type AddCmsResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateCmsResponse {
-  _id: String!
-  message: String
-}
-
-type DeleteCmsResponse {
-  _id: String!
-  message: String
-}
-
-input cmsRecordByAdminFilter {
-  _id: String!
-}
-
-input cmsRecordFilter {
-  sectionName: String!
-  pageName: String!
-}
-
-input GetCmsRecordInMobileInput {
-  sectionName: String!
-  pageName: String!
-}
-
-input CmsRecordsFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-}
-
-input GetAllCmsRecordsInMobileInput {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-}
-
-input CmsRecordsByAdminFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-  isBlocked: Boolean
-}
-
-type ButtonData {
-  buttonText: String
-  redirectionURL: String
-}
-
-type CmsImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-type CmsRecord {
-  _id: String
-  pageName: String
-  sectionName: String
-  images: [CmsImageData]
-  buttons: [ButtonData]
-  isBlocked: Boolean
-}
-
-type CmsRecordResponse {
-  record: CmsRecord!
-  message: String
-}
-
-type GetAllCmsRecordsInMobileResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
-  message: String
-}
-
-type GetCmsRecordInMobileResponse {
-  record: CmsRecord!
-  message: String
-}
-
-type CmsRecordsResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
-  message: String
 }
 
 input AddBrandInput {
