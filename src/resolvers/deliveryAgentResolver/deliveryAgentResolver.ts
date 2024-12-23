@@ -68,18 +68,16 @@ export const deliveryAgentResolver: Resolvers = {
           { lean: true }
   
         );
+
+
         if (existingContact) {
-        console.log("existing contact");
-        
-          return {
-            _id: existingContact._id,
-            message: "Delivery Agent with this contact number already exist",
-            error:true
-          };
+              throw new GraphQLError("Delivery Agent not found", {
+                extensions: { code: "NOT_FOUND" },
+              });
         }
   
   
-        if (image) {
+        if (image) { 
           try {
             const { createReadStream, filename, mimetype, encoding } = await image;
             const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
@@ -529,7 +527,6 @@ export const deliveryAgentResolver: Resolvers = {
         if (result.flag) {
 
           return {  // order assign to delivery agent
-
             status: true,
             msg: "order assign to delivery agent"
           }
@@ -556,9 +553,50 @@ export const deliveryAgentResolver: Resolvers = {
         });
 
       }
-
-
     },
+
+
+    //assign return orders to delivery agent from admin side
+
+    returnOrderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
+      // await verifyAdmin(req)
+
+      try {
+        // input validation
+        // await validateInput(validators.orderAssignDeliveryAgentValidator, req)
+
+        const { orderItemId,deliveryAgentId,deliveryAgentName}=input
+
+        const result = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+
+        if(result){
+          return {  
+            status: true,
+            msg: "order assign to delivery agent"
+          }
+  
+        }else{
+          throw new GraphQLError("Unable to assigen delivery agent", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+        }
+        
+      } catch (error) {
+
+        throw new GraphQLError("Unable to assigen delivery agent", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+      }
+    },
+
+
 
     orderDelivedbyAgent: async (parent, { input }, { req }, info) => {
 

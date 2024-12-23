@@ -52,8 +52,6 @@ input UpdateAdminOrderProductInput {
    courierId: String
    invoiceNumber: String
    shippingCharge: Float
-   agentId:ObjectId
-   agentName:String
 }
 
 type BankDetails {

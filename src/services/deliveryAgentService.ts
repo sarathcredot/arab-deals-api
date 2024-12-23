@@ -500,6 +500,80 @@ export const exportAllSettlementHistoryWithFilters = async (options:IAllSettleme
 };
 
 
+
+export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
+ try {
+   const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+
+   
+   if (assignOrder) {
+  // check is this first assigning or reassigning
+
+  if(assignOrder.returnStatus === "APPROVED"){
+    if (!assignOrder.returndeliveryAgentId) {
+
+      // add order products model assign agent id and name 
+      await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+        $set: {
+          returnOrderAssignedOn: new Date(),
+          returndeliveryAgentId: data.deliveryAgentId,
+          returndeliveryAgentName: data.deliveryAgentName
+        }
+      })
+      // update delivery agent total order count
+      await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+        $inc: {
+          'wallet.numberOfReturnOrderAssigned': 1
+        }
+      })
+
+      return true
+
+    } else {
+      // reassign this oder to new delivery agent
+      // find old delivery agent and update this agent numberOfOrderAssigned count
+
+      await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
+        $inc: {
+          'wallet.numberOfReturnOrderAssigned': -1
+        }
+      })
+
+      //  this order reassign to new delivery agent 
+      await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+        $set: {
+          returndeliveryAgentId: data.deliveryAgentId,
+          returndeliveryAgentName: data.deliveryAgentName
+        }
+      })
+
+      // update this new new agent numberOfOrderAssigned count
+
+      await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+        $inc: {
+          'wallet.numberOfReturnOrderAssigned': 1
+        }
+      }) 
+    }
+
+    return true
+  }else{
+    return false
+  }
+
+  } else {
+
+   return false
+  }
+ } catch (error) {
+     return false
+ }
+}
+
+
+
 type Editrespo = {
   flag?: boolean
   numberExit?: boolean
@@ -1016,6 +1090,8 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 }
 
 
+
+
 export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, pymentType: string, deliveryStatus: string, remarks?: string }) => {
 
 
@@ -1449,17 +1525,6 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
     }
   })
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

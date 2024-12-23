@@ -366,20 +366,11 @@ export const orderResolver: Resolvers = {
             return response;
 
         },
+
         updateAdminOrderProduct: async (parent, { input, invoice }, { req }, info) => {
-
-            //TODO:  if return status approved  
-            //  input --agentid,agentname,date,comment,return status
-            //  1. approved date 
-            //  2. admin comment 
-            //  3. assign agent to return 
-            //  4. update refund amount 
-            //  5. update delivery agent no of asigned returned orders (no of return assigned ,no of return collected)
-            //  6. update refund status
-
             // await verifyAdmin(req);
             // await validateInput(validators.updateAdminOrderProductValidator, req);
-
+           console.log(input)
             const _id = input._id;
 
             const shippingCharge = parseFloat(`${input.shippingCharge}`);
@@ -443,8 +434,34 @@ export const orderResolver: Resolvers = {
             }
 
             if (input.returnStatus) {
-                product.returnStatus = input.returnStatus;
+                if(product.shippingStatus == "DELIVERED"){
+                    product.returnStatus = input.returnStatus;
+
+                    if(input.returnStatus=== "APPROVED"){
+                       
+                        const refund= product.sellingPrice;
+                        product.refundAmount =refund
+                        product.refundStatus = "PENDING"; 
+                    }
+
+                    if(input.returnStatus==="COLLECTED"){
+                        product.returnDate=moment().toDate();
+                    }
+
+
+                }else{
+                    throw new GraphQLError("This item can't be returned", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }  
             }
+
+    
+
+            
 
             if (product.shippingStatus == "DELIVERED") {
 
@@ -458,19 +475,18 @@ export const orderResolver: Resolvers = {
                 }
 
                 if (product.returnStatus == "APPROVED") {
-                    if (input.returnDate) {
-                        product.returnDate = input.returnDate;
-                    }
+                    
+                    // if (input.returnDate) {
+                    //     product.returnDate = input.returnDate;
+                    // }
 
-                    console.log(product.sellingPrice)
-                    console.log(product.refundAmount)
-                    const refund= product.sellingPrice;
-                    product.refundAmount =refund
-                    product.refundStatus = "PENDING"; 
+                    // console.log(product.sellingPrice)
+                    // console.log(product.refundAmount)
+                    // const refund= product.sellingPrice;
+                    // product.refundAmount =refund
+                    // product.refundStatus = "PENDING"; 
                 }
-                else {
-                    product.returnDate = undefined;
-                }
+                
                 if (input.returnAdminComment) {
                     product.returnAdminComment = input.returnAdminComment;
                 } 
@@ -479,29 +495,29 @@ export const orderResolver: Resolvers = {
                     product.returnUserReason = input.returnUserReason;
                 }
 
-                if (input.agentId) {
-                    product.returndeliveryAgentId = input.agentId;
-                    product.returnOrderAssignedOn=moment().toDate();
+                // if (input.agentId) {
+                //     product.returndeliveryAgentId = input.agentId;
+                //     product.returnOrderAssignedOn=moment().toDate();
 
-                    const existingAgent = await deliveryAgentService.findAssignedDeliveryAgentWithFilters(
-                        { _id: input.agentId },
-                        { _id: 1, isActive: 1,wallet:1,fullName:1 },
-                        {}
-                     );
+                //     const existingAgent = await deliveryAgentService.findAssignedDeliveryAgentWithFilters(
+                //         { _id: input.agentId },
+                //         { _id: 1, isActive: 1,wallet:1,fullName:1 },
+                //         {}
+                //      );
 
-                    console.log(existingAgent)
-                    if (!existingAgent) {
-                    throw new GraphQLError("Delivery Agent not found", {
-                        extensions: { code: "NOT_FOUND" },
-                    });
-                    }
-                    existingAgent.wallet.numberOfReturnOrderAssigned+=1
-                    existingAgent.save();
-                }
+                //     console.log(existingAgent)
+                //     if (!existingAgent) {
+                //     throw new GraphQLError("Delivery Agent not found", {
+                //         extensions: { code: "NOT_FOUND" },
+                //     });
+                //     }
+                //     existingAgent.wallet.numberOfReturnOrderAssigned+=1
+                //     existingAgent.save();
+                // }
 
-                if (input.agentName) {
-                    product.returndeliveryAgentName = input.agentName;
-                }
+                // if (input.agentName) {
+                //     product.returndeliveryAgentName = input.agentName;
+                // }
 
                 if (input.returnRequestDate) {
                     product.returnRequestDate = input.returnRequestDate;
@@ -604,6 +620,8 @@ export const orderResolver: Resolvers = {
 
             return response;
         },
+
+
         returnUserOrderProduct: async (parent, { input, image }, { req }, info) => {
                 //add product image and return address
 

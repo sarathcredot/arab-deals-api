@@ -13,8 +13,8 @@ type Mutation {
   editSettlement(input: EditSettlementInput!):AllDeliveryAgentResponse!
   orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
   orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):OrderDelivedbyAgentResponse!
+  returnOrderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
   
-
   }
 
 
@@ -314,7 +314,6 @@ input OrderDelivedbyAgentInput{
 
 
 input OrderAssignDeliveryAgentInput{
-
        orderItemId:ObjectId!
        deliveryAgentId:ObjectId!
        deliveryAgentName:String

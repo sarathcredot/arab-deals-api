@@ -182,16 +182,16 @@ const orderProductSchema = new Schema(
         },
         returnStatus: {
             type: String,
-            enum: ["NA", "PENDING", "APPROVED", "REJECTED"],
+            enum: ["NA", "PENDING", "APPROVED", "REJECTED","COLLECTED","RETURNED TO WAREHOUSE"],
             required: true,
             default: "NA",
         },
-        returnCollectionStatus: {
-            type: String,
-            enum: ["NA", "COLLECTED", "RETURNED TO WAREHOUSE", "REJECTED"],
-            required: true,
-            default: "NA",
-        },
+        // returnCollectionStatus: {
+        //     type: String,
+        //     enum: ["NA", "COLLECTED", "RETURNED TO WAREHOUSE", "REJECTED"],
+        //     required: true,
+        //     default: "NA",
+        // },
         returnUserReason: {
             type: String,
         },
