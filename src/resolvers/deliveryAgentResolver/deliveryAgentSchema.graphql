@@ -33,6 +33,7 @@ type Query{
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
 
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
+   getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
 }
 
 
@@ -43,9 +44,15 @@ type Query{
 
  input GetDeliveryAgentReturnOrderInput{
       agentId:ObjectId!
-      returnCollectionStatus:String
+      returnStatus:String
       page:Int
       limit:Int
+ }
+
+ input GetAssignedReturnOrderInput{
+    returnStatus:String
+    page:Int
+    limit:Int
  }
 
 
