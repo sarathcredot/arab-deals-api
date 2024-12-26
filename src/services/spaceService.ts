@@ -71,6 +71,8 @@ function publicFileUpload(key: string, contentType: string, metadata = {}, body:
 }
 
 
+
+
 // Write Private File to space
 function privateFileUpload(key: string, contentType: string, metadata = {}, body: Readable): Promise<FileUploadResponse> {
     let params: PutObjectCommandInput = {
