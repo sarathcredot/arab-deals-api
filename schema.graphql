@@ -186,7 +186,7 @@ type Query {
   getSettlementHistoryByAdmin: [Settlement]!
   getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
   getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedOrderByAgentProfileResponse!
-  getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): [getAssignedOrderByAgentProfileResponse]!
+  getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
   getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
   getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
@@ -2645,26 +2645,8 @@ type GetAssignedOrderByDeliveryAgentResponseArry {
 }
 
 type getAssignedOrderByAgentProfileResponse {
-  _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
-  sellingPrice: Float!
-  paymentStatus: String!
-  orderDate: String!
-  shippingStatus: String!
-  deliveryAgentId: ObjectId!
-  userName: String!
-  email: String!
-  mobileNumber: String!
-  houseNumber: String
-  streetName: String
-  apartment: String
-  suite: String
-  unit: String
-  city: String
-  country: String
-  postCode: String
+  records: [GetAssignedOrderByDeliveryAgentResponseArry]
+  maxRecords: Int
 }
 
 input getAgentSettlementHistoryInput {

@@ -1152,7 +1152,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        
+        console.log("agent data",deliveryAgentData)
 
         const options = {
 
@@ -1165,12 +1165,15 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
+        console.log("result ",result)
 
         return result
 
 
 
       } catch (error: any) {
+
+        console.log("error ",error)
 
         throw new GraphQLError(error, {
           extensions: {
