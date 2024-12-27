@@ -44,11 +44,11 @@ export const deliveryAgentResolver: Resolvers = {
   Mutation: {
 
     // delivery agent creation from admin side
-     createDeliveryAgent : async (parent, { input, image }, { req }, info) => {
+    createDeliveryAgent: async (parent, { input, image }, { req }, info) => {
       console.log(input)
       // await verifyAdmin(req);
       await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
-    
+
       let fullName: string = input.fullName;
       let contactNumber: string = input.contactNumber;
       let userID: string = input.userID;
@@ -57,8 +57,8 @@ export const deliveryAgentResolver: Resolvers = {
       let vendorID: Types.ObjectId = input?.vendorID;
       let licence: deliveryAgentService.FileData | undefined;
 
-      
-    
+
+
       try {
         // Check if the contact number already exists
         const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
@@ -68,7 +68,7 @@ export const deliveryAgentResolver: Resolvers = {
         );
 
         console.log(existingContact)
-    
+
         if (existingContact) {
           throw new GraphQLError("Contact number already exists", {
             extensions: { code: "BAD_REQUEST" },
@@ -78,12 +78,12 @@ export const deliveryAgentResolver: Resolvers = {
 
         if (image) {
           try {
-           
+
             const { createReadStream, filename, mimetype, encoding } = await image;
             const key = spaceService.getFileKey(filePaths.deliveryagentLicence, filename, []);
             const stream = createReadStream();
             const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
-      
+
             licence = {
               fileType: "PUBLIC",
               fileURL: file.location,
@@ -96,14 +96,14 @@ export const deliveryAgentResolver: Resolvers = {
             });
           }
         }
-    
-        
+
+
         if (!licence) {
           throw new GraphQLError("License not found", {
             extensions: { code: "BAD_REQUEST" },
           });
         }
-    
+
         const ID = uuidv4();
         let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
           fullName,
@@ -115,15 +115,15 @@ export const deliveryAgentResolver: Resolvers = {
           licence,
           ID
         };
-    
+
         const result = await deliveryAgentService.createDeliveryAgent(newDeliveryAgentData, password);
-    
+
         if (!result) {
           throw new GraphQLError("Unable to create delivery agent", {
             extensions: { code: "INTERNAL_SERVER_ERROR" },
           });
         }
-    
+
         return {
           _id: result._id,
           message: "Delivery Agent successfully created",
@@ -131,12 +131,12 @@ export const deliveryAgentResolver: Resolvers = {
         };
       } catch (error: any) {
         console.error("Error in createDeliveryAgent resolver:", error);
-          throw new GraphQLError(error, {
+        throw new GraphQLError(error, {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
       }
     },
-    
+
 
     // delivery agent suspension from admin side
     suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
@@ -190,7 +190,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     //to create settlement by admin 
 
-    createSettlement:async(parent, { input }, { req }, info) =>{
+    createSettlement: async (parent, { input }, { req }, info) => {
       //  await verifyAdmin(req);
 
       const { agentId, amount } = input;
@@ -273,7 +273,7 @@ export const deliveryAgentResolver: Resolvers = {
         // Check if the delivery agent exists
         const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
           { _id: existingSettlement.agentId },
-          { _id: 1, wallet: 1,lastSettlementID:1 },
+          { _id: 1, wallet: 1, lastSettlementID: 1 },
           { lean: false }
         );
 
@@ -286,11 +286,11 @@ export const deliveryAgentResolver: Resolvers = {
         console.log(existingAgent.lastSettlementID)
 
 
-       if (existingAgent.lastSettlementID.toString() !== settlementId.toString()) {
-        throw new GraphQLError("This Settlement cannot be edited", {
-          extensions: { code: "UNAUTHORIZED_ACTION" },
-        });
-      }
+        if (existingAgent.lastSettlementID.toString() !== settlementId.toString()) {
+          throw new GraphQLError("This Settlement cannot be edited", {
+            extensions: { code: "UNAUTHORIZED_ACTION" },
+          });
+        }
 
 
         // Calculate the wallet adjustment
@@ -333,7 +333,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
- 
+
 
     // delivery agent data edit 
     editDeliveryAgentData: async (parent, { input, image }, { req }, info) => {
@@ -559,17 +559,17 @@ export const deliveryAgentResolver: Resolvers = {
         // input validation
         // await validateInput(validators.orderAssignDeliveryAgentValidator, req)
 
-        const { orderItemId,deliveryAgentId,deliveryAgentName}=input
+        const { orderItemId, deliveryAgentId, deliveryAgentName } = input
 
         const result = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
 
-        if(result){
-          return {  
+        if (result) {
+          return {
             status: true,
             msg: "order assign to delivery agent"
           }
-  
-        }else{
+
+        } else {
           throw new GraphQLError("Unable to assigen delivery agent", {
             extensions: {
               code: "INTERNAL_SERVER_ERROR",
@@ -577,7 +577,7 @@ export const deliveryAgentResolver: Resolvers = {
             },
           });
         }
-        
+
       } catch (error) {
 
         throw new GraphQLError("Unable to assigen delivery agent", {
@@ -663,7 +663,7 @@ export const deliveryAgentResolver: Resolvers = {
       // await verifyAdmin(req);
 
       console.log(input)
-      const { agentId ,startDate,endDate,type} = input;
+      const { agentId, startDate, endDate, type } = input;
 
       const page: number = input?.page || 0;
       const limit: number = input?.limit || Infinity;
@@ -681,28 +681,28 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
-        // Construct dynamic filter for settlement history
-          const settlementHistoryFilter: Record<string, any> = {};
+      // Construct dynamic filter for settlement history
+      const settlementHistoryFilter: Record<string, any> = {};
 
-      
 
-          if (startDate) {
-            const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
-            settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
-          }
-        
-          if (endDate) {
-            const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
-            settlementHistoryFilter.createdAt = {
-              ...settlementHistoryFilter.createdAt,
-              $lte: normalizedEndDate,
-            };
-          }
 
-          
-          if (type) {
-            settlementHistoryFilter.type = type;
-          }
+      if (startDate) {
+        const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
+        settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
+      }
+
+      if (endDate) {
+        const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
+        settlementHistoryFilter.createdAt = {
+          ...settlementHistoryFilter.createdAt,
+          $lte: normalizedEndDate,
+        };
+      }
+
+
+      if (type) {
+        settlementHistoryFilter.type = type;
+      }
 
 
       try {
@@ -718,7 +718,7 @@ export const deliveryAgentResolver: Resolvers = {
             vendorID: 1,
             isActive: 1,
             licence: 1,
-            lastSettlementID:1,
+            lastSettlementID: 1,
             wallet: 1,
             ID: 1,
           },
@@ -734,8 +734,8 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-          // Fetch total count of settlementHistory for pagination metadata
-        const totalSettlementHistory = await deliveryAgentService.countSettlementHistory(agentId,settlementHistoryFilter);
+        // Fetch total count of settlementHistory for pagination metadata
+        const totalSettlementHistory = await deliveryAgentService.countSettlementHistory(agentId, settlementHistoryFilter);
 
         return {
           deliveryAgent,
@@ -752,13 +752,13 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
     //get delivery agent return order list from admin side
-    
+
     getDeliveryAgentReturnOrder: async (parent, { input }, { req }, info) => {
       // TODO: 1.usin agent id filter asigned order from orderproduct model 
       //return all data 
       //3. add pagination/filter
       // await verifyAdmin(req);
-      const { agentId} = input;
+      const { agentId } = input;
 
       const page: number = input?.page || 0;
       const limit: number = input?.limit || Infinity;
@@ -776,7 +776,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       const returnFilter: Record<string, any> = {
-        returndeliveryAgentId: agentId 
+        returndeliveryAgentId: agentId
       };
 
       if (input.returnStatus) {
@@ -784,28 +784,28 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
-      console.log("returnFilter",returnFilter)
-     
-        try {
+      console.log("returnFilter", returnFilter)
+
+      try {
 
         const { records, totalCount } = await orderProductService.getReturnOrderProductWithFilters(
-          returnFilter, 
-          {}, 
-          {lean:true, page, limit }, 
+          returnFilter,
+          {},
+          { lean: true, page, limit },
         );
-    
+
 
         console.log(records)
         console.log(totalCount)
-        
+
         return {
           records,
           totalCount,
           page,
-          totalPages: Math.ceil(totalCount / limit), 
+          totalPages: Math.ceil(totalCount / limit),
         };
-        
-      } catch (error:any) {
+
+      } catch (error: any) {
         throw new GraphQLError(error.message || "Error fetching Delivery Agent return orders", {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
@@ -813,7 +813,7 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
 
-    getAssignedReturnOrderByAgent:async (parent, { input }, { req }, info) => {
+    getAssignedReturnOrderByAgent: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
@@ -834,7 +834,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       const returnFilter: Record<string, any> = {
-        returndeliveryAgentId: agentId 
+        returndeliveryAgentId: agentId
       };
 
       if (input.returnStatus) {
@@ -842,28 +842,28 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
-      console.log("returnFilter",returnFilter)
-     
-        try {
+      console.log("returnFilter", returnFilter)
+
+      try {
 
         const { records, totalCount } = await orderProductService.getReturnOrderProductWithFilters(
-          returnFilter, 
-          {}, 
-          {lean:true, page, limit }, 
+          returnFilter,
+          {},
+          { lean: true, page, limit },
         );
-    
+
 
         console.log(records)
         console.log(totalCount)
-        
+
         return {
           records,
           totalCount,
           page,
-          totalPages: Math.ceil(totalCount / limit), 
+          totalPages: Math.ceil(totalCount / limit),
         };
-        
-      } catch (error:any) {
+
+      } catch (error: any) {
         throw new GraphQLError(error.message || "Error fetching Delivery Agent return orders", {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
@@ -871,11 +871,11 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
     //get delivery agent details in  agent dashboard
-    getDeliveryAgentByAgent: async (parent, {input }, { req }, info) => {
+    getDeliveryAgentByAgent: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-      const { startDate,endDate,type} = input;
+      const { startDate, endDate, type } = input;
 
       const page: number = input?.page || 1;
       const limit: number = input?.limit || Infinity;
@@ -892,14 +892,14 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
 
-       // Construct dynamic filter for settlement history
-       const settlementHistoryFilter: Record<string, any> = {};
+      // Construct dynamic filter for settlement history
+      const settlementHistoryFilter: Record<string, any> = {};
 
-       if (startDate) {
+      if (startDate) {
         const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
         settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
       }
-    
+
       if (endDate) {
         const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
         settlementHistoryFilter.createdAt = {
@@ -908,9 +908,9 @@ export const deliveryAgentResolver: Resolvers = {
         };
       }
 
-       if (type) {
-         settlementHistoryFilter.type = type;
-       }
+      if (type) {
+        settlementHistoryFilter.type = type;
+      }
 
 
       try {
@@ -939,7 +939,7 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        const totalSettlementHistory = await deliveryAgentService.countSettlementHistory(agentId,settlementHistoryFilter);
+        const totalSettlementHistory = await deliveryAgentService.countSettlementHistory(agentId, settlementHistoryFilter);
 
         return {
           deliveryAgent,
@@ -960,25 +960,25 @@ export const deliveryAgentResolver: Resolvers = {
       // await verifyAdmin(req)
       try {
 
-        console.log("req",input)
+        console.log("req", input)
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
-        
-        const options:any={
-          
+
+        const options: any = {
+
           page,
-             size,
-             isActive:input?.isActive,
-             agentType:input?.agentType,
-             search:input?.search,
-             settlement:input?.settlement
+          size,
+          isActive: input?.isActive,
+          agentType: input?.agentType,
+          search: input?.search,
+          settlement: input?.settlement
         }
         console.log(options);
 
         const result = await deliveryAgentService.viewAllDeliveryAgents(options)
 
-        console.log("result = ",result)
+        console.log("result = ", result)
 
         return result
 
@@ -998,8 +998,8 @@ export const deliveryAgentResolver: Resolvers = {
 
     },
 
-   //get all settlement history by admin
-    getSettlementHistoryByAdmin: async (parent, {}, { req }, info) => {
+    //get all settlement history by admin
+    getSettlementHistoryByAdmin: async (parent, { }, { req }, info) => {
       await verifyAdmin(req);
       try {
         const result = await deliveryAgentService.getSettlementHistoryByAdmin({});
@@ -1021,8 +1021,8 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     //to get agent's settlement history in admin portal
-    getAgentSettlementHistory: async (parent, {input}, { req }, info) => {
-      const { agentId ,startDate,endDate,type} = input;
+    getAgentSettlementHistory: async (parent, { input }, { req }, info) => {
+      const { agentId, startDate, endDate, type } = input;
 
       const page: number = input?.page || 1;
       const limit: number = input?.limit || Infinity;
@@ -1040,34 +1040,34 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
-      
-        // Construct dynamic filter for settlement history
-        const settlementHistoryFilter: Record<string, any> = {};
 
-        if (startDate) {
-          const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
-          settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
-        }
-      
-        if (endDate) {
-          const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
-          settlementHistoryFilter.createdAt = {
-            ...settlementHistoryFilter.createdAt,
-            $lte: normalizedEndDate,
-          };
-        }
+      // Construct dynamic filter for settlement history
+      const settlementHistoryFilter: Record<string, any> = {};
 
-        if (type) {
-          settlementHistoryFilter.type = type;
-        }
-        
+      if (startDate) {
+        const normalizedStartDate = moment.utc(startDate).toDate(); // Parse startDate in UTC
+        settlementHistoryFilter.createdAt = { $gte: normalizedStartDate };
+      }
+
+      if (endDate) {
+        const normalizedEndDate = moment.utc(endDate).endOf('day').toDate(); // Parse endDate in UTC
+        settlementHistoryFilter.createdAt = {
+          ...settlementHistoryFilter.createdAt,
+          $lte: normalizedEndDate,
+        };
+      }
+
+      if (type) {
+        settlementHistoryFilter.type = type;
+      }
+
 
       try {
         const result = await settlementModel
-        .find({ agentId, ...settlementHistoryFilter }) 
-        .sort({ createdAt: -1 }) 
-        .skip((page - 1) * limit) 
-        .limit(limit);
+          .find({ agentId, ...settlementHistoryFilter })
+          .sort({ createdAt: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit);
 
         if (!result || result.length === 0) {
           throw new GraphQLError("No settlements found", {
@@ -1079,13 +1079,13 @@ export const deliveryAgentResolver: Resolvers = {
           agentId,
           ...settlementHistoryFilter,
         });
-    
+
 
         return {
-          settlements: result, 
-          totalItems: totalSettlements, 
-          currentPage: page, 
-          totalPages: Math.ceil(totalSettlements / limit), 
+          settlements: result,
+          totalItems: totalSettlements,
+          currentPage: page,
+          totalPages: Math.ceil(totalSettlements / limit),
         };
 
       } catch (error: any) {
@@ -1096,8 +1096,8 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
     //to get agent's settlemnt history in agent dashboard
-    
-    getAgentSettlementHistoryByAgent: async (parent, {}, { req }, info) => {
+
+    getAgentSettlementHistoryByAgent: async (parent, { }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
@@ -1114,7 +1114,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       try {
-        const result = await settlementModel.find({agentId:agentId});
+        const result = await settlementModel.find({ agentId: agentId });
 
         if (!result || result.length === 0) {
           throw new GraphQLError("No settlements found", {
@@ -1133,7 +1133,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent port assigned order list
 
-    getAssignedOrderByAgentProfile:async(parent, {  }, { req }, info)=>{
+    getAssignedOrderByAgentProfile: async (parent, {input}, { req }, info) => {
 
       try {
 
@@ -1152,15 +1152,25 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        const _id=deliveryAgentData?.id
-
-      const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(_id)
-
-      return result
-
-          
         
-      } catch (error:any) {
+
+        const options = {
+
+          _id: deliveryAgentData?.id,
+          page: input?.page || 0,
+          size: input?.size || 10,
+          shippingStatus: input?.shippingStatus
+        }
+
+
+
+        const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
+
+        return result
+
+
+
+      } catch (error: any) {
 
         throw new GraphQLError(error, {
           extensions: {
@@ -1168,9 +1178,9 @@ export const deliveryAgentResolver: Resolvers = {
             errors: []
           },
         });
-        
+
       }
-},
+    },
 
 
     // get one agent assigned order full data admin port 
@@ -1183,14 +1193,14 @@ export const deliveryAgentResolver: Resolvers = {
 
       try {
         // admin verfy
-       
+
 
         console.log("req")
 
         // check input
-       
-         if(!input?._id){
-   
+
+        if (!input?._id) {
+
           throw new GraphQLError("invalied delivery boy id", {
             extensions: {
               code: "INTERNAL_SERVER_ERROR",
@@ -1198,23 +1208,23 @@ export const deliveryAgentResolver: Resolvers = {
             },
           });
 
-               
-         }
 
-         const options={
-            
-             _id:input._id,
-             page:input?.page || 0,
-             size:input?.size || 10,
-             shippingStatus:input?.shippingStatus
-         }
+        }
+
+        const options = {
+
+          _id: input._id,
+          page: input?.page || 0,
+          size: input?.size || 10,
+          shippingStatus: input?.shippingStatus
+        }
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
         console.log(result)
 
         return result
 
-        
+
       } catch (error) {
 
         throw new GraphQLError("Error for fetching order details", {
@@ -1224,62 +1234,62 @@ export const deliveryAgentResolver: Resolvers = {
           },
         });
 
-      }             
+      }
 
 
     },
 
 
-// delivery agent port assigned order detail view
+    // delivery agent port assigned order detail view
 
-    getAssignedeOrderDeatilsByAgentProfile:async(parent, { input }, { req }, info)=>{
+    getAssignedeOrderDeatilsByAgentProfile: async (parent, { input }, { req }, info) => {
 
       try {
 
 
-       const deliveryAgentData = await verifyDeliveryAgent(req)
+        const deliveryAgentData = await verifyDeliveryAgent(req)
 
-       if (!deliveryAgentData) {
+        if (!deliveryAgentData) {
 
-         throw new GraphQLError("Unauthorized", {
-           extensions: {
-             code: "UNAUTHORIZED",
-             errors: []
-           },
-         });
+          throw new GraphQLError("Unauthorized", {
+            extensions: {
+              code: "UNAUTHORIZED",
+              errors: []
+            },
+          });
 
-       }
-
-       // input check
-
-        if(!input._id){
-
-         throw new GraphQLError("Error for fetching order details", {
-           extensions: {
-             code: "INTERNAL_SERVER_ERROR",
-             errors: []
-           },
-         });
         }
 
-       const result=deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(input._id)
-         
-       return result;
-         
-       
-      } catch (error:any) {
-       
-   
-       throw new GraphQLError(error, {
-         extensions: {
-           code: "INTERNAL_SERVER_ERROR",
-           errors: []
-         },
-       });
+        // input check
 
-           
+        if (!input._id) {
+
+          throw new GraphQLError("Error for fetching order details", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            },
+          });
+        }
+
+        const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(input._id)
+
+        return result;
+
+
+      } catch (error: any) {
+
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          },
+        });
+
+
       }
-  }
+    }
   }
 }
 
@@ -1291,4 +1301,3 @@ export const deliveryAgentResolver: Resolvers = {
 
 
 
-  

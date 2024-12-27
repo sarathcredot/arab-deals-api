@@ -29,7 +29,7 @@ type Query{
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
  
    getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):getAssignedOrderByAgentProfileResponse!
-   getAssignedOrderByAgentProfile:[getAssignedOrderByAgentProfileResponse]!
+   getAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):[getAssignedOrderByAgentProfileResponse]!
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
 
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
@@ -123,6 +123,17 @@ type GetDeliveryAgentReturnOrderResponse{
         size:Int
         shippingStatus:String
  }
+
+ input getAssignedOrderByAgentProfileInput{
+
+    
+        page:Int
+        size:Int
+        shippingStatus:String
+ }
+
+
+
 
  type GetAssignedOrderByDeliveryAgentResponse{
 
