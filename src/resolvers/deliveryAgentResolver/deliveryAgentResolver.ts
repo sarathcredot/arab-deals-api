@@ -454,15 +454,15 @@ export const deliveryAgentResolver: Resolvers = {
 
         // agent login 
         const result: any = await deliveryAgentService.loginDeliveryAgent(input as DeliveryLoginData)
+        console.log(result)
 
         if (result.login) {
+         
 
           const token = await jwtService.createDeliveryAgentLoginJWT({ id: result._id, userID: result.userId })
-
-          console.log(result)
+         
 
           return {   // agent login done
-
             status: "login",
             fullName: result.fullname,
             token: token,
@@ -819,7 +819,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
        const page: number = input?.page || 0;
-      const limit: number = input?.limit || Infinity;
+       const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
         throw new GraphQLError("All Fields are required", {

@@ -36,7 +36,6 @@ export const deliveryAgentCreateByAdminValidator = [
   export const loginDeliveryAgentValidator=[
 
     body('variables.input.userID').trim().notEmpty(),
-    body('variables.input.contactNumber').trim().notEmpty(),
     body('variables.input.password').trim().notEmpty(),
 
   ]
