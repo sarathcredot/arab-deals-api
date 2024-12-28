@@ -457,10 +457,10 @@ export const deliveryAgentResolver: Resolvers = {
         console.log(result)
 
         if (result.login) {
-         
+
 
           const token = await jwtService.createDeliveryAgentLoginJWT({ id: result._id, userID: result.userId })
-         
+
 
           return {   // agent login done
             status: "login",
@@ -612,61 +612,50 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        const agentId= new Types.ObjectId(deliveryAgentData?.id)
+        const agentId = new Types.ObjectId(deliveryAgentData?.id)
 
         // check this delivery status POSTPONED
 
-        if( input.deliveryStatus==="POSTPONED"){
+        if (input.deliveryStatus === "POSTPONED") {
 
-             
-              const obj={
 
-                deliveryAgentId:agentId,
-                orderItemId: input.orderItemId,
-                deliveryStatus: input.deliveryStatus,
-                remarks: input.remarks || ""
-              }
+          const obj = {
 
-              const result = await deliveryAgentService.orderDelivedbyAgent(obj)
+            deliveryAgentId: agentId,
+            orderItemId: input.orderItemId,
+            deliveryStatus: input.deliveryStatus,
+            remarks: input.remarks || ""
+          }
 
-              return {
-                status: true,
-                otp:false,
-                msg: "delivery status updated"
-              }
-        
-            }
+          const result = await deliveryAgentService.orderDelivedbyAgent(obj)
 
-            
-        // check this delivery status DELIVERED & CANCELED
+          return {
+            status: true,
+            otp: false,
+            msg: "delivery status updated"
+          }
 
-        if(input.deliveryStatus==="DELIVERED" || input.deliveryStatus==="CANCELED"){
 
-               
-                // share otp to user mobile number
-              await deliveryAgentService.deliveryTimeOtpGenerate(input.orderItemId)
+        } else {
 
-              return {
+             // check this delivery status DELIVERED OR CANCELED OR RETERUN
 
-                status: true,
-                otp:true,
-                msg: "OTP shared to customer"
-              }
-        
-            }else{
+          // share otp to user mobile number
+          await deliveryAgentService.deliveryTimeOtpGenerate(input.orderItemId)
 
           return {
 
-            status: false,
-            otp:false,
-            msg: "#"
+            status: true,
+            otp: true,
+            msg: "OTP shared to customer"
           }
+
         }
-      
-        
-      
-      
-    } catch (error:any) {
+
+
+
+
+      } catch (error: any) {
 
         throw new GraphQLError(error, {
           extensions: {
@@ -680,45 +669,45 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
 
-    deliveryStatusOtpVerify:async(parent, { input }, { req }, info) => {
-       
-           
-          try {
+    deliveryStatusOtpVerify: async (parent, { input }, { req }, info) => {
 
-           
-             // verify otp
-             
-             const options={
 
-              orderItemId: input.orderItemId,
-              code:input.code || " "
-             }
-             
-             await deliveryAgentService.deliveryTimeOtpverify(options)
+      try {
 
-            return{
 
-                 status:true,
-                 msg:"OTP verified"
-            }
-            
-          } catch (error:any) {
-            
-            throw new GraphQLError(error, {
-              extensions: {
-                code: "INTERNAL_SERVER_ERROR",
-                errors: [],
-              },
-            });
-          }
-           
+        // verify otp
+
+        const options = {
+
+          orderItemId: input.orderItemId,
+          code: input.code || " "
+        }
+
+        await deliveryAgentService.deliveryTimeOtpverify(options)
+
+        return {
+
+          status: true,
+          msg: "OTP verified"
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+
     },
 
-    deliveryStatusAddDeliveryAgent:async(parent, { input }, { req }, info)=>{
+    deliveryStatusAddDeliveryAgent: async (parent, { input }, { req }, info) => {
 
-           try {
+      try {
 
-             // check delivery agent login or not
+        // check delivery agent login or not
 
         const deliveryAgentData = await verifyDeliveryAgent(req)
 
@@ -733,38 +722,38 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        const agentId= new Types.ObjectId(deliveryAgentData?.id)
+        const agentId = new Types.ObjectId(deliveryAgentData?.id)
 
 
-                 const options={
+        const options = {
 
-                  deliveryAgentId:agentId,
-                  orderItemId:input.orderItemId,
-                  pymentType:input.paymentMode || "",
-                  deliveryStatus:input.deliveryStatus,
-                  remarks:input.remarks || ""
-               }
+          deliveryAgentId: agentId,
+          orderItemId: input.orderItemId,
+          pymentType: input.paymentMode || "",
+          deliveryStatus: input.deliveryStatus,
+          remarks: input.remarks || ""
+        }
 
-             await deliveryAgentService.orderDelivedbyAgent(options)
+        await deliveryAgentService.orderDelivedbyAgent(options)
 
-             return {
-                 
-                 status:true,
-                 msg:"order delivery status updated"
-             }
-                
-           } catch (error:any) {
-            
-            throw new GraphQLError(error, {
-              extensions: {
-                code: "INTERNAL_SERVER_ERROR",
-                errors: [],
-              },
-            });
-           }
+        return {
+
+          status: true,
+          msg: "order delivery status updated"
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
     }
 
-   
+
 
   },
 
@@ -931,8 +920,8 @@ export const deliveryAgentResolver: Resolvers = {
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
 
-       const page: number = input?.page || 0;
-       const limit: number = input?.limit || Infinity;
+      const page: number = input?.page || 0;
+      const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
         throw new GraphQLError("All Fields are required", {
@@ -1246,7 +1235,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent port assigned order list
 
-    getAssignedOrderByAgentProfile: async (parent, {input}, { req }, info) => {
+    getAssignedOrderByAgentProfile: async (parent, { input }, { req }, info) => {
 
       try {
 
@@ -1265,9 +1254,9 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        console.log("agent data",deliveryAgentData)
+        console.log("agent data", deliveryAgentData)
 
-        const agentId= new Types.ObjectId(deliveryAgentData?.id)
+        const agentId = new Types.ObjectId(deliveryAgentData?.id)
 
         const options = {
 
@@ -1280,7 +1269,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
-        console.log("result ",result)
+        console.log("result ", result)
 
         return result
 
@@ -1288,7 +1277,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       } catch (error: any) {
 
-        console.log("error ",error)
+        console.log("error ", error)
 
         throw new GraphQLError(error, {
           extensions: {
@@ -1390,7 +1379,7 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        const orderProductsId= new Types.ObjectId(input._id)
+        const orderProductsId = new Types.ObjectId(input._id)
         const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
 
         return result;
