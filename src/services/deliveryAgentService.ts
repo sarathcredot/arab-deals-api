@@ -1510,10 +1510,17 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
     //     },
     //   ]);
     //  }
+
+
+    console.log("result",result)
+
+    
       let response:any = {
         records: [],
         maxRecords: 0
       };
+
+
       if (result.length) {
         response.records = result || [];
         response.maxRecords =dataSize?.length  || 0;

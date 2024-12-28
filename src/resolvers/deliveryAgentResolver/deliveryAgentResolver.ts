@@ -812,7 +812,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
-
+   //to get assigned return order by delivery agent
     getAssignedReturnOrderByAgent: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
@@ -832,7 +832,7 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "BAD_USER_INPUT" },
         });
       }
-
+      
       const returnFilter: Record<string, any> = {
         returndeliveryAgentId: agentId
       };
@@ -1152,7 +1152,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        
+        console.log("deliveryAgentData,",deliveryAgentData)
 
         const options = {
 
@@ -1165,6 +1165,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
+        console.log(result)
 
         return result
 

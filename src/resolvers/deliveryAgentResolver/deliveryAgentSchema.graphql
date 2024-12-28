@@ -56,9 +56,14 @@ type Query{
  }
 
 
+type UserReturn {
+  _id: ObjectId
+  fullName: String
+}
+
  type AdminReturnOrderProduct {
   _id: ObjectId
-  userId: ObjectId
+  userId: UserReturn
   productId: ObjectId
   vendorId: ObjectId
   vendorName: String
@@ -97,7 +102,6 @@ type Query{
   courierId: String
   invoiceNumber: String
   invoice: FileData
-  username: String
   deliveryAgentId: ObjectId
   deliveryBoy: DeliveryAgentForOrderProduct
   deliveryAgentName: String
