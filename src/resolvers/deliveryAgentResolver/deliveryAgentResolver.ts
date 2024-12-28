@@ -457,10 +457,10 @@ export const deliveryAgentResolver: Resolvers = {
         console.log(result)
 
         if (result.login) {
-         
+
 
           const token = await jwtService.createDeliveryAgentLoginJWT({ id: result._id, userID: result.userId })
-         
+
 
           return {   // agent login done
             status: "login",
@@ -612,36 +612,52 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        // input validation
+        const agentId = new Types.ObjectId(deliveryAgentData?.id)
 
-        await validateInput(validators.orderDelivedbyAgentValidator, req)
+        // check this delivery status POSTPONED
 
-        //  delivery agent order delived service
-
-        const obj = {
-
-          deliveryAgentId: deliveryAgentData.id,
-          orderItemId: input.orderItemId,
-          pymentType: input.pymentType,
-          deliveryStatus: input.deliveryStatus,
-          remarks: input.remarks || ""
+        if (input.deliveryStatus === "POSTPONED") {
 
 
+          const obj = {
+
+            deliveryAgentId: agentId,
+            orderItemId: input.orderItemId,
+            deliveryStatus: input.deliveryStatus,
+            remarks: input.remarks || ""
+          }
+
+          const result = await deliveryAgentService.orderDelivedbyAgent(obj)
+
+          return {
+            status: true,
+            otp: false,
+            msg: "delivery status updated"
+          }
+
+
+        } else {
+
+             // check this delivery status DELIVERED OR CANCELED OR RETURN
+
+          // share otp to user mobile number
+          await deliveryAgentService.deliveryTimeOtpGenerate(input.orderItemId)
+
+          return {
+
+            status: true,
+            otp: true,
+            msg: "OTP shared to customer"
+          }
 
         }
 
-        const result = await deliveryAgentService.orderDelivedbyAgent(obj)
-
-        return {
-
-          status: true,
-          msg: "delivery status updated"
-        }
 
 
-      } catch (error) {
 
-        throw new GraphQLError("Unable to update this order status ", {
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
@@ -650,7 +666,94 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
+    },
+
+
+    deliveryStatusOtpVerify: async (parent, { input }, { req }, info) => {
+
+
+      try {
+
+
+        // verify otp
+
+        const options = {
+
+          
+          orderItemId: input.orderItemId,
+          code: input.code || " "
+        }
+
+        await deliveryAgentService.deliveryTimeOtpverify(options)
+
+        return {
+
+          status: true,
+          msg: "OTP verified"
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+
+    },
+
+    deliveryStatusAddDeliveryAgent: async (parent, { input }, { req }, info) => {
+
+      try {
+
+        // check delivery agent login or not
+
+        const deliveryAgentData = await verifyDeliveryAgent(req)
+
+        if (!deliveryAgentData) {
+
+          throw new GraphQLError("Unauthorized", {
+            extensions: {
+              code: "UNAUTHORIZED",
+              errors: []
+            },
+          });
+
+        }
+
+        const agentId = new Types.ObjectId(deliveryAgentData?.id)
+
+
+        const options = {
+
+          deliveryAgentId: agentId,
+          orderItemId: input.orderItemId,
+          pymentType: input.paymentMode || "",
+          deliveryStatus: input.deliveryStatus,
+          remarks: input.remarks || ""
+        }
+
+        await deliveryAgentService.orderDelivedbyAgent(options)
+
+        return {
+
+          status: true,
+          msg: "order delivery status updated"
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
     }
+
 
 
   },
@@ -818,8 +921,8 @@ export const deliveryAgentResolver: Resolvers = {
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
 
-       const page: number = input?.page || 0;
-       const limit: number = input?.limit || Infinity;
+      const page: number = input?.page || 0;
+      const limit: number = input?.limit || Infinity;
 
       if (!agentId) {
         throw new GraphQLError("All Fields are required", {
@@ -1133,7 +1236,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent port assigned order list
 
-    getAssignedOrderByAgentProfile: async (parent, {input}, { req }, info) => {
+    getAssignedOrderByAgentProfile: async (parent, { input }, { req }, info) => {
 
       try {
 
@@ -1152,9 +1255,9 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        console.log("agent data",deliveryAgentData)
+        console.log("agent data", deliveryAgentData)
 
-        const agentId= new Types.ObjectId(deliveryAgentData?.id)
+        const agentId = new Types.ObjectId(deliveryAgentData?.id)
 
         const options = {
 
@@ -1167,7 +1270,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
-        console.log("result ",result)
+        console.log("result ", result)
 
         return result
 
@@ -1175,7 +1278,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       } catch (error: any) {
 
-        console.log("error ",error)
+        console.log("error ", error)
 
         throw new GraphQLError(error, {
           extensions: {
@@ -1277,7 +1380,8 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(input._id)
+        const orderProductsId = new Types.ObjectId(input._id)
+        const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
 
         return result;
 

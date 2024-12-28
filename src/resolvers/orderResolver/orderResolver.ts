@@ -444,9 +444,9 @@ export const orderResolver: Resolvers = {
                         product.refundStatus = "PENDING"; 
                     }
 
-                    if(input.returnStatus==="COLLECTED"){
-                        product.returnDate=moment().toDate();
-                    }
+                    // if(input.returnStatus==="COLLECTED"){
+                    //     product.returnDate=moment().toDate();
+                    // }
 
 
                 }else{

@@ -1,11 +1,11 @@
 
-import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
+import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator,  } from "mongoose";
 import { deliveryAgentModel, settlementModel } from '../models'
 import { orderProductModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs } from "../services"
+import { transactionlogs,otpService } from "../services"
 
 
 
@@ -1092,7 +1092,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
 
 
-export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, pymentType: string, deliveryStatus: string, remarks?: string }) => {
+export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, pymentType?: string, deliveryStatus: string, remarks?: string }) => {
 
 
   return new Promise(async (resolve, reject) => {
@@ -1105,9 +1105,19 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
         $set: {
 
-          shippingStatus: data.deliveryStatus
+          shippingStatus: data.deliveryStatus,
+          remark:data.remarks
         }
       })
+
+       // check this order status POSTPONED
+
+        if(data.deliveryStatus === "POSTPONED"){
+
+          resolve({ flag: true })
+          return;
+        }
+
 
       // check this order status DELIVERED
 
@@ -1118,7 +1128,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
         await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
           $set: {
-
+          
             paymentMode: data.pymentType
           }
         })
@@ -1134,7 +1144,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
           $inc: {
 
-            'wallet.numberOfOrderAssigned': 1
+            'wallet.numberOfOrderDelivered': 1
           }
         })
 
@@ -1188,21 +1198,23 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
           })
 
           resolve({ flag: true })
+          return;
 
         } else {
 
           resolve({ flag: true })
+          return;
         }
 
       } else {
 
-        // this part control to order status is  CANCELED
+           
       }
 
 
     } catch (error) {
 
-      reject()
+      reject("Unable to update this order status")
 
     }
   })
@@ -1512,10 +1524,17 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
     //     },
     //   ]);
     //  }
+
+
+    console.log("result",result)
+
+    
       let response:any = {
         records: [],
         maxRecords: 0
       };
+
+
       if (result.length) {
         response.records = result || [];
         response.maxRecords =dataSize?.length  || 0;
@@ -1576,6 +1595,14 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             orderDate: 1,
             shippingStatus: 1,
             deliveryAgentId: 1,
+            returnPeriod:1,
+            returnStatus:1,
+            returnUserReason:1,
+            returnProductImage:1,
+            returnAddress:1,
+            returnAdminComment:1,
+            returnRequestDate:1,
+            returnOrderAssignedOn:1,
             // User information from the aggregated userDetails
             userName: "$userDetails.shippingAddress.firstname",
             email: "$userDetails.shippingAddress.email",
@@ -1592,6 +1619,8 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
           },
         },
       ]);
+
+      console.log("res",final)
       
       const result=final[0]
 
@@ -1608,6 +1637,88 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
 }         
 
 
+
+export const deliveryTimeOtpGenerate=async(orderItemId:Types.ObjectId):Promise<any>=>{
+
+       return new Promise(async(resolve,reject)=>{
+
+             try {
+
+              // generate otp
+
+              const otpResponse=await otpService.generateOtp()
+
+              // sent this otp to user number
+
+                      
+              
+              // save this otp to  database
+
+                 
+              await orderProductModel.findByIdAndUpdate({_id:orderItemId},{
+
+                    $set:{
+
+                          'otp.code':otpResponse.code,
+                          'otp.expiresAt':otpResponse.expiresAt
+                    }
+              })
+              
+              resolve({flag:true})
+              
+             } catch (error) {
+              
+                  
+                  reject("OTP generation failed")
+             }
+       })
+}
+
+
+export const deliveryTimeOtpverify=async(data:{orderItemId:Types.ObjectId,code:String}):Promise<any>=>{
+
+       return new Promise(async(resolve,reject)=>{
+
+               try {
+
+                  const otpData= await orderProductModel.findOne({_id:data.orderItemId,"otp.code":data.code}) 
+
+                  if(!otpData){
+
+                       reject("Invalid OTP")
+                  }else{
+
+                      // validate this otp
+
+                      const validate=await otpService.isOtpExpired(otpData?.otp?.expiresAt)
+
+                      if(!validate){
+
+                        reject("Expired OTP")
+                     
+                      }else{
+
+                          await orderProductModel.findByIdAndUpdate({_id:data.orderItemId},{
+
+                                $set:{
+
+                                  'otp.code':" ",
+                                  'otp.expiresAt':" "
+                                }
+                          })
+                           resolve({flag:true})
+                      }
+
+
+                  }
+                
+               } catch (error) {
+                
+                      reject("INTERNAL_SERVER_ERROR")
+                 
+               }
+       })
+}
 
 
 
