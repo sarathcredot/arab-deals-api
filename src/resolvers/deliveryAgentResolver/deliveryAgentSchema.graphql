@@ -161,10 +161,11 @@ type GetDeliveryAgentReturnOrderResponse{
   itemId:String!
   sellingPrice: Float!
   paymentStatus: String!
+  paymentMode:String
   orderDate: Date!
   shippingStatus: String!
   deliveryAgentId: ObjectId!
-  userName: String!
+  userName: String
   email: String!
   mobileNumber: String!
    houseNumber: String

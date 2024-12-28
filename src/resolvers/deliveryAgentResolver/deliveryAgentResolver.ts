@@ -1154,9 +1154,11 @@ export const deliveryAgentResolver: Resolvers = {
 
         console.log("agent data",deliveryAgentData)
 
+        const agentId= new Types.ObjectId(deliveryAgentData?.id)
+
         const options = {
 
-          _id: deliveryAgentData?.id,
+          _id: agentId,
           page: input?.page || 0,
           size: input?.size || 10,
           shippingStatus: input?.shippingStatus

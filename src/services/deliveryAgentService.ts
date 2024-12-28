@@ -1437,12 +1437,14 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
             productName: 1,
             sellingPrice: 1,
             paymentStatus: 1,
+            paymentMode:1,
             orderDate:1,
             shippingStatus: 1,
             deliveryAgentId: 1,
             userName: {
                $concat: [ "$userDetails.firstName", " ", "$userDetails.lastName" ]
             },
+            
             email: "$orderDetails.shippingAddress.email",
             mobileNumber: "$orderDetails.shippingAddress.mobile",
             country: "$orderDetails.shippingAddress.country",
@@ -1518,7 +1520,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
         response.records = result || [];
         response.maxRecords =dataSize?.length  || 0;
       }
-      console.log("res",response)
+    
       resolve(response);
     } catch (error) {
       reject(error);
@@ -1570,6 +1572,7 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             productName: 1,
             sellingPrice: 1,
             paymentStatus: 1,
+            paymentMode:1,
             orderDate: 1,
             shippingStatus: 1,
             deliveryAgentId: 1,
