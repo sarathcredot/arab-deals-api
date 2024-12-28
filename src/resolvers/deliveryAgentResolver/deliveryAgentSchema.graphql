@@ -19,6 +19,7 @@ type Mutation {
   returnStatusChangeDeliveryAgent(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
   deliveryStatusOtpVerify(input:DeliveryStatusOtpVerifyInput!):DeliveryStatusOtpVerifyResponse!
   deliveryStatusAddDeliveryAgent(input:deliveryStatusAddDeliveryAgentInput!):deliveryStatusAddDeliveryAgentResponse!
+  returnStatusChangeAfterOtpVerify(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
   
   }
 
@@ -89,6 +90,7 @@ type deliveryStatusAddDeliveryAgentResponse{
  input ReturnstatusUpdateInput{
   orderProductId:ObjectId!
   returnStatus:String!
+  remarks:String!
  }
 
  type ReturnstatusUpdateResponse{

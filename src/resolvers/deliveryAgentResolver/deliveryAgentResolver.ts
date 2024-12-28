@@ -593,21 +593,79 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     returnStatusChangeDeliveryAgent: async (parent, { input }, { req }, info) => {
-      //TODO: if return status == postponed just chnages status
-      //if erturn status === collect  minus pending returns and generate otp and save and send to user
-      //if return status === reject just chnages status
-      //if retun status === returned to warehouse just chnages status
-
-
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       let orderProductId: Types.ObjectId = input?.orderProductId;
       let returnStatus: string = input?.returnStatus;
+      let remarks: string = input?.remarks;
+
+      const result = await orderProductModel.findOne({ _id: orderProductId });
+     
+
+      if (!result) {
+        throw new GraphQLError("Order product not found", {
+          extensions: { code: "NOT_FOUND" },
+        })
+      }
+
+    
+      
+
+      if(returnStatus === "RETURNED TO WAREHOUSE"){
+         result.returnStatus=returnStatus
+         result.returnDate=new Date();
+      }
+
+      if(returnStatus === "POSTPONED"){
+        result.returnStatus=returnStatus
+        result.returnPostponedDate=new Date();
+        result.returnPostponedRemarks=remarks
+
+       }
+
+      //  if(returnStatus === "REJECTED"){
+      //   result.returnStatus=returnStatus
+      //   result.returnRejectedDate=new Date();
+      //   result.returnRejectedRemarks=remarks
+      //  }
+
+
+       if(returnStatus === "COLLECTED" || returnStatus === "REJECTED" ){
+          // agent.wallet.numberOfReturnOrderDelivered+=1;
+
+          //generate otp and save and send to user
+          const result = await deliveryAgentService.deliveryTimeOtpGenerate(input.orderProductId)
+
+          if (!result) {
+            throw new GraphQLError("Unable to generate otp", {
+              extensions: { code: "INTERNAL_SERVER_ERROR" },
+            })
+          }
+       }
+
+
+
+      await result.save()
+      return {
+        status: true,
+        msg: "Order product status updated"
+      }
+      
+    },
+
+
+    returnStatusChangeAfterOtpVerify: async (parent, { input }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      let orderProductId: Types.ObjectId = input?.orderProductId;
+      let returnStatus: string = input?.returnStatus;
+      let remarks: string = input?.remarks;
 
       const result = await orderProductModel.findOne({ _id: orderProductId });
       const agent=await deliveryAgentModel.findOne({_id:agentId})
-
+     
       if (!result) {
         throw new GraphQLError("Order product not found", {
           extensions: { code: "NOT_FOUND" },
@@ -619,37 +677,30 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "NOT_FOUND" },
         })
       }
-      
 
-      if(returnStatus === "RETURNED TO WAREHOUSE"){
-         result.returnStatus=returnStatus
-      }
 
-      if(returnStatus === "POSTPONED"){
-        result.returnStatus=returnStatus
-       }
-
-       if(returnStatus === "REJECTED"){
-        result.returnStatus=returnStatus
+        if(returnStatus === "REJECTED"){
+            agent.wallet.numberOfReturnOrderDelivered-=1;
+            result.returnStatus=returnStatus
+            result.returnRejectedDate=new Date();
+            result.returnRejectedRemarks=remarks
        }
 
 
-       if(returnStatus === "COLLECTED"){
-          agent.wallet.numberOfReturnOrderDelivered+=1;
+          if(returnStatus === "COLLECTED"){
+              agent.wallet.numberOfReturnOrderDelivered-=1;
+              result.returnStatus=returnStatus
+              result.returnCollectedDate=new Date();
+              result.returnCollectedRemarks=remarks
+          }
 
-          //generate otp and save and send to user
-
-       }
-
-
-
-      await agent.save();
+      await agent.save()
       await result.save()
       return {
         status: true,
         msg: "Order product status updated"
       }
-      
+
     },
 
     orderDelivedbyAgent: async (parent, { input }, { req }, info) => {
@@ -813,8 +864,6 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     }
-
-
 
   },
 

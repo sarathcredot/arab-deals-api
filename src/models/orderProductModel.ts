@@ -216,6 +216,21 @@ const orderProductSchema = new Schema(
         returnRejectedDate: {
             type: Date,
         },
+        returnRejectedRemarks:{
+            type:String
+        },
+        returnPostponedDate: {
+            type: Date,
+        },
+        returnPostponedRemarks:{
+            type:String
+        },
+        returnCollectedDate: {
+            type: Date,
+        },
+        returnCollectedRemarks:{
+            type:String
+        },
         refundStatus: {
             type: String,
             enum: ["NA", "PENDING", "PAID"],
