@@ -1524,10 +1524,17 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
     //     },
     //   ]);
     //  }
+
+
+    console.log("result",result)
+
+    
       let response:any = {
         records: [],
         maxRecords: 0
       };
+
+
       if (result.length) {
         response.records = result || [];
         response.maxRecords =dataSize?.length  || 0;
@@ -1588,6 +1595,14 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             orderDate: 1,
             shippingStatus: 1,
             deliveryAgentId: 1,
+            returnPeriod:1,
+            returnStatus:1,
+            returnUserReason:1,
+            returnProductImage:1,
+            returnAddress:1,
+            returnAdminComment:1,
+            returnRequestDate:1,
+            returnOrderAssignedOn:1,
             // User information from the aggregated userDetails
             userName: "$userDetails.shippingAddress.firstname",
             email: "$userDetails.shippingAddress.email",

@@ -131,6 +131,77 @@ export interface IVendorOrderProduct {
     invoice?: FileData;
 }
 
+export interface IUser {
+    _id: Types.ObjectId;
+    fullName: string;
+  }
+
+export interface IReturnOrderProductDocument extends Document {
+    _id?: Types.ObjectId;
+    userId?:Types.ObjectId | IUser;
+    productId?: Types.ObjectId;
+    vendorId?: Types.ObjectId;
+    vendorName?: string;
+    orderId?: string;
+    itemId?: string;
+    productName?: string;
+    shortDescription?: string;
+    skuId?: string;
+    image?: FileData;
+    returnPeriod?: number;
+    mrp?: number;
+    sellingPrice?: number;
+    shippingCharge?: number;
+    paymentMode?: string;
+    paymentStatus?: string;
+    paymentRemark?: string;
+    orderDate?: Date;
+    shippingStatus?: string;
+    shippedDate?: Date;
+    deliveryDate?: Date;
+    returnStatus?: string;
+    returnUserReason?: string;
+    returnAdminComment?: string;
+    returnRequestDate?: Date;
+    returnRejectedDate?: Date;
+    returnDate?: Date;
+    refundStatus?: string;
+    refundAmount?: number;
+    refundRequestDate?: Date;
+    refundDate?: Date;
+    refundComment?: string;
+    cancelUserReason?: string;
+    cancelAdminComment?: string;
+    cancelledDate?: Date;
+    courierId?: string;
+    invoiceNumber?: string;
+    invoice?: FileData;
+    returnProductImage?:FileData;
+    deliveryAssignedOn?:Date;
+    returnOrderAssignedOn?:Date;
+    refundBankDetails?:{
+        accountHolderName?: string,
+        accountNumber?: string,
+        ifscCode?: string,
+        bankName?: string,
+        branchName?:string,
+    }
+    returnAddress?:{
+        firstname: string
+        email?: string
+        mobile?: string
+        streetName?: string
+        city?: string
+        houseNumber?: string
+        country?: string
+        postCode?: string
+        apartment?: string
+        suite?: string
+        unit?: string
+    }
+    returndeliveryAgentId?: Types.ObjectId
+    returndeliveryAgentName?: string
+}
 
 export interface IOrderProductDocument extends Document {
     _id?: Types.ObjectId;
@@ -601,7 +672,7 @@ export const getReturnOrderProductWithFilters = async (
     filters: object,
     projection: object,
     options: Options,
-  ): Promise<{ records: IOrderProductDocument[]; totalCount: number }> => {
+  ): Promise<{ records: IReturnOrderProductDocument[]; totalCount: number }> => {
 
     const { page , limit  } = options;
     const skip = (page) * limit;
@@ -613,11 +684,11 @@ export const getReturnOrderProductWithFilters = async (
       // Fetch records with pagination, sorting, and filters
         const records = await orderProductModel
         .find(filters)
+        .populate("userId","fullName")
         .sort({ returnOrderAssignedOn: 1 }) 
         .skip(skip)
         .limit(limit)
-  
-       
+
       const totalCount = await orderProductModel.countDocuments(filters);
       console.log(records)
       console.log(totalCount)

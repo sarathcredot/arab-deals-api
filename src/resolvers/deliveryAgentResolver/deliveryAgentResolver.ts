@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { settlementModel } from "../../models/settlementModel";
 import moment from "moment";
 import { finished } from "stream/promises";
+import { orderProductModel } from "../../models/orderProductModel";
 
 interface EditAgentResult {
   flag: boolean;
@@ -332,6 +333,96 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
       }
+    },
+
+
+    //to upload return product image by delivery agent
+
+    uploadReturnProductImageByAgent: async (parent, { input, image }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+       let returnProduct;
+
+       let orderProductId: Types.ObjectId = input?.orderProductId;
+
+      if (image) {
+        try {
+
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.retrunProductImage, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+            returnProduct = {
+            fileType: "PUBLIC",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          };
+        } catch (error) {
+          throw new GraphQLError("image upload failed", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+          });
+        }
+      }
+
+      const existingOrderProduct = await orderProductModel.findById(orderProductId);
+          if (!existingOrderProduct) {
+            throw new GraphQLError("Order product not found", {
+              extensions: { code: "NOT_FOUND" },
+            });
+          }
+
+
+
+      const result=await orderProductModel.findByIdAndUpdate(orderProductId,{returnProductImageUploadByAgent:returnProduct},{new:true})
+
+      if(!result){
+        throw new GraphQLError("Unable to upload return product image", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          }
+        })
+      }
+
+      return {
+        message: "return product image uploaded successfully",
+      }
+
+    },
+
+    //to update delivered map location by agent
+
+    //TODO:
+
+
+    updateDeliveredMapLocation: async (parent, { input }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+       let orderProductId: Types.ObjectId = input?.orderProductId;
+       let mapLocation:string = input?.mapLocation;
+       const existingOrderProduct = await orderProductModel.findById(orderProductId);
+            if (!existingOrderProduct) {
+              throw new GraphQLError("Order product not found", {
+                extensions: { code: "NOT_FOUND" },
+              });
+            }
+
+      const result=await orderProductModel.findByIdAndUpdate(orderProductId,{deliveredMapLocation:mapLocation},{new:true})
+
+      if(!result){
+        throw new GraphQLError("Unable to update deliverd Map location", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          }
+        })
+      }
+
+      return {
+        message: " product deliverd location updated successfully",
+      }
+
     },
 
 
@@ -914,7 +1005,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
-
+   //to get assigned return order by delivery agent
     getAssignedReturnOrderByAgent: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
@@ -934,7 +1025,7 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "BAD_USER_INPUT" },
         });
       }
-
+      
       const returnFilter: Record<string, any> = {
         returndeliveryAgentId: agentId
       };
@@ -1171,7 +1262,7 @@ export const deliveryAgentResolver: Resolvers = {
           .skip((page - 1) * limit)
           .limit(limit);
 
-        if (!result || result.length === 0) {
+        if (!result) {
           throw new GraphQLError("No settlements found", {
             extensions: { code: "NOT_FOUND" },
           });
@@ -1216,9 +1307,9 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       try {
-        const result = await settlementModel.find({ agentId: agentId });
+        const result = await settlementModel.find({ agentId: agentId }). sort({ createdAt: -1 })
 
-        if (!result || result.length === 0) {
+        if (!result) {
           throw new GraphQLError("No settlements found", {
             extensions: { code: "NOT_FOUND" },
           });
@@ -1235,8 +1326,13 @@ export const deliveryAgentResolver: Resolvers = {
 
     // delivery agent port assigned order list
 
+<<<<<<< HEAD
     getAssignedOrderByAgentProfile: async (parent, { input }, { req }, info) => {
 
+=======
+    getAssignedOrderByAgentProfile: async (parent, {input}, { req }, info) => {
+      console.log(input)
+>>>>>>> 087bbfe82d6f8bf3a80ced640a9dc14a610f3fe4
       try {
 
         //  delivery agent verfy
@@ -1382,7 +1478,7 @@ export const deliveryAgentResolver: Resolvers = {
         const orderProductsId = new Types.ObjectId(input._id)
         const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
 
-        return result;
+       return result
 
 
       } catch (error: any) {
