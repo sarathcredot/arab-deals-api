@@ -15,6 +15,7 @@ type Mutation {
   orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):OrderDelivedbyAgentResponse!
   returnOrderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
   uploadReturnProductImageByAgent(input:UploadReturnInput!,image:Upload):UploadImageResponse!
+  updateDeliveredMapLocation(input:UpdateMapLocation!):UploadImageResponse!
   
   }
 
@@ -52,6 +53,11 @@ type Query{
 
  input UploadReturnInput{
   orderProductId:ObjectId!
+ }
+
+ input UpdateMapLocation{
+  orderProductId:ObjectId!
+  mapLocation:String!
  }
 
  type UploadImageResponse{

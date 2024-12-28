@@ -290,6 +290,9 @@ const orderProductSchema = new Schema(
                 type: String,
             },
         },
+        deliveredMapLocation:{
+            type: String
+        }
 
     },
     {

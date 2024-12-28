@@ -383,6 +383,34 @@ export const deliveryAgentResolver: Resolvers = {
 
     },
 
+    //to update delivered map location by agent
+
+    //TODO:
+
+
+    updateDeliveredMapLocation: async (parent, { input }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+       let orderProductId: Types.ObjectId = input?.orderProductId;
+       let mapLocation:string = input?.mapLocation;
+     
+      const result=await orderProductModel.findByIdAndUpdate(orderProductId,{deliveredMapLocation:mapLocation},{new:true})
+
+      if(!result){
+        throw new GraphQLError("Unable to update deliverd Map location", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          }
+        })
+      }
+
+      return {
+        message: " product deliverd location updated successfully",
+      }
+
+    },
+
 
     // delivery agent data edit 
     editDeliveryAgentData: async (parent, { input, image }, { req }, info) => {
@@ -1328,7 +1356,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(input._id)
 
-        return result;
+       return result
 
 
       } catch (error: any) {
