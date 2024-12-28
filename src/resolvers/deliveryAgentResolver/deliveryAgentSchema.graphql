@@ -16,6 +16,7 @@ type Mutation {
   returnOrderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
   uploadReturnProductImageByAgent(input:UploadReturnInput!,image:Upload):UploadImageResponse!
   updateDeliveredMapLocation(input:UpdateMapLocation!):UploadImageResponse!
+  returnStatusChangeDeliveryAgent(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
   
   }
 
@@ -49,6 +50,16 @@ type Query{
       returnStatus:String
       page:Int
       limit:Int
+ }
+
+ input ReturnstatusUpdateInput{
+  orderProductId:ObjectId!
+  returnStatus:String!
+ }
+
+ type ReturnstatusUpdateResponse{
+  status: Boolean
+  msg: String
  }
 
  input UploadReturnInput{
@@ -391,6 +402,10 @@ type Wallet {
   lastSettlementDate: Date
   totalSettlement:Float
   grandTotal: Float
+  numberOfOrderAssigned:Float
+  numberOfOrderDelivered:Float
+  numberOfReturnOrderAssigned:Float
+  numberOfReturnOrderDelivered:Float
 }
 input OrderDelivedbyAgentInput{
 

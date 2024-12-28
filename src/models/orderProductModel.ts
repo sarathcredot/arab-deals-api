@@ -182,7 +182,7 @@ const orderProductSchema = new Schema(
         },
         returnStatus: {
             type: String,
-            enum: ["NA", "PENDING", "APPROVED", "REJECTED","COLLECTED","RETURNED TO WAREHOUSE"],
+            enum: ["NA", "PENDING", "APPROVED", "REJECTED","COLLECTED","RETURNED TO WAREHOUSE","POSTPONED"],
             required: true,
             default: "NA",
         },
