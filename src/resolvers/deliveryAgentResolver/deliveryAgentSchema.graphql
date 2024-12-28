@@ -29,7 +29,7 @@ type Query{
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
  
    getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):getAssignedOrderByAgentProfileResponse!
-   getAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):[getAssignedOrderByAgentProfileResponse]!
+   getAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):getAssignedOrderByAgentProfileResponse!
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
 
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
@@ -165,10 +165,11 @@ type GetDeliveryAgentReturnOrderResponse{
   itemId:String!
   sellingPrice: Float!
   paymentStatus: String!
+  paymentMode:String
   orderDate: Date!
   shippingStatus: String!
   deliveryAgentId: ObjectId!
-  userName: String!
+  userName: String
   email: String!
   mobileNumber: String!
    houseNumber: String
@@ -182,30 +183,52 @@ type GetDeliveryAgentReturnOrderResponse{
  }
 
  
- type getAssignedOrderByAgentProfileResponse{
+#  type getAssignedOrderByAgentProfileResponse{
 
-          _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
-  sellingPrice: Float!
-  paymentStatus: String!
-  orderDate: String!
-  shippingStatus: String!
-  deliveryAgentId: ObjectId!
-  userName: String!
-  email: String!
-  mobileNumber: String!
-   houseNumber: String
-  streetName: String
-  apartment: String
-  suite: String
-  unit: String
-  city: String
-  country: String
-  postCode: String
+#           _id: ObjectId!
+#   orderId: String!
+#   userId: ObjectId!
+#   productName: String!
+#   sellingPrice: Float!
+#   paymentStatus: String!
+#   orderDate: String!
+#   shippingStatus: String!
+#   deliveryAgentId: ObjectId!
+#   userName: String!
+#   email: String!
+#   mobileNumber: String!
+#    houseNumber: String
+#   streetName: String
+#   apartment: String
+#   suite: String
+#   unit: String
+#   city: String
+#   country: String
+#   postCode: String
         
+#  }
+
+
+type getAssignedOrderByAgentProfileResponse {
+
+  
+     records: [GetAssignedOrderByDeliveryAgentResponseArry ],
+     maxRecords: Int
+
+
+
+   
+     
  }
+
+
+
+
+
+
+
+
+
 
  input getAgentSettlementHistoryInput{
        agentId:ObjectId!

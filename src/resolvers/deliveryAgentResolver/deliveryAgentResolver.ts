@@ -1152,11 +1152,13 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        console.log("deliveryAgentData,",deliveryAgentData)
+        console.log("agent data",deliveryAgentData)
+
+        const agentId= new Types.ObjectId(deliveryAgentData?.id)
 
         const options = {
 
-          _id: deliveryAgentData?.id,
+          _id: agentId,
           page: input?.page || 0,
           size: input?.size || 10,
           shippingStatus: input?.shippingStatus
@@ -1165,13 +1167,15 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
-        console.log(result)
+        console.log("result ",result)
 
         return result
 
 
 
       } catch (error: any) {
+
+        console.log("error ",error)
 
         throw new GraphQLError(error, {
           extensions: {
