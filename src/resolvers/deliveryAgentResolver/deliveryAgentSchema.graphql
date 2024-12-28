@@ -17,6 +17,8 @@ type Mutation {
   uploadReturnProductImageByAgent(input:UploadReturnInput!,image:Upload):UploadImageResponse!
   updateDeliveredMapLocation(input:UpdateMapLocation!):UploadImageResponse!
   returnStatusChangeDeliveryAgent(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
+  deliveryStatusOtpVerify(input:DeliveryStatusOtpVerifyInput!):DeliveryStatusOtpVerifyResponse!
+  deliveryStatusAddDeliveryAgent(input:deliveryStatusAddDeliveryAgentInput!):deliveryStatusAddDeliveryAgentResponse!
   
   }
 
@@ -38,6 +40,38 @@ type Query{
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
 }
+
+
+input DeliveryStatusOtpVerifyInput{
+
+        orderItemId:ObjectId!
+        code:String
+}
+
+type DeliveryStatusOtpVerifyResponse{
+
+        status:Boolean
+        msg:String
+}
+
+
+input deliveryStatusAddDeliveryAgentInput{
+
+      orderItemId:ObjectId!
+      deliveryStatus:String!
+      paymentMode:String
+      remarks:String
+}
+
+
+type deliveryStatusAddDeliveryAgentResponse{
+
+        status:Boolean
+        msg:String
+}
+
+
+
 
 
  input DeliveryAgentAssignedOrderInput{
@@ -241,30 +275,30 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   returnRequestDate:Date,
 }
  
-#  type getAssignedOrderByAgentProfileResponse{
+ type getAssignedeOrderDeatilsByAgentProfileResponse{
 
-#           _id: ObjectId!
-#   orderId: String!
-#   userId: ObjectId!
-#   productName: String!
-#   sellingPrice: Float!
-#   paymentStatus: String!
-#   orderDate: String!
-#   shippingStatus: String!
-#   deliveryAgentId: ObjectId!
-#   userName: String!
-#   email: String!
-#   mobileNumber: String!
-#    houseNumber: String
-#   streetName: String
-#   apartment: String
-#   suite: String
-#   unit: String
-#   city: String
-#   country: String
-#   postCode: String
+          _id: ObjectId!
+  orderId: String!
+  userId: ObjectId!
+  productName: String!
+  sellingPrice: Float!
+  paymentStatus: String!
+  orderDate: String!
+  shippingStatus: String!
+  deliveryAgentId: ObjectId!
+  userName: String
+  email: String!
+  mobileNumber: String!
+   houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
         
-#  }
+ }
 
 
 type getAssignedOrderByAgentProfileResponse {
@@ -348,6 +382,7 @@ type OrderDelivedbyAgentResponse{
 
         status:Boolean!
         msg:String
+        otp:Boolean
 
 }
 
@@ -411,7 +446,6 @@ input OrderDelivedbyAgentInput{
 
     
       orderItemId:ObjectId!
-      pymentType:String!
       deliveryStatus:String!
       remarks:String
 
