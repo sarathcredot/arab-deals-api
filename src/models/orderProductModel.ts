@@ -198,6 +198,9 @@ const orderProductSchema = new Schema(
         returnProductImage: {
             type: fileSchema,
         },
+        returnProductImageUploadByAgent:{
+            type: fileSchema,
+        },
         returnAddress:{
             type: returnAddressSchema
         },

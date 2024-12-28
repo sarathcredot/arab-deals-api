@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { settlementModel } from "../../models/settlementModel";
 import moment from "moment";
 import { finished } from "stream/promises";
+import { orderProductModel } from "../../models/orderProductModel";
 
 interface EditAgentResult {
   flag: boolean;
@@ -332,6 +333,54 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
       }
+    },
+
+
+    //to upload return product image by delivery agent
+
+    uploadReturnProductImageByAgent: async (parent, { input, image }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+       let returnProduct;
+
+       let orderProductId: Types.ObjectId = input?.orderProductId;
+
+      if (image) {
+        try {
+
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.retrunProductImage, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+            returnProduct = {
+            fileType: "PUBLIC",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          };
+        } catch (error) {
+          throw new GraphQLError("image upload failed", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+          });
+        }
+      }
+
+
+      const result=await orderProductModel.findByIdAndUpdate(orderProductId,{returnProductImageUploadByAgent:returnProduct},{new:true})
+
+      if(!result){
+        throw new GraphQLError("Unable to upload return product image", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          }
+        })
+      }
+
+      return {
+        message: "return product image uploaded successfully",
+      }
+
     },
 
 
