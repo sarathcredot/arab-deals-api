@@ -366,6 +366,14 @@ export const deliveryAgentResolver: Resolvers = {
         }
       }
 
+      const existingOrderProduct = await orderProductModel.findById(orderProductId);
+          if (!existingOrderProduct) {
+            throw new GraphQLError("Order product not found", {
+              extensions: { code: "NOT_FOUND" },
+            });
+          }
+
+
 
       const result=await orderProductModel.findByIdAndUpdate(orderProductId,{returnProductImageUploadByAgent:returnProduct},{new:true})
 
@@ -394,7 +402,13 @@ export const deliveryAgentResolver: Resolvers = {
 
        let orderProductId: Types.ObjectId = input?.orderProductId;
        let mapLocation:string = input?.mapLocation;
-     
+       const existingOrderProduct = await orderProductModel.findById(orderProductId);
+            if (!existingOrderProduct) {
+              throw new GraphQLError("Order product not found", {
+                extensions: { code: "NOT_FOUND" },
+              });
+            }
+
       const result=await orderProductModel.findByIdAndUpdate(orderProductId,{deliveredMapLocation:mapLocation},{new:true})
 
       if(!result){
