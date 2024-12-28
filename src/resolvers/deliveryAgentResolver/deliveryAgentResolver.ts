@@ -1069,7 +1069,7 @@ export const deliveryAgentResolver: Resolvers = {
           .skip((page - 1) * limit)
           .limit(limit);
 
-        if (!result || result.length === 0) {
+        if (!result) {
           throw new GraphQLError("No settlements found", {
             extensions: { code: "NOT_FOUND" },
           });
@@ -1114,9 +1114,9 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       try {
-        const result = await settlementModel.find({ agentId: agentId });
+        const result = await settlementModel.find({ agentId: agentId }). sort({ createdAt: -1 })
 
-        if (!result || result.length === 0) {
+        if (!result) {
           throw new GraphQLError("No settlements found", {
             extensions: { code: "NOT_FOUND" },
           });
@@ -1134,7 +1134,7 @@ export const deliveryAgentResolver: Resolvers = {
     // delivery agent port assigned order list
 
     getAssignedOrderByAgentProfile: async (parent, {input}, { req }, info) => {
-
+      console.log(input)
       try {
 
         //  delivery agent verfy

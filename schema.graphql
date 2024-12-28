@@ -185,7 +185,7 @@ type Query {
   getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
   getSettlementHistoryByAdmin: [Settlement]!
   getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
-  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedOrderByAgentProfileResponse!
+  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedOrderDetailByAgentProfileResponse!
   getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
   getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
   getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
@@ -2649,8 +2649,45 @@ type GetAssignedOrderByDeliveryAgentResponseArry {
   postCode: String
 }
 
+type GetAssignedOrderDetailByDeliveryAgentResponseArry {
+  _id: ObjectId!
+  orderId: String!
+  userId: ObjectId!
+  productName: String!
+  itemId: String!
+  sellingPrice: Float!
+  paymentStatus: String!
+  paymentMode: String
+  orderDate: Date!
+  shippingStatus: String!
+  deliveryAgentId: ObjectId!
+  userName: String
+  email: String!
+  mobileNumber: String!
+  houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+  returnStatus: String
+  returnUserReason: String
+  returnProductImage: FileData
+  returnOrderAssignedOn: Date
+  returnAddress: returnAddress
+  returnAdminComment: String
+  returnRequestDate: Date
+}
+
 type getAssignedOrderByAgentProfileResponse {
   records: [GetAssignedOrderByDeliveryAgentResponseArry]
+  maxRecords: Int
+}
+
+type getAssignedOrderDetailByAgentProfileResponse {
+  records: [GetAssignedOrderDetailByDeliveryAgentResponseArry]
   maxRecords: Int
 }
 
