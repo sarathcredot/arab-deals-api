@@ -612,36 +612,63 @@ export const deliveryAgentResolver: Resolvers = {
 
         }
 
-        // input validation
+        const agentId= new Types.ObjectId(deliveryAgentData?.id)
 
-        await validateInput(validators.orderDelivedbyAgentValidator, req)
+        // check this delivery status POSTPONED
 
-        //  delivery agent order delived service
+        if( input.deliveryStatus==="POSTPONED"){
 
-        const obj = {
+             
+              const obj={
 
-          deliveryAgentId: deliveryAgentData.id,
-          orderItemId: input.orderItemId,
-          pymentType: input.pymentType,
-          deliveryStatus: input.deliveryStatus,
-          remarks: input.remarks || ""
+                deliveryAgentId:agentId,
+                orderItemId: input.orderItemId,
+                deliveryStatus: input.deliveryStatus,
+                remarks: input.remarks || ""
+              }
 
+              const result = await deliveryAgentService.orderDelivedbyAgent(obj)
 
+              return {
+                status: true,
+                otp:false,
+                msg: "delivery status updated"
+              }
+        
+            }
 
+            
+        // check this delivery status DELIVERED & CANCELED
+
+        if(input.deliveryStatus==="DELIVERED" || input.deliveryStatus==="CANCELED"){
+
+               
+                // share otp to user mobile number
+              await deliveryAgentService.deliveryTimeOtpGenerate(input.orderItemId)
+
+              return {
+
+                status: true,
+                otp:true,
+                msg: "OTP shared to customer"
+              }
+        
+            }else{
+
+          return {
+
+            status: false,
+            otp:false,
+            msg: "#"
+          }
         }
+      
+        
+      
+      
+    } catch (error:any) {
 
-        const result = await deliveryAgentService.orderDelivedbyAgent(obj)
-
-        return {
-
-          status: true,
-          msg: "delivery status updated"
-        }
-
-
-      } catch (error) {
-
-        throw new GraphQLError("Unable to update this order status ", {
+        throw new GraphQLError(error, {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
@@ -650,8 +677,94 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
+    },
+
+
+    deliveryStatusOtpVerify:async(parent, { input }, { req }, info) => {
+       
+           
+          try {
+
+           
+             // verify otp
+             
+             const options={
+
+              orderItemId: input.orderItemId,
+              code:input.code || " "
+             }
+             
+             await deliveryAgentService.deliveryTimeOtpverify(options)
+
+            return{
+
+                 status:true,
+                 msg:"OTP verified"
+            }
+            
+          } catch (error:any) {
+            
+            throw new GraphQLError(error, {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: [],
+              },
+            });
+          }
+           
+    },
+
+    deliveryStatusAddDeliveryAgent:async(parent, { input }, { req }, info)=>{
+
+           try {
+
+             // check delivery agent login or not
+
+        const deliveryAgentData = await verifyDeliveryAgent(req)
+
+        if (!deliveryAgentData) {
+
+          throw new GraphQLError("Unauthorized", {
+            extensions: {
+              code: "UNAUTHORIZED",
+              errors: []
+            },
+          });
+
+        }
+
+        const agentId= new Types.ObjectId(deliveryAgentData?.id)
+
+
+                 const options={
+
+                  deliveryAgentId:agentId,
+                  orderItemId:input.orderItemId,
+                  pymentType:input.paymentMode || "",
+                  deliveryStatus:input.deliveryStatus,
+                  remarks:input.remarks || ""
+               }
+
+             await deliveryAgentService.orderDelivedbyAgent(options)
+
+             return {
+                 
+                 status:true,
+                 msg:"order delivery status updated"
+             }
+                
+           } catch (error:any) {
+            
+            throw new GraphQLError(error, {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: [],
+              },
+            });
+           }
     }
 
+   
 
   },
 
@@ -1277,7 +1390,8 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(input._id)
+        const orderProductsId= new Types.ObjectId(input._id)
+        const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
 
         return result;
 

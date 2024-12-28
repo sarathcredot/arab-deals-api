@@ -74,6 +74,8 @@ type Mutation {
   orderAssignDeliveryAgent(input: OrderAssignDeliveryAgentInput!): OrderAssignDeliveryAgentResponse!
   orderDelivedbyAgent(input: OrderDelivedbyAgentInput!): OrderDelivedbyAgentResponse!
   returnOrderAssignDeliveryAgent(input: OrderAssignDeliveryAgentInput!): OrderAssignDeliveryAgentResponse!
+  deliveryStatusOtpVerify(input: DeliveryStatusOtpVerifyInput!): DeliveryStatusOtpVerifyResponse!
+  deliveryStatusAddDeliveryAgent(input: deliveryStatusAddDeliveryAgentInput!): OrderAssignDeliveryAgentResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
@@ -185,7 +187,7 @@ type Query {
   getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
   getSettlementHistoryByAdmin: [Settlement]!
   getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
-  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedOrderByAgentProfileResponse!
+  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): getAssignedeOrderDeatilsByAgentProfileResponse!
   getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
   getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
   getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
@@ -2522,6 +2524,28 @@ type GetUserIvoiceUrlResponse {
   url: String
 }
 
+input DeliveryStatusOtpVerifyInput {
+  orderItemId: ObjectId!
+  code: String
+}
+
+type DeliveryStatusOtpVerifyResponse {
+  status: Boolean
+  msg: String
+}
+
+input deliveryStatusAddDeliveryAgentInput {
+  orderItemId: ObjectId!
+  deliveryStatus: String!
+  paymentMode: String
+  remarks: String
+}
+
+type deliveryStatusAddDeliveryAgentResponse {
+  status: Boolean
+  msg: String
+}
+
 input DeliveryAgentAssignedOrderInput {
   _id: ObjectId!
 }
@@ -2645,6 +2669,29 @@ type GetAssignedOrderByDeliveryAgentResponseArry {
   postCode: String
 }
 
+type getAssignedeOrderDeatilsByAgentProfileResponse {
+  _id: ObjectId!
+  orderId: String!
+  userId: ObjectId!
+  productName: String!
+  sellingPrice: Float!
+  paymentStatus: String!
+  orderDate: String!
+  shippingStatus: String!
+  deliveryAgentId: ObjectId!
+  userName: String
+  email: String!
+  mobileNumber: String!
+  houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+}
+
 type getAssignedOrderByAgentProfileResponse {
   records: [GetAssignedOrderByDeliveryAgentResponseArry]
   maxRecords: Int
@@ -2691,6 +2738,7 @@ type GetAllAssignOrderAgentProfileResponse {
 type OrderDelivedbyAgentResponse {
   status: Boolean!
   msg: String
+  otp: Boolean
 }
 
 type DeliveryAgent {
@@ -2731,7 +2779,6 @@ type Wallet {
 
 input OrderDelivedbyAgentInput {
   orderItemId: ObjectId!
-  pymentType: String!
   deliveryStatus: String!
   remarks: String
 }

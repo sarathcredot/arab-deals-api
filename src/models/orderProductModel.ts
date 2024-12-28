@@ -268,6 +268,15 @@ const orderProductSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: collections.DELIVERYAGENT
         },
+        remark:{
+             type:String
+        },
+        otp:{
+
+            code:{type:String},
+            expiresAt:{type:String}
+
+        },
 
         returndeliveryAgentName: String,
         refundBankDetails: {
