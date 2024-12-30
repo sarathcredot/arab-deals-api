@@ -8,7 +8,7 @@ type Mutation {
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
-  returnUserOrderProduct(input: ReturnUserOrderProductInput!, image: Upload): ReturnUserOrderProductResponse!
+  returnUserOrderProduct(input: ReturnUserOrderProductInput!, image: [Upload]): ReturnUserOrderProductResponse!
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
@@ -481,7 +481,7 @@ type AdminOrderProduct {
   deliveryAgentName: String
   refundBankDetails: BankDetails
   returnAddress: returnAddress
-  returnProductImage: FileData
+  returnProductImage: [FileData]
   deliveryAssignedOn:Date
   returnOrderAssignedOn:Date
 }
@@ -606,7 +606,7 @@ type GetAdminOrderProductResponse {
   invoice: FileData
   refundBankDetails: BankDetails
   returnAddress: returnAddress
-  returnProductImage: FileData
+  returnProductImage: [FileData]
 }
 
 type GetVendorOrderProductResponse {

@@ -680,22 +680,29 @@ export const orderResolver: Resolvers = {
                 });
             }
 
-            let returnProductImage: orderProductService.FileData | undefined;
+         
+            let returnProductImage:  orderProductService.FileData[] = []; 
+
 
 
             if (image) {
                 try {
-                  const { createReadStream, filename, mimetype, encoding } = await image;
-                  const key = spaceService.getFileKey(filePaths.returnProduct, filename, []);
-                  const stream = createReadStream();
-                  const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
-          
-                  returnProductImage = {
-                    fileType: "PUBLIC",
-                    fileURL: file.location,
-                    mimeType: mimetype,
-                    originalName: filename
-                  }
+                for(let images of image){
+                    const { createReadStream, filename, mimetype, encoding } = await images;
+                    const key = spaceService.getFileKey(filePaths.returnProduct, filename, []);
+                    const stream = createReadStream();
+                    const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+            
+                    returnProductImage.push (
+                        {
+                            fileType: "PUBLIC",
+                            fileURL: file.location,
+                            mimeType: mimetype,
+                            originalName: filename
+                        }
+                    ) 
+                }
+               
                 } catch (error) {
                   throw new GraphQLError("image upload failed", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },

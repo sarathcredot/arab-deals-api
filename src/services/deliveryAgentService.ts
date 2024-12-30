@@ -1647,6 +1647,7 @@ export const deliveryTimeOtpGenerate=async(orderItemId:Types.ObjectId):Promise<a
               // generate otp
 
               const otpResponse=await otpService.generateOtp()
+              console.log("otp",otpResponse)
 
               // sent this otp to user number
 
@@ -1656,7 +1657,6 @@ export const deliveryTimeOtpGenerate=async(orderItemId:Types.ObjectId):Promise<a
 
                  
               await orderProductModel.findByIdAndUpdate({_id:orderItemId},{
-
                     $set:{
 
                           'otp.code':otpResponse.code,
@@ -1675,50 +1675,90 @@ export const deliveryTimeOtpGenerate=async(orderItemId:Types.ObjectId):Promise<a
 }
 
 
-export const deliveryTimeOtpverify=async(data:{orderItemId:Types.ObjectId,code:String}):Promise<any>=>{
+export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId, code: string, returnStatus?: string, returnRemark?: string ,agentId:Types.ObjectId}): Promise<any> => {
+  try {
+      // Fetch OTP data from the orderProduct collection
+      const otpData = await orderProductModel.findOne({ _id: data.orderItemId, 'otp.code': data.code });
 
-       return new Promise(async(resolve,reject)=>{
+      // Check if the OTP data exists
+      if (!otpData) {
+          throw new Error('Invalid OTP');
+      }
 
-               try {
+      // Validate OTP expiration
+      const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
+      if (isExpired) {
+          throw new Error('Expired OTP');
+      }
 
-                  const otpData= await orderProductModel.findOne({_id:data.orderItemId,"otp.code":data.code}) 
+      const agent=await deliveryAgentModel.findOne({_id:data.agentId})
 
-                  if(!otpData){
+      if (!agent) {
+        throw new Error('Agent not found');
+      }
 
-                       reject("Invalid OTP")
-                  }else{
+      const result: any = {};
 
-                      // validate this otp
+      if (data.returnStatus) {
+        if (data.returnStatus === 'REJECTED') {
+            agent.wallet.numberOfReturnOrderDelivered -= 1;  // Decrement the number of returns delivered
 
-                      const validate=await otpService.isOtpExpired(otpData?.otp?.expiresAt)
+            result.returnStatus = data.returnStatus;
+            result.returnRejectedDate = new Date();
+            if (data.returnRemark) {
+                result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+            }
+        }
 
-                      if(!validate){
+        if (data.returnStatus === 'COLLECTED') {
+            agent.wallet.numberOfReturnOrderDelivered -= 1;  // Decrement the number of returns delivered
 
-                        reject("Expired OTP")
-                     
-                      }else{
+            result.returnStatus = data.returnStatus;
+            result.returnCollectedDate = new Date();
+            if (data.returnRemark) {
+                result.returnCollectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+            }
+        }
+      }
+     
 
-                          await orderProductModel.findByIdAndUpdate({_id:data.orderItemId},{
-
-                                $set:{
-
-                                  'otp.code':" ",
-                                  'otp.expiresAt':" "
-                                }
-                          })
-                           resolve({flag:true})
-                      }
+            await agent.save();
 
 
-                  }
-                
-               } catch (error) {
-                
-                      reject("INTERNAL_SERVER_ERROR")
-                 
-               }
-       })
-}
+              const updateFields: any = {
+                'otp.code': '',
+                'otp.expiresAt': ''
+            };
 
+            // Add return status and remarks to the update fields if they are provided
+            if (result.returnStatus) {
+                updateFields['returnStatus'] = result.returnStatus;
+            }
+            if (result.returnRejectedDate) {
+                updateFields['returnRejectedDate'] = result.returnRejectedDate;
+            }
+            if (result.returnRejectedRemarks) {
+                updateFields['returnRejectedRemarks'] = result.returnRejectedRemarks;
+            }
+            if (result.returnCollectedDate) {
+                updateFields['returnCollectedDate'] = result.returnCollectedDate;
+            }
+            if (result.returnCollectedRemarks) {
+                updateFields['returnCollectedRemarks'] = result.returnCollectedRemarks;
+            }
+
+
+      // Reset OTP fields in the order product document
+      await orderProductModel.findByIdAndUpdate(data.orderItemId, { $set: updateFields });
+
+
+      // Resolve with a success response
+      return { flag: true };
+
+  } catch (error:any) {
+      // Reject with a specific error message
+      throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+  }
+};
 
 

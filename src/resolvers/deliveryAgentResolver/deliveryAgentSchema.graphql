@@ -14,10 +14,12 @@ type Mutation {
   orderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
   orderDelivedbyAgent(input:OrderDelivedbyAgentInput!):OrderDelivedbyAgentResponse!
   returnOrderAssignDeliveryAgent(input:OrderAssignDeliveryAgentInput!):OrderAssignDeliveryAgentResponse!
-  uploadReturnProductImageByAgent(input:UploadReturnInput!,image:Upload):UploadImageResponse!
+  uploadReturnProductImageByAgent(input:UploadReturnInput!,image:[Upload]):UploadImageResponse!
   updateDeliveredMapLocation(input:UpdateMapLocation!):UploadImageResponse!
+  returnStatusChangeDeliveryAgent(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
   deliveryStatusOtpVerify(input:DeliveryStatusOtpVerifyInput!):DeliveryStatusOtpVerifyResponse!
   deliveryStatusAddDeliveryAgent(input:deliveryStatusAddDeliveryAgentInput!):deliveryStatusAddDeliveryAgentResponse!
+  returnStatusChangeAfterOtpVerify(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
   
   }
 
@@ -42,9 +44,10 @@ type Query{
 
 
 input DeliveryStatusOtpVerifyInput{
-
         orderItemId:ObjectId!
         code:String
+        returnStatus:String
+        returnRemark:String
 }
 
 type DeliveryStatusOtpVerifyResponse{
@@ -83,6 +86,17 @@ type deliveryStatusAddDeliveryAgentResponse{
       returnStatus:String
       page:Int
       limit:Int
+ }
+
+ input ReturnstatusUpdateInput{
+  orderProductId:ObjectId!
+  returnStatus:String!
+  remarks:String!
+ }
+
+ type ReturnstatusUpdateResponse{
+  status: Boolean
+  msg: String
  }
 
  input UploadReturnInput{
@@ -156,7 +170,7 @@ type UserReturn {
   deliveryAgentName: String
   refundBankDetails: BankDetails
   returnAddress: returnAddress
-  returnProductImage: FileData
+  returnProductImage: [FileData]
   deliveryAssignedOn:Date
   returnOrderAssignedOn:Date
 }
@@ -257,7 +271,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   postCode: String
   returnStatus:String,
   returnUserReason:String,
-  returnProductImage:FileData,
+  returnProductImage:[FileData],
   returnOrderAssignedOn:Date
   returnAddress: returnAddress
   returnAdminComment:String,
@@ -426,6 +440,10 @@ type Wallet {
   lastSettlementDate: Date
   totalSettlement:Float
   grandTotal: Float
+  numberOfOrderAssigned:Float
+  numberOfOrderDelivered:Float
+  numberOfReturnOrderAssigned:Float
+  numberOfReturnOrderDelivered:Float
 }
 input OrderDelivedbyAgentInput{
 

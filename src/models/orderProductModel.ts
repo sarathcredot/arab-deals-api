@@ -182,7 +182,7 @@ const orderProductSchema = new Schema(
         },
         returnStatus: {
             type: String,
-            enum: ["NA", "PENDING", "APPROVED", "REJECTED","COLLECTED","RETURNED TO WAREHOUSE"],
+            enum: ["NA", "PENDING", "APPROVED", "REJECTED","COLLECTED","RETURNED TO WAREHOUSE","POSTPONED"],
             required: true,
             default: "NA",
         },
@@ -196,10 +196,10 @@ const orderProductSchema = new Schema(
             type: String,
         },
         returnProductImage: {
-            type: fileSchema,
+            type: [fileSchema],
         },
         returnProductImageUploadByAgent:{
-            type: fileSchema,
+            type: [fileSchema],
         },
         returnAddress:{
             type: returnAddressSchema
@@ -215,6 +215,21 @@ const orderProductSchema = new Schema(
         },
         returnRejectedDate: {
             type: Date,
+        },
+        returnRejectedRemarks:{
+            type:String
+        },
+        returnPostponedDate: {
+            type: Date,
+        },
+        returnPostponedRemarks:{
+            type:String
+        },
+        returnCollectedDate: {
+            type: Date,
+        },
+        returnCollectedRemarks:{
+            type:String
         },
         refundStatus: {
             type: String,
