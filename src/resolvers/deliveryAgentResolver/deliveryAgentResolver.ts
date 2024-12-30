@@ -780,28 +780,35 @@ export const deliveryAgentResolver: Resolvers = {
 
     },
 
-   //api to verify otp
+   //api to verify otp and update status
     deliveryStatusOtpVerify: async (parent, { input }, { req }, info) => {
 
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       try {
-
-
         // verify otp
 
-        const options = {
-
-          
+        const options: {
+          agentId: Types.ObjectId;
+          orderItemId: any;
+          code: string;
+          returnStatus: string | undefined;  
+          returnRemark: string | undefined;  
+        } = {
+          agentId: agentId,
           orderItemId: input.orderItemId,
-          code: input.code || " "
-        }
+          code: input.code || " ",
+          returnStatus: input?.returnStatus || undefined,  
+          returnRemark: input?.returnRemark || undefined 
+        };
+        
 
         await deliveryAgentService.deliveryTimeOtpverify(options)
 
         return {
-
           status: true,
-          msg: "OTP verified"
+          msg: "OTP verified and status updated"
         }
 
       } catch (error: any) {
@@ -953,7 +960,6 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
     },
-
 
   },
 

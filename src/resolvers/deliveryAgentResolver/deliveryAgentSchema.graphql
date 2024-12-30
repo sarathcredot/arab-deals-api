@@ -44,9 +44,10 @@ type Query{
 
 
 input DeliveryStatusOtpVerifyInput{
-
         orderItemId:ObjectId!
         code:String
+        returnStatus:String
+        returnRemark:String
 }
 
 type DeliveryStatusOtpVerifyResponse{
