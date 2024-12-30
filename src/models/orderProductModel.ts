@@ -196,7 +196,7 @@ const orderProductSchema = new Schema(
             type: String,
         },
         returnProductImage: {
-            type: fileSchema,
+            type: [fileSchema],
         },
         returnProductImageUploadByAgent:{
             type: [fileSchema],

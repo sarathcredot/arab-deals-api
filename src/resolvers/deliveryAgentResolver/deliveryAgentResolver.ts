@@ -959,7 +959,6 @@ export const deliveryAgentResolver: Resolvers = {
 
   Query: {
 
-
     //get delivery agent details by admin
     getDeliveryAgent: async (parent, { input }, { req }, info) => {
       // await verifyAdmin(req);

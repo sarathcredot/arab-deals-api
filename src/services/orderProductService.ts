@@ -14,7 +14,7 @@ export interface IBestSellingProduct {
 }
 
 export interface FileData {
-    _id?: string,
+    _id?: Types.ObjectId; 
     fileType?: string,
     fileURL?: string,
     mimeType?: string,
@@ -67,7 +67,7 @@ export interface IOrderProduct {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
-    returnProductImage?:FileData;
+    returnProductImage?:FileData[];
     refundBankDetails?:{
         accountHolderName?: string,
         accountNumber?: string,
@@ -176,7 +176,7 @@ export interface IReturnOrderProductDocument extends Document {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
-    returnProductImage?:FileData;
+    returnProductImage?:FileData[];
     deliveryAssignedOn?:Date;
     returnOrderAssignedOn?:Date;
     refundBankDetails?:{
@@ -243,7 +243,7 @@ export interface IOrderProductDocument extends Document {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
-    returnProductImage?:FileData;
+    returnProductImage?:FileData[];
     deliveryAssignedOn?:Date;
     returnOrderAssignedOn?:Date;
     refundBankDetails?:{
@@ -444,13 +444,13 @@ export interface IVendorRefundProductsOptions {
     sort: string;
 }
 
-export interface FileData {
-    _id?: string,
-    fileType?: string,
-    fileURL?: string,
-    mimeType?: string,
-    originalName?: string,
-  }
+// export interface FileData {
+//     _id?: Types.ObjectId,
+//     fileType?: string,
+//     fileURL?: string,
+//     mimeType?: string,
+//     originalName?: string,
+//   }
 
 
 export interface IOrderProductDetails extends IOrderProduct {

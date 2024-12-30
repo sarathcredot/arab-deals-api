@@ -169,7 +169,7 @@ type UserReturn {
   deliveryAgentName: String
   refundBankDetails: BankDetails
   returnAddress: returnAddress
-  returnProductImage: FileData
+  returnProductImage: [FileData]
   deliveryAssignedOn:Date
   returnOrderAssignedOn:Date
 }
@@ -270,7 +270,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   postCode: String
   returnStatus:String,
   returnUserReason:String,
-  returnProductImage:FileData,
+  returnProductImage:[FileData],
   returnOrderAssignedOn:Date
   returnAddress: returnAddress
   returnAdminComment:String,
