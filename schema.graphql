@@ -7,6 +7,9 @@ type Mutation {
   removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
   addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
   removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
+  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
+  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -17,9 +20,6 @@ type Mutation {
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   logoutVendor: LogoutVendorResponse!
-  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
-  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
@@ -48,13 +48,6 @@ type Mutation {
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
   updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
-  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
-  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
@@ -62,6 +55,13 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
+  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
+  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
@@ -96,11 +96,11 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
+  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
+  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
-  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
-  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
   editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
@@ -115,14 +115,14 @@ type Query {
   getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
   getMobileWishListProducts: GetMobileWishListProductsResponse!
   getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
   getVendorRecordByVendor: VendorsRecordByVendorResponse!
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
-  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
-  getVendorOutletRecord: VendorOutletRecordResponse!
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
@@ -157,11 +157,6 @@ type Query {
   getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
   getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
   getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
-  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
-  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -184,6 +179,11 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
+  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
@@ -238,6 +238,7 @@ type Query {
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -247,7 +248,6 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
-  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -332,6 +332,147 @@ scalar Upload
 
 scalar JSONObject
 
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type VendorOutlet {
+  _id: String
+  vendorId: String
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  status: String
+  remarks: [String]
+  outletLicense: ImageData
+  interiorImage: ImageData
+  exteriorImage: ImageData
+}
+
+type vendorOutletRecordsWithKycData {
+  vendorId: String
+  fullName: String
+  isKycCompleted: String
+  _id: String
+  outletName: String
+  status: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  remarks: [String]
+}
+
+input AddVendorOutletInput {
+  outletName: String!
+  country: String!
+  district: String!
+  village: String!
+  address: String!
+  contactPersonName: String!
+  contactPersonNumber: String!
+  contactPersonDesignation: String!
+}
+
+input UpdateVendorOutletInput {
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+}
+
+input UpdateVendorOutletByAdminInput {
+  _id: ObjectId!
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  status: String
+  remarks: [String!]
+}
+
+input DeleteVendorOutletIdInput {
+  _id: String!
+}
+
+input VendorOutletStatusUpdationInput {
+  _id: String!
+  status: String!
+  remarks: [String]
+}
+
+type AddVendorOutletResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorOutletResponse {
+  message: String
+}
+
+type DeleteVendorOutletRecordResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorOutletByAdminResponse {
+  message: String
+}
+
+input VendorOutletRecordByAdminInput {
+  _id: String!
+}
+
+input VendorOutletRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+  vendorId: ObjectId
+  outletName: String
+  fullName: String
+}
+
+type VendorOutletRecordByAdminResponse {
+  record: VendorOutlet!
+  message: String
+}
+
+type VendorOutletRecordResponse {
+  record: VendorOutlet!
+  message: String
+}
+
+type VendorOutletRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorOutletRecordsWithKycData!]
+  message: String
+}
+
+type VendorOutletStatusUpdationResponse {
+  _id: String
+  status: String
+  message: String
+}
+
 input sendOtpInput {
   fullName: String!
   mobileNumber: String!
@@ -353,13 +494,6 @@ input VendorLoginInput {
 input VerifyVendorLoginOtpInput {
   code: String!
   _id: String!
-}
-
-type ImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
 }
 
 type Vendor {
@@ -573,140 +707,6 @@ input VendorRecordKycStatusInput {
 type VendorsRecordsByAdminResponse {
   maxRecords: Int!
   records: [VendorWithKycData]
-  message: String
-}
-
-type VendorOutlet {
-  _id: String
-  vendorId: String
-  outletName: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-  status: String
-  remarks: [String]
-  outletLicense: ImageData
-  interiorImage: ImageData
-  exteriorImage: ImageData
-}
-
-type vendorOutletRecordsWithKycData {
-  vendorId: String
-  fullName: String
-  isKycCompleted: String
-  _id: String
-  outletName: String
-  status: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-  remarks: [String]
-}
-
-input AddVendorOutletInput {
-  outletName: String!
-  country: String!
-  district: String!
-  village: String!
-  address: String!
-  contactPersonName: String!
-  contactPersonNumber: String!
-  contactPersonDesignation: String!
-}
-
-input UpdateVendorOutletInput {
-  outletName: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-}
-
-input UpdateVendorOutletByAdminInput {
-  _id: ObjectId!
-  outletName: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-  status: String
-  remarks: [String!]
-}
-
-input DeleteVendorOutletIdInput {
-  _id: String!
-}
-
-input VendorOutletStatusUpdationInput {
-  _id: String!
-  status: String!
-  remarks: [String]
-}
-
-type AddVendorOutletResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorOutletResponse {
-  message: String
-}
-
-type DeleteVendorOutletRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorOutletByAdminResponse {
-  message: String
-}
-
-input VendorOutletRecordByAdminInput {
-  _id: String!
-}
-
-input VendorOutletRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-  vendorId: ObjectId
-  outletName: String
-  fullName: String
-}
-
-type VendorOutletRecordByAdminResponse {
-  record: VendorOutlet!
-  message: String
-}
-
-type VendorOutletRecordResponse {
-  record: VendorOutlet!
-  message: String
-}
-
-type VendorOutletRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorOutletRecordsWithKycData!]
-  message: String
-}
-
-type VendorOutletStatusUpdationResponse {
-  _id: String
-  status: String
   message: String
 }
 
@@ -1618,108 +1618,6 @@ type GetProductsMaxPriceInMobileResponse {
   message: String
 }
 
-input ExportAdminOrdersInput {
-  _id: ObjectId
-  userId: ObjectId
-  orderId: String
-  paymentMode: String
-  orderStatus: String
-  startDate: Date
-  endDate: Date
-  postCode: String
-  page: Int
-  size: Int
-}
-
-input GetJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-}
-
-input GetAgentJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-  agentId: ObjectId
-}
-
-input GetAdminDownloadTokenInput {
-  _id: ObjectId!
-}
-
-input ExportAdminShippingProductsInput {
-  _id: ObjectId
-  userId: ObjectId
-  vendorId: ObjectId
-  orderId: String
-  productId: ObjectId
-  itemId: String
-  skuId: String
-  paymentMode: String
-  paymentStatus: String
-  shippingStatus: String
-  orderStartDate: Date
-  orderEndDate: Date
-  shippingStartDate: Date
-  shippingEndDate: Date
-  deliveryStartDate: Date
-  deliveryEndDate: Date
-  cancelledStartDate: Date
-  cancelledEndDate: Date
-  courierId: String
-  invoiceNumber: String
-  page: Int
-  size: Int
-  sort: String
-}
-
-input ExportAdminSettlementHistoryInput {
-  type: String
-  agentId: ObjectId
-  startDate: Date
-  endDate: Date
-  page: Int
-  size: Int
-}
-
-input AssignOrderInput {
-  shippingStatus: String
-  agentId: ObjectId
-  page: Int
-  size: Int
-}
-
-input ExportAllSettlementHistoryInput {
-  page: Int
-  size: Int
-}
-
-type ExportAdminOrdersResponse {
-  message: String
-}
-
-type ExportAdminShippingProductsResponse {
-  message: String
-}
-
-type JobRecord {
-  _id: ObjectId
-  name: String
-  status: String
-  isExpired: Boolean
-  createdAt: Date
-}
-
-type GetJobQueueResponse {
-  maxRecords: Int
-  records: [JobRecord]
-}
-
-type GetAdminDownloadTokenResponse {
-  url: String!
-}
-
 input CreateUserOrderInput {
   shippingAddressId: ObjectId!
   paymentMode: String!
@@ -2511,6 +2409,108 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
+input ExportAdminOrdersInput {
+  _id: ObjectId
+  userId: ObjectId
+  orderId: String
+  paymentMode: String
+  orderStatus: String
+  startDate: Date
+  endDate: Date
+  postCode: String
+  page: Int
+  size: Int
+}
+
+input GetJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+}
+
+input GetAgentJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+  agentId: ObjectId
+}
+
+input GetAdminDownloadTokenInput {
+  _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+  _id: ObjectId
+  userId: ObjectId
+  vendorId: ObjectId
+  orderId: String
+  productId: ObjectId
+  itemId: String
+  skuId: String
+  paymentMode: String
+  paymentStatus: String
+  shippingStatus: String
+  orderStartDate: Date
+  orderEndDate: Date
+  shippingStartDate: Date
+  shippingEndDate: Date
+  deliveryStartDate: Date
+  deliveryEndDate: Date
+  cancelledStartDate: Date
+  cancelledEndDate: Date
+  courierId: String
+  invoiceNumber: String
+  page: Int
+  size: Int
+  sort: String
+}
+
+input ExportAdminSettlementHistoryInput {
+  type: String
+  agentId: ObjectId
+  startDate: Date
+  endDate: Date
+  page: Int
+  size: Int
+}
+
+input AssignOrderInput {
+  shippingStatus: String
+  agentId: ObjectId
+  page: Int
+  size: Int
+}
+
+input ExportAllSettlementHistoryInput {
+  page: Int
+  size: Int
+}
+
+type ExportAdminOrdersResponse {
+  message: String
+}
+
+type ExportAdminShippingProductsResponse {
+  message: String
+}
+
+type JobRecord {
+  _id: ObjectId
+  name: String
+  status: String
+  isExpired: Boolean
+  createdAt: Date
+}
+
+type GetJobQueueResponse {
+  maxRecords: Int
+  records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+  url: String!
+}
+
 input GetAdminSignedFileUrlInput {
   fileURL: String!
   mimeType: String!
@@ -2570,8 +2570,9 @@ input ReturnstatusUpdateInput {
 }
 
 type ReturnstatusUpdateResponse {
-  status: Boolean
-  msg: String
+  status: Boolean!
+  otp: Boolean!
+  msg: String!
 }
 
 input UploadReturnInput {
@@ -3608,6 +3609,56 @@ type getCartInMobileResponse {
   deliveryCharge: Int
 }
 
+type AttributeValue {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+input CreateAttributeValueInput {
+  attributeId: String!
+  value: String!
+  colorCode: String!
+  priority: Int!
+  isBlocked: Boolean
+}
+
+input AttributeValueEditInput {
+  attributeValueId: String!
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type CreateAttributeValueResponse {
+  _id: String
+  message: String
+}
+
+input AttributeValueRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type AttributeValueRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
 input AddBrandInput {
   brandName: String!
   isBlocked: Boolean
@@ -3751,56 +3802,6 @@ type CategoryInBrands {
   fullCategoryName: String
   isLeaf: Boolean
   description: String
-}
-
-type AttributeValue {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-input CreateAttributeValueInput {
-  attributeId: String!
-  value: String!
-  colorCode: String!
-  priority: Int!
-  isBlocked: Boolean
-}
-
-input AttributeValueEditInput {
-  attributeValueId: String!
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-type CreateAttributeValueResponse {
-  _id: String
-  message: String
-}
-
-input AttributeValueRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type AttributeValueRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
-}
-
-type AttributeValueEditResponse {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
 }
 
 type Attribute {

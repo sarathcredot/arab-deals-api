@@ -618,12 +618,24 @@ export const deliveryAgentResolver: Resolvers = {
         console.log("called")
          result.returnStatus=returnStatus
          result.returnDate=new Date();
+         await result.save()
+         return {
+          status: true,
+          otp:false,
+          msg: "Order product status updated"
+        }
       }
 
       if(returnStatus === "POSTPONED"){
         result.returnStatus=returnStatus
         result.returnPostponedDate=new Date();
         result.returnPostponedRemarks=remarks
+        await result.save()
+        return {
+          status: true,
+          otp:false,
+          msg: "Order product status updated"
+        }
 
        }
 
@@ -642,66 +654,72 @@ export const deliveryAgentResolver: Resolvers = {
               extensions: { code: "INTERNAL_SERVER_ERROR" },
             })
           }
+
+          return {
+            status: true,
+            otp: true,
+            msg: "Order product status updated"
+          }
        }
 
 
-
-      await result.save()
-      return {
-        status: true,
-        msg: "Order product status updated"
-      }
+       return {
+        status: false,
+        otp: false,
+        msg: "Erro in Updating Status",
+      };
+      
       
     },
 
     //chage return status after otp verify from agent side
-    returnStatusChangeAfterOtpVerify: async (parent, { input }, { req }, info) => {
-      await verifyDeliveryAgent(req);
-      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+    // returnStatusChangeAfterOtpVerify: async (parent, { input }, { req }, info) => {
+    //   await verifyDeliveryAgent(req);
+    //   const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-      let orderProductId: Types.ObjectId = input?.orderProductId;
-      let returnStatus: string = input?.returnStatus;
-      let remarks: string = input?.remarks;
+    //   let orderProductId: Types.ObjectId = input?.orderProductId;
+    //   let returnStatus: string = input?.returnStatus;
+    //   let remarks: string = input?.remarks;
 
-      const result = await orderProductModel.findOne({ _id: orderProductId });
-      const agent=await deliveryAgentModel.findOne({_id:agentId})
+    //   const result = await orderProductModel.findOne({ _id: orderProductId });
+    //   const agent=await deliveryAgentModel.findOne({_id:agentId})
      
-      if (!result) {
-        throw new GraphQLError("Order product not found", {
-          extensions: { code: "NOT_FOUND" },
-        })
-      }
+    //   if (!result) {
+    //     throw new GraphQLError("Order product not found", {
+    //       extensions: { code: "NOT_FOUND" },
+    //     })
+    //   }
 
-      if (!agent) {
-        throw new GraphQLError("agent not found", {
-          extensions: { code: "NOT_FOUND" },
-        })
-      }
-
-
-        if(returnStatus === "REJECTED"){
-            agent.wallet.numberOfReturnOrderDelivered-=1;
-            result.returnStatus=returnStatus
-            result.returnRejectedDate=new Date();
-            result.returnRejectedRemarks=remarks
-       }
+    //   if (!agent) {
+    //     throw new GraphQLError("agent not found", {
+    //       extensions: { code: "NOT_FOUND" },
+    //     })
+    //   }
 
 
-          if(returnStatus === "COLLECTED"){
-              agent.wallet.numberOfReturnOrderDelivered-=1;
-              result.returnStatus=returnStatus
-              result.returnCollectedDate=new Date();
-              result.returnCollectedRemarks=remarks
-          }
+    //     if(returnStatus === "REJECTED"){
+    //         agent.wallet.numberOfReturnOrderDelivered-=1;
+    //         result.returnStatus=returnStatus
+    //         result.returnRejectedDate=new Date();
+    //         result.returnRejectedRemarks=remarks
+    //    }
 
-      await agent.save()
-      await result.save()
-      return {
-        status: true,
-        msg: "Order product status updated"
-      }
 
-    },
+    //       if(returnStatus === "COLLECTED"){
+    //           agent.wallet.numberOfReturnOrderDelivered-=1;
+    //           result.returnStatus=returnStatus
+    //           result.returnCollectedDate=new Date();
+    //           result.returnCollectedRemarks=remarks
+    //       }
+
+    //   await agent.save()
+    //   await result.save()
+    //   return {
+    //     status: true,
+    //     msg: "Order product status updated"
+    //   }
+
+    // },
 
     //api to change shipping status from agent side
     orderDelivedbyAgent: async (parent, { input }, { req }, info) => {
