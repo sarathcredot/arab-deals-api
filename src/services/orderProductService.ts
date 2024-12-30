@@ -67,7 +67,7 @@ export interface IOrderProduct {
     courierId?: string;
     invoiceNumber?: string;
     invoice?: FileData;
-    returnProductImage?:FileData
+    returnProductImage?:FileData;
     refundBankDetails?:{
         accountHolderName?: string,
         accountNumber?: string,

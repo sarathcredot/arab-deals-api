@@ -199,7 +199,7 @@ const orderProductSchema = new Schema(
             type: fileSchema,
         },
         returnProductImageUploadByAgent:{
-            type: fileSchema,
+            type: [fileSchema],
         },
         returnAddress:{
             type: returnAddressSchema
