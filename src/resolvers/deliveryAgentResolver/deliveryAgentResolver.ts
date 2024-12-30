@@ -600,6 +600,8 @@ export const deliveryAgentResolver: Resolvers = {
       let returnStatus: string = input?.returnStatus;
       let remarks: string = input?.remarks;
 
+      console.log(returnStatus)
+
       const result = await orderProductModel.findOne({ _id: orderProductId });
      
 
@@ -613,6 +615,7 @@ export const deliveryAgentResolver: Resolvers = {
       
 
       if(returnStatus === "RETURNED TO WAREHOUSE"){
+        console.log("called")
          result.returnStatus=returnStatus
          result.returnDate=new Date();
       }
@@ -624,18 +627,15 @@ export const deliveryAgentResolver: Resolvers = {
 
        }
 
-      //  if(returnStatus === "REJECTED"){
-      //   result.returnStatus=returnStatus
-      //   result.returnRejectedDate=new Date();
-      //   result.returnRejectedRemarks=remarks
-      //  }
-
+     
 
        if(returnStatus === "COLLECTED" || returnStatus === "REJECTED" ){
+        console.log("called")
           // agent.wallet.numberOfReturnOrderDelivered+=1;
 
           //generate otp and save and send to user
           const result = await deliveryAgentService.deliveryTimeOtpGenerate(input.orderProductId)
+          console.log(result)
 
           if (!result) {
             throw new GraphQLError("Unable to generate otp", {
@@ -788,7 +788,6 @@ export const deliveryAgentResolver: Resolvers = {
 
       try {
         // verify otp
-
         const options: {
           agentId: Types.ObjectId;
           orderItemId: any;
@@ -879,6 +878,10 @@ export const deliveryAgentResolver: Resolvers = {
     uploadReturnProductImageByAgent: async (parent, { input, image }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+
+      console.log(input);
+
        let returnProduct = [];
 
        let orderProductId: Types.ObjectId = input?.orderProductId;

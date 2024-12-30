@@ -1647,6 +1647,7 @@ export const deliveryTimeOtpGenerate=async(orderItemId:Types.ObjectId):Promise<a
               // generate otp
 
               const otpResponse=await otpService.generateOtp()
+              console.log("otp",otpResponse)
 
               // sent this otp to user number
 
@@ -1656,7 +1657,6 @@ export const deliveryTimeOtpGenerate=async(orderItemId:Types.ObjectId):Promise<a
 
                  
               await orderProductModel.findByIdAndUpdate({_id:orderItemId},{
-
                     $set:{
 
                           'otp.code':otpResponse.code,
