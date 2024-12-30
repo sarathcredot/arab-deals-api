@@ -1296,7 +1296,7 @@ export const deliveryAgentResolver: Resolvers = {
     getAssignedOrderByDeliveryAgent: async (parent, { input }, { req }, info) => {
 
 
-      // await verifyAdmin(req)
+      await verifyAdmin(req)
 
 
       try {
@@ -1355,18 +1355,18 @@ export const deliveryAgentResolver: Resolvers = {
       try {
 
 
-        const deliveryAgentData = await verifyDeliveryAgent(req)
+        // const deliveryAgentData = await verifyDeliveryAgent(req)
 
-        if (!deliveryAgentData) {
+        // if (!deliveryAgentData) {
 
-          throw new GraphQLError("Unauthorized", {
-            extensions: {
-              code: "UNAUTHORIZED",
-              errors: []
-            },
-          });
+        //   throw new GraphQLError("Unauthorized", {
+        //     extensions: {
+        //       code: "UNAUTHORIZED",
+        //       errors: []
+        //     },
+        //   });
 
-        }
+        // }
 
         // input check
 

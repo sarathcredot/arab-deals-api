@@ -32,7 +32,7 @@ type Query{
   getSettlementHistoryByAdmin:[Settlement]!
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
  
-   getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):getAssignedOrderDetailByAgentProfileResponse!
+   getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):GetAssignedOrderDetailByDeliveryAgentResponseArry!
    getAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):getAssignedOrderByAgentProfileResponse!
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
 
@@ -237,7 +237,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   orderId: String!
   userId: ObjectId!
   productName: String!
-  itemId:String!
+  itemId:String
   sellingPrice: Float!
   paymentStatus: String!
   paymentMode:String
@@ -295,10 +295,10 @@ type getAssignedOrderByAgentProfileResponse {
      maxRecords: Int
  }
 
- type getAssignedOrderDetailByAgentProfileResponse {
-     records: [GetAssignedOrderDetailByDeliveryAgentResponseArry ],
-     maxRecords: Int  
- }
+#  type getAssignedOrderDetailByAgentProfileResponse {
+#      records: [GetAssignedOrderDetailByDeliveryAgentResponseArry ],
+#      maxRecords: Int  
+#  }
 
 
 
