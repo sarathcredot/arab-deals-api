@@ -48,6 +48,9 @@ input DeliveryStatusOtpVerifyInput{
         code:String
         returnStatus:String
         returnRemark:String
+        deliveryStatus:String
+        paymentMode:String
+        remarks:String
 }
 
 type DeliveryStatusOtpVerifyResponse{
@@ -276,6 +279,16 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   returnAddress: returnAddress
   returnAdminComment:String,
   returnRequestDate:Date,
+  deliveyremark:String,
+  cancelremark:String,
+  postponedremark:String,
+  deliveredMapLocation:String,
+  deliveryAssignedOn:Date,
+  returnRejectedDate:Date,
+  returnRejectedRemarks:String,
+  returnPostponedDate:Date,
+  returnPostponedRemarks:String,
+  returnCollectedDate:Date,
 }
  
  type getAssignedeOrderDeatilsByAgentProfileResponse{

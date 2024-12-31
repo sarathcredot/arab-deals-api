@@ -43,9 +43,22 @@ export const orderDeliverytimeTransactionLogs=async(data:TransactionDataType)=>{
                     }
 
                     const final =new settlementModel(obj)
-                    await final.save()
+                  const res=await final.save()
 
-                    resolve({flag:true})
+                  if(res){
+                      
+                      await deliveryAgentModel.findByIdAndUpdate({_id:data.agentId},{
+
+                           $push:{
+                              
+                             settlementHistory:res._id
+                           }
+                      })
+
+                      resolve({flag:true})
+                  }
+
+                   
                              
                     
                    } catch (error) {
