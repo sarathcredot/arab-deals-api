@@ -34,7 +34,7 @@ type Query{
   getSettlementHistoryByAdmin:[Settlement]!
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
  
-   getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):getAssignedOrderDetailByAgentProfileResponse!
+   getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):GetAssignedOrderDetailByDeliveryAgentResponseArry!
    getAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):getAssignedOrderByAgentProfileResponse!
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
 
@@ -48,6 +48,9 @@ input DeliveryStatusOtpVerifyInput{
         code:String
         returnStatus:String
         returnRemark:String
+        deliveryStatus:String
+        paymentMode:String
+        remarks:String
 }
 
 type DeliveryStatusOtpVerifyResponse{
@@ -252,7 +255,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   orderId: String!
   userId: ObjectId!
   productName: String!
-  itemId:String!
+  itemId:String
   sellingPrice: Float!
   paymentStatus: String!
   paymentMode:String
@@ -277,6 +280,16 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   returnAddress: returnAddress
   returnAdminComment:String,
   returnRequestDate:Date,
+  deliveyremark:String,
+  cancelremark:String,
+  postponedremark:String,
+  deliveredMapLocation:String,
+  deliveryAssignedOn:Date,
+  returnRejectedDate:Date,
+  returnRejectedRemarks:String,
+  returnPostponedDate:Date,
+  returnPostponedRemarks:String,
+  returnCollectedDate:Date,
 }
  
  type getAssignedeOrderDeatilsByAgentProfileResponse{
@@ -310,10 +323,10 @@ type getAssignedOrderByAgentProfileResponse {
      maxRecords: Int
  }
 
- type getAssignedOrderDetailByAgentProfileResponse {
-     records: [GetAssignedOrderDetailByDeliveryAgentResponseArry ],
-     maxRecords: Int  
- }
+#  type getAssignedOrderDetailByAgentProfileResponse {
+#      records: [GetAssignedOrderDetailByDeliveryAgentResponseArry ],
+#      maxRecords: Int  
+#  }
 
 
 

@@ -729,6 +729,8 @@ export const deliveryAgentResolver: Resolvers = {
 
         const deliveryAgentData = await verifyDeliveryAgent(req)
 
+        console.log(input.deliveryStatus)
+
         if (!deliveryAgentData) {
 
           throw new GraphQLError("Unauthorized", {
@@ -746,7 +748,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         if (input.deliveryStatus === "POSTPONED") {
 
-
+console.log("postpond")
           const obj = {
 
             deliveryAgentId: agentId,
@@ -808,6 +810,9 @@ export const deliveryAgentResolver: Resolvers = {
           agentId: Types.ObjectId;
           orderItemId: any;
           code: string;
+          deliveryStatus:string  | undefined; 
+          paymentMode:string  | undefined; 
+          remarks:string  | undefined;
           returnStatus: string | undefined;  
           returnRemark: string | undefined;  
         } = {
@@ -815,7 +820,10 @@ export const deliveryAgentResolver: Resolvers = {
           orderItemId: input.orderItemId,
           code: input.code || " ",
           returnStatus: input?.returnStatus || undefined,  
-          returnRemark: input?.returnRemark || undefined 
+          returnRemark: input?.returnRemark || undefined, 
+          deliveryStatus:input?.deliveryStatus|| undefined ,
+          paymentMode:input?.paymentMode || undefined,
+          remarks:input?.remarks || undefined
         };
         
 
@@ -1519,7 +1527,7 @@ export const deliveryAgentResolver: Resolvers = {
     getAssignedOrderByDeliveryAgent: async (parent, { input }, { req }, info) => {
 
 
-      // await verifyAdmin(req)
+      await verifyAdmin(req)
 
 
       try {
@@ -1578,18 +1586,18 @@ export const deliveryAgentResolver: Resolvers = {
       try {
 
 
-        const deliveryAgentData = await verifyDeliveryAgent(req)
+        // const deliveryAgentData = await verifyDeliveryAgent(req)
 
-        if (!deliveryAgentData) {
+        // if (!deliveryAgentData) {
 
-          throw new GraphQLError("Unauthorized", {
-            extensions: {
-              code: "UNAUTHORIZED",
-              errors: []
-            },
-          });
+        //   throw new GraphQLError("Unauthorized", {
+        //     extensions: {
+        //       code: "UNAUTHORIZED",
+        //       errors: []
+        //     },
+        //   });
 
-        }
+        // }
 
         // input check
 

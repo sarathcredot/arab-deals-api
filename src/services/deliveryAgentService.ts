@@ -1,11 +1,11 @@
 
-import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator,  } from "mongoose";
+import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
 import { deliveryAgentModel, settlementModel } from '../models'
 import { orderProductModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs,otpService } from "../services"
+import { transactionlogs, otpService } from "../services"
 
 
 
@@ -44,7 +44,7 @@ export interface ISettlement {
 }
 
 export interface IAdminSettlementHistoryOptions {
-  type?:string;
+  type?: string;
   agentId?: Types.ObjectId;
   startDate?: Date;
   endDate?: Date;
@@ -53,7 +53,7 @@ export interface IAdminSettlementHistoryOptions {
 }
 
 export interface IAdminAssignOrdersOptions {
-  shippingStatus?:string;
+  shippingStatus?: string;
   agentId?: Types.ObjectId;
   page: number;
   size: number;
@@ -70,7 +70,7 @@ export interface IDeliveryAgentFilter {
   fullName: string;
   contactNumber: string;
   userID: string;
-  ID:string;
+  ID: string;
   password: string;
   agentType: string;
   vendorID?: Types.ObjectId;
@@ -85,7 +85,7 @@ export interface IDeliveryAgentFilter {
     numberOfOrderDelivered: number;
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
-    numberOfPendingReturns:number;
+    numberOfPendingReturns: number;
   };
   settlementHistory: Types.ObjectId[] | ISettlement[];
 }
@@ -96,7 +96,7 @@ export interface IDeliveryAgentDocument extends Document {
   contactNumber: string;
   userID: string;
   password: string;
-  ID:string;
+  ID: string;
   agentType: string;
   vendorID?: Types.ObjectId;
   licence: FileData;
@@ -110,9 +110,9 @@ export interface IDeliveryAgentDocument extends Document {
     numberOfOrderDelivered: number;
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
-    numberOfPendingReturns:number;
+    numberOfPendingReturns: number;
   };
-  lastSettlementID:Types.ObjectId;
+  lastSettlementID: Types.ObjectId;
   settlementHistory: Types.ObjectId[];
   setHash(password: string): Promise<void>;
   verifyHash(password: string): Promise<boolean>;
@@ -145,7 +145,7 @@ export const createSettlement = async (settlementData: ISettlement, agentId: Typ
   existingAgent.wallet.cashInHand -= settlement.amount;
   existingAgent.wallet.totalSettlement += settlement.amount;
   existingAgent.wallet.lastSettlementDate = new Date(Date.now());
-  existingAgent.lastSettlementID=settlement._id
+  existingAgent.lastSettlementID = settlement._id
   existingAgent.settlementHistory.push(settlement._id);
 
   await existingAgent.save();
@@ -211,7 +211,7 @@ export const findSettlementtWithFilters = async (filters: object, projection: ob
   return await settlementModel.findOne(filters, projection, options);
 };
 
-export const  findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object , settlementHistoryFilter?: object ): Promise<IDeliveryAgentFilter | null> => {
+export const findDeliveryAgentWithFilters = async (filters: object, projection: object, options: object, settlementHistoryFilter?: object): Promise<IDeliveryAgentFilter | null> => {
   const deliveryAgent = await deliveryAgentModel
     .findOne(filters, projection, options)
     .populate({
@@ -231,7 +231,7 @@ export const  findDeliveryAgentWithFilters = async (filters: object, projection:
   return deliveryAgent;
 };
 
-export const findAssignedDeliveryAgentWithFilters = async (filters: object, projection: object, options: object , settlementHistoryFilter?: object ): Promise<IDeliveryAgentDocument | null> => {
+export const findAssignedDeliveryAgentWithFilters = async (filters: object, projection: object, options: object, settlementHistoryFilter?: object): Promise<IDeliveryAgentDocument | null> => {
   const deliveryAgent = await deliveryAgentModel
     .findOne(filters, projection, options)
     .populate({
@@ -251,12 +251,12 @@ export const findAssignedDeliveryAgentWithFilters = async (filters: object, proj
   return deliveryAgent;
 };
 
-export const countSettlementHistory = async (agentId: Types.ObjectId,settlementHistoryFilter?: object ): Promise<number> => {
+export const countSettlementHistory = async (agentId: Types.ObjectId, settlementHistoryFilter?: object): Promise<number> => {
   const agent = await deliveryAgentModel.findOne(agentId).populate({
-    path: "settlementHistory", 
+    path: "settlementHistory",
     match: settlementHistoryFilter,
   }).lean();
-  return agent?.settlementHistory.length || 0; 
+  return agent?.settlementHistory.length || 0;
 };
 
 
@@ -268,7 +268,7 @@ export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSet
   }
   if (options.type) {
     pipeline.push({ $match: { type: options.type } });
-}
+  }
   if (options.startDate) {
     pipeline.push({ $match: { createdAt: { $gte: options.startDate } } });
   }
@@ -277,60 +277,60 @@ export const exportAdminSettlementHistoryWithFilters = async (options: IAdminSet
   }
 
   pipeline.push(
-      { $sort: { createdAt: -1 } },
-      {
-          $lookup: {
-              from: collections.DELIVERYAGENT,
-              localField: "agentId",
-              foreignField: "_id",
-              as: "agentInfo"
-          }
-      },
-      {
-          $unwind: {
-              path: "$agentInfo",
-              preserveNullAndEmptyArrays: true
-          }
-      },
-      {
-          $project: {
-              _id: 1,
-              type:1,
-              agentId: 1,
-              amount: 1,
-              balance: 1,
-              createdAt:1,
-              remarks: 1,
-              totalAmount: 1,
-              "agentInfo.fullName": 1,
-          }
+    { $sort: { createdAt: -1 } },
+    {
+      $lookup: {
+        from: collections.DELIVERYAGENT,
+        localField: "agentId",
+        foreignField: "_id",
+        as: "agentInfo"
       }
+    },
+    {
+      $unwind: {
+        path: "$agentInfo",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        type: 1,
+        agentId: 1,
+        amount: 1,
+        balance: 1,
+        createdAt: 1,
+        remarks: 1,
+        totalAmount: 1,
+        "agentInfo.fullName": 1,
+      }
+    }
   );
 
   const settlements = await settlementModel.aggregate(pipeline);
   let filename = '';
 
   if (settlements && settlements.length) {
-      let formattedData = settlements.map((settlement) => ({
-        type: settlement.type || "",
-        createdAt: settlement.createdAt ? settlement.createdAt.toISOString() : "",
-        fullName: settlement.agentInfo?.fullName || "",
-        amount: settlement.amount || 0,
-        balance: settlement.balance || 0,
-        totalAmount: settlement.totalAmount || 0,
-        remarks: settlement.remarks || "",
-      }));
+    let formattedData = settlements.map((settlement) => ({
+      type: settlement.type || "",
+      createdAt: settlement.createdAt ? settlement.createdAt.toISOString() : "",
+      fullName: settlement.agentInfo?.fullName || "",
+      amount: settlement.amount || 0,
+      balance: settlement.balance || 0,
+      totalAmount: settlement.totalAmount || 0,
+      remarks: settlement.remarks || "",
+    }));
 
-      let workbook = new excel.Workbook();
-      let worksheet = workbook.addWorksheet("Settlement History");
-      worksheet.columns = [
-          { header: "Amount", key: "amount", width: 20 },
-          { header: "Initial CIH", key: "totalAmount", width: 20 },
-          { header: "Current CIH", key: "balance", width: 20 },
-          { header: "Type", key: "type", width: 20 },
-          { header: "Settlement Date", key: "createdAt", width: 20 }, 
-          { header: "Remarks", key: "remarks", width: 50 }
-      ];
+    let workbook = new excel.Workbook();
+    let worksheet = workbook.addWorksheet("Settlement History");
+    worksheet.columns = [
+      { header: "Amount", key: "amount", width: 20 },
+      { header: "Initial CIH", key: "totalAmount", width: 20 },
+      { header: "Current CIH", key: "balance", width: 20 },
+      { header: "Type", key: "type", width: 20 },
+      { header: "Settlement Date", key: "createdAt", width: 20 },
+      { header: "Remarks", key: "remarks", width: 50 }
+    ];
 
     let firstRow = worksheet.getRow(1);
     firstRow.eachCell((cell: any) => {
@@ -360,68 +360,68 @@ export const exportAssignOrdersWithFilters = async (options: IAdminAssignOrdersO
   }
   if (options.shippingStatus) {
     pipeline.push({ $match: { shippingStatus: options.shippingStatus } });
-  }  
+  }
 
 
-  console.log(await orderProductModel.aggregate(pipeline.slice(0, 2))); 
+  console.log(await orderProductModel.aggregate(pipeline.slice(0, 2)));
 
   pipeline.push(
-      { $sort: { orderDate: -1 } },
-      {
-        $lookup: {
-          from: "users",
-          let: { userId: { $toString: "$userId" } },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$userId"] } } }
-          ],
-          as: "userInfo"
-        }
-      },
-      {
-          $unwind: {
-              path: "$userInfo",
-              preserveNullAndEmptyArrays: true
-          }
-      },
-      {
-          $project: {
-              _id: 1,
-              orderId:1,
-              productName: 1,
-              sellingPrice: 1,
-              orderDate: 1,
-              shippingStatus:1,
-              paymentStatus: 1,
-              "userInfo.firstName": 1,
-          }
+    { $sort: { orderDate: -1 } },
+    {
+      $lookup: {
+        from: "users",
+        let: { userId: { $toString: "$userId" } },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$_id", "$$userId"] } } }
+        ],
+        as: "userInfo"
       }
+    },
+    {
+      $unwind: {
+        path: "$userInfo",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        orderId: 1,
+        productName: 1,
+        sellingPrice: 1,
+        orderDate: 1,
+        shippingStatus: 1,
+        paymentStatus: 1,
+        "userInfo.firstName": 1,
+      }
+    }
   );
 
   const assignedOrders = await orderProductModel.aggregate(pipeline);
   let filename = '';
 
   if (assignedOrders && assignedOrders.length) {
-      let formattedData = assignedOrders.map((assignedOrder) => ({
-              orderId:assignedOrder.orderId || "",
-              productName: assignedOrder.productName || "",
-              sellingPrice: assignedOrder.sellingPrice || "",
-              orderDate: assignedOrder.orderDate || "",
-              shippingStatus:assignedOrder.shippingStatus || "",
-              paymentStatus: assignedOrder.paymentStatus || "",
-              firstName: assignedOrder.userInfo?.firstName || "",
-      }));
+    let formattedData = assignedOrders.map((assignedOrder) => ({
+      orderId: assignedOrder.orderId || "",
+      productName: assignedOrder.productName || "",
+      sellingPrice: assignedOrder.sellingPrice || "",
+      orderDate: assignedOrder.orderDate || "",
+      shippingStatus: assignedOrder.shippingStatus || "",
+      paymentStatus: assignedOrder.paymentStatus || "",
+      firstName: assignedOrder.userInfo?.firstName || "",
+    }));
 
-      let workbook = new excel.Workbook();
-      let worksheet = workbook.addWorksheet("Assigned Orders");
-      worksheet.columns = [
-          { header: "OrderID", key: "orderId", width: 20 },
-          { header: "User Name", key: "firstName", width: 20 }, 
-          { header: "product Name", key: "productName", width: 25 },
-          { header: "Price", key: "sellingPrice", width: 20 },
-          { header: "Order Date", key: "orderDate", width: 20 },
-          { header: "payment Status", key: "paymentStatus", width: 20 },
-          { header: "shipping Status", key: "shippingStatus", width: 50 }
-      ];
+    let workbook = new excel.Workbook();
+    let worksheet = workbook.addWorksheet("Assigned Orders");
+    worksheet.columns = [
+      { header: "OrderID", key: "orderId", width: 20 },
+      { header: "User Name", key: "firstName", width: 20 },
+      { header: "product Name", key: "productName", width: 25 },
+      { header: "Price", key: "sellingPrice", width: 20 },
+      { header: "Order Date", key: "orderDate", width: 20 },
+      { header: "payment Status", key: "paymentStatus", width: 20 },
+      { header: "shipping Status", key: "shippingStatus", width: 50 }
+    ];
 
     let firstRow = worksheet.getRow(1);
     firstRow.eachCell((cell: any) => {
@@ -442,17 +442,17 @@ export const exportAssignOrdersWithFilters = async (options: IAdminAssignOrdersO
   return filename;
 };
 
-export const exportAllSettlementHistoryWithFilters = async (options:IAllSettlementHistoryOptions, exportFolder: string): Promise<string> => {
+export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlementHistoryOptions, exportFolder: string): Promise<string> => {
   let pipeline: PipelineStage[] = [];
 
   pipeline.push(
-      {
-          $project: {
-            wallet:1,
-            fullName:1,
-            contactNumber:1
-          }
+    {
+      $project: {
+        wallet: 1,
+        fullName: 1,
+        contactNumber: 1
       }
+    }
   );
 
   const wallet = await deliveryAgentModel.aggregate(pipeline);
@@ -465,37 +465,37 @@ export const exportAllSettlementHistoryWithFilters = async (options:IAllSettleme
 
   if (wallet && wallet.length) {
     let formattedData = wallet.map(({ wallet, ...rest }) => ({
-        ...rest,
-        cashInHand: wallet?.cashInHand || 0,
-        totalSettlement: wallet?.totalSettlement || 0,
-        lastSettlementDate: wallet?.lastSettlementDate || null,
+      ...rest,
+      cashInHand: wallet?.cashInHand || 0,
+      totalSettlement: wallet?.totalSettlement || 0,
+      lastSettlementDate: wallet?.lastSettlementDate || null,
     }));
 
 
-      let workbook = new excel.Workbook();
-      let worksheet = workbook.addWorksheet("Settlement History");
-      worksheet.columns = [
-          { header: "Name", key: "fullName", width: 25 },
-          { header: "Phone Number", key: "contactNumber", width: 20 },
-          { header: "Last Settled Date ", key: "lastSettlementDate", width: 20 },
-          { header: "Total Settlement", key: "totalSettlement", width: 20 },
-          { header: "Balance", key: "cashInHand", width: 20 },
-      ];
+    let workbook = new excel.Workbook();
+    let worksheet = workbook.addWorksheet("Settlement History");
+    worksheet.columns = [
+      { header: "Name", key: "fullName", width: 25 },
+      { header: "Phone Number", key: "contactNumber", width: 20 },
+      { header: "Last Settled Date ", key: "lastSettlementDate", width: 20 },
+      { header: "Total Settlement", key: "totalSettlement", width: 20 },
+      { header: "Balance", key: "cashInHand", width: 20 },
+    ];
 
-      let firstRow = worksheet.getRow(1);
-      firstRow.eachCell((cell: any) => {
-          cell.font = { bold: true };
-      });
+    let firstRow = worksheet.getRow(1);
+    firstRow.eachCell((cell: any) => {
+      cell.font = { bold: true };
+    });
 
-      worksheet.addRows(formattedData);
+    worksheet.addRows(formattedData);
 
-      console.log(formattedData)
+    console.log(formattedData)
 
-      filename = `wallet-history-${Date.now()}.xlsx`;
-      let filePath = path.join(exportFolder, filename);
-      await workbook.xlsx.writeFile(filePath).then(() => {
-          console.log("File saved!");
-      });
+    filename = `wallet-history-${Date.now()}.xlsx`;
+    let filePath = path.join(exportFolder, filename);
+    await workbook.xlsx.writeFile(filePath).then(() => {
+      console.log("File saved!");
+    });
   }
 
   return filename;
@@ -503,77 +503,69 @@ export const exportAllSettlementHistoryWithFilters = async (options:IAllSettleme
 
 
 
+
+
+
 export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
- try {
-   const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
-
-   
-   if (assignOrder) {
-  // check is this first assigning or reassigning
-
-  if(assignOrder.returnStatus === "APPROVED"){
-    if (!assignOrder.returndeliveryAgentId) {
-
-      // add order products model assign agent id and name 
-      await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-
-        $set: {
-          returnOrderAssignedOn: new Date(),
-          returndeliveryAgentId: data.deliveryAgentId,
-          returndeliveryAgentName: data.deliveryAgentName
+  try {
+    const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+    if (assignOrder) {
+      // check is this first assigning or reassigning
+      if (assignOrder.returnStatus === "APPROVED") {
+        if (!assignOrder.returndeliveryAgentId) {
+          // add order products model assign agent id and name
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+            $set: {
+              returnOrderAssignedOn: new Date(),
+              returndeliveryAgentId: data.deliveryAgentId,
+              returndeliveryAgentName: data.deliveryAgentName
+            }
+          })
+          // update delivery agent total order count
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+            $inc: {
+              'wallet.numberOfReturnOrderAssigned': 1,
+              'wallet.numberOfPendingReturns': 1
+            }
+          })
+          return true
+        } else {
+          // reassign this oder to new delivery agent
+          // find old delivery agent and update this agent numberOfOrderAssigned count
+          await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
+            $inc: {
+              'wallet.numberOfReturnOrderAssigned': -1
+            }
+          })
+          //  this order reassign to new delivery agent
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+            $set: {
+              returndeliveryAgentId: data.deliveryAgentId,
+              returndeliveryAgentName: data.deliveryAgentName
+            }
+          })
+          // update this new new agent numberOfOrderAssigned count
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+            $inc: {
+              'wallet.numberOfReturnOrderAssigned': 1
+            }
+          })
         }
-      })
-      // update delivery agent total order count
-      await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
-        $inc: {
-          'wallet.numberOfReturnOrderAssigned': 1,
-          'wallet.numberOfPendingReturns': 1
-        }
-      })
-
-      return true
-
+        return true
+      } else {
+        return false
+      }
     } else {
-      // reassign this oder to new delivery agent
-      // find old delivery agent and update this agent numberOfOrderAssigned count
-
-      await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
-        $inc: {
-          'wallet.numberOfReturnOrderAssigned': -1
-        }
-      })
-
-      //  this order reassign to new delivery agent 
-      await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-
-        $set: {
-          returndeliveryAgentId: data.deliveryAgentId,
-          returndeliveryAgentName: data.deliveryAgentName
-        }
-      })
-
-      // update this new new agent numberOfOrderAssigned count
-
-      await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
-        $inc: {
-          'wallet.numberOfReturnOrderAssigned': 1
-        }
-      }) 
+      return false
     }
-
-    return true
-  }else{
+  } catch (error) {
     return false
   }
-
-  } else {
-
-   return false
-  }
- } catch (error) {
-     return false
- }
 }
+
+
+
+
 
 
 
@@ -595,10 +587,10 @@ type Editrespo = {
 
 //       // const totalCount = await deliveryAgentModel.countDocuments();
 //       let pipeline: any[]
-      
+
 
 //      if(options.isActive && options.agentType && options.search){
-            
+
 //        const active=JSON.parse(options.isActive)
 
 //        dataSize=await deliveryAgentModel.find({isActive:active,agentType:options.agentType,search: options.search})
@@ -611,8 +603,8 @@ type Editrespo = {
 //           {$match:{agentType:options.agentType}},
 //           { $skip: options.page * options.size }, 
 //           { $limit: options.size }, 
-          
-       
+
+
 //           {
 //             $project: {
 //               _id: 1, 
@@ -628,15 +620,15 @@ type Editrespo = {
 //               settlementHistory: 1,
 //               createdAt: 1, 
 //               updatedAt: 1,
-              
+
 //             }
 //           }
 //         ];
-     
+
 //        }else if(options.isActive){
 
 //         const active=JSON.parse(options.isActive)
-      
+
 //         dataSize=await deliveryAgentModel.find({isActive:active})
 
 //         console.log("is active")
@@ -645,8 +637,8 @@ type Editrespo = {
 //           {$match:{isActive:active}},
 //           { $skip: options.page * options.size }, 
 //           { $limit: options.size }, 
-          
-       
+
+
 //           {
 //             $project: {
 //               _id: 1, 
@@ -662,12 +654,12 @@ type Editrespo = {
 //               settlementHistory: 1,
 //               createdAt: 1, 
 //               updatedAt: 1,
-              
+
 //             }
 //           }
 //         ];
-           
-       
+
+
 //       }else if(options.agentType){
 
 //         dataSize=await deliveryAgentModel.find({agentType:options.agentType})
@@ -677,8 +669,8 @@ type Editrespo = {
 //           {$match:{agentType:options.agentType}},
 //           { $skip: options.page * options.size }, 
 //           { $limit: options.size }, 
-          
-       
+
+
 //           {
 //             $project: {
 //               _id: 1, 
@@ -694,12 +686,12 @@ type Editrespo = {
 //               settlementHistory: 1,
 //               createdAt: 1, 
 //               updatedAt: 1,
-              
+
 //             }
 //           }
 //         ];
 
-          
+
 //       }else{
 
 
@@ -709,8 +701,8 @@ type Editrespo = {
 //           { $sort: { createdAt: -1 } }, 
 //           { $skip: options.page * options.size }, 
 //           { $limit: options.size }, 
-          
-       
+
+
 //           {
 //             $project: {
 //               _id: 1, 
@@ -726,26 +718,26 @@ type Editrespo = {
 //               settlementHistory: 1,
 //               createdAt: 1, 
 //               updatedAt: 1,
-              
+
 //             }
 //           }
 //         ];
-          
+
 //       }
 
 
 //       console.log(options.agentType , options.isActive)
-      
+
 //       const result = await deliveryAgentModel.aggregate(pipeline);
-      
-    
-      
+
+
+
 //       let response:any = {
 //         records: [],
 //         maxRecords: 0
 //       };
 
-     
+
 //       if (result.length) {
 //         response.records = result || [];
 //         response.maxRecords =dataSize?.length  || 0;
@@ -763,7 +755,7 @@ type Editrespo = {
 // }
 
 
-export const viewAllDeliveryAgents = async (options: { page: number; size: number; isActive?: any; agentType?: any; search?: any,settlement?:any }): Promise<IDeliveryAgent[] | []> => {
+export const viewAllDeliveryAgents = async (options: { page: number; size: number; isActive?: any; agentType?: any; search?: any, settlement?: any }): Promise<IDeliveryAgent[] | []> => {
   return new Promise(async (resolve, reject) => {
     let dataSize: any;
 
@@ -771,15 +763,15 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
       let pipeline: any[] = [];
       const active = options.isActive ? JSON.parse(options.isActive) : undefined;
       const search = options.search?.trim() || ''; // Ensure search is a trimmed string or empty
-      const settlement = options.settlement 
-      console.log("try catch =",{active,search,settlement})
+      const settlement = options.settlement
+      console.log("try catch =", { active, search, settlement })
       // Building the base match query
       const matchQuery: any = {};
       if (active !== undefined) matchQuery.isActive = active;
       if (options.agentType) matchQuery.agentType = options.agentType;
       if (search) matchQuery.fullName = { $regex: search, $options: 'i' };
-      console.log("match query = ",matchQuery);
-      
+      console.log("match query = ", matchQuery);
+
       // Count the total number of documents matching the criteria
       dataSize = await deliveryAgentModel.find(matchQuery);
 
@@ -793,15 +785,15 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
         { $match: matchQuery }, // Apply match query
         ...(settlement
           ? [
-              { $match: { 'wallet.totalSettlement': { $gt: 0 } } }, // Filter out agents with zero total settlement
-            ]
-          : []), 
+            { $match: { 'wallet.totalSettlement': { $gt: 0 } } }, // Filter out agents with zero total settlement
+          ]
+          : []),
         { $match: matchQuery }, // Apply match query
         ...(options.page !== null && options.size !== null
           ? [
-              { $skip: options.page * options.size }, // Skip to the desired page
-              { $limit: options.size }, // Limit to the desired size
-            ]
+            { $skip: options.page * options.size }, // Skip to the desired page
+            { $limit: options.size }, // Limit to the desired size
+          ]
           : []),
         {
           $project: {
@@ -836,8 +828,8 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
 
       resolve(response);
     } catch (error) {
-      console.log("error  = ",error);
-      
+      console.log("error  = ", error);
+
       reject(error);
     }
   });
@@ -877,45 +869,45 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
 
 
 
-      } 
+      }
 
 
 
-        console.log("data edit")
+      console.log("data edit")
 
-        if (data.licence) {
+      if (data.licence) {
 
-          await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
 
-            $set: {
+          $set: {
 
-              fullName: data.fullName,
-              contactNumber: data.contactNumber,
-              userID: data.userID,
-              vendorID: data.vendorID,
-              agentType: data.agentType,
-              licence: data.licence
-            }
-          })
-        } else {
+            fullName: data.fullName,
+            contactNumber: data.contactNumber,
+            userID: data.userID,
+            vendorID: data.vendorID,
+            agentType: data.agentType,
+            licence: data.licence
+          }
+        })
+      } else {
 
-          await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data._id }, {
 
-            $set: {
+          $set: {
 
-              fullName: data.fullName,
-              contactNumber: data.contactNumber,
-              userID: data.userID,
-              vendorID: data.vendorID,
-              agentType: data.agentType,
+            fullName: data.fullName,
+            contactNumber: data.contactNumber,
+            userID: data.userID,
+            vendorID: data.vendorID,
+            agentType: data.agentType,
 
-            }
-          })
-        }
+          }
+        })
+      }
 
-        console.log("edited")
-        resolve({ flag: true })
-      
+      console.log("edited")
+      resolve({ flag: true })
+
 
 
 
@@ -1109,17 +1101,18 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
         $set: {
 
           shippingStatus: data.deliveryStatus,
-          remark:data.remarks
+          postponedremark: data.remarks,
+          postponeddate: new Date()
         }
       })
 
-       // check this order status POSTPONED
+      // check this order status POSTPONED
 
-        if(data.deliveryStatus === "POSTPONED"){
+      if (data.deliveryStatus === "POSTPONED") {
 
-          resolve({ flag: true })
-          return;
-        }
+        resolve({ flag: true })
+        return;
+      }
 
 
       // check this order status DELIVERED
@@ -1131,7 +1124,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
         await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
           $set: {
-          
+
             paymentMode: data.pymentType
           }
         })
@@ -1211,7 +1204,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
       } else {
 
-           
+
       }
 
 
@@ -1247,15 +1240,15 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
 //       result = await orderProductModel.aggregate([
 //         {
-         
+
 //           $match: {
 //             deliveryAgentId: data._id,
 //             shippingStatus:data.shippingStatus
-            
+
 //           },
 //         },
 //         {
-        
+
 //           $lookup: {
 //             from: 'orders', 
 //             localField: 'orderId',  
@@ -1264,7 +1257,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //           },
 //         },
 //         {
-         
+
 //           $unwind: {
 //             path: '$userDetails',
 //             preserveNullAndEmptyArrays: true,  
@@ -1277,7 +1270,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //           $limit: data.size,
 //         },
 //         {
-        
+
 //           $project: {
 //             _id: 1,
 //             orderId: 1,
@@ -1288,7 +1281,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //             orderDate: 1,
 //             shippingStatus: 1,
 //             deliveryAgentId: 1,
-          
+
 //             userName: "$userDetails.shippingAddress.firstname",
 //             email: "$userDetails.shippingAddress.email",
 //             mobileNumber: "$userDetails.shippingAddress.mobile",
@@ -1305,19 +1298,19 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //         },
 //       ]);
 
-           
+
 //      }else{
- 
+
 //         console.log("w shipping")
 //       result = await orderProductModel.aggregate([
 //         {
-         
+
 //           $match: {
 //             deliveryAgentId: data._id,
 //           },
 //         },
 //         {
-        
+
 //           $lookup: {
 //             from: 'orders', 
 //             localField: 'orderId',  
@@ -1326,7 +1319,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //           },
 //         },
 //         {
-         
+
 //           $unwind: {
 //             path: '$userDetails',
 //             preserveNullAndEmptyArrays: true,  
@@ -1339,7 +1332,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //           $limit: data.size,
 //         },
 //         {
-        
+
 //           $project: {
 //             _id: 1,
 //             orderId: 1,
@@ -1350,7 +1343,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //             orderDate: 1,
 //             shippingStatus: 1,
 //             deliveryAgentId: 1,
-          
+
 //             userName: "$userDetails.shippingAddress.firstname",
 //             email: "$userDetails.shippingAddress.email",
 //             mobileNumber: "$userDetails.shippingAddress.mobile",
@@ -1366,17 +1359,17 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 //           },
 //         },
 //       ]);
-         
+
 //      }
 
-      
+
 
 //       let response:any = {
 //         records: [],
 //         maxRecords: 0
 //       };
 
-     
+
 //       if (result.length) {
 //         response.records = result || [];
 //         response.maxRecords =dataSize?.length  || 0;
@@ -1393,18 +1386,18 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
 // updated
 
-export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId,page:number,size:number ,shippingStatus?:any}): Promise<any> => {
+export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
-       let dataSize:any
-       let result:any
-       let matchObj: any = {deliveryAgentId: data._id }
-       console.log("input ",data)
-     if(data.shippingStatus){
-      matchObj.shippingStatus = data.shippingStatus
-     }
-    //  if(data.shippingStatus){
-      dataSize=await orderProductModel.find(matchObj)
+      let dataSize: any
+      let result: any
+      let matchObj: any = { deliveryAgentId: data._id }
+      console.log("input ", data)
+      if (data.shippingStatus) {
+        matchObj.shippingStatus = data.shippingStatus
+      }
+      //  if(data.shippingStatus){
+      dataSize = await orderProductModel.find(matchObj)
       result = await orderProductModel.aggregate([
         {
           $match: matchObj,
@@ -1438,6 +1431,12 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
           }
         },
         {
+
+          $sort: {
+            createdAt: -1
+          }
+        },
+        {
           $skip: data.page * data.size,
         },
         {
@@ -1448,18 +1447,18 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
             _id: 1,
             orderId: 1,
             userId: 1,
-            itemId:1,
+            itemId: 1,
             productName: 1,
             sellingPrice: 1,
             paymentStatus: 1,
-            paymentMode:1,
-            orderDate:1,
+            paymentMode: 1,
+            orderDate: 1,
             shippingStatus: 1,
             deliveryAgentId: 1,
             userName: {
-               $concat: [ "$userDetails.firstName", " ", "$userDetails.lastName" ]
+              $concat: ["$userDetails.firstName", " ", "$userDetails.lastName"]
             },
-            
+
             email: "$orderDetails.shippingAddress.email",
             mobileNumber: "$orderDetails.shippingAddress.mobile",
             country: "$orderDetails.shippingAddress.country",
@@ -1473,66 +1472,66 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
           },
         },
       ]);
-    //  }else{
-    //     console.log("w shipping")
-    //   result = await orderProductModel.aggregate([
-    //     {
-    //       $match: {
-    //         deliveryAgentId: data._id,
-    //       },
-    //     },
-    //     {
-    //       $lookup: {
-    //         from: 'orders',
-    //         localField: 'orderId',
-    //         foreignField: 'orderId',
-    //         as: 'userDetails',
-    //       },
-    //     },
-    //     {
-    //       $unwind: {
-    //         path: '$userDetails',
-    //         preserveNullAndEmptyArrays: true,
-    //       },
-    //     },
-    //     {
-    //       $skip: data.page * data.size,
-    //     },
-    //     {
-    //       $limit: data.size,
-    //     },
-    //     {
-    //       $project: {
-    //         _id: 1,
-    //         orderId: 1,
-    //         userId: 1,
-    //         productName: 1,
-    //         sellingPrice: 1,
-    //         paymentStatus: 1,
-    //         orderDate: 1,
-    //         shippingStatus: 1,
-    //         deliveryAgentId: 1,
-    //         userName: "$userDetails.shippingAddress.firstname",
-    //         email: "$userDetails.shippingAddress.email",
-    //         mobileNumber: "$userDetails.shippingAddress.mobile",
-    //         country: "$userDetails.shippingAddress.country",
-    //         houseNumber: "$userDetails.shippingAddress.houseNumber",
-    //         streetName: "$userDetails.shippingAddress.streetName",
-    //         apartment: "$userDetails.shippingAddress.apartment",
-    //         suite: "$userDetails.shippingAddress.suite",
-    //         unit: "$userDetails.shippingAddress.unit",
-    //         city: "$userDetails.shippingAddress.city",
-    //         postCode: "$userDetails.shippingAddress.postCode"
-    //       },
-    //     },
-    //   ]);
-    //  }
+      //  }else{
+      //     console.log("w shipping")
+      //   result = await orderProductModel.aggregate([
+      //     {
+      //       $match: {
+      //         deliveryAgentId: data._id,
+      //       },
+      //     },
+      //     {
+      //       $lookup: {
+      //         from: 'orders',
+      //         localField: 'orderId',
+      //         foreignField: 'orderId',
+      //         as: 'userDetails',
+      //       },
+      //     },
+      //     {
+      //       $unwind: {
+      //         path: '$userDetails',
+      //         preserveNullAndEmptyArrays: true,
+      //       },
+      //     },
+      //     {
+      //       $skip: data.page * data.size,
+      //     },
+      //     {
+      //       $limit: data.size,
+      //     },
+      //     {
+      //       $project: {
+      //         _id: 1,
+      //         orderId: 1,
+      //         userId: 1,
+      //         productName: 1,
+      //         sellingPrice: 1,
+      //         paymentStatus: 1,
+      //         orderDate: 1,
+      //         shippingStatus: 1,
+      //         deliveryAgentId: 1,
+      //         userName: "$userDetails.shippingAddress.firstname",
+      //         email: "$userDetails.shippingAddress.email",
+      //         mobileNumber: "$userDetails.shippingAddress.mobile",
+      //         country: "$userDetails.shippingAddress.country",
+      //         houseNumber: "$userDetails.shippingAddress.houseNumber",
+      //         streetName: "$userDetails.shippingAddress.streetName",
+      //         apartment: "$userDetails.shippingAddress.apartment",
+      //         suite: "$userDetails.shippingAddress.suite",
+      //         unit: "$userDetails.shippingAddress.unit",
+      //         city: "$userDetails.shippingAddress.city",
+      //         postCode: "$userDetails.shippingAddress.postCode"
+      //       },
+      //     },
+      //   ]);
+      //  }
 
 
-    console.log("result",result)
+      console.log("result", result)
 
-    
-      let response:any = {
+
+      let response: any = {
         records: [],
         maxRecords: 0
       };
@@ -1540,9 +1539,9 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 
       if (result.length) {
         response.records = result || [];
-        response.maxRecords =dataSize?.length  || 0;
+        response.maxRecords = dataSize?.length || 0;
       }
-    
+
       resolve(response);
     } catch (error) {
       reject(error);
@@ -1553,7 +1552,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 
 
 
-export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.ObjectId }):Promise<any> => {
+export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.ObjectId }): Promise<any> => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -1566,7 +1565,7 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
         {
           // Match orders assigned to the specific delivery agent
           $match: {
-            _id:data._id
+            _id: data._id
           },
         },
         {
@@ -1594,18 +1593,29 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             productName: 1,
             sellingPrice: 1,
             paymentStatus: 1,
-            paymentMode:1,
+            paymentMode: 1,
             orderDate: 1,
             shippingStatus: 1,
             deliveryAgentId: 1,
-            returnPeriod:1,
-            returnStatus:1,
-            returnUserReason:1,
-            returnProductImage:1,
-            returnAddress:1,
-            returnAdminComment:1,
-            returnRequestDate:1,
-            returnOrderAssignedOn:1,
+            returnPeriod: 1,
+            returnStatus: 1,
+            returnUserReason: 1,
+            returnProductImage: 1,
+            returnAddress: 1,
+            returnAdminComment: 1,
+            returnRequestDate: 1,
+            returnOrderAssignedOn: 1,
+            deliveyremark: 1,
+            cancelremark: 1,
+            postponedremark: 1,
+            deliveredMapLocation: 1,
+            deliveryAssignedOn: 1,
+            returnRejectedDate: 1,
+            returnRejectedRemarks: 1,
+            returnPostponedDate: 1,
+            returnPostponedRemarks: 1,
+            returnCollectedDate: 1,
+
             // User information from the aggregated userDetails
             userName: "$userDetails.shippingAddress.firstname",
             email: "$userDetails.shippingAddress.email",
@@ -1623,9 +1633,9 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
         },
       ]);
 
-      console.log("res",final)
-      
-      const result=final[0]
+      console.log("res", final)
+
+      const result = final[0]
 
       resolve(result)
 
@@ -1634,194 +1644,192 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
       reject(error);
     }
   })
-   
-      
-
-}         
 
 
 
-export const deliveryTimeOtpGenerate=async(orderItemId:Types.ObjectId):Promise<any>=>{
-
-       return new Promise(async(resolve,reject)=>{
-
-             try {
-
-              // generate otp
-
-              const otpResponse=await otpService.generateOtp()
-              console.log("otp",otpResponse)
-
-              // sent this otp to user number
-
-                      
-              
-              // save this otp to  database
-
-                 
-              await orderProductModel.findByIdAndUpdate({_id:orderItemId},{
-                    $set:{
-
-                          'otp.code':otpResponse.code,
-                          'otp.expiresAt':otpResponse.expiresAt
-                    }
-              })
-              
-              resolve({flag:true})
-              
-             } catch (error) {
-              
-                  
-                  reject("OTP generation failed")
-             }
-       })
 }
 
 
-export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId, code: string, returnStatus?: string, returnRemark?: string ,agentId:Types.ObjectId}): Promise<any> => {
+
+export const deliveryTimeOtpGenerate = async (orderItemId: Types.ObjectId): Promise<any> => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      // generate otp
+
+      const otpResponse = await otpService.generateOtp()
+      console.log("otp", otpResponse)
+
+      // sent this otp to user number
+
+
+
+      // save this otp to  database
+
+
+      await orderProductModel.findByIdAndUpdate({ _id: orderItemId }, {
+        $set: {
+
+          'otp.code': otpResponse.code,
+          'otp.expiresAt': otpResponse.expiresAt
+        }
+      })
+
+      resolve({ flag: true })
+
+    } catch (error) {
+
+
+      reject("OTP generation failed")
+    }
+  })
+}
+
+
+
+
+
+export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId, code: string, deliveryStatus?: string, paymentMode?: string, remarks?: string, returnStatus?: string, returnRemark?: string, agentId: Types.ObjectId }): Promise<any> => {
   try {
-      // Fetch OTP data from the orderProduct collection
-      const otpData = await orderProductModel.findOne({ _id: data.orderItemId, 'otp.code': data.code });
+    // Fetch OTP data from the orderProduct collection
+    const otpData = await orderProductModel.findOne({ _id: data.orderItemId, 'otp.code': data.code });
+    // Check if the OTP data exists
+    if (!otpData) {
+      throw new Error('Invalid OTP');
+    }
+    // Validate OTP expiration
+    const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
+    if (isExpired) {
+      throw new Error('Expired OTP');
+    }
+    const agent = await deliveryAgentModel.findOne({ _id: data.agentId })
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+    const result: any = {};
+    if (data.returnStatus) {
 
-      // Check if the OTP data exists
-      if (!otpData) {
-          throw new Error('Invalid OTP');
-      }
 
-      // Validate OTP expiration
-      const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
-      if (isExpired) {
-          throw new Error('Expired OTP');
-      }
-
-      const agent=await deliveryAgentModel.findOne({_id:data.agentId})
-
-      if (!agent) {
-        throw new Error('Agent not found');
-      }
-
-      const result: any = {};
-
-      
-
-      if (data.returnStatus) {
-        if (data.returnStatus === 'REJECTED') {
-            agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
-
-            result.returnStatus = data.returnStatus;
-            result.returnRejectedDate = new Date();
-            if (data.returnRemark) {
-                result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
-            }
+      if (data.returnStatus === 'REJECTED') {
+        agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
+        result.returnStatus = data.returnStatus;
+        result.returnRejectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
         }
-
-        if (data.returnStatus === 'COLLECTED') {
-            agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
-            agent.wallet.numberOfPendingReturns -= 1;   // Decrement the number of returns  pending
-           
-
-            result.returnStatus = data.returnStatus;
-            result.returnCollectedDate = new Date();
-            if (data.returnRemark) {
-                result.returnCollectedRemarks = data.returnRemark;  // Only set returnRemark if provided
-            }
-        }
-
-
-                const updateFields: any = {
-                  'otp.code': '',
-                  'otp.expiresAt': ''
-              };
-          
-              // Add return status and remarks to the update fields if they are provided
-              if (result.returnStatus) {
-                  updateFields['returnStatus'] = result.returnStatus;
-              }
-              if (result.returnRejectedDate) {
-                  updateFields['returnRejectedDate'] = result.returnRejectedDate;
-              }
-              if (result.returnRejectedRemarks) {
-                  updateFields['returnRejectedRemarks'] = result.returnRejectedRemarks;
-              }
-              if (result.returnCollectedDate) {
-                  updateFields['returnCollectedDate'] = result.returnCollectedDate;
-              }
-              if (result.returnCollectedRemarks) {
-                  updateFields['returnCollectedRemarks'] = result.returnCollectedRemarks;
-              }
-          
-          
-          // Reset OTP fields in the order product document
-          await orderProductModel.findByIdAndUpdate(data.orderItemId, { $set: updateFields });
-
                 // Resolve with a success response
-                return { flag: true };
+         return { flag: true };
+      }
+      if (data.returnStatus === 'COLLECTED') {
+        agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
+        agent.wallet.numberOfPendingReturns -= 1;   // Decrement the number of returns  pending
+        result.returnStatus = data.returnStatus;
+        result.returnCollectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnCollectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+        }
       }
 
 
+      const updateFields: any = {
+        'otp.code': '',
+        'otp.expiresAt': ''
+      };
+      // Add return status and remarks to the update fields if they are provided
+      if (result.returnStatus) {
+        updateFields['returnStatus'] = result.returnStatus;
+      }
+      if (result.returnRejectedDate) {
+        updateFields['returnRejectedDate'] = result.returnRejectedDate;
+      }
+      if (result.returnRejectedRemarks) {
+        updateFields['returnRejectedRemarks'] = result.returnRejectedRemarks;
+      }
+      if (result.returnCollectedDate) {
+        updateFields['returnCollectedDate'] = result.returnCollectedDate;
+      }
+      if (result.returnCollectedRemarks) {
+        updateFields['returnCollectedRemarks'] = result.returnCollectedRemarks;
+      }
+      // Reset OTP fields in the order product document
+      await orderProductModel.findByIdAndUpdate(data.orderItemId, { $set: updateFields });
+      // Resolve with a success response
+      return { flag: true };
+    }
 
 
-      // if (data.deliveryStatus) {
-      //      if (data.deliveryStatus === "DELIVERED") {
-      //   // uppdate this order product delivery status , pymentmode,delivery remark
-      //             await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-      //               $set: {
-      //                 shippingStatus: data.deliveryStatus,
-      //                 paymentMode: data.paymentMode,
-      //                 deliveyremark: data.remarks,
-      //                 deliveryDate: new Date()
-      //               }
-      //             })
-      //   // update delivery agent numberOfOrderDelivered count
-      //   await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-      //     $inc: {
-      //       'wallet.numberOfOrderDelivered': 1
-      //     }
-      //   })
-      //   // check this order pyment type is COD
-      //   if (data.paymentMode === "COD") {
-      //     // update this order product pyment status
-      //     await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-      //       $set: {
-      //         paymentStatus: "COMPLETED"
-      //       }
-      //     })
-      //     // get this order product price
-      //     const orderProduct = await orderProductModel.findOne({ _id: data.orderItemId })
-      //     let productPrice: any = orderProduct?.sellingPrice
-      //     productPrice = parseFloat(productPrice)
-      //     // genarat transaction logs
-      //     const obj = {
-      //       agentId: data.agentId,
-      //       amount: productPrice,
-      //       orderId: data.orderItemId,
-      //       remarks: data.remarks
-      //     }
-      //     await transactionlogs.orderDeliverytimeTransactionLogs(obj)
-      //     // update delivery agent wallet
-      //     await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-      //       $inc: {
-      //         'wallet.cashInHand': productPrice,
-      //         'wallet.grandTotal': productPrice,
-      //       }
-      //     })
-      //     return ({ flag: true })
-      //   } else {
-      //     return ({ flag: true })
-      //   }
-         
-      //   }
-      // };
+    if (data.deliveryStatus) {
+      if (data.deliveryStatus === "DELIVERED") {
+        // uppdate this order product delivery status , pymentmode,delivery remark
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            paymentMode: data.paymentMode,
+            deliveyremark: data.remarks,
+            deliveryDate: new Date()
+          }
+        })
+        // update delivery agent numberOfOrderDelivered count
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+          $inc: {
+            'wallet.numberOfOrderDelivered': 1
+          }
+        })
+        // check this order pyment type is COD
+        if (data.paymentMode === "COD") {
+          // update this order product pyment status
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+            $set: {
+              paymentStatus: "COMPLETED"
+            }
+          })
+          // get this order product price
+          const orderProduct = await orderProductModel.findOne({ _id: data.orderItemId })
+          let productPrice: any = orderProduct?.sellingPrice
+          productPrice = parseFloat(productPrice)
+          // genarat transaction logs
+          const obj = {
+            agentId: data.agentId,
+            amount: productPrice,
+            orderId: data.orderItemId,
+            remarks: data.remarks
+          }
+          await transactionlogs.orderDeliverytimeTransactionLogs(obj)
+          // update delivery agent wallet
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+            $inc: {
+              'wallet.cashInHand': productPrice,
+              'wallet.grandTotal': productPrice,
+            }
+          })
+          return ({ flag: true })
+        } else {
+          return ({ flag: true })
+        }
+      }
+    };
 
-
+    
     await agent.save();
-     
-     return ({ flag: false })
-
-  } catch (error:any) {
-      // Reject with a specific error message
-      throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+    return ({ flag: false })
+  } catch (error: any) {
+    // Reject with a specific error message
+    throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 

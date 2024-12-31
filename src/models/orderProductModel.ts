@@ -149,7 +149,7 @@ const orderProductSchema = new Schema(
         },
         paymentMode: {
             type: String,
-            enum: ["COD", "ONLINE"],
+            enum: ["COD", "ONLINE","CARD"],
             required: true,
             default: "COD",
             index: true,
@@ -170,7 +170,7 @@ const orderProductSchema = new Schema(
         },
         shippingStatus: {
             type: String,
-            enum: ["NA", "PENDING", "PACKAGE_IN_PROGRESS", "SHIPPED", "DELIVERED", "CANCELED"],
+            enum: ["NA", "PENDING", "PACKAGE_IN_PROGRESS", "SHIPPED", "DELIVERED", "CANCELED","POSTPONED"],
             default: "NA",
             required: true,
         },
@@ -286,8 +286,23 @@ const orderProductSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: collections.DELIVERYAGENT
         },
-        remark:{
+        deliveyremark:{
              type:String
+        },
+        cancelremark:{
+            
+            type:String
+        },
+        postponedremark:{
+             type:String
+        },
+        postponeddate:{
+
+              type:Date
+        },
+        canceldate:{
+              
+             type:Date
         },
         otp:{
 
