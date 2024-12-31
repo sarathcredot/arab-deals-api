@@ -85,6 +85,7 @@ export interface IDeliveryAgentFilter {
     numberOfOrderDelivered: number;
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
+    numberOfPendingReturns:number;
   };
   settlementHistory: Types.ObjectId[] | ISettlement[];
 }
@@ -109,6 +110,7 @@ export interface IDeliveryAgentDocument extends Document {
     numberOfOrderDelivered: number;
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
+    numberOfPendingReturns:number;
   };
   lastSettlementID:Types.ObjectId;
   settlementHistory: Types.ObjectId[];
@@ -524,7 +526,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
       // update delivery agent total order count
       await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
         $inc: {
-          'wallet.numberOfReturnOrderAssigned': 1
+          'wallet.numberOfReturnOrderAssigned': 1,
+          'wallet.numberOfPendingReturns': 1
         }
       })
 
@@ -1701,7 +1704,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
       if (data.returnStatus) {
         if (data.returnStatus === 'REJECTED') {
-            agent.wallet.numberOfReturnOrderDelivered -= 1;  // Decrement the number of returns delivered
+            agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
 
             result.returnStatus = data.returnStatus;
             result.returnRejectedDate = new Date();
@@ -1711,7 +1714,9 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         }
 
         if (data.returnStatus === 'COLLECTED') {
-            agent.wallet.numberOfReturnOrderDelivered -= 1;  // Decrement the number of returns delivered
+            agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
+            agent.wallet.numberOfPendingReturns -= 1;   // Decrement the number of returns  pending
+
 
             result.returnStatus = data.returnStatus;
             result.returnCollectedDate = new Date();

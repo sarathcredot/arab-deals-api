@@ -639,8 +639,6 @@ export const deliveryAgentResolver: Resolvers = {
 
        }
 
-     
-
        if(returnStatus === "COLLECTED" || returnStatus === "REJECTED" ){
         console.log("called")
           // agent.wallet.numberOfReturnOrderDelivered+=1;
@@ -663,7 +661,7 @@ export const deliveryAgentResolver: Resolvers = {
        }
 
 
-       return {
+    return {
         status: false,
         otp: false,
         msg: "Erro in Updating Status",
