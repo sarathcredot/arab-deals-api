@@ -85,7 +85,7 @@ export interface IDeliveryAgentFilter {
     numberOfOrderDelivered: number;
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
-    numberOfPendingReturns:number;
+    numberOfPendingReturns: number;
   };
   settlementHistory: Types.ObjectId[] | ISettlement[];
 }
@@ -110,7 +110,7 @@ export interface IDeliveryAgentDocument extends Document {
     numberOfOrderDelivered: number;
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
-    numberOfPendingReturns:number;
+    numberOfPendingReturns: number;
   };
   lastSettlementID: Types.ObjectId;
   settlementHistory: Types.ObjectId[];
@@ -503,20 +503,18 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 
 
 
+
+
+
 export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
   try {
     const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
-
-
     if (assignOrder) {
       // check is this first assigning or reassigning
-
       if (assignOrder.returnStatus === "APPROVED") {
         if (!assignOrder.returndeliveryAgentId) {
-
-          // add order products model assign agent id and name 
+          // add order products model assign agent id and name
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-
             $set: {
               returnOrderAssignedOn: new Date(),
               returndeliveryAgentId: data.deliveryAgentId,
@@ -526,64 +524,48 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           // update delivery agent total order count
           await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
             $inc: {
-              'wallet.numberOfReturnOrderAssigned': 1
+              'wallet.numberOfReturnOrderAssigned': 1,
+              'wallet.numberOfPendingReturns': 1
             }
           })
-
           return true
-
         } else {
           // reassign this oder to new delivery agent
           // find old delivery agent and update this agent numberOfOrderAssigned count
-
           await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
             $inc: {
               'wallet.numberOfReturnOrderAssigned': -1
             }
           })
-
-          //  this order reassign to new delivery agent 
+          //  this order reassign to new delivery agent
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-
             $set: {
               returndeliveryAgentId: data.deliveryAgentId,
               returndeliveryAgentName: data.deliveryAgentName
             }
           })
-
           // update this new new agent numberOfOrderAssigned count
-
           await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
             $inc: {
               'wallet.numberOfReturnOrderAssigned': 1
             }
           })
         }
-<<<<<<< HEAD
-=======
-      })
-      // update delivery agent total order count
-      await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
-        $inc: {
-          'wallet.numberOfReturnOrderAssigned': 1,
-          'wallet.numberOfPendingReturns': 1
-        }
-      })
->>>>>>> 30604f82f91af1f8c07ab668cabfc5f49ded08a1
-
         return true
       } else {
         return false
       }
-
     } else {
-
       return false
     }
   } catch (error) {
     return false
   }
 }
+
+
+
+
 
 
 
@@ -1706,36 +1688,137 @@ export const deliveryTimeOtpGenerate = async (orderItemId: Types.ObjectId): Prom
 }
 
 
+
+
+
 export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId, code: string, deliveryStatus?: string, paymentMode?: string, remarks?: string, returnStatus?: string, returnRemark?: string, agentId: Types.ObjectId }): Promise<any> => {
   try {
     // Fetch OTP data from the orderProduct collection
     const otpData = await orderProductModel.findOne({ _id: data.orderItemId, 'otp.code': data.code });
-
     // Check if the OTP data exists
     if (!otpData) {
       throw new Error('Invalid OTP');
     }
-
     // Validate OTP expiration
     const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
     if (isExpired) {
       throw new Error('Expired OTP');
     }
-
     const agent = await deliveryAgentModel.findOne({ _id: data.agentId })
-
     if (!agent) {
       throw new Error('Agent not found');
     }
-                                                              
+    const result: any = {};
+    if (data.returnStatus) {
+      if (data.returnStatus === 'REJECTED') {
+        agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
+        result.returnStatus = data.returnStatus;
+        result.returnRejectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+        }
+      }
+      if (data.returnStatus === 'COLLECTED') {
+        agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
+        agent.wallet.numberOfPendingReturns -= 1;   // Decrement the number of returns  pending
+        result.returnStatus = data.returnStatus;
+        result.returnCollectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnCollectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+        }
+      }
+      const updateFields: any = {
+        'otp.code': '',
+        'otp.expiresAt': ''
+      };
+      // Add return status and remarks to the update fields if they are provided
+      if (result.returnStatus) {
+        updateFields['returnStatus'] = result.returnStatus;
+      }
+      if (result.returnRejectedDate) {
+        updateFields['returnRejectedDate'] = result.returnRejectedDate;
+      }
+      if (result.returnRejectedRemarks) {
+        updateFields['returnRejectedRemarks'] = result.returnRejectedRemarks;
+      }
+      if (result.returnCollectedDate) {
+        updateFields['returnCollectedDate'] = result.returnCollectedDate;
+      }
+      if (result.returnCollectedRemarks) {
+        updateFields['returnCollectedRemarks'] = result.returnCollectedRemarks;
+      }
+      // Reset OTP fields in the order product document
+      await orderProductModel.findByIdAndUpdate(data.orderItemId, { $set: updateFields });
+      // Resolve with a success response
+      return { flag: true };
+    }
+    if (data.deliveryStatus) {
+      if (data.deliveryStatus === "DELIVERED") {
+        // uppdate this order product delivery status , pymentmode,delivery remark
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            paymentMode: data.paymentMode,
+            deliveyremark: data.remarks,
+            deliveryDate: new Date()
+          }
+        })
+        // update delivery agent numberOfOrderDelivered count
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+          $inc: {
+            'wallet.numberOfOrderDelivered': 1
+          }
+        })
+        // check this order pyment type is COD
+        if (data.paymentMode === "COD") {
+          // update this order product pyment status
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+            $set: {
+              paymentStatus: "COMPLETED"
+            }
+          })
+          // get this order product price
+          const orderProduct = await orderProductModel.findOne({ _id: data.orderItemId })
+          let productPrice: any = orderProduct?.sellingPrice
+          productPrice = parseFloat(productPrice)
+          // genarat transaction logs
+          const obj = {
+            agentId: data.agentId,
+            amount: productPrice,
+            orderId: data.orderItemId,
+            remarks: data.remarks
+          }
+          await transactionlogs.orderDeliverytimeTransactionLogs(obj)
+          // update delivery agent wallet
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+            $inc: {
+              'wallet.cashInHand': productPrice,
+              'wallet.grandTotal': productPrice,
+            }
+          })
+          return ({ flag: true })
+        } else {
+          return ({ flag: true })
+        }
+      }
+    };
+    await agent.save();
+    return ({ flag: false })
+  } catch (error: any) {
+    // Reject with a specific error message
+    throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+  }
+};
 
-      if (data.returnStatus) {
 
 
-        if (data.returnStatus === 'REJECTED') {
-            agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
 
-    // check this delivery status DELIVERED
+
+
+
+
+
+
 
 
 
