@@ -214,6 +214,7 @@ export const jobResolver: Resolvers = {
             // await verifyAdmin(req);
         
             let filters:deliveryAgentService.IAdminSettlementHistoryOptions  = { page: 0, size: 10 };
+            console.log("input.type",input.type)
             
             if (input.type) {
                 filters.type = input.type;

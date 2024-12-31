@@ -1710,6 +1710,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
     }
     const result: any = {};
     if (data.returnStatus) {
+
+
       if (data.returnStatus === 'REJECTED') {
         agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
         result.returnStatus = data.returnStatus;
@@ -1717,6 +1719,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         if (data.returnRemark) {
           result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
         }
+                // Resolve with a success response
+         return { flag: true };
       }
       if (data.returnStatus === 'COLLECTED') {
         agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
@@ -1727,6 +1731,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           result.returnCollectedRemarks = data.returnRemark;  // Only set returnRemark if provided
         }
       }
+
+
       const updateFields: any = {
         'otp.code': '',
         'otp.expiresAt': ''
@@ -1752,6 +1758,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
       // Resolve with a success response
       return { flag: true };
     }
+
+
     if (data.deliveryStatus) {
       if (data.deliveryStatus === "DELIVERED") {
         // uppdate this order product delivery status , pymentmode,delivery remark
@@ -1815,6 +1823,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
       }
     };
+
+    
     await agent.save();
     return ({ flag: false })
   } catch (error: any) {
