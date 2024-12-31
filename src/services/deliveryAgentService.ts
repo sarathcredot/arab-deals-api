@@ -1800,6 +1800,19 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         } else {
           return ({ flag: true })
         }
+      }else{
+
+            // delivery status  CANCELED
+
+            await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+              $set: {
+                shippingStatus: data.deliveryStatus,
+                cancelremark: data.remarks,
+                canceldate: new Date()
+              }
+            })
+
+
       }
     };
     await agent.save();
