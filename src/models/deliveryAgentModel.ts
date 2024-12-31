@@ -100,7 +100,12 @@ const deliveryAgentSchema = new Schema(
             numberOfReturnOrderDelivered:{
               type: Number,
               default: 0, 
+            },
+            numberOfPendingReturns:{
+              type: Number,
+              default: 0,
             }
+
           },
           lastSettlementID:{
             type: Types.ObjectId,
