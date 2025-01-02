@@ -1801,7 +1801,7 @@ export const orderResolver: Resolvers = {
 
             try {
 
-                await verifyAdmin(req);
+                // await verifyAdmin(req);
                 // products id validation
                 await validateInput(validators.getProductDeliveryTypeDeliveryAgentsValidator, req)
 

@@ -168,6 +168,14 @@ const orderProductSchema = new Schema(
             required: true,
             default: Date.now()
         },
+        /**
+         * Order create = "PENDING"
+         * Order Processing = "PACKAGE_IN_PROGRESS"
+         * Assigned to delivery agent = "SHIPPED"
+         * Order Delivered = "DELIVERED"
+         * Order Cancelled = "CANCELED"
+         * Order Delivery Postponded (by delivery agent or admin) = "POSTPONED"
+         */
         shippingStatus: {
             type: String,
             enum: ["NA", "PENDING", "PACKAGE_IN_PROGRESS", "SHIPPED", "DELIVERED", "CANCELED","POSTPONED"],
