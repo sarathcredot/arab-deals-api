@@ -502,10 +502,6 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 };
 
 
-
-
-
-
 export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
   try {
     const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
@@ -562,11 +558,6 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
     return false
   }
 }
-
-
-
-
-
 
 
 type Editrespo = {
@@ -1811,7 +1802,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
       }
     };
 
-    
+
     await agent.save();
     return ({ flag: false })
   } catch (error: any) {
