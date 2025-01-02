@@ -21,5 +21,6 @@ export const collections = {
     ORDERS: "orders",
     ORDER_PRODUCTS: "order_products",
     COUNTRIES: "countries",
-    JOBS: "jobs"
+    JOBS: "jobs",
+    DELIVERY_AGENT_CONFIGS: "delivery_agent_configs",
 }

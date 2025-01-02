@@ -283,6 +283,73 @@ export const adminResolver: Resolvers = {
       }
     },
 
+
+    // create deliveryagent config
+
+
+    cretaeDeliveryAgentConfig: async (parent, { input }, { req }, info) => {
+
+
+      try {
+
+        const limit=input.limit || 0
+
+        await adminService.cretaeDeliveryAgentConfig(limit)
+
+       return{
+
+          status:true,
+          msg:""
+       }
+          
+
+      } catch (error:any) {
+         
+        throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+
+
+    },
+
+    
+    updateDeliveryAgentConfig:async(parent, { input }, { req }, info)=>{
+
+            try {
+
+               await adminService.updateDeliveryAgentConfig({_id:input._id,limit:input.limit || 0})  
+               
+               return{
+
+                   status:true,
+                   msg:""
+               }
+              
+            } catch (error:any) {
+              
+              throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+                extensions: {
+                  code: "BAD_REQUEST",
+                  errors: []
+                }
+              });
+            }
+    },
+
+   
+
+
+
+
+
+
+
+
+
     logoutAdmin: async (parent, { }, { req }, info) => {
       await verifyAdmin(req);
       await adminService.logoutAdmin(req.authAccount._id);
@@ -325,7 +392,26 @@ export const adminResolver: Resolvers = {
         throw error;
       }
 
-    }
+    },
+
+    getAllDeliveryAgentConfig:async(parent, {},{ req }, info)=>{
+
+      try {
+
+       const result = await adminService.getAllDeliveryAgentConfig()
+
+       return result
+       
+      } catch (error) {
+       
+       throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+         extensions: {
+           code: "BAD_REQUEST",
+           errors: []
+         }
+       });
+      }
+},
   },
 };
 

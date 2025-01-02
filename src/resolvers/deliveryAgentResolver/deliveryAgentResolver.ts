@@ -538,9 +538,9 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
 
-      } catch (error) {
+      } catch (error:any) {
 
-        throw new GraphQLError("Unable to assigen delivery agent", {
+        throw new GraphQLError(error, {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],

@@ -1,4 +1,6 @@
   scalar Upload
+  scalar ObjectId
+
 
 
 
@@ -12,7 +14,46 @@
   updateAdminProfile(input: AdminEditProfileInput!, image:Upload): UpdateAdminResponse!
   adminApprovalForVendor(input: adminApprovalForVendorInput!): adminApprovalForVendorResponse!
   logoutAdmin:LogoutAdminResponse!
+  cretaeDeliveryAgentConfig(input:cretaeDeliveryAgentConfigInput!):cretaeDeliveryAgentConfigResponse!
+  updateDeliveryAgentConfig(input:updateDeliveryAgentConfigInput!):cretaeDeliveryAgentConfigResponse!
+  
 }
+
+
+type getAllDeliveryAgentConfigResponse{
+
+       _id:ObjectId,
+       orderAssignLimit:Int
+}
+
+
+input updateDeliveryAgentConfigInput{
+
+        _id:ObjectId
+        limit:Int
+}
+
+
+
+
+
+
+input cretaeDeliveryAgentConfigInput{
+
+       limit:Int
+}
+
+
+type cretaeDeliveryAgentConfigResponse{
+
+       status:Boolean,
+       msg:String
+}
+
+
+
+
+
 
  type ImageData {
   fileType: String
@@ -92,6 +133,7 @@ type UpdateAdminResponse {
 
 type Query {
     getAdminRecord: getAdminRecordResponse
+    getAllDeliveryAgentConfig:getAllDeliveryAgentConfigResponse!
 }
 
 type getAdminRecordResponse{
