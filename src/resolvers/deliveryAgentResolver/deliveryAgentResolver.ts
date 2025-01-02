@@ -192,7 +192,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
-      const {  isAvailable } = input;
+      const { isAvailable } = input;
 
       // Validate the input
       if (!agentId) {
@@ -588,7 +588,7 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
 
-      } catch (error:any) {
+      } catch (error: any) {
 
         throw new GraphQLError(error, {
           extensions: {
@@ -653,7 +653,7 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(returnStatus)
 
       const result = await orderProductModel.findOne({ _id: orderProductId });
-     
+
 
       if (!result) {
         throw new GraphQLError("Order product not found", {
@@ -661,63 +661,63 @@ export const deliveryAgentResolver: Resolvers = {
         })
       }
 
-    
-      
 
-      if(returnStatus === "RETURNED TO WAREHOUSE"){
+
+
+      if (returnStatus === "RETURNED TO WAREHOUSE") {
         console.log("called")
-         result.returnStatus=returnStatus
-         result.returnDate=new Date();
-         await result.save()
-         return {
+        result.returnStatus = returnStatus
+        result.returnDate = new Date();
+        await result.save()
+        return {
           status: true,
-          otp:false,
+          otp: false,
           msg: "Order product status updated"
         }
       }
 
-      if(returnStatus === "POSTPONED"){
-        result.returnStatus=returnStatus
-        result.returnPostponedDate=new Date();
-        result.returnPostponedRemarks=remarks
+      if (returnStatus === "POSTPONED") {
+        result.returnStatus = returnStatus
+        result.returnPostponedDate = new Date();
+        result.returnPostponedRemarks = remarks
         await result.save()
         return {
           status: true,
-          otp:false,
+          otp: false,
           msg: "Order product status updated"
         }
 
-       }
+      }
 
-       if(returnStatus === "COLLECTED" || returnStatus === "REJECTED" ){
+      if (returnStatus === "COLLECTED" || returnStatus === "REJECTED") {
         console.log("called")
-          // agent.wallet.numberOfReturnOrderDelivered+=1;
+        // agent.wallet.numberOfReturnOrderDelivered+=1;
 
-          //generate otp and save and send to user
-          const result = await deliveryAgentService.deliveryTimeOtpGenerate(input.orderProductId)
-          console.log(result)
+        //generate otp and save and send to user
+        const result = await deliveryAgentService.deliveryTimeOtpGenerate(input.orderProductId)
+        console.log(result)
 
-          if (!result) {
-            throw new GraphQLError("Unable to generate otp", {
-              extensions: { code: "INTERNAL_SERVER_ERROR" },
-            })
-          }
+        if (!result) {
+          throw new GraphQLError("Unable to generate otp", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
+          })
+        }
 
-          return {
-            status: true,
-            otp: true,
-            msg: "Order product status updated"
-          }
-       }
+        return {
+          status: true,
+          otp: true,
+          msg: "Order product status updated"
+        }
+      }
 
 
-    return {
+      return {
         status: false,
         otp: false,
         msg: "Erro in Updating Status",
       };
-      
-      
+
+
     },
 
     //chage return status after otp verify from agent side
@@ -731,7 +731,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     //   const result = await orderProductModel.findOne({ _id: orderProductId });
     //   const agent=await deliveryAgentModel.findOne({_id:agentId})
-     
+
     //   if (!result) {
     //     throw new GraphQLError("Order product not found", {
     //       extensions: { code: "NOT_FOUND" },
@@ -798,7 +798,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         if (input.deliveryStatus === "POSTPONED") {
 
-console.log("postpond")
+          console.log("postpond")
           const obj = {
 
             deliveryAgentId: agentId,
@@ -818,7 +818,7 @@ console.log("postpond")
 
         } else {
 
-             // check this delivery status DELIVERED OR CANCELED OR RETURN
+          // check this delivery status DELIVERED OR CANCELED OR RETURN
 
           // share otp to user mobile number
           await deliveryAgentService.deliveryTimeOtpGenerate(input.orderItemId)
@@ -848,7 +848,7 @@ console.log("postpond")
 
     },
 
-   //api to verify otp and update status
+    //api to verify otp and update status
     deliveryStatusOtpVerify: async (parent, { input }, { req }, info) => {
 
       await verifyDeliveryAgent(req);
@@ -860,22 +860,22 @@ console.log("postpond")
           agentId: Types.ObjectId;
           orderItemId: any;
           code: string;
-          deliveryStatus:string  | undefined; 
-          paymentMode:string  | undefined; 
-          remarks:string  | undefined;
-          returnStatus: string | undefined;  
-          returnRemark: string | undefined;  
+          deliveryStatus: string | undefined;
+          paymentMode: string | undefined;
+          remarks: string | undefined;
+          returnStatus: string | undefined;
+          returnRemark: string | undefined;
         } = {
           agentId: agentId,
           orderItemId: input.orderItemId,
           code: input.code || " ",
-          returnStatus: input?.returnStatus || undefined,  
-          returnRemark: input?.returnRemark || undefined, 
-          deliveryStatus:input?.deliveryStatus|| undefined ,
-          paymentMode:input?.paymentMode || undefined,
-          remarks:input?.remarks || undefined
+          returnStatus: input?.returnStatus || undefined,
+          returnRemark: input?.returnRemark || undefined,
+          deliveryStatus: input?.deliveryStatus || undefined,
+          paymentMode: input?.paymentMode || undefined,
+          remarks: input?.remarks || undefined
         };
-        
+
 
         await deliveryAgentService.deliveryTimeOtpverify(options)
 
@@ -956,33 +956,33 @@ console.log("postpond")
 
       console.log(input);
 
-       let returnProduct = [];
+      let returnProduct = [];
 
-       let orderProductId: Types.ObjectId = input?.orderProductId;
+      let orderProductId: Types.ObjectId = input?.orderProductId;
 
-       const existingOrderProduct = await orderProductModel.findById(orderProductId);
-       if (!existingOrderProduct) {
-         throw new GraphQLError("Order product not found", {
-           extensions: { code: "NOT_FOUND" },
-         });
-       }
+      const existingOrderProduct = await orderProductModel.findById(orderProductId);
+      if (!existingOrderProduct) {
+        throw new GraphQLError("Order product not found", {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
 
       if (image) {
         try {
-          for(let images of image ){
+          for (let images of image) {
 
-          const { createReadStream, filename, mimetype, encoding } = await images;
-          const key = spaceService.getFileKey(filePaths.retrunProductImage, filename, []);
-          const stream = createReadStream();
-          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+            const { createReadStream, filename, mimetype, encoding } = await images;
+            const key = spaceService.getFileKey(filePaths.retrunProductImage, filename, []);
+            const stream = createReadStream();
+            const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-            returnProduct.push( {
-            fileType: "PUBLIC",
-            fileURL: file.location,
-            mimeType: mimetype,
-            originalName: filename
-          });
-        }
+            returnProduct.push({
+              fileType: "PUBLIC",
+              fileURL: file.location,
+              mimeType: mimetype,
+              originalName: filename
+            });
+          }
         } catch (error) {
           throw new GraphQLError("image upload failed", {
             extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
@@ -990,11 +990,11 @@ console.log("postpond")
         }
       }
 
-     
 
-      const result=await orderProductModel.findByIdAndUpdate(orderProductId,{returnProductImageUploadByAgent:returnProduct},{new:true})
 
-      if(!result){
+      const result = await orderProductModel.findByIdAndUpdate(orderProductId, { returnProductImageUploadByAgent: returnProduct }, { new: true })
+
+      if (!result) {
         throw new GraphQLError("Unable to upload return product image", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
@@ -1012,19 +1012,19 @@ console.log("postpond")
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-       let orderProductId: Types.ObjectId = input?.orderProductId;
-       let mapLocation:string = input?.mapLocation;
+      let orderProductId: Types.ObjectId = input?.orderProductId;
+      let mapLocation: string = input?.mapLocation;
 
-       const existingOrderProduct = await orderProductModel.findById(orderProductId);
-       if (!existingOrderProduct) {
-         throw new GraphQLError("Order product not found", {
-           extensions: { code: "NOT_FOUND" },
-         });
-       }
-     
-      const result=await orderProductModel.findByIdAndUpdate(orderProductId,{deliveredMapLocation:mapLocation},{new:true})
+      const existingOrderProduct = await orderProductModel.findById(orderProductId);
+      if (!existingOrderProduct) {
+        throw new GraphQLError("Order product not found", {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
 
-      if(!result){
+      const result = await orderProductModel.findByIdAndUpdate(orderProductId, { deliveredMapLocation: mapLocation }, { new: true })
+
+      if (!result) {
         throw new GraphQLError("Unable to update deliverd Map location", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
@@ -1101,7 +1101,7 @@ console.log("postpond")
             agentType: 1,
             vendorID: 1,
             isActive: 1,
-            isAvailable:1,
+            isAvailable: 1,
             licence: 1,
             lastSettlementID: 1,
             wallet: 1,
@@ -1310,7 +1310,7 @@ console.log("postpond")
             agentType: 1,
             vendorID: 1,
             isActive: 1,
-            isAvailable:1,
+            isAvailable: 1,
             licence: 1,
             wallet: 1,
             ID: 1,
@@ -1483,7 +1483,7 @@ console.log("postpond")
 
     //to get agent's settlemnt history in agent dashboard
 
-    getAgentSettlementHistoryByAgent: async (parent, {input}, { req }, info) => {
+    getAgentSettlementHistoryByAgent: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
@@ -1508,7 +1508,7 @@ console.log("postpond")
           query.type = type;
         }
 
-        
+
         const result = await settlementModel.find(query).sort({ createdAt: -1 });
 
         if (!result) {
@@ -1678,7 +1678,7 @@ console.log("postpond")
         return result;
 
 
-      } catch (error: any){
+      } catch (error: any) {
 
 
         throw new GraphQLError(error, {
