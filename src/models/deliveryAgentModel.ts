@@ -88,10 +88,12 @@ const deliveryAgentSchema = new Schema(
               default:0 
             },
             numberOfOrderAssigned:{
-              type: Number, 
+              type: Number,
+              default: 0, 
             },
             numberOfOrderDelivered:{
-              type: Number, 
+              type: Number,
+              default: 0, 
             },
             numberOfReturnOrderAssigned:{
               type: Number,
@@ -102,6 +104,11 @@ const deliveryAgentSchema = new Schema(
               default: 0, 
             },
             numberOfPendingReturns:{
+              type: Number,
+              default: 0,
+            },
+            
+            numberOfPendingOrdes:{
               type: Number,
               default: 0,
             }

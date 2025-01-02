@@ -227,7 +227,7 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
     const endIndex = startIndex + (options as any)?.limit || deliveryAgent.settlementHistory.length;
     deliveryAgent.settlementHistory = deliveryAgent.settlementHistory.slice(startIndex, endIndex);
   }
-
+console.log("agent details",deliveryAgent)
   return deliveryAgent;
 };
 
@@ -1024,7 +1024,8 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
             $inc: {
 
-              'wallet.numberOfOrderAssigned': 1
+              'wallet.numberOfOrderAssigned': 1,
+              'wallet.numberOfPendingOrdes':1
             }
           })
 
@@ -1041,7 +1042,8 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
             $inc: {
 
-              'wallet.numberOfOrderAssigned': -1
+              'wallet.numberOfOrderAssigned': -1,
+              'wallet.numberOfPendingOrdes':-1
             }
           })
 
@@ -1062,7 +1064,8 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
             $inc: {
 
-              'wallet.numberOfOrderAssigned': 1
+              'wallet.numberOfOrderAssigned': 1,
+              'wallet.numberOfPendingOrdes':1
             }
           })
 
@@ -1774,7 +1777,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         // update delivery agent numberOfOrderDelivered count
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
-            'wallet.numberOfOrderDelivered': 1
+            'wallet.numberOfOrderDelivered': 1,
+            'wallet.numberOfPendingOrdes':-1
           }
         })
         // check this order pyment type is COD
@@ -1818,6 +1822,16 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
                 cancelremark: data.remarks,
                 canceldate: new Date()
               }
+            })
+
+            // update delivery agent wallet details
+
+            await deliveryAgentModel.findByIdAndUpdate({_idl:data.agentId},{
+
+                  $inc:{
+
+                       'wallet.numberOfPendingOrdes':-1
+                  }
             })
 
 
