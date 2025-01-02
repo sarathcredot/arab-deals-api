@@ -530,7 +530,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           // find old delivery agent and update this agent numberOfOrderAssigned count
           await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
             $inc: {
-              'wallet.numberOfReturnOrderAssigned': -1
+              'wallet.numberOfReturnOrderAssigned': -1,
+              'wallet.numberOfPendingReturns': -1
             }
           })
           //  this order reassign to new delivery agent
@@ -543,7 +544,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           // update this new new agent numberOfOrderAssigned count
           await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
             $inc: {
-              'wallet.numberOfReturnOrderAssigned': 1
+              'wallet.numberOfReturnOrderAssigned': 1,
+              'wallet.numberOfPendingReturns': 1
             }
           })
         }

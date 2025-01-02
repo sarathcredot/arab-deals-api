@@ -20,6 +20,17 @@ type Mutation {
   addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
   updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
   updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
+  addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
+  updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
+  updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
+  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
+  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
+  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
+  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
+  createMobileUserShippingAddress(input: CreateMobileUserShippingAddressInput!): CreateMobileUserShippingAddressResponse!
+  editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
+  removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
+  updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input: userBlockInput!): userBlockResponse!
@@ -30,17 +41,6 @@ type Mutation {
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
   logoutMobileUser: LogoutMobileUserResponse!
-  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
-  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
-  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
-  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
-  createMobileUserShippingAddress(input: CreateMobileUserShippingAddressInput!): CreateMobileUserShippingAddressResponse!
-  editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
-  removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
-  updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
-  addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
-  updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
-  updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
@@ -123,19 +123,19 @@ type Query {
   getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
   getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
   getVendorOutletRecord: VendorOutletRecordResponse!
-  getUsersByAdmin(input: userFilters): usersResponse!
-  getUserRecordByAdmin(input: userInput!): userResponse!
-  getUserRecord: GetUserRecordResponse!
-  getUserRecordInMobile: GetUserRecordInMobileResponse!
+  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
+  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
   getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
   getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
   getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
-  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
-  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
-  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getUsersByAdmin(input: userFilters): usersResponse!
+  getUserRecordByAdmin(input: userInput!): userResponse!
+  getUserRecord: GetUserRecordResponse!
+  getUserRecordInMobile: GetUserRecordInMobileResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
@@ -710,150 +710,100 @@ type VendorOutletStatusUpdationResponse {
   message: String
 }
 
-input userLoginOtpInput {
-  mobileNumber: String!
+input UpdateVendorCompanyByAdminInput {
+  _id: ObjectId!
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  remarks: [String!]
 }
 
-input userLoginOtpInMobileInput {
-  mobileNumber: String!
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
 }
 
-input userBlockInput {
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
+  _id: String
+  fullName: String
+  isKycCompleted: String
+  companyName: String
+  companyType: String
+  status: String
+  crNumber: String
+}
+
+input AddVendorCompanyInput {
+  companyName: String!
+  companyType: String!
+  crNumber: String!
+}
+
+input UpdateVendorCompanyInput {
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+type AddVendorCompanyResponse {
   _id: String!
-  isBlocked: Boolean!
+  message: String
 }
 
-input userFilters {
+type UpdateVendorCompanyResponse {
+  message: String
+}
+
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyByAdminResponse {
+  message: String
+}
+
+input VendorCompanyIdInput {
+  _id: String!
+}
+
+input VendorCompanyRecordsByAdminFilter {
   page: Int
   size: Int
-  isBlocked: Boolean
-  query: String
+  status: String
+  fullName: String
+  companyName: String
+  vendorId: ObjectId
+  crNumber: String
 }
 
-input userVerifyOtpInput {
-  code: String!
-  _id: ObjectId!
-}
-
-input userVerifyOtpInMobileInput {
-  code: String!
-  _id: ObjectId!
-}
-
-input updateUserProfileInput {
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-}
-
-input UpdateUserProfileByAdminInput {
-  _id: ObjectId
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-  mobileNumber: String
-  isBlocked: Boolean
-}
-
-input updateUserProfileInMobileInput {
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-}
-
-input userInput {
-  _id: String!
-}
-
-type userBlockResponse {
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
   message: String
 }
 
-type userLoginOtpResponse {
-  message: String!
-  mobileNumber: String!
-  _id: ObjectId!
-}
-
-type userLoginOtpInMobileResponse {
-  message: String!
-  mobileNumber: String!
-  _id: ObjectId!
-}
-
-type userVerifyOtpResponse {
-  userId: String
-  token: String
-  message: String
-}
-
-type userVerifyOtpInMobileResponse {
-  userId: String
-  token: String
-  message: String
-}
-
-type userSignUpResponse {
-  _id: String
-  message: String
-  token: String
-}
-
-type user {
-  _id: String
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-  mobileNumber: String
-  isBlocked: Boolean
-}
-
-type usersResponse {
+type VendorCompanyRecordsByAdminResponse {
   maxRecords: Int!
-  records: [user!]
-}
-
-type updateUserProfileResponse {
+  records: [vendorCompanyRecordsWithKycData!]
   message: String
 }
 
-type UpdateUserProfileByAdminResponse {
+type VendorCompanyStatusUpdationResponse {
+  _id: String
   message: String
 }
 
-type updateUserProfileInMobileResponse {
-  message: String
-}
-
-type userResponse {
-  record: user
-  message: String
-}
-
-type userInMobileResponse {
-  record: user
-  message: String
-}
-
-type UserLogoutResponse {
-  _id: ObjectId!
-}
-
-type LogoutMobileUserResponse {
-  _id: ObjectId!
-}
-
-type GetUserRecordResponse {
-  record: user
-  message: String
-}
-
-type GetUserRecordInMobileResponse {
-  record: user
+type GetVendorCompanyRecordResponse {
+  record: VendorCompany!
   message: String
 }
 
@@ -1049,100 +999,150 @@ type GetMobileUserDefaultShippingAddressResponse {
   isDefault: Boolean
 }
 
-input UpdateVendorCompanyByAdminInput {
-  _id: ObjectId!
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  remarks: [String!]
+input userLoginOtpInput {
+  mobileNumber: String!
 }
 
-type VendorCompany {
-  _id: String
-  vendorId: String
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  crLicense: ImageData
-  cooCertificate: ImageData
-  remarks: [String]
+input userLoginOtpInMobileInput {
+  mobileNumber: String!
 }
 
-type vendorCompanyRecordsWithKycData {
-  vendorId: String
-  _id: String
-  fullName: String
-  isKycCompleted: String
-  companyName: String
-  companyType: String
-  status: String
-  crNumber: String
-}
-
-input AddVendorCompanyInput {
-  companyName: String!
-  companyType: String!
-  crNumber: String!
-}
-
-input UpdateVendorCompanyInput {
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-type AddVendorCompanyResponse {
+input userBlockInput {
   _id: String!
-  message: String
+  isBlocked: Boolean!
 }
 
-type UpdateVendorCompanyResponse {
-  message: String
-}
-
-type VendorCompanyDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyByAdminResponse {
-  message: String
-}
-
-input VendorCompanyIdInput {
-  _id: String!
-}
-
-input VendorCompanyRecordsByAdminFilter {
+input userFilters {
   page: Int
   size: Int
-  status: String
-  fullName: String
-  companyName: String
-  vendorId: ObjectId
-  crNumber: String
+  isBlocked: Boolean
+  query: String
 }
 
-type VendorCompanyRecordResponse {
-  record: VendorCompany!
+input userVerifyOtpInput {
+  code: String!
+  _id: ObjectId!
+}
+
+input userVerifyOtpInMobileInput {
+  code: String!
+  _id: ObjectId!
+}
+
+input updateUserProfileInput {
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+}
+
+input UpdateUserProfileByAdminInput {
+  _id: ObjectId
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+  mobileNumber: String
+  isBlocked: Boolean
+}
+
+input updateUserProfileInMobileInput {
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+}
+
+input userInput {
+  _id: String!
+}
+
+type userBlockResponse {
   message: String
 }
 
-type VendorCompanyRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorCompanyRecordsWithKycData!]
+type userLoginOtpResponse {
+  message: String!
+  mobileNumber: String!
+  _id: ObjectId!
+}
+
+type userLoginOtpInMobileResponse {
+  message: String!
+  mobileNumber: String!
+  _id: ObjectId!
+}
+
+type userVerifyOtpResponse {
+  userId: String
+  token: String
   message: String
 }
 
-type VendorCompanyStatusUpdationResponse {
+type userVerifyOtpInMobileResponse {
+  userId: String
+  token: String
+  message: String
+}
+
+type userSignUpResponse {
   _id: String
   message: String
+  token: String
 }
 
-type GetVendorCompanyRecordResponse {
-  record: VendorCompany!
+type user {
+  _id: String
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+  mobileNumber: String
+  isBlocked: Boolean
+}
+
+type usersResponse {
+  maxRecords: Int!
+  records: [user!]
+}
+
+type updateUserProfileResponse {
+  message: String
+}
+
+type UpdateUserProfileByAdminResponse {
+  message: String
+}
+
+type updateUserProfileInMobileResponse {
+  message: String
+}
+
+type userResponse {
+  record: user
+  message: String
+}
+
+type userInMobileResponse {
+  record: user
+  message: String
+}
+
+type UserLogoutResponse {
+  _id: ObjectId!
+}
+
+type LogoutMobileUserResponse {
+  _id: ObjectId!
+}
+
+type GetUserRecordResponse {
+  record: user
+  message: String
+}
+
+type GetUserRecordInMobileResponse {
+  record: user
   message: String
 }
 
