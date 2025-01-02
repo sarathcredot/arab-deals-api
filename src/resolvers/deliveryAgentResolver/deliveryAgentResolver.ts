@@ -1042,6 +1042,70 @@ console.log("postpond")
 
   Query: {
 
+    //to get agent's pending return orders list
+
+
+    getPendingReturnsByAgent: async (parent, { input }, { req }, info) => {
+      console.log("called")
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+
+      const page: number = input?.page || 0;
+      const limit: number = input?.limit || Infinity;
+
+      if (!agentId) {
+        throw new GraphQLError("All Fields are required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      const returnFilter: Record<string, any> = {
+        returndeliveryAgentId: agentId
+      };
+
+      if (input.returnStatus) {
+        returnFilter.returnStatus = input.returnStatus;
+      }
+
+      returnFilter.returnOrderAssignedOn=new Date()
+
+
+      console.log("returnFilter", returnFilter)
+
+      try {
+
+        const { records, totalCount } = await orderProductService.getReturnOrderProductWithFilters(
+          returnFilter,
+          {},
+          { lean: true, page, limit },
+        );
+
+
+        console.log(records)
+        console.log(totalCount)
+
+        return {
+          records,
+          totalCount,
+          page,
+          totalPages: Math.ceil(totalCount / limit),
+        };
+
+      } catch (error: any) {
+        throw new GraphQLError(error.message || "Error fetching Delivery Agent return orders", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+
+
     //get delivery agent details by admin
     getDeliveryAgent: async (parent, { input }, { req }, info) => {
       // await verifyAdmin(req);
@@ -1198,6 +1262,7 @@ console.log("postpond")
     },
 
     //get delivery agent return order list from agent side
+
     getAssignedReturnOrderByAgent: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
