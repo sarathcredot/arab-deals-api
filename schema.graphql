@@ -196,6 +196,7 @@ type Query {
   getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
   getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): GetAssignedOrderDetailByDeliveryAgentResponseArry!
   getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
+  getTodayAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
   getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
   getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!

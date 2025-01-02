@@ -1582,6 +1582,60 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+    getTodayAssignedOrderByAgentProfile: async (parent, { input }, { req }, info) => {
+
+      try {
+
+        //  delivery agent verfy
+
+        const deliveryAgentData = await verifyDeliveryAgent(req)
+
+        if (!deliveryAgentData) {
+
+          throw new GraphQLError("Unauthorized", {
+            extensions: {
+              code: "UNAUTHORIZED",
+              errors: []
+            },
+          });
+
+        }
+
+        console.log("agent data", deliveryAgentData)
+
+        const agentId = new Types.ObjectId(deliveryAgentData?.id)
+
+        const options = {
+
+          _id: agentId,
+          page: input?.page || 0,
+          size: input?.size || 10,
+          shippingStatus: input?.shippingStatus
+        }
+
+
+
+        const result = await deliveryAgentService.getTodayAssignedOrderByDeliveryAgent(options)
+        console.log("result ", result)
+
+        return result
+
+
+
+      } catch (error: any) {
+
+        console.log("error ", error)
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          },
+        });
+
+      }
+    },
+
 
     // get one agent assigned order full data admin port 
 
@@ -1638,6 +1692,11 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     },
+
+   
+
+
+
 
 
     // delivery agent port assigned order detail view
