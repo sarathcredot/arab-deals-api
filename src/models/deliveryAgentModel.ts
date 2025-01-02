@@ -66,6 +66,10 @@ const deliveryAgentSchema = new Schema(
             type: Boolean,
             default: true,                     // true = active, false = suspended
           },
+          isAvailable: {
+            type: Boolean,                     // true = available, false = not available(on leave)
+            default: true,
+          },
           vendorID: {
             type: Schema.Types.ObjectId,
             ref: collections.VENDORS, 

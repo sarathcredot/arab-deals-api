@@ -20,7 +20,7 @@ type Mutation {
   deliveryStatusOtpVerify(input:DeliveryStatusOtpVerifyInput!):DeliveryStatusOtpVerifyResponse!
   deliveryStatusAddDeliveryAgent(input:deliveryStatusAddDeliveryAgentInput!):deliveryStatusAddDeliveryAgentResponse!
   returnStatusChangeAfterOtpVerify(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
-  
+  updateAvailableStatus(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
   }
 
 
@@ -427,6 +427,7 @@ type DeliveryAgent{
     ID:String
     agentType:String!
     isActive:Boolean!
+    isAvailable:Boolean
     vendorID:ObjectId
     licence:ImageData
     wallet:Wallet
@@ -563,6 +564,11 @@ input EditSettlementInput {
 input SuspendDeliveryAgentInput {
   agentId:ObjectId!
   isActive:Boolean!
+}
+
+input UpdateAvailableStatusInput {
+  agentId:ObjectId!
+  isAvailable:Boolean!
 }
 
 input GetDeliveryAgentInput {

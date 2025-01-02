@@ -75,6 +75,7 @@ export interface IDeliveryAgentFilter {
   agentType: string;
   vendorID?: Types.ObjectId;
   isActive: boolean;
+  isAvailable: boolean;
   lastSettlementID: Types.ObjectId;
   wallet: {
     cashInHand: number;
@@ -101,6 +102,7 @@ export interface IDeliveryAgentDocument extends Document {
   vendorID?: Types.ObjectId;
   licence: FileData;
   isActive: boolean;
+  isAvailable: boolean;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -202,6 +204,14 @@ export const suspendDeliveryAgent = async (agentId: Types.ObjectId, isActive: bo
   return await deliveryAgentModel.findByIdAndUpdate(
     agentId,
     { isActive: isActive },
+    { new: true }
+  );
+};
+
+export const updateAvailableStatus = async (agentId: Types.ObjectId, isAvailable: boolean): Promise<IDeliveryAgent | null> => {
+  return await deliveryAgentModel.findByIdAndUpdate(
+    agentId,
+    { isAvailable: isAvailable },
     { new: true }
   );
 };
