@@ -1617,7 +1617,7 @@ console.log("postpond")
         return result;
 
 
-      } catch (error: any) {
+      } catch (error: any){
 
 
         throw new GraphQLError(error, {

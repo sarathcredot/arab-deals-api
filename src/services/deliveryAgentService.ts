@@ -911,7 +911,7 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
 
 
 
-    } catch (error: any) {
+    } catch ( error: any) {
 
       console.log(error.message)
 
