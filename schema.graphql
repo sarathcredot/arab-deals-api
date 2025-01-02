@@ -109,6 +109,8 @@ type Mutation {
   updateAdminProfile(input: AdminEditProfileInput!, image: Upload): UpdateAdminResponse!
   adminApprovalForVendor(input: adminApprovalForVendorInput!): adminApprovalForVendorResponse!
   logoutAdmin: LogoutAdminResponse!
+  cretaeDeliveryAgentConfig(input: cretaeDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
+  updateDeliveryAgentConfig(input: updateDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
 }
 
 type Query {
@@ -258,6 +260,7 @@ type Query {
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAdminRecord: getAdminRecordResponse
+  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
 }
 
 input AddToWishListInput {
@@ -3931,6 +3934,25 @@ type AttributesDetailsWithCategoryResponse {
 type AttributesDetailsWithCategoryInMobileResponse {
   record: CategoryWithCategory
   message: String
+}
+
+type getAllDeliveryAgentConfigResponse {
+  _id: ObjectId
+  orderAssignLimit: Int
+}
+
+input updateDeliveryAgentConfigInput {
+  _id: ObjectId
+  limit: Int
+}
+
+input cretaeDeliveryAgentConfigInput {
+  limit: Int
+}
+
+type cretaeDeliveryAgentConfigResponse {
+  status: Boolean
+  msg: String
 }
 
 type LogoutAdminResponse {

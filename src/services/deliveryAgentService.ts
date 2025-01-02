@@ -1,11 +1,12 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
 import { deliveryAgentModel, settlementModel } from '../models'
-import { orderProductModel } from '../models'
+import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
 import { transactionlogs, otpService } from "../services"
+import { startOfDay, endOfDay } from "date-fns"
 
 
 
@@ -237,7 +238,7 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
     const endIndex = startIndex + (options as any)?.limit || deliveryAgent.settlementHistory.length;
     deliveryAgent.settlementHistory = deliveryAgent.settlementHistory.slice(startIndex, endIndex);
   }
-console.log("agent details",deliveryAgent)
+  console.log("agent details", deliveryAgent)
   return deliveryAgent;
 };
 
@@ -914,7 +915,7 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
 
 
 
-    } catch ( error: any) {
+    } catch (error: any) {
 
       console.log(error.message)
 
@@ -1011,6 +1012,63 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
         if (!assignOrder.deliveryAgentId) {
 
+          // check delivery agent order assign limit
+
+          // get the admin added limit
+
+          const limit: any = await deliveryAgentConfigModel.findOne()
+          const todayDate = new Date()
+
+          const matchObj = {
+
+            deliveryAgentId: data.deliveryAgentId,
+
+            $and: [
+              {
+                deliveryAssignedOn: { $gte: startOfDay(todayDate) }
+              },
+              {
+                deliveryAssignedOn: { $lte: endOfDay(todayDate) }
+              },
+              {
+
+
+                $or: [
+                  {
+                    shippingStatus: "SHIPPED",
+
+                  },
+                  {
+                    shippingStatus: "DELIVERED",
+
+                  }
+
+                ]
+              }
+
+            ]
+
+
+          }
+
+          const result: any = await orderProductModel.aggregate([
+
+            {
+              $match: matchObj
+            },
+
+          ])
+
+          if (result.length >= limit.orderAssignLimit) {
+
+            reject("Assign order limit reached")
+            return;
+          }
+
+
+
+
+
           // add order products model assign agent id and name 
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
@@ -1028,7 +1086,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             $inc: {
 
               'wallet.numberOfOrderAssigned': 1,
-              'wallet.numberOfPendingOrdes':1
+              'wallet.numberOfPendingOrdes': 1
             }
           })
 
@@ -1046,7 +1104,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             $inc: {
 
               'wallet.numberOfOrderAssigned': -1,
-              'wallet.numberOfPendingOrdes':-1
+              'wallet.numberOfPendingOrdes': -1
             }
           })
 
@@ -1068,7 +1126,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             $inc: {
 
               'wallet.numberOfOrderAssigned': 1,
-              'wallet.numberOfPendingOrdes':1
+              'wallet.numberOfPendingOrdes': 1
             }
           })
 
@@ -1725,8 +1783,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         if (data.returnRemark) {
           result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
         }
-                // Resolve with a success response
-         return { flag: true };
+        // Resolve with a success response
+        return { flag: true };
       }
       if (data.returnStatus === 'COLLECTED') {
         agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
@@ -1781,7 +1839,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
             'wallet.numberOfOrderDelivered': 1,
-            'wallet.numberOfPendingOrdes':-1
+            'wallet.numberOfPendingOrdes': -1
           }
         })
         // check this order pyment type is COD
@@ -1815,27 +1873,27 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         } else {
           return ({ flag: true })
         }
-      }else{
+      } else {
 
-            // delivery status  CANCELED
+        // delivery status  CANCELED
 
-            await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-              $set: {
-                shippingStatus: data.deliveryStatus,
-                cancelremark: data.remarks,
-                canceldate: new Date()
-              }
-            })
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            cancelremark: data.remarks,
+            canceldate: new Date()
+          }
+        })
 
-            // update delivery agent wallet details
+        // update delivery agent wallet details
 
-            await deliveryAgentModel.findByIdAndUpdate({_idl:data.agentId},{
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
 
-                  $inc:{
+          $inc: {
 
-                       'wallet.numberOfPendingOrdes':-1
-                  }
-            })
+            'wallet.numberOfPendingOrdes': -1
+          }
+        })
 
 
       }

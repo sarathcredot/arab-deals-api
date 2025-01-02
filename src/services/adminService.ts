@@ -1,5 +1,5 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { adminModel, vendorModel } from '../models';
+import { adminModel, vendorModel ,deliveryAgentConfigModel} from '../models';
 
 export interface FileData {
   _id?: string,
@@ -101,6 +101,74 @@ export const getAdminRecordWithId = async (id: Types.ObjectId, projection: IAdmi
 
 export const logoutAdmin = async (id: Types.ObjectId): Promise<void> => {
   await adminModel.findByIdAndUpdate(id, { $set: { token: `${Date.now()} token` } })
+}
+
+
+
+export const cretaeDeliveryAgentConfig=async(limit:number):Promise<any>=>{
+
+         return new Promise(async(resolve,reject)=>{
+
+                 try {
+
+                  const options={
+
+                    orderAssignLimit:limit
+                  }
+
+                   const final=new deliveryAgentConfigModel(options)
+                  await final.save()
+                   resolve({})
+                  
+                 } catch (error) {
+                   
+                     reject(error)
+                 }  
+         })
+}
+
+export const updateDeliveryAgentConfig=async(data:{limit:number,_id:Types.ObjectId}):Promise<any>=>{
+
+  return new Promise(async(resolve,reject)=>{
+
+          try {
+
+             
+            await deliveryAgentConfigModel.findByIdAndUpdate({_id:data._id},{
+
+                  $set:{
+                      
+                        orderAssignLimit:data.limit
+                  }
+                   
+            },{upsert:true})
+           
+            resolve({})
+           
+          } catch (error) {
+            
+              reject(error)
+          }  
+  })
+}
+
+
+export const getAllDeliveryAgentConfig=async():Promise<any>=>{
+
+  return new Promise(async(resolve,reject)=>{
+
+          try {
+
+             
+          const result = await deliveryAgentConfigModel.findOne()
+           
+            resolve(result)
+           
+          } catch (error) {
+            
+              reject(error)
+          }  
+  })
 }
 
 
