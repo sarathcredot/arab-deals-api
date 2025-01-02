@@ -188,6 +188,56 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+    updateAvailableStatus: async (parent, { input }, { req }, info) => {
+
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+      const {  isAvailable } = input;
+
+      // Validate the input
+      if (!agentId) {
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        // Check if the delivery agent exists
+        const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { _id: agentId },
+          { _id: 1, isAvailable: 1 },
+          { lean: true }
+        );
+
+        if (!existingAgent) {
+          throw new GraphQLError("Delivery Agent not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+
+        // Update the isActive status
+        const updatedAgent = await deliveryAgentService.updateAvailableStatus(
+          new Types.ObjectId(agentId),
+          isAvailable
+        );
+
+        if (!updatedAgent) {
+          throw new GraphQLError("Unable to update Your Availability", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
+          });
+        }
+
+        return {
+          _id: updatedAgent._id,
+          message: `${isAvailable ? "Set agent as available" : "set agent as not available"}`
+        };
+      } catch (error: any) {
+        throw new GraphQLError(error.message || "Error suspending Delivery Agent", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+
 
     //to create settlement by admin 
 
@@ -1051,6 +1101,7 @@ console.log("postpond")
             agentType: 1,
             vendorID: 1,
             isActive: 1,
+            isAvailable:1,
             licence: 1,
             lastSettlementID: 1,
             wallet: 1,
@@ -1259,6 +1310,7 @@ console.log("postpond")
             agentType: 1,
             vendorID: 1,
             isActive: 1,
+            isAvailable:1,
             licence: 1,
             wallet: 1,
             ID: 1,
@@ -1431,9 +1483,11 @@ console.log("postpond")
 
     //to get agent's settlemnt history in agent dashboard
 
-    getAgentSettlementHistoryByAgent: async (parent, { }, { req }, info) => {
+    getAgentSettlementHistoryByAgent: async (parent, {input}, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      const type: string | undefined = input?.type ?? undefined;
 
       if (!agentId) {
         throw new GraphQLError("Agent ID is required", {
@@ -1448,7 +1502,14 @@ console.log("postpond")
       }
 
       try {
-        const result = await settlementModel.find({ agentId: agentId }).sort({ createdAt: -1 });
+
+        const query: any = { agentId: agentId };
+        if (type) {
+          query.type = type;
+        }
+
+        
+        const result = await settlementModel.find(query).sort({ createdAt: -1 });
 
         if (!result) {
           throw new GraphQLError("No settlements found", {

@@ -75,6 +75,7 @@ export interface IDeliveryAgentFilter {
   agentType: string;
   vendorID?: Types.ObjectId;
   isActive: boolean;
+  isAvailable: boolean;
   lastSettlementID: Types.ObjectId;
   wallet: {
     cashInHand: number;
@@ -101,6 +102,7 @@ export interface IDeliveryAgentDocument extends Document {
   vendorID?: Types.ObjectId;
   licence: FileData;
   isActive: boolean;
+  isAvailable: boolean;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -202,6 +204,14 @@ export const suspendDeliveryAgent = async (agentId: Types.ObjectId, isActive: bo
   return await deliveryAgentModel.findByIdAndUpdate(
     agentId,
     { isActive: isActive },
+    { new: true }
+  );
+};
+
+export const updateAvailableStatus = async (agentId: Types.ObjectId, isAvailable: boolean): Promise<IDeliveryAgent | null> => {
+  return await deliveryAgentModel.findByIdAndUpdate(
+    agentId,
+    { isAvailable: isAvailable },
     { new: true }
   );
 };
@@ -502,10 +512,6 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 };
 
 
-
-
-
-
 export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
   try {
     const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
@@ -534,7 +540,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           // find old delivery agent and update this agent numberOfOrderAssigned count
           await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
             $inc: {
-              'wallet.numberOfReturnOrderAssigned': -1
+              'wallet.numberOfReturnOrderAssigned': -1,
+              'wallet.numberOfPendingReturns': -1
             }
           })
           //  this order reassign to new delivery agent
@@ -547,7 +554,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           // update this new new agent numberOfOrderAssigned count
           await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
             $inc: {
-              'wallet.numberOfReturnOrderAssigned': 1
+              'wallet.numberOfReturnOrderAssigned': 1,
+              'wallet.numberOfPendingReturns': 1
             }
           })
         }
@@ -562,11 +570,6 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
     return false
   }
 }
-
-
-
-
-
 
 
 type Editrespo = {
@@ -1838,7 +1841,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
       }
     };
 
-    
+
     await agent.save();
     return ({ flag: false })
   } catch (error: any) {
