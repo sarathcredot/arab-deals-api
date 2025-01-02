@@ -29,7 +29,7 @@ type Query{
   getAllAgentData(input:getAllAgentDataInput):getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):SettlementResponse!
-  getAgentSettlementHistoryByAgent:[Settlement]!
+  getAgentSettlementHistoryByAgent(input:getAgentSettlementHistoryByAgentInput):[Settlement]!
   getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
   getSettlementHistoryByAdmin:[Settlement]!
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
@@ -66,6 +66,10 @@ input deliveryStatusAddDeliveryAgentInput{
       deliveryStatus:String!
       paymentMode:String
       remarks:String
+}
+
+input getAgentSettlementHistoryByAgentInput{
+  type:String
 }
 
 

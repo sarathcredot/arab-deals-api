@@ -1483,9 +1483,11 @@ console.log("postpond")
 
     //to get agent's settlemnt history in agent dashboard
 
-    getAgentSettlementHistoryByAgent: async (parent, { }, { req }, info) => {
+    getAgentSettlementHistoryByAgent: async (parent, {input}, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      const type: string | undefined = input?.type ?? undefined;
 
       if (!agentId) {
         throw new GraphQLError("Agent ID is required", {
@@ -1500,7 +1502,14 @@ console.log("postpond")
       }
 
       try {
-        const result = await settlementModel.find({ agentId: agentId }).sort({ createdAt: -1 });
+
+        const query: any = { agentId: agentId };
+        if (type) {
+          query.type = type;
+        }
+
+        
+        const result = await settlementModel.find(query).sort({ createdAt: -1 });
 
         if (!result) {
           throw new GraphQLError("No settlements found", {
