@@ -12,6 +12,7 @@ interface CustomRequest extends Request {
 }
 
 export const verifyUser = async (req: CustomRequest) => {
+    console.log('======= USER VERIFICATION ======')
     try {
         let token = await jwtService.getAuthTokenFromHeaders(req);
 
@@ -36,6 +37,7 @@ export const verifyUser = async (req: CustomRequest) => {
             throw new Error("User not found");
         }
 
+        console.log('USER VERIFIED')
         req.authAccount = {
             _id: user._id!
            

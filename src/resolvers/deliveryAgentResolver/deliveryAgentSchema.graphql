@@ -177,6 +177,9 @@ type UserReturn {
   returnProductImage: [FileData]
   deliveryAssignedOn:Date
   returnOrderAssignedOn:Date
+  returndeliveryAgentId: ObjectId
+  returndeliveryAgentName: String
+  returnCollectorBoy: DeliveryAgentForReturnOrderProduct
 }
 
 type GetDeliveryAgentReturnOrderResponse{
