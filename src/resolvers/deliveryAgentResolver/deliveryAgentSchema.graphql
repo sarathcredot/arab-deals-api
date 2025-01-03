@@ -20,7 +20,7 @@ type Mutation {
   deliveryStatusOtpVerify(input:DeliveryStatusOtpVerifyInput!):DeliveryStatusOtpVerifyResponse!
   deliveryStatusAddDeliveryAgent(input:deliveryStatusAddDeliveryAgentInput!):deliveryStatusAddDeliveryAgentResponse!
   returnStatusChangeAfterOtpVerify(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
-  
+  updateAvailableStatus(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
   }
 
 
@@ -29,17 +29,19 @@ type Query{
   getAllAgentData(input:getAllAgentDataInput):getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!):SettlementResponse!
-  getAgentSettlementHistoryByAgent:[Settlement]!
+  getAgentSettlementHistoryByAgent(input:getAgentSettlementHistoryByAgentInput):[Settlement]!
   getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
   getSettlementHistoryByAdmin:[Settlement]!
   getAllAssignOrderAgentProfile:GetAllAssignOrderAgentProfileResponse!
  
    getAssignedeOrderDeatilsByAgentProfile(input:getAssignedeOrderDeatilsByAgentProfileInput!):GetAssignedOrderDetailByDeliveryAgentResponseArry!
    getAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):getAssignedOrderByAgentProfileResponse!
+   getTodayAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):getAssignedOrderByAgentProfileResponse!
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
 
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
+   getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
 }
 
 
@@ -66,6 +68,10 @@ input deliveryStatusAddDeliveryAgentInput{
       deliveryStatus:String!
       paymentMode:String
       remarks:String
+}
+
+input getAgentSettlementHistoryByAgentInput{
+  type:String
 }
 
 
@@ -117,7 +123,7 @@ type deliveryStatusAddDeliveryAgentResponse{
  }
 
  input GetAssignedReturnOrderInput{
-   returnStatus:String
+    returnStatus:String
     page:Int
     limit:Int
  }
@@ -430,6 +436,7 @@ type DeliveryAgent{
     ID:String
     agentType:String!
     isActive:Boolean!
+    isAvailable:Boolean
     vendorID:ObjectId
     licence:ImageData
     wallet:Wallet
@@ -566,6 +573,11 @@ input EditSettlementInput {
 input SuspendDeliveryAgentInput {
   agentId:ObjectId!
   isActive:Boolean!
+}
+
+input UpdateAvailableStatusInput {
+  agentId:ObjectId!
+  isAvailable:Boolean!
 }
 
 input GetDeliveryAgentInput {
