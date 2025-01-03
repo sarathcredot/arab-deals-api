@@ -75,6 +75,7 @@ export const deliveryAgentResolver: Resolvers = {
           throw new GraphQLError("Contact number already exists", {
             extensions: { code: "BAD_REQUEST" },
           });
+          
         }
 
 

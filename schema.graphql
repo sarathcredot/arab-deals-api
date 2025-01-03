@@ -2011,6 +2011,18 @@ type DeliveryAgentForOrderProduct {
   ID: String
 }
 
+type DeliveryAgentForReturnOrderProduct {
+  _id: ObjectId
+  fullName: String
+  contactNumber: String
+  userID: String
+  password: String
+  agentType: String
+  vendorID: ObjectId
+  licence: FileData
+  ID: String
+}
+
 type AdminOrderProduct {
   _id: ObjectId
   userId: ObjectId
@@ -2061,6 +2073,9 @@ type AdminOrderProduct {
   returnProductImage: [FileData]
   deliveryAssignedOn: Date
   returnOrderAssignedOn: Date
+  returndeliveryAgentId: ObjectId
+  returndeliveryAgentName: String
+  returnCollectorBoy: DeliveryAgentForReturnOrderProduct
 }
 
 type VendorOrderProduct {
@@ -2661,6 +2676,9 @@ type AdminReturnOrderProduct {
   returnProductImage: [FileData]
   deliveryAssignedOn: Date
   returnOrderAssignedOn: Date
+  returndeliveryAgentId: ObjectId
+  returndeliveryAgentName: String
+  returnCollectorBoy: DeliveryAgentForReturnOrderProduct
 }
 
 type GetDeliveryAgentReturnOrderResponse {

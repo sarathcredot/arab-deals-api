@@ -549,6 +549,12 @@ export const getOrderProductsWithFiltersIncludeVendorNew = async (
       },
     },
     {
+      $unwind: {
+        path: "$deliveryBoy",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
       $lookup: {
         from: "deliveryagents",
         localField: "returndeliveryAgentId",
@@ -565,7 +571,7 @@ export const getOrderProductsWithFiltersIncludeVendorNew = async (
   ];
   console.log(pipeline, "PIPELINE, ORDER PRODUCTS");
   const result = await orderProductModel.aggregate(pipeline).exec();
-  console.log(result, "RESULT ORDER PRODUCT BY ORDER ID");
+  console.log(JSON.stringify(result, null, 4), "RESULT ORDER PRODUCT BY ORDER ID");
   return result;
 };
 

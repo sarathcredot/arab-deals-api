@@ -1087,6 +1087,8 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
 
+      console.log(data, 'ORDER RETURN ASSIGN DATA');
+      
       if (assignOrder) {
 
 
@@ -1192,10 +1194,66 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
           //  this order reassign to new delivery agent 
 
+            // check delivery agent order assign limit
+
+          // get the admin added limit
+
+          const limit: any = await deliveryAgentConfigModel.findOne()
+          const todayDate = new Date()
+
+          const matchObj = {
+
+            deliveryAgentId: data.deliveryAgentId,
+
+            $and: [
+              {
+                deliveryAssignedOn: { $gte: startOfDay(todayDate) }
+              },
+              {
+                deliveryAssignedOn: { $lte: endOfDay(todayDate) }
+              },
+              {
+
+
+                $or: [
+                  {
+                    shippingStatus: "SHIPPED",
+
+                  },
+                  {
+                    shippingStatus: "DELIVERED",
+
+                  }
+
+                ]
+              }
+
+            ]
+
+
+          }
+
+          const result: any = await orderProductModel.aggregate([
+
+            {
+              $match: matchObj
+            },
+
+          ])
+
+          if (result.length >= limit.orderAssignLimit) {
+
+            reject("Assign order limit reached")
+            return;
+          }
+
+
+
+
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
             $set: {
-
+              deliveryAssignedOn: new Date(),
               deliveryAgentId: data.deliveryAgentId,
               deliveryAgentName: data.deliveryAgentName
             }
