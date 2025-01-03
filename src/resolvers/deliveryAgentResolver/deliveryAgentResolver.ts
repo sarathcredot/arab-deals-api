@@ -16,6 +16,7 @@ import { settlementModel } from "../../models/settlementModel";
 import moment from "moment";
 import { finished } from "stream/promises";
 import { orderProductModel } from "../../models/orderProductModel";
+import { startOfDay, endOfDay } from "date-fns"
 
 interface EditAgentResult {
   flag: boolean;
@@ -1074,9 +1075,12 @@ export const deliveryAgentResolver: Resolvers = {
         returnFilter.returnStatus = input.returnStatus;
       }
 
-      returnFilter.returnOrderAssignedOn=new Date()
-
-
+      const today = new Date();
+      returnFilter.returnOrderAssignedOn = {
+        $gte: startOfDay(today),
+        $lte: endOfDay(today),
+      };
+      
       console.log("returnFilter", returnFilter)
 
       try {

@@ -628,6 +628,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
 
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
             $set: {
+              returnOrderAssignedOn: new Date(),
               returndeliveryAgentId: data.deliveryAgentId,
               returndeliveryAgentName: data.deliveryAgentName
             }
@@ -1148,7 +1149,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
 
 
-
+         console.log("date",new Date())
 
           // add order products model assign agent id and name 
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
