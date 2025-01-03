@@ -41,6 +41,7 @@ type Query{
 
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
+   getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
 }
 
 
@@ -122,7 +123,7 @@ type deliveryStatusAddDeliveryAgentResponse{
  }
 
  input GetAssignedReturnOrderInput{
-   returnStatus:String
+    returnStatus:String
     page:Int
     limit:Int
  }

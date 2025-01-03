@@ -81,14 +81,14 @@ type Mutation {
   deliveryStatusAddDeliveryAgent(input: deliveryStatusAddDeliveryAgentInput!): deliveryStatusAddDeliveryAgentResponse!
   returnStatusChangeAfterOtpVerify(input: ReturnstatusUpdateInput!): ReturnstatusUpdateResponse!
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
+  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
+  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
+  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
-  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
-  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
-  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -100,10 +100,6 @@ type Mutation {
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
-  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
-  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image: Upload): UpdateAdminResponse!
@@ -111,6 +107,10 @@ type Mutation {
   logoutAdmin: LogoutAdminResponse!
   cretaeDeliveryAgentConfig(input: cretaeDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
   updateDeliveryAgentConfig(input: updateDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
+  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
+  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
 }
 
 type Query {
@@ -200,6 +200,17 @@ type Query {
   getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
   getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
+  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
+  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
+  getActiveCategoryTree: getActiveCategoryTreeResponse!
+  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
+  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
+  getAllLeafRecords: getAllLeafRecordsResponse!
+  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
+  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
+  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -230,16 +241,6 @@ type Query {
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
-  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
-  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
-  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
-  getActiveCategoryTree: getActiveCategoryTreeResponse!
-  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
-  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
-  getAllLeafRecords: getAllLeafRecordsResponse!
-  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
-  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
-  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
@@ -251,7 +252,8 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
-  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
+  getAdminRecord: getAdminRecordResponse
+  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -260,8 +262,7 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAdminRecord: getAdminRecordResponse
-  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
 }
 
 input AddToWishListInput {
@@ -3009,6 +3010,143 @@ type LoginDeliveryAgentResponse {
   msg: String!
 }
 
+input CreateCategoryInput {
+  categoryName: String!
+  parentId: String
+  isBlocked: Boolean
+  description: String
+  isLeaf: Boolean
+  attributes: [String]
+}
+
+input UpdateCategoryInput {
+  _id: String!
+  categoryName: String
+  parentId: String
+  isBlocked: Boolean
+  description: String
+  isLeaf: Boolean
+  attributes: [String]
+}
+
+input CategoryId {
+  _id: String!
+}
+
+input CategoryRecordIdInput {
+  _id: String
+}
+
+type CreateCategoryResponse {
+  _id: String!
+}
+
+type UpdateCategoryResponse {
+  _id: String!
+  message: String
+}
+
+type DeleteCategoryResponse {
+  _id: String!
+  message: String
+}
+
+type CategoryRecordId {
+  _id: String
+}
+
+input GetAllChildLevelCategoriesInput {
+  parent: String
+}
+
+input GetActiveChildCategoriesInput {
+  parent: String
+}
+
+input GetActiveChildCategoriesInMobileInput {
+  parent: String
+}
+
+input GetCategoriesAutoCompleteInput {
+  query: String!
+}
+
+input GetLevelCategoriesInput {
+  level: Int
+  limit: Int
+}
+
+input vendorIdInput {
+  vendorId: String!
+}
+
+type Category {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
+  description: String
+  categoryImage: ImageData
+}
+
+type CategoryAssignedToVendor {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
+}
+
+type CategoryNode {
+  categoryName: String
+  _id: String
+  categoryImage: ImageData
+  children: [CategoryNode]
+  isLeaf: Boolean
+}
+
+type GetActiveChildCategoriesResponse {
+  records: [Category]
+}
+
+type GetActiveChildCategoriesInMobileResponse {
+  records: [Category]
+}
+
+type GetAllChildLevelCategoriesResponse {
+  records: [Category]
+}
+
+type getActiveCategoryTreeResponse {
+  records: [CategoryNode]
+}
+
+type getActiveCategoryTreeInMobileesponse {
+  records: [CategoryNode]
+}
+
+type CategorySuggestion {
+  _id: String!
+  description: String!
+}
+
+type GetCategoriesAutoCompleteRespons {
+  suggestions: [CategorySuggestion]
+}
+
+type getAllLeafRecordsResponse {
+  records: [Category]
+}
+
+type getAllCategoriesOfVendorResponse {
+  records: [CategoryAssignedToVendor]
+}
+
+type GetLevelCategoriesResponse {
+  records: [Category]
+}
+
 input GetDashboardUsersGraphInput {
   startDate: Date
   endDate: Date
@@ -3395,143 +3533,6 @@ type CmsRecordsResponse {
   message: String
 }
 
-input CreateCategoryInput {
-  categoryName: String!
-  parentId: String
-  isBlocked: Boolean
-  description: String
-  isLeaf: Boolean
-  attributes: [String]
-}
-
-input UpdateCategoryInput {
-  _id: String!
-  categoryName: String
-  parentId: String
-  isBlocked: Boolean
-  description: String
-  isLeaf: Boolean
-  attributes: [String]
-}
-
-input CategoryId {
-  _id: String!
-}
-
-input CategoryRecordIdInput {
-  _id: String
-}
-
-type CreateCategoryResponse {
-  _id: String!
-}
-
-type UpdateCategoryResponse {
-  _id: String!
-  message: String
-}
-
-type DeleteCategoryResponse {
-  _id: String!
-  message: String
-}
-
-type CategoryRecordId {
-  _id: String
-}
-
-input GetAllChildLevelCategoriesInput {
-  parent: String
-}
-
-input GetActiveChildCategoriesInput {
-  parent: String
-}
-
-input GetActiveChildCategoriesInMobileInput {
-  parent: String
-}
-
-input GetCategoriesAutoCompleteInput {
-  query: String!
-}
-
-input GetLevelCategoriesInput {
-  level: Int
-  limit: Int
-}
-
-input vendorIdInput {
-  vendorId: String!
-}
-
-type Category {
-  categoryName: String
-  _id: String
-  isBlocked: Boolean
-  fullCategoryName: String
-  isLeaf: Boolean
-  description: String
-  categoryImage: ImageData
-}
-
-type CategoryAssignedToVendor {
-  categoryName: String
-  _id: String
-  isBlocked: Boolean
-  fullCategoryName: String
-  isLeaf: Boolean
-}
-
-type CategoryNode {
-  categoryName: String
-  _id: String
-  categoryImage: ImageData
-  children: [CategoryNode]
-  isLeaf: Boolean
-}
-
-type GetActiveChildCategoriesResponse {
-  records: [Category]
-}
-
-type GetActiveChildCategoriesInMobileResponse {
-  records: [Category]
-}
-
-type GetAllChildLevelCategoriesResponse {
-  records: [Category]
-}
-
-type getActiveCategoryTreeResponse {
-  records: [CategoryNode]
-}
-
-type getActiveCategoryTreeInMobileesponse {
-  records: [CategoryNode]
-}
-
-type CategorySuggestion {
-  _id: String!
-  description: String!
-}
-
-type GetCategoriesAutoCompleteRespons {
-  suggestions: [CategorySuggestion]
-}
-
-type getAllLeafRecordsResponse {
-  records: [Category]
-}
-
-type getAllCategoriesOfVendorResponse {
-  records: [CategoryAssignedToVendor]
-}
-
-type GetLevelCategoriesResponse {
-  records: [Category]
-}
-
 input addToCartInput {
   productId: ObjectId!
   quantity: Int!
@@ -3779,54 +3780,90 @@ type CategoryInBrands {
   description: String
 }
 
-type AttributeValue {
+type getAllDeliveryAgentConfigResponse {
+  _id: ObjectId
+  orderAssignLimit: Int
+}
+
+input updateDeliveryAgentConfigInput {
+  _id: ObjectId
+  limit: Int
+}
+
+input cretaeDeliveryAgentConfigInput {
+  limit: Int
+}
+
+type cretaeDeliveryAgentConfigResponse {
+  status: Boolean
+  msg: String
+}
+
+type LogoutAdminResponse {
+  message: String!
+}
+
+type Admin {
   _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
+  email: String
+  password: String
+  accType: String
+  isBlocked: Boolean
+  fullName: String
+  profilePic: ImageData
+}
+
+input AdminSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+}
+
+input SubAdminSignUpInput {
+  email: String!
+  password: String!
+  isBlocked: Boolean!
+  fullName: String!
+}
+
+input AdminLoginInput {
+  email: String!
+  password: String!
+}
+
+input AdminEditProfileInput {
+  fullName: String
+  email: String
+  password: String
   isBlocked: Boolean
 }
 
-input CreateAttributeValueInput {
-  attributeId: String!
-  value: String!
-  colorCode: String!
-  priority: Int!
-  isBlocked: Boolean
+input adminApprovalForVendorInput {
+  _id: String!
+  isVerified: Boolean
 }
 
-input AttributeValueEditInput {
-  attributeValueId: String!
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
+type AddAdminResponse {
+  _id: String!
 }
 
-type CreateAttributeValueResponse {
+type AdminAuthResponse {
+  _id: String
+  token: String
+}
+
+type UpdateAdminResponse {
   _id: String
   message: String
 }
 
-input AttributeValueRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
+type getAdminRecordResponse {
+  record: Admin
 }
 
-type AttributeValueRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
-}
-
-type AttributeValueEditResponse {
+type adminApprovalForVendorResponse {
   _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
+  message: String
 }
 
 type Attribute {
@@ -3937,88 +3974,52 @@ type AttributesDetailsWithCategoryInMobileResponse {
   message: String
 }
 
-type getAllDeliveryAgentConfigResponse {
-  _id: ObjectId
-  orderAssignLimit: Int
-}
-
-input updateDeliveryAgentConfigInput {
-  _id: ObjectId
-  limit: Int
-}
-
-input cretaeDeliveryAgentConfigInput {
-  limit: Int
-}
-
-type cretaeDeliveryAgentConfigResponse {
-  status: Boolean
-  msg: String
-}
-
-type LogoutAdminResponse {
-  message: String!
-}
-
-type Admin {
+type AttributeValue {
   _id: String
-  email: String
-  password: String
-  accType: String
-  isBlocked: Boolean
-  fullName: String
-  profilePic: ImageData
-}
-
-input AdminSignUpInput {
-  email: String!
-  password: String!
-  fullName: String!
-}
-
-input SubAdminSignUpInput {
-  email: String!
-  password: String!
-  isBlocked: Boolean!
-  fullName: String!
-}
-
-input AdminLoginInput {
-  email: String!
-  password: String!
-}
-
-input AdminEditProfileInput {
-  fullName: String
-  email: String
-  password: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
   isBlocked: Boolean
 }
 
-input adminApprovalForVendorInput {
-  _id: String!
-  isVerified: Boolean
+input CreateAttributeValueInput {
+  attributeId: String!
+  value: String!
+  colorCode: String!
+  priority: Int!
+  isBlocked: Boolean
 }
 
-type AddAdminResponse {
-  _id: String!
+input AttributeValueEditInput {
+  attributeValueId: String!
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
 }
 
-type AdminAuthResponse {
-  _id: String
-  token: String
-}
-
-type UpdateAdminResponse {
+type CreateAttributeValueResponse {
   _id: String
   message: String
 }
 
-type getAdminRecordResponse {
-  record: Admin
+input AttributeValueRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
 }
 
-type adminApprovalForVendorResponse {
+type AttributeValueRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
   _id: String
-  message: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
 }
