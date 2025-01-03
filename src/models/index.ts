@@ -21,6 +21,7 @@ import { countriesModel } from "./countriesModel";
 import { jobQueueModel } from "./jobQueueModel";
 import {deliveryAgentModel} from './deliveryAgentModel'
 import {settlementModel}  from './settlementModel'
+import {deliveryAgentConfigModel}from "./deliveryagentconfigmodel"
 
 
 export {
@@ -46,5 +47,6 @@ export {
     countriesModel,
     jobQueueModel,
     deliveryAgentModel,
-    settlementModel
+    settlementModel,
+    deliveryAgentConfigModel
 }

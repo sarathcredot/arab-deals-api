@@ -1332,7 +1332,7 @@ export const getProductDeliveryTypeDeliveryAgents = async (proid: Types.ObjectId
             if (deliveryType === "ArabDeals") {
 
                 // find all Arabdeals under deliveryagents
-                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ArabDeals" ,isActive:true})
+                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ArabDeals" ,isActive:true,isAvailable:true})
 
                 const obj = {
 
@@ -1346,7 +1346,7 @@ export const getProductDeliveryTypeDeliveryAgents = async (proid: Types.ObjectId
             } else if (deliveryType === "Vendor") {
 
                 // find all Vendor  under deliveryagents
-                const deliveryAgents = await deliveryAgentModel.find({ vendorID: productData.vendorId, agentType: "Vendor" ,isActive:true})
+                const deliveryAgents = await deliveryAgentModel.find({ vendorID: productData.vendorId, agentType: "Vendor" ,isActive:true,isAvailable:true})
 
                 const obj = {
 
@@ -1359,7 +1359,7 @@ export const getProductDeliveryTypeDeliveryAgents = async (proid: Types.ObjectId
             } else {
 
                 // find all ThirdParty  under deliveryagents
-                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ThirdParty",isActive:true })
+                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ThirdParty",isActive:true,isAvailable:true })
 
                 const obj = {
 

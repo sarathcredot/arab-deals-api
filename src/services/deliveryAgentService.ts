@@ -1,11 +1,12 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
 import { deliveryAgentModel, settlementModel } from '../models'
-import { orderProductModel } from '../models'
+import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
 import { transactionlogs, otpService } from "../services"
+import { startOfDay, endOfDay } from "date-fns"
 
 
 
@@ -237,7 +238,7 @@ export const findDeliveryAgentWithFilters = async (filters: object, projection: 
     const endIndex = startIndex + (options as any)?.limit || deliveryAgent.settlementHistory.length;
     deliveryAgent.settlementHistory = deliveryAgent.settlementHistory.slice(startIndex, endIndex);
   }
-console.log("agent details",deliveryAgent)
+  console.log("agent details", deliveryAgent)
   return deliveryAgent;
 };
 
@@ -1011,6 +1012,63 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
         if (!assignOrder.deliveryAgentId) {
 
+          // check delivery agent order assign limit
+
+          // get the admin added limit
+
+          const limit: any = await deliveryAgentConfigModel.findOne()
+          const todayDate = new Date()
+
+          const matchObj = {
+
+            deliveryAgentId: data.deliveryAgentId,
+
+            $and: [
+              {
+                deliveryAssignedOn: { $gte: startOfDay(todayDate) }
+              },
+              {
+                deliveryAssignedOn: { $lte: endOfDay(todayDate) }
+              },
+              {
+
+
+                $or: [
+                  {
+                    shippingStatus: "SHIPPED",
+
+                  },
+                  {
+                    shippingStatus: "DELIVERED",
+
+                  }
+
+                ]
+              }
+
+            ]
+
+
+          }
+
+          const result: any = await orderProductModel.aggregate([
+
+            {
+              $match: matchObj
+            },
+
+          ])
+
+          if (result.length >= limit.orderAssignLimit) {
+
+            reject("Assign order limit reached")
+            return;
+          }
+
+
+
+
+
           // add order products model assign agent id and name 
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
@@ -1028,7 +1086,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             $inc: {
 
               'wallet.numberOfOrderAssigned': 1,
-              'wallet.numberOfPendingOrdes':1
+              'wallet.numberOfPendingOrdes': 1
             }
           })
 
@@ -1046,7 +1104,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             $inc: {
 
               'wallet.numberOfOrderAssigned': -1,
-              'wallet.numberOfPendingOrdes':-1
+              'wallet.numberOfPendingOrdes': -1
             }
           })
 
@@ -1068,7 +1126,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             $inc: {
 
               'wallet.numberOfOrderAssigned': 1,
-              'wallet.numberOfPendingOrdes':1
+              'wallet.numberOfPendingOrdes': 1
             }
           })
 
@@ -1402,6 +1460,8 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
       if (data.shippingStatus) {
         matchObj.shippingStatus = data.shippingStatus
       }
+    
+
       //  if(data.shippingStatus){
       dataSize = await orderProductModel.find(matchObj)
       result = await orderProductModel.aggregate([
@@ -1554,6 +1614,188 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
     }
   })
 }
+
+export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any }): Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let dataSize: any
+      let result: any
+      const todayDate=new Date
+      
+      let matchObj: any = { 
+       
+        deliveryAgentId: data._id,
+        $and: [
+          {
+            deliveryAssignedOn: { $gte: startOfDay(todayDate) }
+          },
+          {
+            deliveryAssignedOn: { $lte: endOfDay(todayDate) }
+          },
+         ]
+          }
+      
+      
+      console.log("input ", data)
+      if (data.shippingStatus) {
+        matchObj.shippingStatus = data.shippingStatus
+      }
+    
+
+      //  if(data.shippingStatus){
+      dataSize = await orderProductModel.find(matchObj)
+      result = await orderProductModel.aggregate([
+        {
+          $match: matchObj,
+        },
+        {
+          $lookup: {
+            from: 'orders',
+            localField: 'orderId',
+            foreignField: 'orderId',
+            as: 'orderDetails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$orderDetails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "orderDetails.userId",
+            foreignField: "_id",
+            as: "userDetails"
+          }
+        },
+        {
+          $unwind: {
+            path: "$userDetails",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+
+          $sort: {
+            createdAt: -1
+          }
+        },
+        {
+          $skip: data.page * data.size,
+        },
+        {
+          $limit: data.size,
+        },
+        {
+          $project: {
+            _id: 1,
+            orderId: 1,
+            userId: 1,
+            itemId: 1,
+            productName: 1,
+            sellingPrice: 1,
+            paymentStatus: 1,
+            paymentMode: 1,
+            orderDate: 1,
+            shippingStatus: 1,
+            deliveryAgentId: 1,
+            userName: {
+              $concat: ["$userDetails.firstName", " ", "$userDetails.lastName"]
+            },
+
+            email: "$orderDetails.shippingAddress.email",
+            mobileNumber: "$orderDetails.shippingAddress.mobile",
+            country: "$orderDetails.shippingAddress.country",
+            houseNumber: "$orderDetails.shippingAddress.houseNumber",
+            streetName: "$orderDetails.shippingAddress.streetName",
+            apartment: "$orderDetails.shippingAddress.apartment",
+            suite: "$orderDetails.shippingAddress.suite",
+            unit: "$orderDetails.shippingAddress.unit",
+            city: "$orderDetails.shippingAddress.city",
+            postCode: "$orderDetails.shippingAddress.postCode"
+          },
+        },
+      ]);
+      //  }else{
+      //     console.log("w shipping")
+      //   result = await orderProductModel.aggregate([
+      //     {
+      //       $match: {
+      //         deliveryAgentId: data._id,
+      //       },
+      //     },
+      //     {
+      //       $lookup: {
+      //         from: 'orders',
+      //         localField: 'orderId',
+      //         foreignField: 'orderId',
+      //         as: 'userDetails',
+      //       },
+      //     },
+      //     {
+      //       $unwind: {
+      //         path: '$userDetails',
+      //         preserveNullAndEmptyArrays: true,
+      //       },
+      //     },
+      //     {
+      //       $skip: data.page * data.size,
+      //     },
+      //     {
+      //       $limit: data.size,
+      //     },
+      //     {
+      //       $project: {
+      //         _id: 1,
+      //         orderId: 1,
+      //         userId: 1,
+      //         productName: 1,
+      //         sellingPrice: 1,
+      //         paymentStatus: 1,
+      //         orderDate: 1,
+      //         shippingStatus: 1,
+      //         deliveryAgentId: 1,
+      //         userName: "$userDetails.shippingAddress.firstname",
+      //         email: "$userDetails.shippingAddress.email",
+      //         mobileNumber: "$userDetails.shippingAddress.mobile",
+      //         country: "$userDetails.shippingAddress.country",
+      //         houseNumber: "$userDetails.shippingAddress.houseNumber",
+      //         streetName: "$userDetails.shippingAddress.streetName",
+      //         apartment: "$userDetails.shippingAddress.apartment",
+      //         suite: "$userDetails.shippingAddress.suite",
+      //         unit: "$userDetails.shippingAddress.unit",
+      //         city: "$userDetails.shippingAddress.city",
+      //         postCode: "$userDetails.shippingAddress.postCode"
+      //       },
+      //     },
+      //   ]);
+      //  }
+
+
+      console.log("result", result)
+
+
+      let response: any = {
+        records: [],
+        maxRecords: 0
+      };
+
+
+      if (result.length) {
+        response.records = result || [];
+        response.maxRecords = dataSize?.length || 0;
+      }
+
+      resolve(response);
+    } catch (error) {
+      reject(error);
+    }
+  })
+}
+
+
 
 
 
@@ -1725,8 +1967,8 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         if (data.returnRemark) {
           result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
         }
-                // Resolve with a success response
-         return { flag: true };
+        // Resolve with a success response
+        return { flag: true };
       }
       if (data.returnStatus === 'COLLECTED') {
         agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
@@ -1781,7 +2023,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
             'wallet.numberOfOrderDelivered': 1,
-            'wallet.numberOfPendingOrdes':-1
+            'wallet.numberOfPendingOrdes': -1
           }
         })
         // check this order pyment type is COD
@@ -1815,27 +2057,27 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         } else {
           return ({ flag: true })
         }
-      }else{
+      } else {
 
-            // delivery status  CANCELED
+        // delivery status  CANCELED
 
-            await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-              $set: {
-                shippingStatus: data.deliveryStatus,
-                cancelremark: data.remarks,
-                canceldate: new Date()
-              }
-            })
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            cancelremark: data.remarks,
+            canceldate: new Date()
+          }
+        })
 
-            // update delivery agent wallet details
+        // update delivery agent wallet details
 
-            await deliveryAgentModel.findByIdAndUpdate({_idl:data.agentId},{
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
 
-                  $inc:{
+          $inc: {
 
-                       'wallet.numberOfPendingOrdes':-1
-                  }
-            })
+            'wallet.numberOfPendingOrdes': -1
+          }
+        })
 
 
       }
