@@ -1250,7 +1250,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
             $set: {
-
+              deliveryAssignedOn: new Date(),
               deliveryAgentId: data.deliveryAgentId,
               deliveryAgentName: data.deliveryAgentName
             }
