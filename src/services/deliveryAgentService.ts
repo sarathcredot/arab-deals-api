@@ -1086,6 +1086,8 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
 
+      console.log(data, 'ORDER RETURN ASSIGN DATA');
+      
       if (assignOrder) {
 
 
