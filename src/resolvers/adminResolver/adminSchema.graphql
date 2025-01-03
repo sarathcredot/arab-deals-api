@@ -21,16 +21,16 @@
 
 
 type getAllDeliveryAgentConfigResponse{
-
        _id:ObjectId,
        orderAssignLimit:Int
+       returnOrderAssignLimit:Int
 }
 
 
 input updateDeliveryAgentConfigInput{
-
-        _id:ObjectId
-        limit:Int
+        _id:ObjectId!
+        deliveryLimit:Int!
+        returnLimit:Int!
 }
 
 

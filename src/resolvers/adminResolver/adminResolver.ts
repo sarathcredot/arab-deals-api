@@ -318,10 +318,12 @@ export const adminResolver: Resolvers = {
 
     
     updateDeliveryAgentConfig:async(parent, { input }, { req }, info)=>{
+          // await verifyAdmin(req)
 
             try {
+              const {deliveryLimit,returnLimit,_id}=input 
 
-               await adminService.updateDeliveryAgentConfig({_id:input._id,limit:input.limit || 0})  
+               await adminService.updateDeliveryAgentConfig({deliveryLimit ,returnLimit ,_id})  
                
                return{
 

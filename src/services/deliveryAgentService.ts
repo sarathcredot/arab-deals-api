@@ -520,6 +520,45 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
       // check is this first assigning or reassigning
       if (assignOrder.returnStatus === "APPROVED") {
         if (!assignOrder.returndeliveryAgentId) {
+
+          const limit: any = await deliveryAgentConfigModel.findOne()
+          const todayDate = new Date()
+
+          const matchObj = {
+
+            returndeliveryAgentId: data.deliveryAgentId,
+
+            $and: [
+              {
+                returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
+              },
+              {
+                returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
+              },
+              {
+                $or: [
+                  {
+                    returnStatus: "APPROVED",
+                  },
+                  {
+                    returnStatus: "COLLECTED",
+                  }
+
+                ]
+              }
+            ]
+          }
+
+          const result: any = await orderProductModel.aggregate([
+            {
+              $match: matchObj
+            },
+          ])
+
+          if (result.length >= limit.returnOrderAssignLimit) {
+            throw new Error("Assign order limit reached");
+          }
+
           // add order products model assign agent id and name
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
             $set: {
@@ -539,6 +578,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
         } else {
           // reassign this oder to new delivery agent
           // find old delivery agent and update this agent numberOfOrderAssigned count
+
           await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
             $inc: {
               'wallet.numberOfReturnOrderAssigned': -1,
@@ -546,6 +586,46 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
             }
           })
           //  this order reassign to new delivery agent
+         
+          const limit: any = await deliveryAgentConfigModel.findOne()
+          const todayDate = new Date()
+
+          const matchObj = {
+
+            returndeliveryAgentId: data.deliveryAgentId,
+
+            $and: [
+              {
+                returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
+              },
+              {
+                returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
+              },
+              {
+                $or: [
+                  {
+                    returnStatus: "APPROVED",
+                  },
+                  {
+                    returnStatus: "COLLECTED",
+                  }
+
+                ]
+              }
+            ]
+          }
+
+          const result: any = await orderProductModel.aggregate([
+            {
+              $match: matchObj
+            },
+          ])
+
+          if (result.length >= limit.returnOrderAssignLimit) {
+            throw new Error("Assign order limit reached");
+          }
+
+
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
             $set: {
               returndeliveryAgentId: data.deliveryAgentId,
@@ -553,6 +633,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
             }
           })
           // update this new new agent numberOfOrderAssigned count
+
           await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
             $inc: {
               'wallet.numberOfReturnOrderAssigned': 1,

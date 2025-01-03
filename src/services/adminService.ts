@@ -127,7 +127,7 @@ export const cretaeDeliveryAgentConfig=async(limit:number):Promise<any>=>{
          })
 }
 
-export const updateDeliveryAgentConfig=async(data:{limit:number,_id:Types.ObjectId}):Promise<any>=>{
+export const updateDeliveryAgentConfig=async(data:{deliveryLimit:number,_id:Types.ObjectId,returnLimit:number}):Promise<any>=>{
 
   return new Promise(async(resolve,reject)=>{
 
@@ -137,8 +137,8 @@ export const updateDeliveryAgentConfig=async(data:{limit:number,_id:Types.Object
             await deliveryAgentConfigModel.findByIdAndUpdate({_id:data._id},{
 
                   $set:{
-                      
-                        orderAssignLimit:data.limit
+                        orderAssignLimit:data.deliveryLimit,
+                        returnOrderAssignLimit:data.returnLimit
                   }
                    
             },{upsert:true})

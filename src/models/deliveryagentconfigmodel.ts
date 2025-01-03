@@ -10,6 +10,10 @@ const deliveryAgentConfigSchema = new Schema(
 
               type:Number,
               default:0
+        },
+        returnOrderAssignLimit:{
+            type:Number,
+            default:0
         }
     },
     {
