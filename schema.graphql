@@ -200,6 +200,7 @@ type Query {
   getTodayAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
   getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
   getAssignedOrderBundleByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderBundleByDeliveryAgentResponse!
+  getAssignedReturnOrderBundleByDeliveryAgent(input: GetAssignedOrderBundleInput): GetAssignedOrderBundleByDeliveryAgentResponse!
   getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
@@ -2561,6 +2562,12 @@ input DeliveryStatusOtpVerifyInput {
   remarks: String
 }
 
+input GetAssignedOrderBundleInput {
+  _id: ObjectId!
+  page: Int
+  size: Int
+}
+
 input ResetPasswordInput {
   newPassword: String!
 }
@@ -2768,7 +2775,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry {
   paymentMode: String
   orderDate: Date!
   shippingStatus: String!
-  deliveryAgentId: ObjectId!
+  deliveryAgentId: ObjectId
   userName: String
   email: String!
   mobileNumber: String!

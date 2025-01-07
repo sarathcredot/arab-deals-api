@@ -1087,8 +1087,6 @@ export const deliveryAgentResolver: Resolvers = {
   Query: {
 
     //to get agent's pending return orders list
-
-
     getPendingReturnsByAgent: async (parent, { input }, { req }, info) => {
       console.log("called")
       await verifyDeliveryAgent(req);
@@ -1694,6 +1692,8 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+    //to get pending orders of agent in agent dashboard
+
     getTodayAssignedOrderByAgentProfile: async (parent, { input }, { req }, info) => {
 
       try {
@@ -1805,6 +1805,42 @@ export const deliveryAgentResolver: Resolvers = {
 
     },
 
+    // to get return order bundles of agent in admin side
+
+    getAssignedReturnOrderBundleByDeliveryAgent:async (parent,{input},{req},info)=>{
+         try {
+
+          if (!input?._id) {
+            throw new GraphQLError("invalied delivery boy id", {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                errors: [],
+              },
+            });
+          }
+
+          const options = {
+            _id: input._id,
+            page: input?.page || 0,
+            size: input?.size || 10,
+          }
+
+          const result = await deliveryAgentService.getAssignedReturnOrderBundleByDeliveryAgent(options)
+          return result
+          
+         } catch (error:any) {
+          console.log("ERROR = ",error)
+          throw new GraphQLError(error, {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+        }
+    },
+
+    //to get order bundles of agent in admin side
+
     getAssignedOrderBundleByDeliveryAgent:async (parent,{input},{req},info)=>{
         try {
           console.log(req," = REQ")
@@ -1831,9 +1867,6 @@ export const deliveryAgentResolver: Resolvers = {
 
         return result
 
-
-
-
         } catch (error:any) {
           console.log("ERROR = ",error)
           throw new GraphQLError(error, {
@@ -1845,9 +1878,6 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
     },
-
-
-
 
 
     // delivery agent port assigned order detail view
@@ -1884,6 +1914,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         const orderProductsId = new Types.ObjectId(input._id)
         const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
+        console.log("result",result)
 
         return result;
 
