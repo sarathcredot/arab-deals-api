@@ -1590,7 +1590,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
 // updated
 
-export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any }): Promise<any> => {
+export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any ,date?:any}): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
       let dataSize: any
@@ -1599,6 +1599,10 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
       console.log("input ", data)
       if (data.shippingStatus) {
         matchObj.shippingStatus = data.shippingStatus
+      }
+
+      if(data?.date){
+        matchObj.$and = [{deliveryAssignedOn:{$gte:startOfDay(new Date(data?.date))}},{deliveryAssignedOn:{$lte:endOfDay(new Date(data?.date))}}]
       }
     
 
@@ -1756,7 +1760,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 }
 
 
-export const getAssignedReturnOrderBundleByDeliveryAgent = async (data:{_id: Types.ObjectId, page: number, size: number}):Promise<any>=>{
+export const getAssignedReturnOrderBundleByDeliveryAgent = async (data:{_id: Types.ObjectId, page: number, size: number,search:string}):Promise<any>=>{
   return new Promise(async (resolve, reject) => {
     try {
       
@@ -1765,19 +1769,34 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data:{_id: Typ
     let dataSize: any
     let result: any
     let matchObj: any = { returndeliveryAgentId: data._id}
+    if(data?.search){
+      matchObj.$and = [{returnOrderAssignedOn:{$gte:startOfDay(new Date(data?.search))}},{returnOrderAssignedOn:{$lte:endOfDay(new Date(data?.search))}}]
+    }
+
+ 
+
 
     dataSize = await orderProductModel.aggregate([
       {
         $match: matchObj,
       },
       {
-        $group:{
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$returnOrderAssignedOn" } },
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$returnOrderAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedOn",
           count: {
             $sum: 1
           },
           date: {
-            $first: { $dateToString: { format: "%Y-%m-%d", date: "$returnOrderAssignedOn" } }
+            $first:"$returnOrderAssignedOn"
           }
         }
       },
@@ -1789,13 +1808,22 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data:{_id: Typ
         $match: matchObj,
       },
       {
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$returnOrderAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$returnOrderAssignedOn" } },
+          _id: "$assignedOn",
           count: {
             $sum: 1
           },
           date: {
-            $first: { $dateToString: { format: "%Y-%m-%d", date: "$returnOrderAssignedOn" } }
+            $first:"$returnOrderAssignedOn"
           }
         }
       },
@@ -1872,6 +1900,8 @@ export const getAssignedOrderBundleByDeliveryAgent = async (data:{_id: Types.Obj
         }
       },
     ])
+
+
     result = await orderProductModel.aggregate([
       {
         $match: matchObj,

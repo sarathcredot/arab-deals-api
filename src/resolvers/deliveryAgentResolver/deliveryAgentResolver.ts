@@ -1782,7 +1782,8 @@ export const deliveryAgentResolver: Resolvers = {
           _id: input._id,
           page: input?.page || 0,
           size: input?.size || 10,
-          shippingStatus: input?.shippingStatus
+          shippingStatus: input?.shippingStatus,
+          date:input?.date
         }
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
@@ -1823,6 +1824,7 @@ export const deliveryAgentResolver: Resolvers = {
             _id: input._id,
             page: input?.page || 0,
             size: input?.size || 10,
+             search:input?.search|| ""
           }
 
           const result = await deliveryAgentService.getAssignedReturnOrderBundleByDeliveryAgent(options)

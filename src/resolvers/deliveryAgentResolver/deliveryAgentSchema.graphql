@@ -63,6 +63,8 @@ input GetAssignedOrderBundleInput{
         _id:ObjectId!
         page:Int
         size:Int
+        search:String
+
 }
 
 input ResetPasswordInput{
@@ -216,12 +218,12 @@ type GetDeliveryAgentReturnOrderResponse{
 
 
  input GetAssignedOrderByDeliveryAgentInput{
-
         _id:ObjectId!
         page:Int
         size:Int
         search:String
         shippingStatus:String
+        date:Date
  }
 
  input getAssignedOrderByAgentProfileInput{
