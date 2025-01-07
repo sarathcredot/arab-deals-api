@@ -1040,6 +1040,48 @@ export const deliveryAgentResolver: Resolvers = {
 
     },
 
+
+    resetPassword: async (parent, { input }, { req }, info) => {
+      try {
+        // Verify that the request is made by a valid delivery agent
+        await verifyDeliveryAgent(req);
+        const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+    
+        const newPassword: string = input?.newPassword;
+    
+        // Validate the input password
+        if (!newPassword || newPassword.trim().length < 8) {
+          throw new GraphQLError("Password must be at least 8 characters long", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+    
+        // Find the delivery agent in the database
+        const existingAgent = await deliveryAgentModel.findById(agentId);
+        if (!existingAgent) {
+          throw new GraphQLError("Agent not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+    
+        // Hash and set the new password
+        await existingAgent.setHash!(newPassword);
+    
+        // Save the updated agent record to the database
+        await existingAgent.save();
+    
+        return {
+          success: true,
+          message: "Password reset successfully",
+        };
+      } catch (error: any) {
+        throw new GraphQLError(error.message || "Failed to reset password", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+    
+
   },
 
   Query: {

@@ -21,6 +21,7 @@ type Mutation {
   deliveryStatusAddDeliveryAgent(input:deliveryStatusAddDeliveryAgentInput!):deliveryStatusAddDeliveryAgentResponse!
   returnStatusChangeAfterOtpVerify(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
   updateAvailableStatus(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
+  resetPassword(input:ResetPasswordInput!):ResetPasswordResponse!
   }
 
 
@@ -54,6 +55,15 @@ input DeliveryStatusOtpVerifyInput{
         deliveryStatus:String
         paymentMode:String
         remarks:String
+}
+
+input ResetPasswordInput{
+  newPassword:String!
+}
+
+type ResetPasswordResponse{
+  success: Boolean,
+  message: String,
 }
 
 type DeliveryStatusOtpVerifyResponse{
