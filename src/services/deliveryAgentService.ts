@@ -1665,6 +1665,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
             orderDate: 1,
             shippingStatus: 1,
             deliveryAgentId: 1,
+            deliveryAssignedOn:1,
             userName: {
               $concat: ["$userDetails.firstName", " ", "$userDetails.lastName"]
             },

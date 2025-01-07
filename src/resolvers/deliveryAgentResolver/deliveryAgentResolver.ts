@@ -1256,6 +1256,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       const page: number = input?.page || 0;
       const limit: number = input?.limit || Infinity;
+      const date=input?.date
 
       if (!agentId) {
         throw new GraphQLError("All Fields are required", {
@@ -1275,6 +1276,13 @@ export const deliveryAgentResolver: Resolvers = {
 
       if (input.returnStatus) {
         returnFilter.returnStatus = input.returnStatus;
+      }
+
+      if (input.date) {
+          returnFilter.returnOrderAssignedOn = {
+            $gte: startOfDay(date),
+            $lte: endOfDay(date),
+          };
       }
 
 
@@ -1884,7 +1892,6 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     // delivery agent port assigned order detail view
-
     getAssignedeOrderDeatilsByAgentProfile: async (parent, { input }, { req }, info) => {
 
       try {

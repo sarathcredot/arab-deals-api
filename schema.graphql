@@ -2608,6 +2608,7 @@ input GetDeliveryAgentReturnOrderInput {
   returnStatus: String
   page: Int
   limit: Int
+  date: Date
 }
 
 input ReturnstatusUpdateInput {
@@ -2754,6 +2755,7 @@ type GetAssignedOrderByDeliveryAgentResponseArry {
   orderDate: Date
   shippingStatus: String
   deliveryAgentId: ObjectId
+  deliveryAssignedOn: Date
   userName: String
   email: String
   mobileNumber: String
