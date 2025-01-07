@@ -144,8 +144,11 @@ export const adminResolver: Resolvers = {
       const email: string = input.email.toLowerCase();
       const password: string = input.password;
 
+      console.log(input, 'INPUT ADMIN LOGIN')
+
       const admin = await adminService.findAdminWithFilters({ email: email }, {}, {});
 
+      console.log(admin, " = ADMIN");
       if (!admin) {
         throw new GraphQLError("Invalid Account", {
           extensions: {
@@ -162,7 +165,8 @@ export const adminResolver: Resolvers = {
           }
         });
       }
-      else if (! await admin.verifyHash?.(password)) {
+      else if (!await admin.verifyHash?.(password)) {
+        console.log('PASSWORD CHECK = ', await admin.verifyHash?.(password), )
         throw new GraphQLError("Invalid Account", {
           extensions: {
             code: "BAD_REQUEST",
@@ -170,9 +174,11 @@ export const adminResolver: Resolvers = {
           }
         });
       }
+      console.log('PASSWORD CHECK = ', await admin.verifyHash?.(password), )
 
       let token = await jwtService.createAdminJWT(admin._id!.toString());
 
+      console.log(token, 'ADMIN TOKEN ')
       admin.token = token;
 
       await admin.save();
