@@ -2616,9 +2616,9 @@ input ReturnstatusUpdateInput {
 }
 
 type ReturnstatusUpdateResponse {
-  status: Boolean!
-  otp: Boolean!
-  msg: String!
+  status: Boolean
+  otp: Boolean
+  msg: String
 }
 
 input UploadReturnInput {
@@ -2700,7 +2700,7 @@ type AdminReturnOrderProduct {
 }
 
 type GetDeliveryAgentReturnOrderResponse {
-  records: [AdminReturnOrderProduct]!
+  records: [AdminReturnOrderProduct]
   totalCount: Float
   page: Float
   totalPages: Float
@@ -2710,6 +2710,7 @@ input GetAssignedOrderByDeliveryAgentInput {
   _id: ObjectId!
   page: Int
   size: Int
+  search: String
   shippingStatus: String
 }
 
@@ -2734,26 +2735,26 @@ input getAssignedeOrderDeatilsByAgentProfileInput {
 }
 
 type GetAssignedOrderBundleByDeliveryAgentResponseArry {
-  _id: Date!
-  date: Date!
-  count: Int!
+  _id: String
+  date: Date
+  count: Int
 }
 
 type GetAssignedOrderByDeliveryAgentResponseArry {
-  _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
-  itemId: String!
-  sellingPrice: Float!
-  paymentStatus: String!
+  _id: ObjectId
+  orderId: String
+  userId: ObjectId
+  productName: String
+  itemId: String
+  sellingPrice: Float
+  paymentStatus: String
   paymentMode: String
-  orderDate: Date!
-  shippingStatus: String!
-  deliveryAgentId: ObjectId!
+  orderDate: Date
+  shippingStatus: String
+  deliveryAgentId: ObjectId
   userName: String
-  email: String!
-  mobileNumber: String!
+  email: String
+  mobileNumber: String
   houseNumber: String
   streetName: String
   apartment: String
@@ -2765,20 +2766,20 @@ type GetAssignedOrderByDeliveryAgentResponseArry {
 }
 
 type GetAssignedOrderDetailByDeliveryAgentResponseArry {
-  _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
+  _id: ObjectId
+  orderId: String
+  userId: ObjectId
+  productName: String
   itemId: String
-  sellingPrice: Float!
-  paymentStatus: String!
+  sellingPrice: Float
+  paymentStatus: String
   paymentMode: String
-  orderDate: Date!
-  shippingStatus: String!
+  orderDate: Date
+  shippingStatus: String
   deliveryAgentId: ObjectId
   userName: String
-  email: String!
-  mobileNumber: String!
+  email: String
+  mobileNumber: String
   houseNumber: String
   streetName: String
   apartment: String
@@ -2807,18 +2808,18 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry {
 }
 
 type getAssignedeOrderDeatilsByAgentProfileResponse {
-  _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
-  sellingPrice: Float!
-  paymentStatus: String!
-  orderDate: String!
-  shippingStatus: String!
-  deliveryAgentId: ObjectId!
+  _id: ObjectId
+  orderId: String
+  userId: ObjectId
+  productName: String
+  sellingPrice: Float
+  paymentStatus: String
+  orderDate: String
+  shippingStatus: String
+  deliveryAgentId: ObjectId
   userName: String
-  email: String!
-  mobileNumber: String!
+  email: String
+  mobileNumber: String
   houseNumber: String
   streetName: String
   apartment: String
@@ -2835,7 +2836,7 @@ type getAssignedOrderByAgentProfileResponse {
 }
 
 input getAgentSettlementHistoryInput {
-  agentId: ObjectId!
+  agentId: ObjectId
   page: Int
   limit: Int
   startDate: Date
@@ -2844,7 +2845,7 @@ input getAgentSettlementHistoryInput {
 }
 
 type getAllAgentDataResponse {
-  maxRecords: Int!
+  maxRecords: Int
   records: [AllAgents]
 }
 
@@ -2873,13 +2874,13 @@ type GetAllAssignOrderAgentProfileResponse {
 }
 
 type OrderDelivedbyAgentResponse {
-  status: Boolean!
+  status: Boolean
   msg: String
   otp: Boolean
 }
 
 type DeliveryAgent {
-  _id: ObjectId!
+  _id: ObjectId
   fullName: String!
   contactNumber: String!
   userID: String!
@@ -2978,12 +2979,12 @@ type SettlementHistory {
 
 type AllDeliveryAgentResponse {
   _id: ObjectId
-  message: String!
+  message: String
 }
 
 type CreateDeliveryAgentResponse {
   _id: ObjectId
-  message: String!
+  message: String
   error: Boolean
 }
 
@@ -3051,10 +3052,10 @@ input LoginDeliveryAgentInput {
 }
 
 type LoginDeliveryAgentResponse {
-  status: String!
-  fullName: String!
-  token: String!
-  msg: String!
+  status: String
+  fullName: String
+  token: String
+  msg: String
 }
 
 input GetDashboardUsersGraphInput {

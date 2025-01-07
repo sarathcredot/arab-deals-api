@@ -1833,7 +1833,8 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data:{_id: Typ
   })
 }
 
-export const getAssignedOrderBundleByDeliveryAgent = async (data:{_id: Types.ObjectId, page: number, size: number}):Promise<any>=>{
+
+export const getAssignedOrderBundleByDeliveryAgent = async (data:{_id: Types.ObjectId, page: number, size: number,search:string}):Promise<any>=>{
   return new Promise(async (resolve, reject) => {
     try {
       
@@ -1842,19 +1843,31 @@ export const getAssignedOrderBundleByDeliveryAgent = async (data:{_id: Types.Obj
     let dataSize: any
     let result: any
     let matchObj: any = { deliveryAgentId: data._id}
+    if(data?.search){
+      matchObj.$and = [{deliveryAssignedOn:{$gte:startOfDay(new Date(data?.search))}},{deliveryAssignedOn:{$lte:endOfDay(new Date(data?.search))}}]
+    }
 
     dataSize = await orderProductModel.aggregate([
       {
         $match: matchObj,
       },
       {
-        $group:{
-          _id: "$createdAt",
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$deliveryAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedOn",
           count: {
             $sum: 1
           },
-          date:{
-            $first:"$createdAt"
+          date: {
+            $first:"$deliveryAssignedOn"
           }
         }
       },
@@ -1864,13 +1877,22 @@ export const getAssignedOrderBundleByDeliveryAgent = async (data:{_id: Types.Obj
         $match: matchObj,
       },
       {
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$deliveryAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
         $group: {
-          _id: "$createdAt",
+          _id: "$assignedOn",
           count: {
             $sum: 1
           },
           date: {
-            $first:"$createdAt"
+            $first:"$deliveryAssignedOn"
           }
         }
       },
