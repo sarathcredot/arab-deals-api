@@ -1755,6 +1755,81 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
   })
 }
 
+export const getAssignedOrderBundleByDeliveryAgent = async (data:{_id: Types.ObjectId, page: number, size: number}):Promise<any>=>{
+  return new Promise(async (resolve, reject) => {
+    try {
+      
+      console.log("input ", data)
+      
+    let dataSize: any
+    let result: any
+    let matchObj: any = { deliveryAgentId: data._id}
+
+    dataSize = await orderProductModel.aggregate([
+      {
+        $match: matchObj,
+      },
+      {
+        $group:{
+          _id: "$createdAt",
+          count: {
+            $sum: 1
+          },
+          date:{
+            $first:"$createdAt"
+          }
+        }
+      },
+    ])
+    result = await orderProductModel.aggregate([
+      {
+        $match: matchObj,
+      },
+      {
+        $group: {
+          _id: "$createdAt",
+          count: {
+            $sum: 1
+          },
+          date: {
+            $first:"$createdAt"
+          }
+        }
+      },
+      {
+        $sort: {
+          _id: -1
+        }
+      },
+      {
+        $skip: data.page * data.size,
+      },
+      {
+        $limit: data.size,
+      },
+    ])
+    
+    console.log("RESULT = ",result)
+    
+    let response: any = {
+      records: [],
+      maxRecords: 0
+    };
+    
+    
+    if (result.length) {
+      response.records = result || [];
+      response.maxRecords = dataSize?.length || 0;
+    }
+    
+    resolve(response);
+  } catch (error) {
+    reject(error);
+  }
+    
+  })
+}
+
 export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
