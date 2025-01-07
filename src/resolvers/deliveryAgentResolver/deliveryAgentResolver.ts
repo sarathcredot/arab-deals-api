@@ -1628,8 +1628,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
-        console.log("result ", result)
-
+       
         return result
 
 
@@ -1648,6 +1647,8 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+   
+   
     getTodayAssignedOrderByAgentProfile: async (parent, { input }, { req }, info) => {
 
       try {

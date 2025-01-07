@@ -178,7 +178,7 @@ const orderProductSchema = new Schema(
          */
         shippingStatus: {
             type: String,
-            enum: ["NA", "PENDING", "PACKAGE_IN_PROGRESS", "SHIPPED", "DELIVERED", "CANCELED","POSTPONED"],
+            enum: ["NA", "PENDING", "PACKAGE_IN_PROGRESS","OUT_FOR_DELIVERY" ,"SHIPPED", "DELIVERED", "CANCELED","POSTPONED"],
             default: "NA",
             required: true,
         },

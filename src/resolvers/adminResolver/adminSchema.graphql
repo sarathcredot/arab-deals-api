@@ -8,7 +8,7 @@
 # Admin auth Mutations
 
  type Mutation {
-  # createSuperAdmin(input: AdminSignUpInput!, image:Upload): AddAdminResponse!
+  createSuperAdmin(input: AdminSignUpInput!, image:Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image:Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
   updateAdminProfile(input: AdminEditProfileInput!, image:Upload): UpdateAdminResponse!
