@@ -191,7 +191,7 @@ export const deliveryAgentResolver: Resolvers = {
     },
 
     updateAvailableStatus: async (parent, { input }, { req }, info) => {
-
+      console.log("ethyyy")
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
       const { isAvailable } = input;
@@ -1763,7 +1763,46 @@ export const deliveryAgentResolver: Resolvers = {
 
     },
 
-   
+    getAssignedOrderBundleByDeliveryAgent:async (parent,{input},{req},info)=>{
+        try {
+          console.log(req," = REQ")
+          // await verifyAdmin(req)
+
+          // check input
+        if (!input?._id) {
+          throw new GraphQLError("invalied delivery boy id", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+        }
+        
+        const options = {
+          _id: input._id,
+          page: input?.page || 0,
+          size: input?.size || 10,
+        }
+
+        const result = await deliveryAgentService.getAssignedOrderBundleByDeliveryAgent(options)
+        console.log(result," = RESULT")
+
+        return result
+
+
+
+
+        } catch (error:any) {
+          console.log("ERROR = ",error)
+          throw new GraphQLError(error, {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+        }
+
+    },
 
 
 

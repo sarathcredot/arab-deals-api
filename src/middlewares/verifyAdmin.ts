@@ -36,6 +36,7 @@ export const verifyAdmin = async (req: CustomRequest) => {
             _id: admin._id!,
             accType: admin.accType || "",
         };
+        
 
     } catch (error) {
         console.log(error);

@@ -38,6 +38,7 @@ type Query{
    getAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):getAssignedOrderByAgentProfileResponse!
    getTodayAssignedOrderByAgentProfile(input:getAssignedOrderByAgentProfileInput):getAssignedOrderByAgentProfileResponse!
    getAssignedOrderByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderByDeliveryAgentResponse!
+   getAssignedOrderBundleByDeliveryAgent(input:GetAssignedOrderByDeliveryAgentInput):GetAssignedOrderBundleByDeliveryAgentResponse!
 
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
@@ -215,6 +216,11 @@ type GetDeliveryAgentReturnOrderResponse{
 
 
 
+ type GetAssignedOrderBundleByDeliveryAgentResponse{
+     records: [GetAssignedOrderBundleByDeliveryAgentResponseArry ],
+     maxRecords: Int
+ }
+
  type GetAssignedOrderByDeliveryAgentResponse{
 
   
@@ -232,6 +238,11 @@ type GetDeliveryAgentReturnOrderResponse{
         _id:ObjectId!
  }
 
+ type GetAssignedOrderBundleByDeliveryAgentResponseArry{
+  _id:Date!
+  date:Date!
+  count:Int!
+ }
  type  GetAssignedOrderByDeliveryAgentResponseArry{
 
       _id: ObjectId!
@@ -576,7 +587,7 @@ input SuspendDeliveryAgentInput {
 }
 
 input UpdateAvailableStatusInput {
-  agentId:ObjectId!
+  agentId:ObjectId
   isAvailable:Boolean!
 }
 
