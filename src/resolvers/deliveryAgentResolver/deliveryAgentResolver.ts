@@ -1782,6 +1782,7 @@ export const deliveryAgentResolver: Resolvers = {
           _id: input._id,
           page: input?.page || 0,
           size: input?.size || 10,
+          search:input?.search|| ""
         }
 
         const result = await deliveryAgentService.getAssignedOrderBundleByDeliveryAgent(options)
@@ -1841,8 +1842,8 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
         const orderProductsId = new Types.ObjectId(input._id)
-        const result = deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
-
+        const result =await deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
+        console.log("RESULT assigned= ",result)
         return result;
 
 
