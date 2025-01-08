@@ -34,6 +34,8 @@ export const userShippingAddressResolver: Resolvers = {
                 unit: input.unit || "",
                 city: input.city,
                 postCode: input.postCode,
+                governorate:input.governorate,
+                village:input.village,
                 isDefault: input.isDefault || (isExists ? false : true) // Set isDefault from input if provided, otherwise check if address exists
             };
 
@@ -134,6 +136,14 @@ export const userShippingAddressResolver: Resolvers = {
             }
             if (input.suite) {
                 shippingAddress.suite = input.suite;
+            }
+            
+            if(input.governorate){
+                shippingAddress.governorate=input.governorate;
+            }
+            
+            if(input.village){
+                shippingAddress.village=input.village;
             }
 
             await shippingAddress.save();
