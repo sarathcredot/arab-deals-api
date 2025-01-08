@@ -12,66 +12,66 @@ import { Types } from "mongoose";
 export const adminResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
-    // createSuperAdmin: async (parent, { input, image }, { req }, info) => {
+    createSuperAdmin: async (parent, { input, image }, { req }, info) => {
 
-    //   await validateInput(validators.SuperAdminCreateValidator, req);
+      await validateInput(validators.SuperAdminCreateValidator, req);
 
-    //   let profilePic: adminService.FileData | null = null;
-    //   let email: string = input.email.toLowerCase();
-    //   let fullName: string = input.fullName;
-    //   let password: string = input.password;
-
-
-    //   if (image) {
-    //     const { createReadStream, filename, mimetype, encoding } = await image;
-    //     const key = spaceService.getFileKey(filePaths.adminProfile, filename, []);
-    //     const stream = createReadStream();
-    //     const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
-
-    //     profilePic = {
-    //       fileType: "PUBLIC",
-    //       fileURL: file.location,
-    //       mimeType: mimetype,
-    //       originalName: filename
-    //     }
-    //   }
-
-    //   const existingAdmin = await adminService.findAdminWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
-    //   if (existingAdmin) {
-    //     throw new GraphQLError('Admin with this email already exists', {
-    //       extensions: {
-    //         code: "INTERNAL_SERVER_ERROR",
-    //         errors: []
-    //       }
-    //     });
-    //   }
+      let profilePic: adminService.FileData | null = null;
+      let email: string = input.email.toLowerCase();
+      let fullName: string = input.fullName;
+      let password: string = input.password;
 
 
-    //   let newAdminData: adminService.IAdmin = {
-    //     email,
-    //     fullName,
-    //     accType: "SUPER_ADMIN",
-    //   }
+      if (image) {
+        const { createReadStream, filename, mimetype, encoding } = await image;
+        const key = spaceService.getFileKey(filePaths.adminProfile, filename, []);
+        const stream = createReadStream();
+        const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
 
-    //   if (profilePic) {
-    //     newAdminData.profilePic = profilePic;
-    //   }
-    //   const result = await adminService.createAdmin(newAdminData, password);
+        profilePic = {
+          fileType: "PUBLIC",
+          fileURL: file.location,
+          mimeType: mimetype,
+          originalName: filename
+        }
+      }
 
-    //   if (!result) {
-    //     throw new GraphQLError("Unable to create admin", {
-    //       extensions: {
-    //         code: "INTERNAL_SERVER_ERROR",
-    //         errors: []
-    //       }
-    //     });
-    //   }
+      const existingAdmin = await adminService.findAdminWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+      if (existingAdmin) {
+        throw new GraphQLError('Admin with this email already exists', {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
 
-    //   let response = {
-    //     _id: result._id!.toString()
-    //   };
-    //   return response;
-    // },
+
+      let newAdminData: adminService.IAdmin = {
+        email,
+        fullName,
+        accType: "SUPER_ADMIN",
+      }
+
+      if (profilePic) {
+        newAdminData.profilePic = profilePic;
+      }
+      const result = await adminService.createAdmin(newAdminData, password);
+
+      if (!result) {
+        throw new GraphQLError("Unable to create admin", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          }
+        });
+      }
+
+      let response = {
+        _id: result._id!.toString()
+      };
+      return response;
+    },
 
     createSubAdmin: async (parent, { input, image }, { req }, info) => {
 
@@ -139,6 +139,8 @@ export const adminResolver: Resolvers = {
 
     loginAdmin: async (parent, { input }, { req }, info) => {
 
+      console.log("login req")
+
       await validateInput(validators.adminLoginValidator, req);
 
       const email: string = input.email.toLowerCase();
@@ -150,6 +152,7 @@ export const adminResolver: Resolvers = {
 
       console.log(admin, " = ADMIN");
       if (!admin) {
+        console.log("login req","no accout")
         throw new GraphQLError("Invalid Account", {
           extensions: {
             code: "BAD_REQUEST",
@@ -158,6 +161,7 @@ export const adminResolver: Resolvers = {
         });
       }
       else if (admin.isBlocked) {
+        console.log("login req","block accout")
         throw new GraphQLError("Admin Blocked", {
           extensions: {
             code: "BAD_REQUEST",
@@ -165,8 +169,8 @@ export const adminResolver: Resolvers = {
           }
         });
       }
-      else if (!await admin.verifyHash?.(password)) {
-        console.log('PASSWORD CHECK = ', await admin.verifyHash?.(password), )
+      else if (! await admin.verifyHash?.(password)) {
+        console.log("login req","no ac")
         throw new GraphQLError("Invalid Account", {
           extensions: {
             code: "BAD_REQUEST",

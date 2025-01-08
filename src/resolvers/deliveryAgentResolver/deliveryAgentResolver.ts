@@ -1698,8 +1698,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
-        console.log("result ", result)
-
+       
         return result
 
 
