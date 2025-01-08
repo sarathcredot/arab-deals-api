@@ -169,13 +169,8 @@ export const adminResolver: Resolvers = {
           }
         });
       }
-<<<<<<< HEAD
       else if (! await admin.verifyHash?.(password)) {
         console.log("login req","no ac")
-=======
-      else if (!await admin.verifyHash?.(password)) {
-        console.log('PASSWORD CHECK = ', await admin.verifyHash?.(password), )
->>>>>>> 4b2bd36b35de97155a692d4952bed3cea5221b1b
         throw new GraphQLError("Invalid Account", {
           extensions: {
             code: "BAD_REQUEST",
