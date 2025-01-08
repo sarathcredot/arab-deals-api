@@ -603,6 +603,8 @@ input CreateDeliveryAgentInput {
   password: String!
   governorate:String!
   village:String!
+  governorateID:String!
+  villageID:String!
   agentType: String! # Must be one of: 'ArabDeals', 'Vendor', 'ThirdParty'
   vendorID: ObjectId # Optional, only for agents linked to a vendor
 }

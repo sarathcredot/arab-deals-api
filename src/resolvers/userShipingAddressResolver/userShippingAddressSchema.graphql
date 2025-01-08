@@ -34,6 +34,8 @@ input UserCreateShippingAddressInput {
     unit: String
     governorate:String!
     village:String!
+    governorateID:String!
+    villageID:String!
     isDefault: Boolean
 }
 
@@ -70,6 +72,8 @@ input UserEditShippingAddressInput {
     country: String
     governorate:String
     village:String
+    governorateID:String
+    villageID:String
  
 }
 
@@ -196,6 +200,8 @@ type UserShippingAddress {
     country: String
     governorate:String
     village:String
+    governorateID:String
+    villageID:String
     isDefault: Boolean
 }
 
@@ -223,6 +229,8 @@ type GetUserShippingAddressResponse {
     country: String
     governorate:String
     village:String
+    governorateID:String
+    villageID:String
     isDefault: Boolean
 }
 

@@ -1,19 +1,19 @@
 {
     "governorates": [
       {
-        "id": "gvt_1",
+        "_id": "gvt_1",
         "name": "Cairo",
         "villages": [
-          { "id": "vlt_1", "name": "Heliopolis" },
-          { "id": "vlt_2", "name": "Nasr City" }
+          { "_id": "vlt_1", "name": "Heliopolis" },
+          { "_id": "vlt_2", "name": "Nasr City" }
         ]
       },
       {
-        "id": "gvt_2",
+        "_id": "gvt_2",
         "name": "Alexandria",
         "villages": [
-          { "id": "vlt_1", "name": "El Montaza" },
-          { "id": "vlt_2", "name": "Borg El Arab" }
+          { "_id": "vlt_3", "name": "El Montaza" },
+          { "_id": "vlt_4", "name": "Borg El Arab" }
         ]
       }
     ]

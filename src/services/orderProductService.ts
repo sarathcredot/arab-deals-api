@@ -206,6 +206,8 @@ export interface IReturnOrderProductDocument extends Document {
     unit?: string;
     governorate:string;
     village:string;
+    governorateID:string;
+    villageID:string;
   };
   returndeliveryAgentId?: Types.ObjectId;
   returndeliveryAgentName?: string;

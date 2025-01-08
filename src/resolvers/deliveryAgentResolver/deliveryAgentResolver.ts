@@ -67,6 +67,9 @@ export const deliveryAgentResolver: Resolvers = {
       let licence: deliveryAgentService.FileData | undefined;
       let governorate: string = input.governorate;
       let village: string = input.village;
+      let governorateID: string = input.governorateID;
+      let villageID: string = input.villageID;
+
 
 
 
@@ -127,7 +130,9 @@ export const deliveryAgentResolver: Resolvers = {
           licence,
           ID,
           governorate,
-          village
+          village,
+          governorateID,
+          villageID
 
         };
 
@@ -1161,6 +1166,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+    //to get all governorates and villages
 
     getLocationsData: async (parent, {  }, { req }, info) => {
       console.log("called")

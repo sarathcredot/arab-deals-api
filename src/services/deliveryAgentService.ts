@@ -30,6 +30,8 @@ export interface IDeliveryAgent {
   ID: string;
   governorate:string;
   village:string;
+  governorateID:string;
+  villageID:string;
 }
 
 

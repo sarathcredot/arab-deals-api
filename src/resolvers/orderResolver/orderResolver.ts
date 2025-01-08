@@ -778,7 +778,9 @@ export const orderResolver: Resolvers = {
             city: returnAddress.city || "",
             postCode: returnAddress.postCode || "",
             governorate:returnAddress.governorate,
-            village:returnAddress.village
+            village:returnAddress.village,
+            governorateID:returnAddress.governorateID,
+            villageID:returnAddress.villageID
           }
         : null;
 

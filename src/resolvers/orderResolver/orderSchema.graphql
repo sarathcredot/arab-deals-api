@@ -98,6 +98,8 @@ type returnAddress {
   unit: String
   governorate:String
   village:String
+  governorateID:String!
+  villageID:String!
 }
 
 input ReturnAddressInput {
@@ -114,6 +116,8 @@ input ReturnAddressInput {
   unit: String
   governorate:String!
   village:String!
+   governorateID:String!
+  villageID:String!
 }
 
 input ReturnUserOrderProductInput {

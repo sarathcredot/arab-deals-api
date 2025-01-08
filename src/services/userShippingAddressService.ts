@@ -19,6 +19,8 @@ export interface IShippingAddress {
     postCode?: string;
     governorate?:string;
     village?:string;
+    governorateID?:string;
+    villageID?:string;
     isDefault?: boolean;
 }
 
@@ -38,6 +40,8 @@ export interface IShippingAddressDocument extends Document {
     city?: string;
     governorate?:string;
     village?:string;
+    governorateID?:string;
+    villageID?:string;
     postCode?: string;
     isDefault?: boolean;
 }
