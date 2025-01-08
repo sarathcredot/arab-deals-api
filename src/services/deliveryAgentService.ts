@@ -517,7 +517,7 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 };
 
 
-export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
+export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string,bundleCount: number }) => {
   try {
     const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
     if (assignOrder) {
@@ -526,6 +526,9 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
         if (!assignOrder.returndeliveryAgentId) {
 
           const limit: any = await deliveryAgentConfigModel.findOne()
+          const finalLimit=limit.returnOrderAssignLimit*data.bundleCount
+
+
           const todayDate = new Date()
 
           const matchObj = {
@@ -539,17 +542,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               {
                 returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
               },
-              // {
-              //   $or: [
-              //     {
-              //       returnStatus: "APPROVED",
-              //     },
-              //     {
-              //       returnStatus: "COLLECTED",
-              //     }
-
-              //   ]
-              // }
+             
             ]
           }
 
@@ -559,7 +552,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
             },
           ])
 
-          if (result.length >= limit.returnOrderAssignLimit) {
+          if (result.length >= finalLimit) {
             throw new Error("Assign order limit reached");
           }
 
@@ -592,6 +585,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           //  this order reassign to new delivery agent
 
           const limit: any = await deliveryAgentConfigModel.findOne()
+          const finalLimit=limit.returnOrderAssignLimit*data.bundleCount
           const todayDate = new Date()
 
           const matchObj = {
@@ -605,17 +599,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               {
                 returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
               },
-              // {
-              //   $or: [
-              //     {
-              //       returnStatus: "APPROVED",
-              //     },
-              //     {
-              //       returnStatus: "COLLECTED",
-              //     }
-
-              //   ]
-              // }
+             
             ]
           }
 
@@ -625,7 +609,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
             },
           ])
 
-          if (result.length >= limit.returnOrderAssignLimit) {
+          if (result.length >= finalLimit) {
             throw new Error("Assign order limit reached");
           }
 

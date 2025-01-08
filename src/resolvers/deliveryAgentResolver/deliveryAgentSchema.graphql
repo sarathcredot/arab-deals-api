@@ -21,6 +21,7 @@ type Mutation {
   deliveryStatusAddDeliveryAgent(input:deliveryStatusAddDeliveryAgentInput!):deliveryStatusAddDeliveryAgentResponse!
   returnStatusChangeAfterOtpVerify(input:ReturnstatusUpdateInput!):ReturnstatusUpdateResponse!
   updateAvailableStatus(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
+  updateAvailableStatusByAdmin(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
   resetPassword(input:ResetPasswordInput!):ResetPasswordResponse!
   }
 
@@ -534,6 +535,7 @@ input OrderAssignDeliveryAgentInput{
        orderItemId:ObjectId!
        deliveryAgentId:ObjectId!
        deliveryAgentName:String
+       bundleCount:Int
 }
 
 
@@ -631,6 +633,8 @@ input UpdateAvailableStatusInput {
   agentId:ObjectId
   isAvailable:Boolean!
 }
+
+
 
 input GetDeliveryAgentInput {
   agentId:ObjectId!

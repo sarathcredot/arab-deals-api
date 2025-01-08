@@ -43,6 +43,7 @@ type OrderAssignDeliveryAgentInput = {
   orderItemId: Types.ObjectId
   deliveryAgentId: Types.ObjectId
   deliveryAgentName: string
+  bundleCount: number
 }
 
 
@@ -206,6 +207,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+    //update available status by agent
     updateAvailableStatus: async (parent, { input }, { req }, info) => {
       console.log("ethyyy")
       await verifyDeliveryAgent(req);
@@ -256,6 +258,57 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+
+    //update available status by admin
+    
+    updateAvailableStatusByAdmin: async (parent, { input }, { req }, info) => {
+      console.log("ethyyy")
+      await verifyAdmin(req);
+      const { isAvailable,agentId } = input;
+
+      // Validate the input
+      if (!agentId) {
+        throw new GraphQLError("Agent ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        // Check if the delivery agent exists
+        const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { _id: agentId },
+          { _id: 1, isAvailable: 1 },
+          { lean: true }
+        );
+
+        if (!existingAgent) {
+          throw new GraphQLError("Delivery Agent not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+
+        // Update the isActive status
+        const updatedAgent = await deliveryAgentService.updateAvailableStatus(
+          new Types.ObjectId(agentId),
+          isAvailable
+        );
+
+        if (!updatedAgent) {
+          throw new GraphQLError("Unable to update Your Availability", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
+          });
+        }
+
+        return {
+          _id: updatedAgent._id,
+          message: `${isAvailable ? "Set agent as available" : "set agent as not available"}`
+        };
+      } catch (error: any) {
+        throw new GraphQLError(error.message || "Error suspending Delivery Agent", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
 
     //to create settlement by admin 
 
@@ -628,7 +681,7 @@ export const deliveryAgentResolver: Resolvers = {
         // input validation
         // await validateInput(validators.orderAssignDeliveryAgentValidator, req)
 
-        const { orderItemId, deliveryAgentId, deliveryAgentName } = input
+        const { orderItemId, deliveryAgentId, deliveryAgentName,bundleCount } = input
 
         const result = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
 
