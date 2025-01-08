@@ -45,8 +45,20 @@ type Query{
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
+   getLocationsData:[Locations]!
 }
 
+
+type Village {
+    _id: String!
+    name: String!
+}
+
+type Locations {
+    name: String!
+    _id: String!
+    villages: [Village!]!
+}
 
 input DeliveryStatusOtpVerifyInput{
         orderItemId:ObjectId!
@@ -210,6 +222,8 @@ type UserReturn {
   returnCollectorBoy: DeliveryAgentForReturnOrderProduct
 }
 
+
+
 type GetDeliveryAgentReturnOrderResponse{
   records: [AdminReturnOrderProduct]
   totalCount:Float
@@ -337,7 +351,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
  
  type getAssignedeOrderDeatilsByAgentProfileResponse{
 
-          _id: ObjectId
+   _id: ObjectId
   orderId: String
   userId: ObjectId
   productName: String
@@ -587,6 +601,10 @@ input CreateDeliveryAgentInput {
   contactNumber: String!
   userID: String!
   password: String!
+  governorate:String!
+  village:String!
+  governorateID:String!
+  villageID:String!
   agentType: String! # Must be one of: 'ArabDeals', 'Vendor', 'ThirdParty'
   vendorID: ObjectId # Optional, only for agents linked to a vendor
 }

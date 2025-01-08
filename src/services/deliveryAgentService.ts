@@ -28,6 +28,10 @@ export interface IDeliveryAgent {
   vendorID?: Types.ObjectId;
   licence: FileData;
   ID: string;
+  governorate:string;
+  village:string;
+  governorateID:string;
+  villageID:string;
 }
 
 
@@ -535,17 +539,17 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               {
                 returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
               },
-              {
-                $or: [
-                  {
-                    returnStatus: "APPROVED",
-                  },
-                  {
-                    returnStatus: "COLLECTED",
-                  }
+              // {
+              //   $or: [
+              //     {
+              //       returnStatus: "APPROVED",
+              //     },
+              //     {
+              //       returnStatus: "COLLECTED",
+              //     }
 
-                ]
-              }
+              //   ]
+              // }
             ]
           }
 
@@ -601,17 +605,17 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               {
                 returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
               },
-              {
-                $or: [
-                  {
-                    returnStatus: "APPROVED",
-                  },
-                  {
-                    returnStatus: "COLLECTED",
-                  }
+              // {
+              //   $or: [
+              //     {
+              //       returnStatus: "APPROVED",
+              //     },
+              //     {
+              //       returnStatus: "COLLECTED",
+              //     }
 
-                ]
-              }
+              //   ]
+              // }
             ]
           }
 

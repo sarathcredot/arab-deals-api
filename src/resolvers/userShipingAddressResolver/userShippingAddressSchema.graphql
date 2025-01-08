@@ -32,6 +32,10 @@ input UserCreateShippingAddressInput {
     apartment: String
     suite: String
     unit: String
+    governorate:String!
+    village:String!
+    governorateID:String!
+    villageID:String!
     isDefault: Boolean
 }
 
@@ -66,6 +70,10 @@ input UserEditShippingAddressInput {
     postCode: String
     houseNumber: String
     country: String
+    governorate:String
+    village:String
+    governorateID:String
+    villageID:String
  
 }
 
@@ -190,6 +198,10 @@ type UserShippingAddress {
     postCode: String
     houseNumber: String
     country: String
+    governorate:String
+    village:String
+    governorateID:String
+    villageID:String
     isDefault: Boolean
 }
 
@@ -215,6 +227,10 @@ type GetUserShippingAddressResponse {
     postCode: String
     houseNumber: String
     country: String
+    governorate:String
+    village:String
+    governorateID:String
+    villageID:String
     isDefault: Boolean
 }
 
