@@ -38,7 +38,7 @@ export const verifyDeliveryAgent = async (req: CustomRequest) => {
             _id: decoded.id !
            
         };
-
+        console.log("REQ = ",req)
        return decoded
 
     } catch (error) {

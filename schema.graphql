@@ -48,6 +48,13 @@ type Mutation {
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
   updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
+  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
+  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
@@ -58,13 +65,6 @@ type Mutation {
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
-  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
-  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   editDeliveryAgentData(input: EditAgentDataInput!, image: Upload): EditAgentDataInputResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!, image: Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): AllDeliveryAgentResponse!
@@ -81,14 +81,15 @@ type Mutation {
   deliveryStatusAddDeliveryAgent(input: deliveryStatusAddDeliveryAgentInput!): deliveryStatusAddDeliveryAgentResponse!
   returnStatusChangeAfterOtpVerify(input: ReturnstatusUpdateInput!): ReturnstatusUpdateResponse!
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
+  resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -161,6 +162,11 @@ type Query {
   getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
   getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
   getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
+  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -183,37 +189,6 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
-  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
-  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
-  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
-  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
-  getAgentSettlementHistoryByAgent(input: getAgentSettlementHistoryByAgentInput): [Settlement]!
-  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
-  getSettlementHistoryByAdmin: [Settlement]!
-  getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
-  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): GetAssignedOrderDetailByDeliveryAgentResponseArry!
-  getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
-  getTodayAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
-  getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
-  getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
-  getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
-  getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
-  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
-  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
-  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
-  getActiveCategoryTree: getActiveCategoryTreeResponse!
-  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
-  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
-  getAllLeafRecords: getAllLeafRecordsResponse!
-  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
-  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
-  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -236,12 +211,40 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
+  getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
+  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
+  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
+  getAgentSettlementHistoryByAgent(input: getAgentSettlementHistoryByAgentInput): [Settlement]!
+  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
+  getSettlementHistoryByAdmin: [Settlement]!
+  getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
+  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): GetAssignedOrderDetailByDeliveryAgentResponseArry!
+  getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
+  getTodayAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
+  getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
+  getAssignedOrderBundleByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderBundleByDeliveryAgentResponse!
+  getAssignedReturnOrderBundleByDeliveryAgent(input: GetAssignedOrderBundleInput): GetAssignedOrderBundleByDeliveryAgentResponse!
+  getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
+  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
+  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
+  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
+  getActiveCategoryTree: getActiveCategoryTreeResponse!
+  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
+  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
+  getAllLeafRecords: getAllLeafRecordsResponse!
+  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
+  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
+  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
@@ -1625,6 +1628,108 @@ type GetProductsMaxPriceInMobileResponse {
   message: String
 }
 
+input ExportAdminOrdersInput {
+  _id: ObjectId
+  userId: ObjectId
+  orderId: String
+  paymentMode: String
+  orderStatus: String
+  startDate: Date
+  endDate: Date
+  postCode: String
+  page: Int
+  size: Int
+}
+
+input GetJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+}
+
+input GetAgentJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+  agentId: ObjectId
+}
+
+input GetAdminDownloadTokenInput {
+  _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+  _id: ObjectId
+  userId: ObjectId
+  vendorId: ObjectId
+  orderId: String
+  productId: ObjectId
+  itemId: String
+  skuId: String
+  paymentMode: String
+  paymentStatus: String
+  shippingStatus: String
+  orderStartDate: Date
+  orderEndDate: Date
+  shippingStartDate: Date
+  shippingEndDate: Date
+  deliveryStartDate: Date
+  deliveryEndDate: Date
+  cancelledStartDate: Date
+  cancelledEndDate: Date
+  courierId: String
+  invoiceNumber: String
+  page: Int
+  size: Int
+  sort: String
+}
+
+input ExportAdminSettlementHistoryInput {
+  type: String
+  agentId: ObjectId
+  startDate: Date
+  endDate: Date
+  page: Int
+  size: Int
+}
+
+input AssignOrderInput {
+  shippingStatus: String
+  agentId: ObjectId
+  page: Int
+  size: Int
+}
+
+input ExportAllSettlementHistoryInput {
+  page: Int
+  size: Int
+}
+
+type ExportAdminOrdersResponse {
+  message: String
+}
+
+type ExportAdminShippingProductsResponse {
+  message: String
+}
+
+type JobRecord {
+  _id: ObjectId
+  name: String
+  status: String
+  isExpired: Boolean
+  createdAt: Date
+}
+
+type GetJobQueueResponse {
+  maxRecords: Int
+  records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+  url: String!
+}
+
 input CreateUserOrderInput {
   shippingAddressId: ObjectId!
   paymentMode: String!
@@ -2448,794 +2553,6 @@ type GetUserIvoiceUrlResponse {
   url: String
 }
 
-input ExportAdminOrdersInput {
-  _id: ObjectId
-  userId: ObjectId
-  orderId: String
-  paymentMode: String
-  orderStatus: String
-  startDate: Date
-  endDate: Date
-  postCode: String
-  page: Int
-  size: Int
-}
-
-input GetJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-}
-
-input GetAgentJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-  agentId: ObjectId
-}
-
-input GetAdminDownloadTokenInput {
-  _id: ObjectId!
-}
-
-input ExportAdminShippingProductsInput {
-  _id: ObjectId
-  userId: ObjectId
-  vendorId: ObjectId
-  orderId: String
-  productId: ObjectId
-  itemId: String
-  skuId: String
-  paymentMode: String
-  paymentStatus: String
-  shippingStatus: String
-  orderStartDate: Date
-  orderEndDate: Date
-  shippingStartDate: Date
-  shippingEndDate: Date
-  deliveryStartDate: Date
-  deliveryEndDate: Date
-  cancelledStartDate: Date
-  cancelledEndDate: Date
-  courierId: String
-  invoiceNumber: String
-  page: Int
-  size: Int
-  sort: String
-}
-
-input ExportAdminSettlementHistoryInput {
-  type: String
-  agentId: ObjectId
-  startDate: Date
-  endDate: Date
-  page: Int
-  size: Int
-}
-
-input AssignOrderInput {
-  shippingStatus: String
-  agentId: ObjectId
-  page: Int
-  size: Int
-}
-
-input ExportAllSettlementHistoryInput {
-  page: Int
-  size: Int
-}
-
-type ExportAdminOrdersResponse {
-  message: String
-}
-
-type ExportAdminShippingProductsResponse {
-  message: String
-}
-
-type JobRecord {
-  _id: ObjectId
-  name: String
-  status: String
-  isExpired: Boolean
-  createdAt: Date
-}
-
-type GetJobQueueResponse {
-  maxRecords: Int
-  records: [JobRecord]
-}
-
-type GetAdminDownloadTokenResponse {
-  url: String!
-}
-
-input DeliveryStatusOtpVerifyInput {
-  orderItemId: ObjectId!
-  code: String
-  returnStatus: String
-  returnRemark: String
-  deliveryStatus: String
-  paymentMode: String
-  remarks: String
-}
-
-type DeliveryStatusOtpVerifyResponse {
-  status: Boolean
-  msg: String
-}
-
-input deliveryStatusAddDeliveryAgentInput {
-  orderItemId: ObjectId!
-  deliveryStatus: String!
-  paymentMode: String
-  remarks: String
-}
-
-input getAgentSettlementHistoryByAgentInput {
-  type: String
-}
-
-type deliveryStatusAddDeliveryAgentResponse {
-  status: Boolean
-  msg: String
-}
-
-input DeliveryAgentAssignedOrderInput {
-  _id: ObjectId!
-}
-
-input GetDeliveryAgentReturnOrderInput {
-  agentId: ObjectId!
-  returnStatus: String
-  page: Int
-  limit: Int
-}
-
-input ReturnstatusUpdateInput {
-  orderProductId: ObjectId!
-  returnStatus: String!
-  remarks: String!
-}
-
-type ReturnstatusUpdateResponse {
-  status: Boolean!
-  otp: Boolean!
-  msg: String!
-}
-
-input UploadReturnInput {
-  orderProductId: ObjectId!
-}
-
-input UpdateMapLocation {
-  orderProductId: ObjectId!
-  mapLocation: String!
-}
-
-type UploadImageResponse {
-  message: String
-}
-
-input GetAssignedReturnOrderInput {
-  returnStatus: String
-  page: Int
-  limit: Int
-}
-
-type UserReturn {
-  _id: ObjectId
-  fullName: String
-}
-
-type AdminReturnOrderProduct {
-  _id: ObjectId
-  userId: UserReturn
-  productId: ObjectId
-  vendorId: ObjectId
-  vendorName: String
-  orderId: String
-  itemId: String
-  productName: String
-  shortDescription: String
-  skuId: String
-  warehouseSkuId: String
-  image: FileData
-  returnPeriod: Int
-  mrp: Float
-  sellingPrice: Float
-  shippingCharge: Float
-  paymentMode: String
-  paymentStatus: String
-  paymentRemark: String
-  orderDate: Date
-  shippingStatus: String
-  shippedDate: Date
-  deliveryDate: Date
-  returnStatus: String
-  returnUserReason: String
-  returnAdminComment: String
-  returnRequestDate: Date
-  returnRejectedDate: Date
-  returnDate: Date
-  refundStatus: String
-  refundAmount: Float
-  refundRequestDate: Date
-  refundDate: Date
-  refundComment: String
-  cancelUserReason: String
-  cancelAdminComment: String
-  cancelledDate: Date
-  courierId: String
-  invoiceNumber: String
-  invoice: FileData
-  deliveryAgentId: ObjectId
-  deliveryBoy: DeliveryAgentForOrderProduct
-  deliveryAgentName: String
-  refundBankDetails: BankDetails
-  returnAddress: returnAddress
-  returnProductImage: [FileData]
-  deliveryAssignedOn: Date
-  returnOrderAssignedOn: Date
-  returndeliveryAgentId: ObjectId
-  returndeliveryAgentName: String
-  returnCollectorBoy: DeliveryAgentForReturnOrderProduct
-}
-
-type GetDeliveryAgentReturnOrderResponse {
-  records: [AdminReturnOrderProduct]!
-  totalCount: Float
-  page: Float
-  totalPages: Float
-}
-
-input GetAssignedOrderByDeliveryAgentInput {
-  _id: ObjectId!
-  page: Int
-  size: Int
-  shippingStatus: String
-}
-
-input getAssignedOrderByAgentProfileInput {
-  page: Int
-  size: Int
-  shippingStatus: String
-}
-
-type GetAssignedOrderByDeliveryAgentResponse {
-  records: [GetAssignedOrderByDeliveryAgentResponseArry]
-  maxRecords: Int
-}
-
-input getAssignedeOrderDeatilsByAgentProfileInput {
-  _id: ObjectId!
-}
-
-type GetAssignedOrderByDeliveryAgentResponseArry {
-  _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
-  itemId: String!
-  sellingPrice: Float!
-  paymentStatus: String!
-  paymentMode: String
-  orderDate: Date!
-  shippingStatus: String!
-  deliveryAgentId: ObjectId!
-  userName: String
-  email: String!
-  mobileNumber: String!
-  houseNumber: String
-  streetName: String
-  apartment: String
-  suite: String
-  unit: String
-  city: String
-  country: String
-  postCode: String
-}
-
-type GetAssignedOrderDetailByDeliveryAgentResponseArry {
-  _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
-  itemId: String
-  sellingPrice: Float!
-  paymentStatus: String!
-  paymentMode: String
-  orderDate: Date!
-  shippingStatus: String!
-  deliveryAgentId: ObjectId!
-  userName: String
-  email: String!
-  mobileNumber: String!
-  houseNumber: String
-  streetName: String
-  apartment: String
-  suite: String
-  unit: String
-  city: String
-  country: String
-  postCode: String
-  returnStatus: String
-  returnUserReason: String
-  returnProductImage: [FileData]
-  returnOrderAssignedOn: Date
-  returnAddress: returnAddress
-  returnAdminComment: String
-  returnRequestDate: Date
-  deliveyremark: String
-  cancelremark: String
-  postponedremark: String
-  deliveredMapLocation: String
-  deliveryAssignedOn: Date
-  returnRejectedDate: Date
-  returnRejectedRemarks: String
-  returnPostponedDate: Date
-  returnPostponedRemarks: String
-  returnCollectedDate: Date
-}
-
-type getAssignedeOrderDeatilsByAgentProfileResponse {
-  _id: ObjectId!
-  orderId: String!
-  userId: ObjectId!
-  productName: String!
-  sellingPrice: Float!
-  paymentStatus: String!
-  orderDate: String!
-  shippingStatus: String!
-  deliveryAgentId: ObjectId!
-  userName: String
-  email: String!
-  mobileNumber: String!
-  houseNumber: String
-  streetName: String
-  apartment: String
-  suite: String
-  unit: String
-  city: String
-  country: String
-  postCode: String
-}
-
-type getAssignedOrderByAgentProfileResponse {
-  records: [GetAssignedOrderByDeliveryAgentResponseArry]
-  maxRecords: Int
-}
-
-input getAgentSettlementHistoryInput {
-  agentId: ObjectId!
-  page: Int
-  limit: Int
-  startDate: Date
-  endDate: Date
-  type: String
-}
-
-type getAllAgentDataResponse {
-  maxRecords: Int!
-  records: [AllAgents]
-}
-
-input getAllAgentDataInput {
-  page: Int
-  size: Int
-  isActive: String
-  agentType: String
-  search: String
-  settlement: Boolean
-}
-
-type OrderAssignDeliveryAgentResponse {
-  status: Boolean!
-  msg: String
-}
-
-type EditAgentDataInputResponse {
-  status: Boolean!
-  msg: String
-}
-
-type GetAllAssignOrderAgentProfileResponse {
-  status: Boolean!
-  msg: String
-}
-
-type OrderDelivedbyAgentResponse {
-  status: Boolean!
-  msg: String
-  otp: Boolean
-}
-
-type DeliveryAgent {
-  _id: ObjectId!
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  ID: String
-  agentType: String!
-  isActive: Boolean!
-  isAvailable: Boolean
-  vendorID: ObjectId
-  licence: ImageData
-  wallet: Wallet
-  lastSettlementID: ObjectId
-  settlementHistory: [SettlementHistory]
-}
-
-type DeliveryAgentResponse {
-  deliveryAgent: DeliveryAgent
-  totalItems: Float
-  currentPage: Float
-  totalPages: Float
-}
-
-type SettlementResponse {
-  settlements: [Settlements]
-  totalItems: Float
-  currentPage: Float
-  totalPages: Float
-}
-
-type Wallet {
-  cashInHand: Float
-  lastSettlementDate: Date
-  totalSettlement: Float
-  grandTotal: Float
-  numberOfOrderAssigned: Float
-  numberOfOrderDelivered: Float
-  numberOfReturnOrderAssigned: Float
-  numberOfReturnOrderDelivered: Float
-  numberOfPendingReturns: Float
-  numberOfPendingOrdes: Float
-}
-
-input OrderDelivedbyAgentInput {
-  orderItemId: ObjectId!
-  deliveryStatus: String!
-  remarks: String
-}
-
-input OrderAssignDeliveryAgentInput {
-  orderItemId: ObjectId!
-  deliveryAgentId: ObjectId!
-  deliveryAgentName: String
-}
-
-type Agent {
-  _id: ObjectId
-  fullName: String
-  contactNumber: String
-  wallet: Wallet
-}
-
-type Settlement {
-  _id: ObjectId
-  type: String
-  agentId: Agent
-  amount: Float
-  date: Date
-  remarks: String
-  totalAmount: Float
-  balance: Float
-  createdAt: Date
-  updatedAt: Date
-}
-
-type Settlements {
-  _id: ObjectId
-  type: String
-  agentId: ObjectId
-  amount: Float
-  date: Date
-  remarks: String
-  totalAmount: Float
-  balance: Float
-  createdAt: Date
-  updatedAt: Date
-}
-
-type SettlementHistory {
-  _id: ObjectId
-  type: String
-  amount: Float
-  remarks: String
-  totalAmount: Float
-  balance: Float
-  createdAt: Date
-}
-
-type AllDeliveryAgentResponse {
-  _id: ObjectId
-  message: String!
-}
-
-type CreateDeliveryAgentResponse {
-  _id: ObjectId
-  message: String!
-  error: Boolean
-}
-
-input CreateDeliveryAgentInput {
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  password: String!
-  agentType: String!
-  vendorID: ObjectId
-}
-
-input CreateSettlementInput {
-  agentId: ObjectId!
-  amount: Float!
-  remarks: String
-}
-
-input EditSettlementInput {
-  settlementId: ObjectId!
-  amount: Float!
-  remarks: String
-}
-
-input SuspendDeliveryAgentInput {
-  agentId: ObjectId!
-  isActive: Boolean!
-}
-
-input UpdateAvailableStatusInput {
-  agentId: ObjectId!
-  isAvailable: Boolean!
-}
-
-input GetDeliveryAgentInput {
-  agentId: ObjectId!
-  page: Int
-  limit: Int
-  startDate: Date
-  endDate: Date
-  type: String
-}
-
-input GetDeliveryAgentByAgentInput {
-  page: Int
-  limit: Int
-  startDate: Date
-  endDate: Date
-  type: String
-}
-
-input EditAgentDataInput {
-  _id: ObjectId!
-  fullName: String!
-  contactNumber: String!
-  userID: String!
-  agentType: String!
-  vendorID: ObjectId
-}
-
-input LoginDeliveryAgentInput {
-  userID: String!
-  contactNumber: String!
-  password: String!
-}
-
-type LoginDeliveryAgentResponse {
-  status: String!
-  fullName: String!
-  token: String!
-  msg: String!
-}
-
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
-  message: String
-}
-
-input CreateCategoryInput {
-  categoryName: String!
-  parentId: String
-  isBlocked: Boolean
-  description: String
-  isLeaf: Boolean
-  attributes: [String]
-}
-
-input UpdateCategoryInput {
-  _id: String!
-  categoryName: String
-  parentId: String
-  isBlocked: Boolean
-  description: String
-  isLeaf: Boolean
-  attributes: [String]
-}
-
-input CategoryId {
-  _id: String!
-}
-
-input CategoryRecordIdInput {
-  _id: String
-}
-
-type CreateCategoryResponse {
-  _id: String!
-}
-
-type UpdateCategoryResponse {
-  _id: String!
-  message: String
-}
-
-type DeleteCategoryResponse {
-  _id: String!
-  message: String
-}
-
-type CategoryRecordId {
-  _id: String
-}
-
-input GetAllChildLevelCategoriesInput {
-  parent: String
-}
-
-input GetActiveChildCategoriesInput {
-  parent: String
-}
-
-input GetActiveChildCategoriesInMobileInput {
-  parent: String
-}
-
-input GetCategoriesAutoCompleteInput {
-  query: String!
-}
-
-input GetLevelCategoriesInput {
-  level: Int
-  limit: Int
-}
-
-input vendorIdInput {
-  vendorId: String!
-}
-
-type Category {
-  categoryName: String
-  _id: String
-  isBlocked: Boolean
-  fullCategoryName: String
-  isLeaf: Boolean
-  description: String
-  categoryImage: ImageData
-}
-
-type CategoryAssignedToVendor {
-  categoryName: String
-  _id: String
-  isBlocked: Boolean
-  fullCategoryName: String
-  isLeaf: Boolean
-}
-
-type CategoryNode {
-  categoryName: String
-  _id: String
-  categoryImage: ImageData
-  children: [CategoryNode]
-  isLeaf: Boolean
-}
-
-type GetActiveChildCategoriesResponse {
-  records: [Category]
-}
-
-type GetActiveChildCategoriesInMobileResponse {
-  records: [Category]
-}
-
-type GetAllChildLevelCategoriesResponse {
-  records: [Category]
-}
-
-type getActiveCategoryTreeResponse {
-  records: [CategoryNode]
-}
-
-type getActiveCategoryTreeInMobileesponse {
-  records: [CategoryNode]
-}
-
-type CategorySuggestion {
-  _id: String!
-  description: String!
-}
-
-type GetCategoriesAutoCompleteRespons {
-  suggestions: [CategorySuggestion]
-}
-
-type getAllLeafRecordsResponse {
-  records: [Category]
-}
-
-type getAllCategoriesOfVendorResponse {
-  records: [CategoryAssignedToVendor]
-}
-
-type GetLevelCategoriesResponse {
-  records: [Category]
-}
-
 input GetDashboardUsersGraphInput {
   startDate: Date
   endDate: Date
@@ -3430,6 +2747,586 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
+input DeliveryStatusOtpVerifyInput {
+  orderItemId: ObjectId!
+  code: String
+  returnStatus: String
+  returnRemark: String
+  deliveryStatus: String
+  paymentMode: String
+  remarks: String
+}
+
+input GetAssignedOrderBundleInput {
+  _id: ObjectId!
+  page: Int
+  size: Int
+  search: String
+}
+
+input ResetPasswordInput {
+  newPassword: String!
+}
+
+type ResetPasswordResponse {
+  success: Boolean
+  message: String
+}
+
+type DeliveryStatusOtpVerifyResponse {
+  status: Boolean
+  msg: String
+}
+
+input deliveryStatusAddDeliveryAgentInput {
+  orderItemId: ObjectId!
+  deliveryStatus: String!
+  paymentMode: String
+  remarks: String
+}
+
+input getAgentSettlementHistoryByAgentInput {
+  type: String
+}
+
+type deliveryStatusAddDeliveryAgentResponse {
+  status: Boolean
+  msg: String
+}
+
+input DeliveryAgentAssignedOrderInput {
+  _id: ObjectId!
+}
+
+input GetDeliveryAgentReturnOrderInput {
+  agentId: ObjectId!
+  returnStatus: String
+  page: Int
+  limit: Int
+  date: Date
+}
+
+input ReturnstatusUpdateInput {
+  orderProductId: ObjectId!
+  returnStatus: String!
+  remarks: String!
+}
+
+type ReturnstatusUpdateResponse {
+  status: Boolean
+  otp: Boolean
+  msg: String
+}
+
+input UploadReturnInput {
+  orderProductId: ObjectId!
+}
+
+input UpdateMapLocation {
+  orderProductId: ObjectId!
+  mapLocation: String!
+}
+
+type UploadImageResponse {
+  message: String
+}
+
+input GetAssignedReturnOrderInput {
+  returnStatus: String
+  page: Int
+  limit: Int
+}
+
+type UserReturn {
+  _id: ObjectId
+  fullName: String
+}
+
+type AdminReturnOrderProduct {
+  _id: ObjectId
+  userId: UserReturn
+  productId: ObjectId
+  vendorId: ObjectId
+  vendorName: String
+  orderId: String
+  itemId: String
+  productName: String
+  shortDescription: String
+  skuId: String
+  warehouseSkuId: String
+  image: FileData
+  returnPeriod: Int
+  mrp: Float
+  sellingPrice: Float
+  shippingCharge: Float
+  paymentMode: String
+  paymentStatus: String
+  paymentRemark: String
+  orderDate: Date
+  shippingStatus: String
+  shippedDate: Date
+  deliveryDate: Date
+  returnStatus: String
+  returnUserReason: String
+  returnAdminComment: String
+  returnRequestDate: Date
+  returnRejectedDate: Date
+  returnDate: Date
+  refundStatus: String
+  refundAmount: Float
+  refundRequestDate: Date
+  refundDate: Date
+  refundComment: String
+  cancelUserReason: String
+  cancelAdminComment: String
+  cancelledDate: Date
+  courierId: String
+  invoiceNumber: String
+  invoice: FileData
+  deliveryAgentId: ObjectId
+  deliveryBoy: DeliveryAgentForOrderProduct
+  deliveryAgentName: String
+  refundBankDetails: BankDetails
+  returnAddress: returnAddress
+  returnProductImage: [FileData]
+  deliveryAssignedOn: Date
+  returnOrderAssignedOn: Date
+  returndeliveryAgentId: ObjectId
+  returndeliveryAgentName: String
+  returnCollectorBoy: DeliveryAgentForReturnOrderProduct
+}
+
+type GetDeliveryAgentReturnOrderResponse {
+  records: [AdminReturnOrderProduct]
+  totalCount: Float
+  page: Float
+  totalPages: Float
+}
+
+input GetAssignedOrderByDeliveryAgentInput {
+  _id: ObjectId!
+  page: Int
+  size: Int
+  search: String
+  shippingStatus: String
+  date: Date
+}
+
+input getAssignedOrderByAgentProfileInput {
+  page: Int
+  size: Int
+  shippingStatus: String
+}
+
+type GetAssignedOrderBundleByDeliveryAgentResponse {
+  records: [GetAssignedOrderBundleByDeliveryAgentResponseArry]
+  maxRecords: Int
+}
+
+type GetAssignedOrderByDeliveryAgentResponse {
+  records: [GetAssignedOrderByDeliveryAgentResponseArry]
+  maxRecords: Int
+}
+
+input getAssignedeOrderDeatilsByAgentProfileInput {
+  _id: ObjectId!
+}
+
+type GetAssignedOrderBundleByDeliveryAgentResponseArry {
+  _id: String
+  date: Date
+  count: Int
+}
+
+type GetAssignedOrderByDeliveryAgentResponseArry {
+  _id: ObjectId
+  orderId: String
+  userId: ObjectId
+  productName: String
+  itemId: String
+  sellingPrice: Float
+  paymentStatus: String
+  paymentMode: String
+  orderDate: Date
+  shippingStatus: String
+  deliveryAgentId: ObjectId
+  deliveryAssignedOn: Date
+  userName: String
+  email: String
+  mobileNumber: String
+  houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+}
+
+type GetAssignedOrderDetailByDeliveryAgentResponseArry {
+  _id: ObjectId
+  orderId: String
+  userId: ObjectId
+  productName: String
+  itemId: String
+  sellingPrice: Float
+  paymentStatus: String
+  paymentMode: String
+  orderDate: Date
+  shippingStatus: String
+  deliveryAgentId: ObjectId
+  userName: String
+  email: String
+  mobileNumber: String
+  houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+  returnStatus: String
+  returnUserReason: String
+  returnProductImage: [FileData]
+  returnOrderAssignedOn: Date
+  returnAddress: returnAddress
+  returnAdminComment: String
+  returnRequestDate: Date
+  deliveyremark: String
+  cancelremark: String
+  postponedremark: String
+  deliveredMapLocation: String
+  deliveryAssignedOn: Date
+  returnRejectedDate: Date
+  returnRejectedRemarks: String
+  returnPostponedDate: Date
+  returnPostponedRemarks: String
+  returnCollectedDate: Date
+}
+
+type getAssignedeOrderDeatilsByAgentProfileResponse {
+  _id: ObjectId
+  orderId: String
+  userId: ObjectId
+  productName: String
+  sellingPrice: Float
+  paymentStatus: String
+  orderDate: String
+  shippingStatus: String
+  deliveryAgentId: ObjectId
+  userName: String
+  email: String
+  mobileNumber: String
+  houseNumber: String
+  streetName: String
+  apartment: String
+  suite: String
+  unit: String
+  city: String
+  country: String
+  postCode: String
+}
+
+type getAssignedOrderByAgentProfileResponse {
+  records: [GetAssignedOrderByDeliveryAgentResponseArry]
+  maxRecords: Int
+}
+
+input getAgentSettlementHistoryInput {
+  agentId: ObjectId
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type: String
+}
+
+type getAllAgentDataResponse {
+  maxRecords: Int
+  records: [AllAgents]
+}
+
+input getAllAgentDataInput {
+  page: Int
+  size: Int
+  isActive: String
+  agentType: String
+  search: String
+  settlement: Boolean
+}
+
+type OrderAssignDeliveryAgentResponse {
+  status: Boolean!
+  msg: String
+}
+
+type EditAgentDataInputResponse {
+  status: Boolean!
+  msg: String
+}
+
+type GetAllAssignOrderAgentProfileResponse {
+  status: Boolean!
+  msg: String
+}
+
+type OrderDelivedbyAgentResponse {
+  status: Boolean
+  msg: String
+  otp: Boolean
+}
+
+type DeliveryAgent {
+  _id: ObjectId
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  ID: String
+  agentType: String!
+  isActive: Boolean!
+  isAvailable: Boolean
+  vendorID: ObjectId
+  licence: ImageData
+  wallet: Wallet
+  lastSettlementID: ObjectId
+  settlementHistory: [SettlementHistory]
+}
+
+type DeliveryAgentResponse {
+  deliveryAgent: DeliveryAgent
+  totalItems: Float
+  currentPage: Float
+  totalPages: Float
+}
+
+type SettlementResponse {
+  settlements: [Settlements]
+  totalItems: Float
+  currentPage: Float
+  totalPages: Float
+}
+
+type Wallet {
+  cashInHand: Float
+  lastSettlementDate: Date
+  totalSettlement: Float
+  grandTotal: Float
+  numberOfOrderAssigned: Float
+  numberOfOrderDelivered: Float
+  numberOfReturnOrderAssigned: Float
+  numberOfReturnOrderDelivered: Float
+  numberOfPendingReturns: Float
+  numberOfPendingOrdes: Float
+}
+
+input OrderDelivedbyAgentInput {
+  orderItemId: ObjectId!
+  deliveryStatus: String!
+  remarks: String
+}
+
+input OrderAssignDeliveryAgentInput {
+  orderItemId: ObjectId!
+  deliveryAgentId: ObjectId!
+  deliveryAgentName: String
+}
+
+type Agent {
+  _id: ObjectId
+  fullName: String
+  contactNumber: String
+  wallet: Wallet
+}
+
+type Settlement {
+  _id: ObjectId
+  type: String
+  agentId: Agent
+  amount: Float
+  date: Date
+  remarks: String
+  totalAmount: Float
+  balance: Float
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Settlements {
+  _id: ObjectId
+  type: String
+  agentId: ObjectId
+  amount: Float
+  date: Date
+  remarks: String
+  totalAmount: Float
+  balance: Float
+  createdAt: Date
+  updatedAt: Date
+}
+
+type SettlementHistory {
+  _id: ObjectId
+  type: String
+  amount: Float
+  remarks: String
+  totalAmount: Float
+  balance: Float
+  createdAt: Date
+}
+
+type AllDeliveryAgentResponse {
+  _id: ObjectId
+  message: String
+}
+
+type CreateDeliveryAgentResponse {
+  _id: ObjectId
+  message: String
+  error: Boolean
+}
+
+input CreateDeliveryAgentInput {
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  password: String!
+  agentType: String!
+  vendorID: ObjectId
+}
+
+input CreateSettlementInput {
+  agentId: ObjectId!
+  amount: Float!
+  remarks: String
+}
+
+input EditSettlementInput {
+  settlementId: ObjectId!
+  amount: Float!
+  remarks: String
+}
+
+input SuspendDeliveryAgentInput {
+  agentId: ObjectId!
+  isActive: Boolean!
+}
+
+input UpdateAvailableStatusInput {
+  agentId: ObjectId
+  isAvailable: Boolean!
+}
+
+input GetDeliveryAgentInput {
+  agentId: ObjectId!
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type: String
+}
+
+input GetDeliveryAgentByAgentInput {
+  page: Int
+  limit: Int
+  startDate: Date
+  endDate: Date
+  type: String
+}
+
+input EditAgentDataInput {
+  _id: ObjectId!
+  fullName: String!
+  contactNumber: String!
+  userID: String!
+  agentType: String!
+  vendorID: ObjectId
+}
+
+input LoginDeliveryAgentInput {
+  userID: String!
+  contactNumber: String!
+  password: String!
+}
+
+type LoginDeliveryAgentResponse {
+  status: String
+  fullName: String
+  token: String
+  msg: String
+}
+
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
+}
+
 input AddCmsInput {
   pageName: String!
   buttons: [ButtonDataInput]
@@ -3550,6 +3447,143 @@ type CmsRecordsResponse {
   maxRecords: Int!
   records: [CmsRecord!]
   message: String
+}
+
+input CreateCategoryInput {
+  categoryName: String!
+  parentId: String
+  isBlocked: Boolean
+  description: String
+  isLeaf: Boolean
+  attributes: [String]
+}
+
+input UpdateCategoryInput {
+  _id: String!
+  categoryName: String
+  parentId: String
+  isBlocked: Boolean
+  description: String
+  isLeaf: Boolean
+  attributes: [String]
+}
+
+input CategoryId {
+  _id: String!
+}
+
+input CategoryRecordIdInput {
+  _id: String
+}
+
+type CreateCategoryResponse {
+  _id: String!
+}
+
+type UpdateCategoryResponse {
+  _id: String!
+  message: String
+}
+
+type DeleteCategoryResponse {
+  _id: String!
+  message: String
+}
+
+type CategoryRecordId {
+  _id: String
+}
+
+input GetAllChildLevelCategoriesInput {
+  parent: String
+}
+
+input GetActiveChildCategoriesInput {
+  parent: String
+}
+
+input GetActiveChildCategoriesInMobileInput {
+  parent: String
+}
+
+input GetCategoriesAutoCompleteInput {
+  query: String!
+}
+
+input GetLevelCategoriesInput {
+  level: Int
+  limit: Int
+}
+
+input vendorIdInput {
+  vendorId: String!
+}
+
+type Category {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
+  description: String
+  categoryImage: ImageData
+}
+
+type CategoryAssignedToVendor {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
+}
+
+type CategoryNode {
+  categoryName: String
+  _id: String
+  categoryImage: ImageData
+  children: [CategoryNode]
+  isLeaf: Boolean
+}
+
+type GetActiveChildCategoriesResponse {
+  records: [Category]
+}
+
+type GetActiveChildCategoriesInMobileResponse {
+  records: [Category]
+}
+
+type GetAllChildLevelCategoriesResponse {
+  records: [Category]
+}
+
+type getActiveCategoryTreeResponse {
+  records: [CategoryNode]
+}
+
+type getActiveCategoryTreeInMobileesponse {
+  records: [CategoryNode]
+}
+
+type CategorySuggestion {
+  _id: String!
+  description: String!
+}
+
+type GetCategoriesAutoCompleteRespons {
+  suggestions: [CategorySuggestion]
+}
+
+type getAllLeafRecordsResponse {
+  records: [Category]
+}
+
+type getAllCategoriesOfVendorResponse {
+  records: [CategoryAssignedToVendor]
+}
+
+type GetLevelCategoriesResponse {
+  records: [Category]
 }
 
 input addToCartInput {

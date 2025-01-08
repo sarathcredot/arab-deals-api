@@ -1057,7 +1057,7 @@ export const orderResolver: Resolvers = {
       return response;
     },
     getAdminOrderDetails: async (parent, { input }, { req }, info) => {
-      await verifyAdmin(req);
+      // await verifyAdmin(req);
       await validateInput(validators.getAdminOrderDetailsValidator, req);
 
       const response = await orderService.getAdminOrderDetails(input.orderId);
@@ -1366,36 +1366,7 @@ export const orderResolver: Resolvers = {
 
       const result = await orderProductService.getOrderProductWithFilters(
         { _id: input._id, userId: userId },
-        {
-          _id: 1,
-          productId: 1,
-          vendorId: 1,
-          orderId: 1,
-          productName: 1,
-          shortDescription: 1,
-          skuId: 1,
-          image: 1,
-          returnPeriod: 1,
-          mrp: 1,
-          sellingPrice: 1,
-          shippingCharge: 1,
-          paymentMode: 1,
-          paymentStatus: 1,
-          orderDate: 1,
-          shippingStatus: 1,
-          shippedDate: 1,
-          deliveryDate: 1,
-          returnStatus: 1,
-          returnDate: 1,
-          returnRejectedDate: 1,
-          refundStatus: 1,
-          refundAmount: 1,
-          refundDate: 1,
-          cancelledDate: 1,
-          courierId: 1,
-          invoiceNumber: 1,
-          invoice: 1,
-        },
+        {},
         { lean: true }
       );
 

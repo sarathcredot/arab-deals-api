@@ -628,6 +628,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
 
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
             $set: {
+              returnOrderAssignedOn: new Date(),
               returndeliveryAgentId: data.deliveryAgentId,
               returndeliveryAgentName: data.deliveryAgentName
             }
@@ -1163,7 +1164,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
 
 
-
+         console.log("date",new Date())
 
           // add order products model assign agent id and name 
           await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
@@ -1602,7 +1603,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
 // updated
 
-export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any }): Promise<any> => {
+export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any ,date?:any}): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
       let dataSize: any
@@ -1613,6 +1614,10 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
         matchObj.shippingStatus = data.shippingStatus
       }
 
+      if(data?.date){
+        matchObj.$and = [{deliveryAssignedOn:{$gte:startOfDay(new Date(data?.date))}},{deliveryAssignedOn:{$lte:endOfDay(new Date(data?.date))}}]
+      }
+    
 
       //  if(data.shippingStatus){
       dataSize = await orderProductModel.find(matchObj)
@@ -1717,10 +1722,205 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 }
 
 
+export const getAssignedReturnOrderBundleByDeliveryAgent = async (data:{_id: Types.ObjectId, page: number, size: number,search:string}):Promise<any>=>{
+  return new Promise(async (resolve, reject) => {
+    try {
+      
+    console.log("input ", data)
+      
+    let dataSize: any
+    let result: any
+    let matchObj: any = { returndeliveryAgentId: data._id}
+    if(data?.search){
+      matchObj.$and = [{returnOrderAssignedOn:{$gte:startOfDay(new Date(data?.search))}},{returnOrderAssignedOn:{$lte:endOfDay(new Date(data?.search))}}]
+    }
+
+ 
 
 
+    dataSize = await orderProductModel.aggregate([
+      {
+        $match: matchObj,
+      },
+      {
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$returnOrderAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedOn",
+          count: {
+            $sum: 1
+          },
+          date: {
+            $first:"$returnOrderAssignedOn"
+          }
+        }
+      },
+    ])
 
 
+    result = await orderProductModel.aggregate([
+      {
+        $match: matchObj,
+      },
+      {
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$returnOrderAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedOn",
+          count: {
+            $sum: 1
+          },
+          date: {
+            $first:"$returnOrderAssignedOn"
+          }
+        }
+      },
+      {
+        $sort: {
+          _id: -1
+        }
+      },
+      {
+        $skip: data.page * data.size,
+      },
+      {
+        $limit: data.size,
+      },
+    ])
+    
+    console.log("RESULT = ",result)
+    
+    let response: any = {
+      records: [],
+      maxRecords: 0
+    };
+    
+    
+    if (result.length) {
+      response.records = result || [];
+      response.maxRecords = dataSize?.length || 0;
+    }
+    
+    resolve(response);
+  } catch (error) {
+    reject(error);
+  }
+    
+  })
+}
+
+
+export const getAssignedOrderBundleByDeliveryAgent = async (data:{_id: Types.ObjectId, page: number, size: number,search:string}):Promise<any>=>{
+  return new Promise(async (resolve, reject) => {
+    try {
+      
+      console.log("input ", data)
+      
+    let dataSize: any
+    let result: any
+    let matchObj: any = { deliveryAgentId: data._id}
+    if(data?.search){
+      matchObj.$and = [{deliveryAssignedOn:{$gte:startOfDay(new Date(data?.search))}},{deliveryAssignedOn:{$lte:endOfDay(new Date(data?.search))}}]
+    }
+
+    dataSize = await orderProductModel.aggregate([
+      {
+        $match: matchObj,
+      },
+      {
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$deliveryAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedOn",
+          count: {
+            $sum: 1
+          },
+          date: {
+            $first:"$deliveryAssignedOn"
+          }
+        }
+      },
+    ])
+
+
+    result = await orderProductModel.aggregate([
+      {
+        $match: matchObj,
+      },
+      {
+        $addFields:{
+          assignedOn:{ $dateToString: {
+            date: "$deliveryAssignedOn",
+            format: "%d-%m-%Y",
+            timezone: 'Asia/Kolkata',
+        } }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedOn",
+          count: {
+            $sum: 1
+          },
+          date: {
+            $first:"$deliveryAssignedOn"
+          }
+        }
+      },
+      {
+        $sort: {
+          _id: -1
+        }
+      },
+      {
+        $skip: data.page * data.size,
+      },
+      {
+        $limit: data.size,
+      },
+    ])
+    
+    console.log("RESULT = ",result)
+    
+    let response: any = {
+      records: [],
+      maxRecords: 0
+    };
+    
+    
+    if (result.length) {
+      response.records = result || [];
+      response.maxRecords = dataSize?.length || 0;
+    }
+    
+    resolve(response);
+  } catch (error) {
+    reject(error);
+  }
+    
+  })
+}
 
 export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, shippingStatus?: any }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
@@ -1905,9 +2105,6 @@ export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.Ob
     }
   })
 }
-
-
-
 
 
 
