@@ -17,13 +17,16 @@ type Mutation {
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   logoutVendor: LogoutVendorResponse!
-  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
-  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   addToWishList(input: AddToWishListInput!): AddToWishListResponse!
   removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
   addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
   removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
+  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
+  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
+  addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
+  updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
+  updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
   createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
   editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
   removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
@@ -32,9 +35,6 @@ type Mutation {
   editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
   removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
   updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
-  addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
-  updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
-  updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input: userBlockInput!): userBlockResponse!
@@ -334,22 +334,22 @@ type Query {
   getVendorRecordByVendor: VendorsRecordByVendorResponse!
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
-  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
-  getVendorOutletRecord: VendorOutletRecordResponse!
   getWishListProducts: GetWishListProductsResponse!
   getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
   getMobileWishListProducts: GetMobileWishListProductsResponse!
   getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
+  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
+  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
   getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
   getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
   getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
-  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
-  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
-  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
   getUsersByAdmin(input: userFilters): usersResponse!
   getUserRecordByAdmin(input: userInput!): userResponse!
   getUserRecord: GetUserRecordResponse!
@@ -523,6 +523,70 @@ schema {
   mutation: Mutation
 }
 
+input AddToWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromWishListInput {
+  productId: ObjectId!
+}
+
+input GetWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+input AddToMobileWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromMobileWishListInput {
+  productId: ObjectId!
+}
+
+input GetMobileWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+type AddToWishListResponse {
+  message: String
+}
+
+type RemoveFromWishListResponse {
+  message: String
+}
+
+type AddToMobileWishListResponse {
+  message: String
+}
+
+type RemoveFromMobileWishListResponse {
+  message: String
+}
+
+type WishListProduct {
+  productId: ObjectId!
+  productName: String!
+  shortDescription: String
+  sellingPrice: Float!
+  image: String
+}
+
+type GetWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetWishListProductStatusResponse {
+  isExist: Boolean!
+}
+
+type GetMobileWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetMobileWishListProductStatusResponse {
+  isExist: Boolean!
+}
+
 type VendorOutlet {
   _id: String
   vendorId: String
@@ -657,68 +721,101 @@ type VendorOutletStatusUpdationResponse {
   message: String
 }
 
-input AddToWishListInput {
-  productId: ObjectId!
+input UpdateVendorCompanyByAdminInput {
+  _id: ObjectId!
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  remarks: [String!]
 }
 
-input RemoveFromWishListInput {
-  productId: ObjectId!
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
 }
 
-input GetWishListProductStatusInput {
-  productId: ObjectId!
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
+  _id: String
+  fullName: String
+  isKycCompleted: String
+  companyName: String
+  companyType: String
+  status: String
+  crNumber: String
 }
 
-input AddToMobileWishListInput {
-  productId: ObjectId!
+input AddVendorCompanyInput {
+  companyName: String!
+  companyType: String!
+  crNumber: String!
 }
 
-input RemoveFromMobileWishListInput {
-  productId: ObjectId!
+input UpdateVendorCompanyInput {
+  companyName: String
+  companyType: String
+  crNumber: String
 }
 
-input GetMobileWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-type AddToWishListResponse {
+type AddVendorCompanyResponse {
+  _id: String!
   message: String
 }
 
-type RemoveFromWishListResponse {
+type UpdateVendorCompanyResponse {
   message: String
 }
 
-type AddToMobileWishListResponse {
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
   message: String
 }
 
-type RemoveFromMobileWishListResponse {
+type UpdateVendorCompanyByAdminResponse {
   message: String
 }
 
-type WishListProduct {
-  productId: ObjectId!
-  productName: String!
-  shortDescription: String
-  sellingPrice: Float!
-  image: String
+input VendorCompanyIdInput {
+  _id: String!
 }
 
-type GetWishListProductsResponse {
-  products: [WishListProduct]
+input VendorCompanyRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+  fullName: String
+  companyName: String
+  vendorId: ObjectId
+  crNumber: String
 }
 
-type GetWishListProductStatusResponse {
-  isExist: Boolean!
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
 }
 
-type GetMobileWishListProductsResponse {
-  products: [WishListProduct]
+type VendorCompanyRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorCompanyRecordsWithKycData!]
+  message: String
 }
 
-type GetMobileWishListProductStatusResponse {
-  isExist: Boolean!
+type VendorCompanyStatusUpdationResponse {
+  _id: String
+  message: String
+}
+
+type GetVendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
 }
 
 input UserCreateShippingAddressInput {
@@ -927,103 +1024,6 @@ type GetMobileUserDefaultShippingAddressResponse {
   houseNumber: String
   country: String
   isDefault: Boolean
-}
-
-input UpdateVendorCompanyByAdminInput {
-  _id: ObjectId!
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  remarks: [String!]
-}
-
-type VendorCompany {
-  _id: String
-  vendorId: String
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  crLicense: ImageData
-  cooCertificate: ImageData
-  remarks: [String]
-}
-
-type vendorCompanyRecordsWithKycData {
-  vendorId: String
-  _id: String
-  fullName: String
-  isKycCompleted: String
-  companyName: String
-  companyType: String
-  status: String
-  crNumber: String
-}
-
-input AddVendorCompanyInput {
-  companyName: String!
-  companyType: String!
-  crNumber: String!
-}
-
-input UpdateVendorCompanyInput {
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-type AddVendorCompanyResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyResponse {
-  message: String
-}
-
-type VendorCompanyDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyByAdminResponse {
-  message: String
-}
-
-input VendorCompanyIdInput {
-  _id: String!
-}
-
-input VendorCompanyRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-  fullName: String
-  companyName: String
-  vendorId: ObjectId
-  crNumber: String
-}
-
-type VendorCompanyRecordResponse {
-  record: VendorCompany!
-  message: String
-}
-
-type VendorCompanyRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorCompanyRecordsWithKycData!]
-  message: String
-}
-
-type VendorCompanyStatusUpdationResponse {
-  _id: String
-  message: String
-}
-
-type GetVendorCompanyRecordResponse {
-  record: VendorCompany!
-  message: String
 }
 
 input userLoginOtpInput {
@@ -1713,8 +1713,8 @@ type returnAddress {
   unit: String
   governorate: String
   village: String
-  governorateID: String!
-  villageID: String!
+  governorateID: String
+  villageID: String
 }
 
 input ReturnAddressInput {
