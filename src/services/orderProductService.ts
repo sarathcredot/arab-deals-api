@@ -545,6 +545,11 @@ export const getOrderProductsWithFiltersIncludeVendorNew = async (
       },
     },
     {
+      $addFields: {
+        vendorName: "$vendor.fullName",
+      },
+    },
+    {
       $lookup: {
         from: "deliveryagents",
         localField: "deliveryAgentId",
@@ -573,9 +578,7 @@ export const getOrderProductsWithFiltersIncludeVendorNew = async (
       },
     },
   ];
-  console.log(pipeline, "PIPELINE, ORDER PRODUCTS");
   const result = await orderProductModel.aggregate(pipeline).exec();
-  console.log(JSON.stringify(result, null, 4), "RESULT ORDER PRODUCT BY ORDER ID");
   return result;
 };
 
@@ -595,6 +598,69 @@ export const getOrderProductByIdIncludeVendor = async (
   return await orderProductModel
     .findById(_id, projection, options)
     .populate({ path: "vendorId", select: "_id fullName" });
+};
+
+export const getOrderProductByIdIncludeVendorNew = async (
+  _id: Types.ObjectId,
+  projection: ProjectionFields<IOrderProduct> = {},
+  options: QueryOptions = {}
+): Promise<any> => {
+  const pipeline: PipelineStage[] = [
+    {
+      $match: {
+        _id: new Types.ObjectId(_id),
+      },
+    },
+    {
+      $lookup: {
+        from: "vendors",
+        localField: "vendorId",
+        foreignField: "_id",
+        as: "vendor",
+      },
+    },
+    {
+      $unwind: {
+        path: "$vendor",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        vendorName: "$vendor.fullName",
+      },
+    },
+    {
+      $lookup: {
+        from: "deliveryagents",
+        localField: "deliveryAgentId",
+        foreignField: "_id",
+        as: "deliveryBoy",
+      },
+    },
+    {
+      $unwind: {
+        path: "$deliveryBoy",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "deliveryagents",
+        localField: "returndeliveryAgentId",
+        foreignField: "_id",
+        as: "returnCollectorBoy",
+      },
+    },
+    {
+      $unwind: {
+        path: "$returnCollectorBoy",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ];
+  const result = await orderProductModel.aggregate(pipeline).exec();
+  return result?.length ? result[0]: null;
 };
 
 export const getVendorOrderProductById = async (
@@ -727,7 +793,7 @@ export const getReturnOrderProductWithFilters = async (
       .limit(limit);
 
     const totalCount = await orderProductModel.countDocuments(filters);
-    console.log("records",records);
+    console.log("records", records);
     console.log(totalCount);
 
     return { records, totalCount };

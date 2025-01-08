@@ -766,22 +766,22 @@ export const orderResolver: Resolvers = {
 
       const validatedReturnAddress = returnAddress
         ? {
-            firstname: returnAddress.firstname || "",
-            email: returnAddress.email || "",
-            mobile: returnAddress.mobile || "",
-            country: returnAddress.country || "India", // Default to "India"
-            houseNumber: returnAddress.houseNumber || "",
-            streetName: returnAddress.streetName || "",
-            apartment: returnAddress.apartment || "",
-            suite: returnAddress.suite || "",
-            unit: returnAddress.unit || "",
-            city: returnAddress.city || "",
-            postCode: returnAddress.postCode || "",
-            governorate:returnAddress.governorate,
-            village:returnAddress.village,
-            governorateID:returnAddress.governorateID,
-            villageID:returnAddress.villageID
-          }
+          firstname: returnAddress.firstname || "",
+          email: returnAddress.email || "",
+          mobile: returnAddress.mobile || "",
+          country: returnAddress.country || "India", // Default to "India"
+          houseNumber: returnAddress.houseNumber || "",
+          streetName: returnAddress.streetName || "",
+          apartment: returnAddress.apartment || "",
+          suite: returnAddress.suite || "",
+          unit: returnAddress.unit || "",
+          city: returnAddress.city || "",
+          postCode: returnAddress.postCode || "",
+          governorate: returnAddress.governorate,
+          village: returnAddress.village,
+          governorateID: returnAddress.governorateID,
+          villageID: returnAddress.villageID
+        }
         : null;
 
       orderProduct.returnUserReason = returnUserReason;
@@ -1322,12 +1322,14 @@ export const orderResolver: Resolvers = {
       return response;
     },
     getAdminOrderProduct: async (parent, { input }, { req }, info) => {
-      await verifyAdmin(req);
+      // await verifyAdmin(req);
       await validateInput(validators.getAdminOrderProductValidator, req);
 
       const product =
-        await orderProductService.getOrderProductByIdIncludeVendor(input._id);
-
+        await orderProductService.getOrderProductByIdIncludeVendorNew(
+          input._id
+        );
+      console.log(product, "PRODUCT DETAIL OBJ");
       if (!product) {
         throw new GraphQLError("Record not found", {
           extensions: {
@@ -1337,12 +1339,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      const response = {
-        ...product.toObject(),
-        vendorId: product.vendorId._id,
-        vendorName: product.vendorId.fullName,
-      };
-      return response;
+      return product;
     },
     getAdminOrderProducts: async (parent, { input }, { req }, info) => {
       // await verifyAdmin(req);
@@ -1355,14 +1352,10 @@ export const orderResolver: Resolvers = {
 
       const response = {
         // products: result.map((item: any) => { return { ...item.toObject(), vendorId: item.vendorId._id, vendorName: item.vendorId.fullName } })
-        products: result.map((item: any) => {
-          return {
-            ...item,
-            vendorId: item.vendorId._id,
-            vendorName: item.vendorId.fullName,
-          };
-        }),
+        products: result,
       };
+
+      console.log(response, "GET ADMIN ORDER PRODUCTS F");
 
       return response;
     },
@@ -1955,10 +1948,13 @@ export const orderResolver: Resolvers = {
         );
 
         // find products delivery type and delivery agents
+        const options={
+          proid:input.productId ,
+          location:input.location || " "
+
+        }
         const result: any =
-          await orderService.getProductDeliveryTypeDeliveryAgents(
-            input.productId
-          );
+          await orderService.getProductDeliveryTypeDeliveryAgents(options);
 
         return {
           deliveryType: result.deliveryType,

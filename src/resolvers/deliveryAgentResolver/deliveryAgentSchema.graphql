@@ -46,8 +46,32 @@ type Query{
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
+   getDeliveryAgentlistCustomizOrderAssigen(input:getDeliveryAgentlistCustomizOrderAssigenInput):[getDeliveryAgentlistCustomizOrderAssigenResponse]!
    getLocationsData:[Locations]!
 }
+
+
+
+ input getDeliveryAgentlistCustomizOrderAssigenInput{
+
+        deliveryAgentType:String!
+        vendorID:ObjectId
+        location:String
+ }
+
+ type getDeliveryAgentlistCustomizOrderAssigenResponse{
+
+
+       _id:ObjectId,
+       fullName:String
+       contactNumber:String
+ }
+
+
+
+
+   
+
 
 
 type Village {
@@ -228,6 +252,7 @@ type UserReturn {
 type GetDeliveryAgentReturnOrderResponse{
   records: [AdminReturnOrderProduct]
   totalCount:Float
+  
   page: Float
   totalPages: Float 
 }
@@ -661,13 +686,23 @@ input EditAgentDataInput{
     userID:String!
     agentType:String!
     vendorID:ObjectId
+    isActive:Boolean
+    isAvailable:Boolean
+    governorate:String
+    village:String
+    governorateID:String
+    villageID:String
+
+
+
+    
+
 
 }
 
 input LoginDeliveryAgentInput{
    
-    userID:String!
-    contactNumber:String!
+    userInput:String!
     password:String!
 }
 

@@ -32,8 +32,7 @@ interface EditAgentResult {
 type DeliveryLoginData = {
 
 
-  userID: string;
-  contactNumber: string;
+  userInput: string;
   password: string;
 
 }
@@ -43,7 +42,8 @@ type OrderAssignDeliveryAgentInput = {
   orderItemId: Types.ObjectId
   deliveryAgentId: Types.ObjectId
   deliveryAgentName: string
-  bundleCount: number
+  bundleCount:number
+
 }
 
 
@@ -88,7 +88,7 @@ export const deliveryAgentResolver: Resolvers = {
           throw new GraphQLError("Contact number already exists", {
             extensions: { code: "BAD_REQUEST" },
           });
-          
+
         }
 
 
@@ -507,6 +507,12 @@ export const deliveryAgentResolver: Resolvers = {
               userID: input.userID,
               agentType: input.agentType,
               vendorID: input.vendorID,
+              isActive:input.isActive,
+              isAvailable:input.isAvailable,
+              governorate:input.governorate,
+              village:input.village,
+              governorateID:input.governorateID,
+              villageID:input.villageID,
               licence: uploaddlicence
             }
 
@@ -519,6 +525,12 @@ export const deliveryAgentResolver: Resolvers = {
               userID: input.userID,
               agentType: input.agentType,
               vendorID: input.vendorID,
+              isActive:input.isActive,
+              isAvailable:input.isAvailable,
+              governorate:input.governorate,
+              village:input.village,
+              governorateID:input.governorateID,
+              villageID:input.villageID,
 
             }
           }
@@ -1115,16 +1127,16 @@ export const deliveryAgentResolver: Resolvers = {
         // Verify that the request is made by a valid delivery agent
         await verifyDeliveryAgent(req);
         const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
-    
+
         const newPassword: string = input?.newPassword;
-    
+
         // Validate the input password
         if (!newPassword || newPassword.trim().length < 6) {
           throw new GraphQLError("Password must be at least 6 characters long", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-    
+
         // Find the delivery agent in the database
         const existingAgent = await deliveryAgentModel.findById(agentId);
         if (!existingAgent) {
@@ -1132,13 +1144,13 @@ export const deliveryAgentResolver: Resolvers = {
             extensions: { code: "NOT_FOUND" },
           });
         }
-    
+
         // Hash and set the new password
         await existingAgent.setHash!(newPassword);
-    
+
         // Save the updated agent record to the database
         await existingAgent.save();
-    
+
         return {
           success: true,
           message: "Password reset successfully",
@@ -1149,7 +1161,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
-    
+
 
   },
 
@@ -1190,7 +1202,7 @@ export const deliveryAgentResolver: Resolvers = {
         $gte: startOfDay(today),
         $lte: endOfDay(today),
       };
-      
+
       console.log("returnFilter", returnFilter)
 
       try {
@@ -1333,7 +1345,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       const page: number = input?.page || 0;
       const limit: number = input?.limit || Infinity;
-      const date=input?.date
+      const date = input?.date
 
       if (!agentId) {
         throw new GraphQLError("All Fields are required", {
@@ -1356,10 +1368,10 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       if (input.date) {
-          returnFilter.returnOrderAssignedOn = {
-            $gte: startOfDay(date),
-            $lte: endOfDay(date),
-          };
+        returnFilter.returnOrderAssignedOn = {
+          $gte: startOfDay(date),
+          $lte: endOfDay(date),
+        };
       }
 
 
@@ -1757,7 +1769,7 @@ export const deliveryAgentResolver: Resolvers = {
 
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
-       
+
         return result
 
 
@@ -1867,7 +1879,7 @@ export const deliveryAgentResolver: Resolvers = {
           page: input?.page || 0,
           size: input?.size || 10,
           shippingStatus: input?.shippingStatus,
-          date:input?.date
+          date: input?.date
         }
 
         const result = await deliveryAgentService.getAssignedOrderByDeliveryAgent(options)
@@ -1892,47 +1904,9 @@ export const deliveryAgentResolver: Resolvers = {
 
     // to get return order bundles of agent in admin side
 
-    getAssignedReturnOrderBundleByDeliveryAgent:async (parent,{input},{req},info)=>{
-         try {
+    getAssignedReturnOrderBundleByDeliveryAgent: async (parent, { input }, { req }, info) => {
+      try {
 
-          if (!input?._id) {
-            throw new GraphQLError("invalied delivery boy id", {
-              extensions: {
-                code: "INTERNAL_SERVER_ERROR",
-                errors: [],
-              },
-            });
-          }
-
-          const options = {
-            _id: input._id,
-            page: input?.page || 0,
-            size: input?.size || 10,
-             search:input?.search|| ""
-          }
-
-          const result = await deliveryAgentService.getAssignedReturnOrderBundleByDeliveryAgent(options)
-          return result
-          
-         } catch (error:any) {
-          console.log("ERROR = ",error)
-          throw new GraphQLError(error, {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              errors: [],
-            },
-          });
-        }
-    },
-
-    //to get order bundles of agent in admin side
-
-    getAssignedOrderBundleByDeliveryAgent:async (parent,{input},{req},info)=>{
-        try {
-          console.log(req," = REQ")
-          // await verifyAdmin(req)
-
-          // check input
         if (!input?._id) {
           throw new GraphQLError("invalied delivery boy id", {
             extensions: {
@@ -1941,28 +1915,66 @@ export const deliveryAgentResolver: Resolvers = {
             },
           });
         }
-        
+
         const options = {
           _id: input._id,
           page: input?.page || 0,
           size: input?.size || 10,
-          search:input?.search|| ""
+          search: input?.search || ""
         }
 
-        const result = await deliveryAgentService.getAssignedOrderBundleByDeliveryAgent(options)
-        console.log(result," = RESULT")
-
+        const result = await deliveryAgentService.getAssignedReturnOrderBundleByDeliveryAgent(options)
         return result
 
-        } catch (error:any) {
-          console.log("ERROR = ",error)
-          throw new GraphQLError(error, {
+      } catch (error: any) {
+        console.log("ERROR = ", error)
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+    },
+
+    //to get order bundles of agent in admin side
+
+    getAssignedOrderBundleByDeliveryAgent: async (parent, { input }, { req }, info) => {
+      try {
+        console.log(req, " = REQ")
+        // await verifyAdmin(req)
+
+        // check input
+        if (!input?._id) {
+          throw new GraphQLError("invalied delivery boy id", {
             extensions: {
               code: "INTERNAL_SERVER_ERROR",
               errors: [],
             },
           });
         }
+
+        const options = {
+          _id: input._id,
+          page: input?.page || 0,
+          size: input?.size || 10,
+          search: input?.search || ""
+        }
+
+        const result = await deliveryAgentService.getAssignedOrderBundleByDeliveryAgent(options)
+        console.log(result, " = RESULT")
+
+        return result
+
+      } catch (error: any) {
+        console.log("ERROR = ", error)
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
 
     },
 
@@ -1999,8 +2011,8 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
         const orderProductsId = new Types.ObjectId(input._id)
-        const result =await deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
-        console.log("RESULT assigned= ",result)
+        const result = await deliveryAgentService.getAssignedeOrderDeatilsByAgentProfile(orderProductsId)
+        console.log("RESULT assigned= ", result)
         return result;
 
 
@@ -2016,7 +2028,42 @@ export const deliveryAgentResolver: Resolvers = {
 
 
       }
+    },
+
+
+    // admin customiz order assign to delivery agent time agent data get
+
+    getDeliveryAgentlistCustomizOrderAssigen: async (parent, { input }, { req }, info) => {
+
+      // verify admin
+
+      // await verifyAdmin(req)
+
+      try {
+
+        const options = {
+
+          deliveryAgentType: input?.deliveryAgentType || " ",
+          vendorID: input?.vendorID || undefined,
+          location: input?.location || " "
+        }
+
+        const result = await deliveryAgentService.getDeliveryAgentlistCustomizOrderAssigen(options)
+
+        return result
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          },
+        });
+      }
     }
+
+
   }
 }
 
