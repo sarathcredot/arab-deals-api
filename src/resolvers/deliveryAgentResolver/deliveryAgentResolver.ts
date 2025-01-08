@@ -2,7 +2,6 @@ import { jwtService, spaceService, otpService, deliveryAgentService, orderProduc
 
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
-import path from "path";
 import * as validators from "./deliveryAgentValidator";
 import { GraphQLError } from "graphql";
 import { validateInput, verifyAdmin, verifyVendor, verifyDeliveryAgent } from "../../middlewares";
@@ -17,6 +16,14 @@ import moment from "moment";
 import { finished } from "stream/promises";
 import { orderProductModel } from "../../models/orderProductModel";
 import { startOfDay, endOfDay } from "date-fns"
+
+
+import path from "path";
+import fs from "fs";
+
+// Load the static JSON file
+const locationsPath = path.resolve(__dirname, "../../../public/locations.json");
+const locations = JSON.parse(fs.readFileSync(locationsPath, "utf8"));
 
 interface EditAgentResult {
   flag: boolean;
@@ -57,6 +64,11 @@ export const deliveryAgentResolver: Resolvers = {
       let agentType: string = input.agentType;
       let vendorID: Types.ObjectId = input?.vendorID;
       let licence: deliveryAgentService.FileData | undefined;
+      let governorate: string = input.governorate;
+      let village: string = input.village;
+      let governorateID: string = input.governorateID;
+      let villageID: string = input.villageID;
+
 
 
 
@@ -115,7 +127,12 @@ export const deliveryAgentResolver: Resolvers = {
           agentType,
           vendorID,
           licence,
-          ID
+          ID,
+          governorate,
+          village,
+          governorateID,
+          villageID
+
         };
 
         const result = await deliveryAgentService.createDeliveryAgent(newDeliveryAgentData, password);
@@ -138,7 +155,6 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
-
 
     // delivery agent suspension from admin side
     suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
@@ -1049,8 +1065,8 @@ export const deliveryAgentResolver: Resolvers = {
         const newPassword: string = input?.newPassword;
 
         // Validate the input password
-        if (!newPassword || newPassword.trim().length < 8) {
-          throw new GraphQLError("Password must be at least 8 characters long", {
+        if (!newPassword || newPassword.trim().length < 6) {
+          throw new GraphQLError("Password must be at least 6 characters long", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
@@ -1147,6 +1163,14 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
       }
+    },
+
+    //to get all governorates and villages
+
+    getLocationsData: async (parent, {  }, { req }, info) => {
+      console.log("called")
+      console.log("locations",locations)
+      return locations.governorates;
     },
 
 

@@ -77,6 +77,22 @@ const returnAddressSchema = new Schema(
             type: String,
             required: true,
         },
+        governorate: {
+            type: String, 
+            required: true
+            },
+         village: {
+            type: String,
+            required: true
+           }, 
+           governorateID: {
+            type: String, 
+            required: true
+            },
+         villageID: {
+            type: String,
+            required: true
+           },
     },
     { _id: false, timestamps: true }
 );
