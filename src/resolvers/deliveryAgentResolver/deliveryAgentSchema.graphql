@@ -45,7 +45,28 @@ type Query{
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
+   getDeliveryAgentlistCustomizOrderAssigen(input:getDeliveryAgentlistCustomizOrderAssigenInput):[getDeliveryAgentlistCustomizOrderAssigenResponse]!
 }
+
+
+
+ input getDeliveryAgentlistCustomizOrderAssigenInput{
+
+        deliveryAgentType:String!
+        vendorID:ObjectId
+        location:String
+ }
+
+ type getDeliveryAgentlistCustomizOrderAssigenResponse{
+
+
+       _id:ObjectId,
+       fullName:String
+       contactNumber:String
+ }
+
+
+
 
 
 input DeliveryStatusOtpVerifyInput{
@@ -213,6 +234,7 @@ type UserReturn {
 type GetDeliveryAgentReturnOrderResponse{
   records: [AdminReturnOrderProduct]
   totalCount:Float
+  
   page: Float
   totalPages: Float 
 }
