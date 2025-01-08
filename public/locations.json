@@ -1,20 +1,117 @@
 {
-    "governorates": [
-      {
-        "_id": "gvt_1",
-        "name": "Cairo",
-        "villages": [
-          { "_id": "vlt_1", "name": "Heliopolis" },
-          { "_id": "vlt_2", "name": "Nasr City" }
-        ]
-      },
-      {
-        "_id": "gvt_2",
-        "name": "Alexandria",
-        "villages": [
-          { "_id": "vlt_3", "name": "El Montaza" },
-          { "_id": "vlt_4", "name": "Borg El Arab" }
-        ]
-      }
-    ]
-  }
+  "governorates": [
+    {
+      "_id": "gvt_1",
+      "name": "Muscat",
+      "villages": [
+        { "_id": "vlt_1", "name": "Muttrah" },
+        { "_id": "vlt_2", "name": "Bawshar" },
+        { "_id": "vlt_3", "name": "Seeb" },
+        { "_id": "vlt_4", "name": "Al Amerat" },
+        { "_id": "vlt_5", "name": "Qurayyat" }
+      ]
+    },
+    {
+      "_id": "gvt_2",
+      "name": "Dhofar",
+      "villages": [
+        { "_id": "vlt_6", "name": "Salalah" },
+        { "_id": "vlt_7", "name": "Taqah" },
+        { "_id": "vlt_8", "name": "Mirbat" },
+        { "_id": "vlt_9", "name": "Shaleem and the Hallaniyat Islands" },
+        { "_id": "vlt_10", "name": "Al Mazyunah" }
+      ]
+    },
+    {
+      "_id": "gvt_3",
+      "name": "Al Batinah North",
+      "villages": [
+        { "_id": "vlt_11", "name": "Sohar" },
+        { "_id": "vlt_12", "name": "Shinas" },
+        { "_id": "vlt_13", "name": "Liwa" },
+        { "_id": "vlt_14", "name": "Saham" },
+        { "_id": "vlt_15", "name": "Al Khaburah" }
+      ]
+    },
+    {
+      "_id": "gvt_4",
+      "name": "Al Batinah South",
+      "villages": [
+        { "_id": "vlt_16", "name": "Rustaq" },
+        { "_id": "vlt_17", "name": "Nakhal" },
+        { "_id": "vlt_18", "name": "Al Awabi" },
+        { "_id": "vlt_19", "name": "Wadi Al Maawil" },
+        { "_id": "vlt_20", "name": "Barka" }
+      ]
+    },
+    {
+      "_id": "gvt_5",
+      "name": "Al Dakhiliyah",
+      "villages": [
+        { "_id": "vlt_21", "name": "Nizwa" },
+        { "_id": "vlt_22", "name": "Bahla" },
+        { "_id": "vlt_23", "name": "Adam" },
+        { "_id": "vlt_24", "name": "Manah" },
+        { "_id": "vlt_25", "name": "Samail" }
+      ]
+    },
+    {
+      "_id": "gvt_6",
+      "name": "Al Sharqiyah North",
+      "villages": [
+        { "_id": "vlt_26", "name": "Ibra" },
+        { "_id": "vlt_27", "name": "Bidiyah" },
+        { "_id": "vlt_28", "name": "Al Mudaybi" },
+        { "_id": "vlt_29", "name": "Wadi Bani Khalid" }
+      ]
+    },
+    {
+      "_id": "gvt_7",
+      "name": "Al Sharqiyah South",
+      "villages": [
+        { "_id": "vlt_30", "name": "Sur" },
+        { "_id": "vlt_31", "name": "Ja'alan Bani Bu Hassan" },
+        { "_id": "vlt_32", "name": "Ja'alan Bani Bu Ali" },
+        { "_id": "vlt_33", "name": "Masirah" }
+      ]
+    },
+    {
+      "_id": "gvt_8",
+      "name": "Al Dhahirah",
+      "villages": [
+        { "_id": "vlt_34", "name": "Ibri" },
+        { "_id": "vlt_35", "name": "Yanqul" },
+        { "_id": "vlt_36", "name": "Dhank" }
+      ]
+    },
+    {
+      "_id": "gvt_9",
+      "name": "Al Wusta",
+      "villages": [
+        { "_id": "vlt_37", "name": "Haima" },
+        { "_id": "vlt_38", "name": "Mahout" },
+        { "_id": "vlt_39", "name": "Duqm" },
+        { "_id": "vlt_40", "name": "Al Jazir" }
+      ]
+    },
+    {
+      "_id": "gvt_10",
+      "name": "Musandam",
+      "villages": [
+        { "_id": "vlt_41", "name": "Khasab" },
+        { "_id": "vlt_42", "name": "Bukha" },
+        { "_id": "vlt_43", "name": "Dibba" },
+        { "_id": "vlt_44", "name": "Madha" }
+      ]
+    },
+    {
+      "_id": "gvt_11",
+      "name": "Al Buraimi",
+      "villages": [
+        { "_id": "vlt_45", "name": "Al Buraimi" },
+        { "_id": "vlt_46", "name": "Mahdah" },
+        { "_id": "vlt_47", "name": "Al Sinaina" }
+      ]
+    }
+  ]
+}

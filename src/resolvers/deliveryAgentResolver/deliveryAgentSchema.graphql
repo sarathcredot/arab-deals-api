@@ -50,13 +50,13 @@ type Query{
 
 
 type Village {
-    id: String!
+    _id: String!
     name: String!
 }
 
 type Locations {
     name: String!
-    id: String!
+    _id: String!
     villages: [Village!]!
 }
 
