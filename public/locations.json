@@ -1,0 +1,18 @@
+{
+  "governorates": [
+      {
+          "name": "Cairo",
+          "villages": [
+              { "name": "Heliopolis" },
+              { "name": "Nasr City" }
+          ]
+      },
+      {
+          "name": "Alexandria",
+          "villages": [
+              { "name": "El Montaza" },
+              { "name": "Borg El Arab" }
+          ]
+      }
+  ]
+}

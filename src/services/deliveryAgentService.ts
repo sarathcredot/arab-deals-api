@@ -28,6 +28,8 @@ export interface IDeliveryAgent {
   vendorID?: Types.ObjectId;
   licence: FileData;
   ID: string;
+  governorate:string;
+  village:string;
 }
 
 

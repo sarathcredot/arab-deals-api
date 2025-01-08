@@ -45,8 +45,18 @@ type Query{
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
+   getLocationsData:[Locations]!
 }
 
+
+type Village {
+    name: String!
+}
+
+type Locations {
+    name: String!
+    villages: [Village!]!
+}
 
 input DeliveryStatusOtpVerifyInput{
         orderItemId:ObjectId!
@@ -587,6 +597,8 @@ input CreateDeliveryAgentInput {
   contactNumber: String!
   userID: String!
   password: String!
+  governorate:String!
+  village:String!
   agentType: String! # Must be one of: 'ArabDeals', 'Vendor', 'ThirdParty'
   vendorID: ObjectId # Optional, only for agents linked to a vendor
 }
