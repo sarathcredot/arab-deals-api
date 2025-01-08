@@ -501,11 +501,11 @@ type DeliveryAgentForReturnOrderProduct {
 type AdminOrderProduct {
   _id: ObjectId
   userId: ObjectId
-  productId: ObjectId
   vendorId: ObjectId
+  productId: ObjectId
   vendorName: String
-  orderId: String
   itemId: String
+  orderId: String
   productName: String
   shortDescription: String
   skuId: String
@@ -671,9 +671,18 @@ type GetAdminOrderProductResponse {
   courierId: String
   invoiceNumber: String
   invoice: FileData
+  username: String
+  deliveryAgentId: ObjectId
+  deliveryBoy: DeliveryAgentForOrderProduct
+  deliveryAgentName: String
   refundBankDetails: BankDetails
   returnAddress: returnAddress
   returnProductImage: [FileData]
+  deliveryAssignedOn: Date
+  returnOrderAssignedOn: Date
+  returndeliveryAgentId: ObjectId
+  returndeliveryAgentName: String
+  returnCollectorBoy: DeliveryAgentForReturnOrderProduct
 }
 
 type GetVendorOrderProductResponse {
