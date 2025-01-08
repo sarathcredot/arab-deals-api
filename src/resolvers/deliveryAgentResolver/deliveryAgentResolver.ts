@@ -25,8 +25,7 @@ interface EditAgentResult {
 type DeliveryLoginData = {
 
 
-  userID: string;
-  contactNumber: string;
+  userInput: string;
   password: string;
 
 }

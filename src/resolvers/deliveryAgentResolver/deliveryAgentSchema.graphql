@@ -666,8 +666,7 @@ input EditAgentDataInput{
 
 input LoginDeliveryAgentInput{
    
-    userID:String!
-    contactNumber:String!
+    userInput:String!
     password:String!
 }
 

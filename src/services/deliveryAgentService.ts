@@ -123,8 +123,7 @@ export interface IDeliveryAgentDocument extends Document {
 
 
 type DeliveryLoginData = {
-  userID: string;
-  contactNumber: string;
+  userInput: string;
   password: string;
 
 }
@@ -1023,8 +1022,8 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
         $and: [
           {
             $or: [
-              { userID: agentInput.userID },
-              { contactNumber: agentInput.contactNumber }
+              { userID: agentInput.userInput },
+              { contactNumber: agentInput.userInput }
             ]
           },
           { isActive: true }
@@ -1039,7 +1038,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
         const obj = {
 
           notfount: true,
-          msg: "invalid userid"
+          msg: "invalid userid OR mobile number"
         }
 
         resolve(obj)
