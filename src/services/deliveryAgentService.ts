@@ -1039,7 +1039,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
         const obj = {
 
           notfount: true,
-          msg: "invalid userid OR mobile number"
+          msg: "invalid Email OR mobile number"
         }
 
         resolve(obj)
@@ -1054,7 +1054,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
           const obj = {
             mismatch: true,
-            msg: "userid and password not matching"
+            msg: "Invalid username or password"
           }
 
           resolve(obj)
