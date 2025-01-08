@@ -766,22 +766,22 @@ export const orderResolver: Resolvers = {
 
       const validatedReturnAddress = returnAddress
         ? {
-            firstname: returnAddress.firstname || "",
-            email: returnAddress.email || "",
-            mobile: returnAddress.mobile || "",
-            country: returnAddress.country || "India", // Default to "India"
-            houseNumber: returnAddress.houseNumber || "",
-            streetName: returnAddress.streetName || "",
-            apartment: returnAddress.apartment || "",
-            suite: returnAddress.suite || "",
-            unit: returnAddress.unit || "",
-            city: returnAddress.city || "",
-            postCode: returnAddress.postCode || "",
-            governorate:returnAddress.governorate,
-            village:returnAddress.village,
-            governorateID:returnAddress.governorateID,
-            villageID:returnAddress.villageID
-          }
+          firstname: returnAddress.firstname || "",
+          email: returnAddress.email || "",
+          mobile: returnAddress.mobile || "",
+          country: returnAddress.country || "India", // Default to "India"
+          houseNumber: returnAddress.houseNumber || "",
+          streetName: returnAddress.streetName || "",
+          apartment: returnAddress.apartment || "",
+          suite: returnAddress.suite || "",
+          unit: returnAddress.unit || "",
+          city: returnAddress.city || "",
+          postCode: returnAddress.postCode || "",
+          governorate: returnAddress.governorate,
+          village: returnAddress.village,
+          governorateID: returnAddress.governorateID,
+          villageID: returnAddress.villageID
+        }
         : null;
 
       orderProduct.returnUserReason = returnUserReason;
@@ -1955,10 +1955,13 @@ export const orderResolver: Resolvers = {
         );
 
         // find products delivery type and delivery agents
+        const options={
+          proid:input.productId ,
+          location:input.location || " "
+
+        }
         const result: any =
-          await orderService.getProductDeliveryTypeDeliveryAgents(
-            input.productId
-          );
+          await orderService.getProductDeliveryTypeDeliveryAgents(options);
 
         return {
           deliveryType: result.deliveryType,

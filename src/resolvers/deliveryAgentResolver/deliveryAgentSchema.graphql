@@ -45,8 +45,8 @@ type Query{
    getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
-<<<<<<< HEAD
    getDeliveryAgentlistCustomizOrderAssigen(input:getDeliveryAgentlistCustomizOrderAssigenInput):[getDeliveryAgentlistCustomizOrderAssigenResponse]!
+   getLocationsData:[Locations]!
 }
 
 
@@ -69,9 +69,8 @@ type Query{
 
 
 
-=======
-   getLocationsData:[Locations]!
-}
+   
+
 
 
 type Village {
@@ -84,7 +83,6 @@ type Locations {
     _id: String!
     villages: [Village!]!
 }
->>>>>>> 5e5dec7a472d99cfb5bdb57923a508fad55c775e
 
 input DeliveryStatusOtpVerifyInput{
         orderItemId:ObjectId!
@@ -561,6 +559,7 @@ input OrderAssignDeliveryAgentInput{
        orderItemId:ObjectId!
        deliveryAgentId:ObjectId!
        deliveryAgentName:String
+       bundleCount:Int
 }
 
 
@@ -684,6 +683,17 @@ input EditAgentDataInput{
     userID:String!
     agentType:String!
     vendorID:ObjectId
+    isActive:Boolean
+    isAvailable:Boolean
+    governorate:String
+    village:String
+    governorateID:String
+    villageID:String
+
+
+
+    
+
 
 }
 

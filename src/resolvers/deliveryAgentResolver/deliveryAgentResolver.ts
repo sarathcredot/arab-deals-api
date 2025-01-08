@@ -42,6 +42,8 @@ type OrderAssignDeliveryAgentInput = {
   orderItemId: Types.ObjectId
   deliveryAgentId: Types.ObjectId
   deliveryAgentName: string
+  bundleCount:number
+
 }
 
 
@@ -453,6 +455,12 @@ export const deliveryAgentResolver: Resolvers = {
               userID: input.userID,
               agentType: input.agentType,
               vendorID: input.vendorID,
+              isActive:input.isActive,
+              isAvailable:input.isAvailable,
+              governorate:input.governorate,
+              village:input.village,
+              governorateID:input.governorateID,
+              villageID:input.villageID,
               licence: uploaddlicence
             }
 
@@ -465,6 +473,12 @@ export const deliveryAgentResolver: Resolvers = {
               userID: input.userID,
               agentType: input.agentType,
               vendorID: input.vendorID,
+              isActive:input.isActive,
+              isAvailable:input.isAvailable,
+              governorate:input.governorate,
+              village:input.village,
+              governorateID:input.governorateID,
+              villageID:input.villageID,
 
             }
           }

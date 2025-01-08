@@ -975,7 +975,14 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
             userID: data.userID,
             vendorID: data.vendorID,
             agentType: data.agentType,
-            licence: data.licence
+            licence: data.licence,
+            isActive:data.isActive,
+            isAvailable:data.isAvailable,
+            governorate:data.governorate,
+            village:data.village,
+            governorateID:data.governorateID,
+            villageID:data.villageID,
+
           }
         })
       } else {
@@ -989,6 +996,12 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
             userID: data.userID,
             vendorID: data.vendorID,
             agentType: data.agentType,
+            isActive:data.isActive,
+            isAvailable:data.isAvailable,
+            governorate:data.governorate,
+            village:data.village,
+            governorateID:data.governorateID,
+            villageID:data.villageID,
 
           }
         })
@@ -1093,7 +1106,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
 // order assign to delivery agent
 
-export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string }) => {
+export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string ,bundleCount:number }) => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -1117,6 +1130,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
           // get the admin added limit
 
           const limit: any = await deliveryAgentConfigModel.findOne()
+          const finalLimit=limit.orderAssignLimit*data.bundleCount
           const todayDate = new Date()
 
           const matchObj = {
@@ -1130,22 +1144,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
               {
                 deliveryAssignedOn: { $lte: endOfDay(todayDate) }
               },
-              {
-
-
-                $or: [
-                  {
-                    shippingStatus: "SHIPPED",
-
-                  },
-                  {
-                    shippingStatus: "DELIVERED",
-
-                  }
-
-                ]
-              }
-
+             
             ]
 
 
@@ -1159,7 +1158,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
           ])
 
-          if (result.length >= limit.orderAssignLimit) {
+          if (result.length >=finalLimit) {
 
             reject("Assign order limit reached")
             return;
@@ -1215,6 +1214,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
           // get the admin added limit
 
           const limit: any = await deliveryAgentConfigModel.findOne()
+          const finalLimit=limit.orderAssignLimit*data.bundleCount
           const todayDate = new Date()
 
           const matchObj = {
@@ -1228,21 +1228,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
               {
                 deliveryAssignedOn: { $lte: endOfDay(todayDate) }
               },
-              {
-
-
-                $or: [
-                  {
-                    shippingStatus: "SHIPPED",
-
-                  },
-                  {
-                    shippingStatus: "DELIVERED",
-
-                  }
-
-                ]
-              }
+              
 
             ]
 
@@ -1257,7 +1243,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
           ])
 
-          if (result.length >= limit.orderAssignLimit) {
+          if (result.length >= finalLimit) {
 
             reject("Assign order limit reached")
             return;
@@ -2424,6 +2410,8 @@ export const getDeliveryAgentlistCustomizOrderAssigen = async (data:{deliveryAge
             agentType:data.deliveryAgentType,
             isActive:true,
             isAvailable:true,
+            villageID:data.location
+
 
            }
 

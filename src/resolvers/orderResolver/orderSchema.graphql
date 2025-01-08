@@ -252,6 +252,7 @@ type AllAgents {
 
 input GetProductDeliveryTypeDeliveryAgentsInput {
   productId: ObjectId
+  location:String
 }
 
 type GetProductDeliveryTypeDeliveryAgentsResponse {
