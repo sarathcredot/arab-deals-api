@@ -1,3 +1,4 @@
+
 # generated Schema - do not edit # 
 
 scalar ObjectId
@@ -103,8 +104,6 @@ type Mutation {
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createSuperAdmin(input: AdminSignUpInput!, image: Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
@@ -113,6 +112,8 @@ type Mutation {
   logoutAdmin: LogoutAdminResponse!
   cretaeDeliveryAgentConfig(input: cretaeDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
   updateDeliveryAgentConfig(input: updateDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
 }
 
 type Query {
@@ -207,6 +208,8 @@ type Query {
   getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getDeliveryAgentlistCustomizOrderAssigen(input: getDeliveryAgentlistCustomizOrderAssigenInput): [getDeliveryAgentlistCustomizOrderAssigenResponse]!
   getLocationsData: [Locations]!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -259,6 +262,8 @@ type Query {
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
+  getAdminRecord: getAdminRecordResponse
+  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -267,8 +272,6 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAdminRecord: getAdminRecordResponse
-  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
 }
 
 input AddToWishListInput {
@@ -2057,11 +2060,11 @@ type DeliveryAgentForReturnOrderProduct {
 type AdminOrderProduct {
   _id: ObjectId
   userId: ObjectId
-  productId: ObjectId
   vendorId: ObjectId
+  productId: ObjectId
   vendorName: String
-  orderId: String
   itemId: String
+  orderId: String
   productName: String
   shortDescription: String
   skuId: String
@@ -2227,9 +2230,18 @@ type GetAdminOrderProductResponse {
   courierId: String
   invoiceNumber: String
   invoice: FileData
+  username: String
+  deliveryAgentId: ObjectId
+  deliveryBoy: DeliveryAgentForOrderProduct
+  deliveryAgentName: String
   refundBankDetails: BankDetails
   returnAddress: returnAddress
   returnProductImage: [FileData]
+  deliveryAssignedOn: Date
+  returnOrderAssignedOn: Date
+  returndeliveryAgentId: ObjectId
+  returndeliveryAgentName: String
+  returnCollectorBoy: DeliveryAgentForReturnOrderProduct
 }
 
 type GetVendorOrderProductResponse {
@@ -3123,6 +3135,76 @@ type LoginDeliveryAgentResponse {
   msg: String
 }
 
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
+}
+
 input GetDashboardUsersGraphInput {
   startDate: Date
   endDate: Date
@@ -3943,6 +4025,94 @@ type AttributeValueEditResponse {
   isBlocked: Boolean
 }
 
+type getAllDeliveryAgentConfigResponse {
+  _id: ObjectId
+  orderAssignLimit: Int
+  returnOrderAssignLimit: Int
+}
+
+input updateDeliveryAgentConfigInput {
+  _id: ObjectId!
+  deliveryLimit: Int!
+  returnLimit: Int!
+}
+
+input cretaeDeliveryAgentConfigInput {
+  limit: Int
+}
+
+type cretaeDeliveryAgentConfigResponse {
+  status: Boolean
+  msg: String
+}
+
+type LogoutAdminResponse {
+  message: String!
+}
+
+type Admin {
+  _id: String
+  email: String
+  password: String
+  accType: String
+  isBlocked: Boolean
+  fullName: String
+  profilePic: ImageData
+}
+
+input AdminSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+}
+
+input SubAdminSignUpInput {
+  email: String!
+  password: String!
+  isBlocked: Boolean!
+  fullName: String!
+}
+
+input AdminLoginInput {
+  email: String!
+  password: String!
+}
+
+input AdminEditProfileInput {
+  fullName: String
+  email: String
+  password: String
+  isBlocked: Boolean
+}
+
+input adminApprovalForVendorInput {
+  _id: String!
+  isVerified: Boolean
+}
+
+type AddAdminResponse {
+  _id: String!
+}
+
+type AdminAuthResponse {
+  _id: String
+  token: String
+}
+
+type UpdateAdminResponse {
+  _id: String
+  message: String
+}
+
+type getAdminRecordResponse {
+  record: Admin
+}
+
+type adminApprovalForVendorResponse {
+  _id: String
+  message: String
+}
+
 type Attribute {
   _id: String
   attributeType: String
@@ -4048,93 +4218,5 @@ type AttributesDetailsWithCategoryResponse {
 
 type AttributesDetailsWithCategoryInMobileResponse {
   record: CategoryWithCategory
-  message: String
-}
-
-type getAllDeliveryAgentConfigResponse {
-  _id: ObjectId
-  orderAssignLimit: Int
-  returnOrderAssignLimit: Int
-}
-
-input updateDeliveryAgentConfigInput {
-  _id: ObjectId!
-  deliveryLimit: Int!
-  returnLimit: Int!
-}
-
-input cretaeDeliveryAgentConfigInput {
-  limit: Int
-}
-
-type cretaeDeliveryAgentConfigResponse {
-  status: Boolean
-  msg: String
-}
-
-type LogoutAdminResponse {
-  message: String!
-}
-
-type Admin {
-  _id: String
-  email: String
-  password: String
-  accType: String
-  isBlocked: Boolean
-  fullName: String
-  profilePic: ImageData
-}
-
-input AdminSignUpInput {
-  email: String!
-  password: String!
-  fullName: String!
-}
-
-input SubAdminSignUpInput {
-  email: String!
-  password: String!
-  isBlocked: Boolean!
-  fullName: String!
-}
-
-input AdminLoginInput {
-  email: String!
-  password: String!
-}
-
-input AdminEditProfileInput {
-  fullName: String
-  email: String
-  password: String
-  isBlocked: Boolean
-}
-
-input adminApprovalForVendorInput {
-  _id: String!
-  isVerified: Boolean
-}
-
-type AddAdminResponse {
-  _id: String!
-}
-
-type AdminAuthResponse {
-  _id: String
-  token: String
-}
-
-type UpdateAdminResponse {
-  _id: String
-  message: String
-}
-
-type getAdminRecordResponse {
-  record: Admin
-}
-
-type adminApprovalForVendorResponse {
-  _id: String
   message: String
 }
