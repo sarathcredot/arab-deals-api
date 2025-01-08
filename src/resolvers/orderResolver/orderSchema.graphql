@@ -110,6 +110,8 @@ input ReturnAddressInput {
   apartment: String
   suite: String
   unit: String
+  governorate:String!
+  village:String!
 }
 
 input ReturnUserOrderProductInput {

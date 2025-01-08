@@ -651,6 +651,8 @@ export const orderResolver: Resolvers = {
       return response;
     },
 
+
+    //API for return request from user
     returnUserOrderProduct: async (parent, { input, image }, { req }, info) => {
       //add product image and return address
       console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
@@ -775,6 +777,8 @@ export const orderResolver: Resolvers = {
             unit: returnAddress.unit || "",
             city: returnAddress.city || "",
             postCode: returnAddress.postCode || "",
+            governorate:returnAddress.governorate,
+            village:returnAddress.village
           }
         : null;
 
@@ -795,6 +799,8 @@ export const orderResolver: Resolvers = {
 
       return response;
     },
+
+
     returnUserOrderProductInMobile: async (
       parent,
       { input },

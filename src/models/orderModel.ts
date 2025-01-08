@@ -53,6 +53,14 @@ const shippingAddressSchema = new Schema(
             type: String,
             required: true,
         },
+        governorate: {
+            type: String, 
+            required: true
+            },
+         village: {
+            type: String,
+            required: true
+           }, 
     },
     { _id: false, timestamps: true }
 );
