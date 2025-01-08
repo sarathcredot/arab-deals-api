@@ -96,6 +96,8 @@ type returnAddress {
   apartment: String
   suite: String
   unit: String
+  governorate:String
+  village:String
 }
 
 input ReturnAddressInput {

@@ -220,6 +220,8 @@ type UserReturn {
   returnCollectorBoy: DeliveryAgentForReturnOrderProduct
 }
 
+
+
 type GetDeliveryAgentReturnOrderResponse{
   records: [AdminReturnOrderProduct]
   totalCount:Float
@@ -347,7 +349,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
  
  type getAssignedeOrderDeatilsByAgentProfileResponse{
 
-          _id: ObjectId
+   _id: ObjectId
   orderId: String
   userId: ObjectId
   productName: String

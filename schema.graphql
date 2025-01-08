@@ -82,6 +82,9 @@ type Mutation {
   returnStatusChangeAfterOtpVerify(input: ReturnstatusUpdateInput!): ReturnstatusUpdateResponse!
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
+  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
+  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
@@ -100,6 +103,8 @@ type Mutation {
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createSuperAdmin(input: AdminSignUpInput!, image: Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
@@ -108,11 +113,6 @@ type Mutation {
   logoutAdmin: LogoutAdminResponse!
   cretaeDeliveryAgentConfig(input: cretaeDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
   updateDeliveryAgentConfig(input: updateDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
-  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
-  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
-  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
 }
 
 type Query {
@@ -228,6 +228,8 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
@@ -256,8 +258,6 @@ type Query {
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
-  getAdminRecord: getAdminRecordResponse
-  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -266,8 +266,8 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
+  getAdminRecord: getAdminRecordResponse
+  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
 }
 
 input AddToWishListInput {
@@ -1703,6 +1703,8 @@ type returnAddress {
   apartment: String
   suite: String
   unit: String
+  governorate: String
+  village: String
 }
 
 input ReturnAddressInput {
@@ -3279,6 +3281,76 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
+}
+
 input AddCmsInput {
   pageName: String!
   buttons: [ButtonDataInput]
@@ -3683,10 +3755,6 @@ type BrandDeleteRecordResponse {
   message: String
 }
 
-type BrandRecordId {
-  _id: String
-}
-
 type BrandsDetailsWithCategoryResponse {
   records: [BrandRecord]
   message: String
@@ -3839,94 +3907,6 @@ type AttributeValueEditResponse {
   isBlocked: Boolean
 }
 
-type getAllDeliveryAgentConfigResponse {
-  _id: ObjectId
-  orderAssignLimit: Int
-  returnOrderAssignLimit: Int
-}
-
-input updateDeliveryAgentConfigInput {
-  _id: ObjectId!
-  deliveryLimit: Int!
-  returnLimit: Int!
-}
-
-input cretaeDeliveryAgentConfigInput {
-  limit: Int
-}
-
-type cretaeDeliveryAgentConfigResponse {
-  status: Boolean
-  msg: String
-}
-
-type LogoutAdminResponse {
-  message: String!
-}
-
-type Admin {
-  _id: String
-  email: String
-  password: String
-  accType: String
-  isBlocked: Boolean
-  fullName: String
-  profilePic: ImageData
-}
-
-input AdminSignUpInput {
-  email: String!
-  password: String!
-  fullName: String!
-}
-
-input SubAdminSignUpInput {
-  email: String!
-  password: String!
-  isBlocked: Boolean!
-  fullName: String!
-}
-
-input AdminLoginInput {
-  email: String!
-  password: String!
-}
-
-input AdminEditProfileInput {
-  fullName: String
-  email: String
-  password: String
-  isBlocked: Boolean
-}
-
-input adminApprovalForVendorInput {
-  _id: String!
-  isVerified: Boolean
-}
-
-type AddAdminResponse {
-  _id: String!
-}
-
-type AdminAuthResponse {
-  _id: String
-  token: String
-}
-
-type UpdateAdminResponse {
-  _id: String
-  message: String
-}
-
-type getAdminRecordResponse {
-  record: Admin
-}
-
-type adminApprovalForVendorResponse {
-  _id: String
-  message: String
-}
-
 type Attribute {
   _id: String
   attributeType: String
@@ -4035,68 +4015,90 @@ type AttributesDetailsWithCategoryInMobileResponse {
   message: String
 }
 
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
+type getAllDeliveryAgentConfigResponse {
+  _id: ObjectId
+  orderAssignLimit: Int
+  returnOrderAssignLimit: Int
 }
 
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
+input updateDeliveryAgentConfigInput {
+  _id: ObjectId!
+  deliveryLimit: Int!
+  returnLimit: Int!
 }
 
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
+input cretaeDeliveryAgentConfigInput {
+  limit: Int
 }
 
-type AddCountryResponse {
-  _id: String!
-  message: String
+type cretaeDeliveryAgentConfigResponse {
+  status: Boolean
+  msg: String
 }
 
-type updateCountryResponse {
-  _id: String!
-  message: String
+type LogoutAdminResponse {
+  message: String!
 }
 
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
+type Admin {
   _id: String
-  name: String
+  email: String
+  password: String
+  accType: String
   isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
+  fullName: String
+  profilePic: ImageData
 }
 
-type CountryRecordResponse {
-  record: CountryRecord!
+input AdminSignUpInput {
+  email: String!
+  password: String!
+  fullName: String!
+}
+
+input SubAdminSignUpInput {
+  email: String!
+  password: String!
+  isBlocked: Boolean!
+  fullName: String!
+}
+
+input AdminLoginInput {
+  email: String!
+  password: String!
+}
+
+input AdminEditProfileInput {
+  fullName: String
+  email: String
+  password: String
+  isBlocked: Boolean
+}
+
+input adminApprovalForVendorInput {
+  _id: String!
+  isVerified: Boolean
+}
+
+type AddAdminResponse {
+  _id: String!
+}
+
+type AdminAuthResponse {
+  _id: String
+  token: String
+}
+
+type UpdateAdminResponse {
+  _id: String
   message: String
 }
 
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
+type getAdminRecordResponse {
+  record: Admin
+}
+
+type adminApprovalForVendorResponse {
+  _id: String
   message: String
 }
