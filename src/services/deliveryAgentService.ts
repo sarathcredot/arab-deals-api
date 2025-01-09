@@ -517,8 +517,13 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 
 
 export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string,bundleCount: number }) => {
+
+  return new Promise(async (resolve, reject) => {
+
   try {
     const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+
+
     if (assignOrder) {
       // check is this first assigning or reassigning
       if (assignOrder.returnStatus === "APPROVED") {
@@ -552,7 +557,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           ])
 
           if (result.length >= finalLimit) {
-            throw new Error("Assign order limit reached");
+            reject("Assign order limit reached.no more order can be assigned")
+            return;
           }
 
           // add order products model assign agent id and name
@@ -570,7 +576,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               'wallet.numberOfPendingReturns': 1
             }
           })
-          return true
+          resolve({ flag: true })
         } else {
           // reassign this oder to new delivery agent
           // find old delivery agent and update this agent numberOfOrderAssigned count
@@ -609,7 +615,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           ])
 
           if (result.length >= finalLimit) {
-            throw new Error("Assign order limit reached");
+            reject("Assign order limit reached.no more order can be assigned")
+            return;
           }
 
 
@@ -628,17 +635,22 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               'wallet.numberOfPendingReturns': 1
             }
           })
+
+          resolve({ flag: true })
         }
-        return true
+       
       } else {
-        return false
+        reject({ flag: false })
       }
     } else {
-      return false
+      reject({ flag: false })
     }
   } catch (error) {
-    return false
+    reject({ flag: false })
   }
+
+  })
+
 }
 
 
@@ -1810,7 +1822,9 @@ export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.O
       let dataSize: any
       let result: any
       let matchObj: any = { deliveryAgentId: data._id }
-      if (data?.startDate && data?.endDate) {
+
+     
+      if (data?.startDate || data?.endDate) {
         matchObj.$and = [{ deliveryAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { deliveryAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
       }
 
