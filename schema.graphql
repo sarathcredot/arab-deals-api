@@ -2962,6 +2962,10 @@ type DeliveryAgent {
   wallet: Wallet
   lastSettlementID: ObjectId
   settlementHistory: [SettlementHistory]
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
 }
 
 type DeliveryAgentResponse {
