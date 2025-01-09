@@ -901,6 +901,7 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
             isActive: 1,
             wallet: 1,
             settlementHistory: 1,
+            isAvailable: 1,
             createdAt: 1,
             updatedAt: 1,
           },

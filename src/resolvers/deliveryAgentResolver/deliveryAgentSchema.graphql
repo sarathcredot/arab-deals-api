@@ -503,6 +503,7 @@ type AllAgents{
     isActive:Boolean
     vendorID:ObjectId
     wallet:Wallet
+    isAvailable:Boolean
 
 }
 
