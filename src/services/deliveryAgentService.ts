@@ -1704,10 +1704,18 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: T
       let dataSize: any
       let result: any
       let matchObj: any = { returndeliveryAgentId: data._id }
-      if (data?.startDate && data?.endDate) {
-        matchObj.$and = [{ returnOrderAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { returnOrderAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
+      // if (data?.startDate && data?.endDate) {
+      //   matchObj.$and = [{ returnOrderAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { returnOrderAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
+      // }
+      if (data?.startDate) {
+        matchObj.returnOrderAssignedOn = { $gte: startOfDay(new Date(data.startDate)) };
       }
-
+      if (data?.endDate) {
+        matchObj.returnOrderAssignedOn = {
+          ...(matchObj.returnOrderAssignedOn || {}),
+          $lte: endOfDay(new Date(data.endDate)),
+        };
+      }
 
 
 
@@ -1810,10 +1818,20 @@ export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.O
       let dataSize: any
       let result: any
       let matchObj: any = { deliveryAgentId: data._id }
-      if (data?.startDate && data?.endDate) {
-        matchObj.$and = [{ deliveryAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { deliveryAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
+      // if (data?.startDate || data?.endDate) {
+      //   console.log("START DATE = ",startOfDay(new Date(data?.startDate)))
+      //   console.log("END DATE = ",endOfDay(new Date(data?.endDate)))
+      //   matchObj.$and = [{ deliveryAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { deliveryAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
+      // }
+      if (data?.startDate) {
+        matchObj.deliveryAssignedOn = { $gte: startOfDay(new Date(data.startDate)) };
       }
-
+      if (data?.endDate) {
+        matchObj.deliveryAssignedOn = {
+          ...(matchObj.deliveryAssignedOn || {}),
+          $lte: endOfDay(new Date(data.endDate)),
+        };
+      }
       dataSize = await orderProductModel.aggregate([
         {
           $match: matchObj,
