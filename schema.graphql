@@ -62,6 +62,9 @@ type Mutation {
   exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
   exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   editDeliveryAgentData(input: EditAgentDataInput!, image: Upload): EditAgentDataInputResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!, image: Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): AllDeliveryAgentResponse!
@@ -80,9 +83,6 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
-  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
@@ -1799,7 +1799,8 @@ type AllAgents {
 
 input GetProductDeliveryTypeDeliveryAgentsInput {
   productId: ObjectId
-  location: String
+  villageID: String
+  governorateID: String
 }
 
 type GetProductDeliveryTypeDeliveryAgentsResponse {
@@ -2573,10 +2574,28 @@ type GetAdminDownloadTokenResponse {
   url: String!
 }
 
+input GetAdminSignedFileUrlInput {
+  fileURL: String!
+  mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+  _id: ObjectId!
+}
+
+type GetAdminSignedFileUrlResponse {
+  url: String
+}
+
+type GetUserIvoiceUrlResponse {
+  url: String
+}
+
 input getDeliveryAgentlistCustomizOrderAssigenInput {
   deliveryAgentType: String!
   vendorID: ObjectId
-  location: String
+  villageID: String
+  governorateID: String
 }
 
 type getDeliveryAgentlistCustomizOrderAssigenResponse {
@@ -3114,23 +3133,6 @@ type LoginDeliveryAgentResponse {
   fullName: String
   token: String
   msg: String
-}
-
-input GetAdminSignedFileUrlInput {
-  fileURL: String!
-  mimeType: String!
-}
-
-input GetUserIvoiceUrlInput {
-  _id: ObjectId!
-}
-
-type GetAdminSignedFileUrlResponse {
-  url: String
-}
-
-type GetUserIvoiceUrlResponse {
-  url: String
 }
 
 input GetDashboardUsersGraphInput {

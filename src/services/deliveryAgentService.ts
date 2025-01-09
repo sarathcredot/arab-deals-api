@@ -2382,7 +2382,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 };
 
 
-export const getDeliveryAgentlistCustomizOrderAssigen = async (data:{deliveryAgentType:string,vendorID?:Types.ObjectId,location:string}): Promise<any> => {
+export const getDeliveryAgentlistCustomizOrderAssigen = async (data:{deliveryAgentType:string,vendorID?:Types.ObjectId,villageID:string,governorateID:string}): Promise<any> => {
 
 
   return new Promise(async (resolve, reject) => {
@@ -2394,7 +2394,9 @@ export const getDeliveryAgentlistCustomizOrderAssigen = async (data:{deliveryAge
             agentType:data.deliveryAgentType,
             isActive:true,
             isAvailable:true,
-            villageID:data.location
+            villageID:data.villageID,
+            governorateID:data.governorateID
+
 
 
            }

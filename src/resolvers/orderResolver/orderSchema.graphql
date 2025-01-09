@@ -252,7 +252,10 @@ type AllAgents {
 
 input GetProductDeliveryTypeDeliveryAgentsInput {
   productId: ObjectId
-  location:String
+  villageID:String
+  governorateID:String
+  
+
 }
 
 type GetProductDeliveryTypeDeliveryAgentsResponse {

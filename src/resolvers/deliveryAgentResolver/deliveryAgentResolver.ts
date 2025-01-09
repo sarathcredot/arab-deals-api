@@ -2045,7 +2045,8 @@ export const deliveryAgentResolver: Resolvers = {
 
           deliveryAgentType: input?.deliveryAgentType || " ",
           vendorID: input?.vendorID || undefined,
-          location: input?.location || " "
+          villageID:input?.villageID || "",
+          governorateID:input?.governorateID || ""
         }
 
         const result = await deliveryAgentService.getDeliveryAgentlistCustomizOrderAssigen(options)
