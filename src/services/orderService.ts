@@ -1316,7 +1316,7 @@ export const getUserOrderDetails = async (orderId: string, userId: Types.ObjectI
 }
 
 
-export const getProductDeliveryTypeDeliveryAgents = async (data:{proid: Types.ObjectId,location:string}) => {
+export const getProductDeliveryTypeDeliveryAgents = async (data:{proid: Types.ObjectId,villageID:string,governorateID:string}) => {
 
 
     return new Promise(async (resolve, reject) => {
@@ -1332,7 +1332,7 @@ export const getProductDeliveryTypeDeliveryAgents = async (data:{proid: Types.Ob
             if (deliveryType === "ArabDeals") {
 
                 // find all Arabdeals under deliveryagents
-                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ArabDeals",villageID:data.location  ,isActive:true,isAvailable:true})
+                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ArabDeals",villageID:data.villageID, governorateID:data.governorateID ,isActive:true,isAvailable:true})
 
                 const obj = {
 
@@ -1346,7 +1346,7 @@ export const getProductDeliveryTypeDeliveryAgents = async (data:{proid: Types.Ob
             } else if (deliveryType === "Vendor") {
 
                 // find all Vendor  under deliveryagents
-                const deliveryAgents = await deliveryAgentModel.find({ vendorID: productData.vendorId, agentType: "Vendor",villageID:data.location ,isActive:true,isAvailable:true})
+                const deliveryAgents = await deliveryAgentModel.find({ vendorID: productData.vendorId, agentType: "Vendor",villageID:data.villageID, governorateID:data.governorateID ,isActive:true,isAvailable:true})
 
                 const obj = {
 
@@ -1359,7 +1359,7 @@ export const getProductDeliveryTypeDeliveryAgents = async (data:{proid: Types.Ob
             } else {
 
                 // find all ThirdParty  under deliveryagents
-                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ThirdParty",villageID:data.location,isActive:true,isAvailable:true })
+                const deliveryAgents = await deliveryAgentModel.find({ agentType: "ThirdParty",villageID:data.villageID, governorateID:data.governorateID,isActive:true,isAvailable:true })
 
                 const obj = {
 

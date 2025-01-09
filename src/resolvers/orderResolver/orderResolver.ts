@@ -1950,7 +1950,8 @@ export const orderResolver: Resolvers = {
         // find products delivery type and delivery agents
         const options={
           proid:input.productId ,
-          location:input.location || " "
+          villageID:input.villageID || "",
+          governorateID:input.governorateID || " "
 
         }
         const result: any =

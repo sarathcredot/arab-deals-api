@@ -56,7 +56,9 @@ type Query{
 
         deliveryAgentType:String!
         vendorID:ObjectId
-        location:String
+        villageID:String
+        governorateID:String
+        
  }
 
  type getDeliveryAgentlistCustomizOrderAssigenResponse{
