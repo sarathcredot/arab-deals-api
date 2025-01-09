@@ -1310,6 +1310,10 @@ export const deliveryAgentResolver: Resolvers = {
             lastSettlementID: 1,
             wallet: 1,
             ID: 1,
+            governorate:1,
+            village:1,
+            governorateID:1,
+            villageID:1
           },
           { lean: true, page, limit },
           settlementHistoryFilter

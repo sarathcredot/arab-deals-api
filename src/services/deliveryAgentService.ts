@@ -82,6 +82,10 @@ export interface IDeliveryAgentFilter {
   isActive: boolean;
   isAvailable: boolean;
   lastSettlementID: Types.ObjectId;
+  governorate:string;
+  village:string;
+  governorateID:string;
+  villageID:string;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -108,6 +112,10 @@ export interface IDeliveryAgentDocument extends Document {
   licence: FileData;
   isActive: boolean;
   isAvailable: boolean;
+  governorate:string;
+  village:string;
+  governorateID:string;
+  villageID:string;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
