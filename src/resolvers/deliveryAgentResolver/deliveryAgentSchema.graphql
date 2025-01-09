@@ -100,7 +100,8 @@ input GetAssignedOrderBundleInput{
         _id:ObjectId!
         page:Int
         size:Int
-        search:String
+        startDate:Date
+        endDate:Date
 
 }
 
@@ -262,7 +263,8 @@ type GetDeliveryAgentReturnOrderResponse{
         _id:ObjectId!
         page:Int
         size:Int
-        search:String
+        startDate:Date
+        endDate:Date
         shippingStatus:String
         date:Date
  }

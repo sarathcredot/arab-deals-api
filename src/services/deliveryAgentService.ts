@@ -5,7 +5,7 @@ import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs, otpService } from "../services"
+import { transactionlogs, otpService, dashboardService } from "../services"
 import { startOfDay, endOfDay } from "date-fns"
 
 
@@ -1695,7 +1695,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 }
 
 
-export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, search: string }): Promise<any> => {
+export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, startDate:Date,endDate:Date }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
 
@@ -1704,8 +1704,8 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: T
       let dataSize: any
       let result: any
       let matchObj: any = { returndeliveryAgentId: data._id }
-      if (data?.search) {
-        matchObj.$and = [{ returnOrderAssignedOn: { $gte: startOfDay(new Date(data?.search)) } }, { returnOrderAssignedOn: { $lte: endOfDay(new Date(data?.search)) } }]
+      if (data?.startDate && data?.endDate) {
+        matchObj.$and = [{ returnOrderAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { returnOrderAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
       }
 
 
@@ -1801,7 +1801,7 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: T
 }
 
 
-export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, search: string }): Promise<any> => {
+export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number,startDate:Date,endDate:Date }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
 
@@ -1810,8 +1810,8 @@ export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.O
       let dataSize: any
       let result: any
       let matchObj: any = { deliveryAgentId: data._id }
-      if (data?.search) {
-        matchObj.$and = [{ deliveryAssignedOn: { $gte: startOfDay(new Date(data?.search)) } }, { deliveryAssignedOn: { $lte: endOfDay(new Date(data?.search)) } }]
+      if (data?.startDate && data?.endDate) {
+        matchObj.$and = [{ deliveryAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { deliveryAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
       }
 
       dataSize = await orderProductModel.aggregate([

@@ -1920,7 +1920,8 @@ export const deliveryAgentResolver: Resolvers = {
           _id: input._id,
           page: input?.page || 0,
           size: input?.size || 10,
-          search: input?.search || ""
+          startDate: input?.startDate || "",
+          endDate: input?.endDate || ""
         }
 
         const result = await deliveryAgentService.getAssignedReturnOrderBundleByDeliveryAgent(options)
@@ -1958,7 +1959,8 @@ export const deliveryAgentResolver: Resolvers = {
           _id: input._id,
           page: input?.page || 0,
           size: input?.size || 10,
-          search: input?.search || ""
+          startDate: input?.startDate || "",
+          endDate: input?.endDate || ""
         }
 
         const result = await deliveryAgentService.getAssignedOrderBundleByDeliveryAgent(options)
