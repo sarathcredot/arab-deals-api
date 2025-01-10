@@ -1,4 +1,4 @@
-import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService } from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService ,coupenService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
@@ -15,52 +15,78 @@ import { error } from "console";
 export const couponResolver: Resolvers = {
      Upload: GraphQLUpload,
      Mutation:{
-        suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
-            // await verifyAdmin(req);
-            const { agentId, isActive } = input;
-      
-            // Validate the input
-            if (!agentId) {
-              throw new GraphQLError("Agent ID is required", {
-                extensions: { code: "BAD_USER_INPUT" },
-              });
-            }
-      
-            try {
-              // Check if the delivery agent exists
-              const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
-                { _id: agentId },
-                { _id: 1, isActive: 1 },
-                { lean: true }
-              );
-      
-              if (!existingAgent) {
-                throw new GraphQLError("Delivery Agent not found", {
-                  extensions: { code: "NOT_FOUND" },
-                });
-              }
-      
-              // Update the isActive status
-              const updatedAgent = await deliveryAgentService.suspendDeliveryAgent(
-                new Types.ObjectId(agentId),
-                isActive
-              );
-      
-              if (!updatedAgent) {
-                throw new GraphQLError("Unable to update Delivery Agent status", {
-                  extensions: { code: "INTERNAL_SERVER_ERROR" },
-                });
-              }
-      
-              return {
-                _id: updatedAgent._id,
-                message: `${isActive ? "Activated delivery agent succsessfully" : "suspended delievery agent successfully"}`
-              };
-            } catch (error: any) {
-              throw new GraphQLError(error.message || "Error suspending Delivery Agent", {
-                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-              });
-            }
-          },
+
+          // admin edit coupen 
+
+          adminSuspendTheCupone:async(parent, {input}, { req }, info)=>{
+
+                   try {
+
+                       const options={
+
+                          _id:input?._id,
+                          isActive:input?.isActive || undefined
+                       }
+
+                       await coupenService.adminSuspendTheCupone(options)
+
+                       return {
+                          status:true,
+                          msg:"Coupen successfully suspended "
+                       }
+
+                    
+                   } catch (error:any) {
+
+                    throw new GraphQLError("Coupen suspended Failed " ,{
+                         extensions: {
+                           code: "INTERNAL_SERVER_ERROR",
+                           errors: [],
+                         },
+                       });
+                     
+                   }
+          }
+
+
+          
+     }, 
+     Query:{
+
+          // get all coupens in admin portl 
+        
+          getAllCoupenToAdmin:async(parent, {input }, { req }, info)=>{
+
+               // admin verfy
+
+               await verifyAdmin(req)
+
+                try {
+                   
+                    const page: number = input?.page || 0;
+                    const size: number = input?.size || 10;
+                       const options:any={
+                         page:page ,
+                         size:size,
+                        
+                       }
+
+                       if(input.isActive)options.isActive=input.isActive
+                       if(input.startDate)options.startDate=input.startDate
+                       if(input.expiryDate)options.expiryDate=input.expiryDate
+
+                    const result= await coupenService.getAllCoupenToAdmin(options)
+                    return result
+
+                          
+                    
+                } catch (error) {
+                    
+                   
+                      
+                }
+                 
+                  
+          }       
      }
 }

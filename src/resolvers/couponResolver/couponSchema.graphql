@@ -1,0 +1,101 @@
+
+
+scalar ObjectId
+scalar Upload
+
+
+type Mutation{
+
+   adminSuspendTheCupone(input:adminSuspendTheCuponeInput):adminSuspendTheCuponeResponse!
+}
+
+
+type Query{
+
+      getAllCoupenToAdmin(input:getAllCoupenToAdminInput!):getAllCoupenToAdminResponse!
+}
+
+
+
+
+input adminSuspendTheCuponeInput{
+
+     _id:ObjectId,
+     isActive:Boolean
+}
+
+type adminSuspendTheCuponeResponse{
+
+      status:Boolean,
+      msg:String
+}
+
+
+
+
+
+
+
+type getAllCoupenToAdminResponse{
+
+      records: [Coupon ],
+     maxRecords: Int
+}
+
+input getAllCoupenToAdminInput{
+
+    page:Int
+    size:Int
+    isActive:Boolean
+    startDate:Date
+    expiryDate:Date
+
+
+}
+
+
+
+
+
+type Coupon{
+
+     name:String 
+     code:String
+     description:String
+     couponType:String
+     discountType:String
+     couponApplicableType:String
+     discountValue:Int
+     max_discount:Int
+     minOrderAmount:Int
+     validCatogories:[ValidCategory]
+     validProducts:[ValidProduct]
+     validUsers:[ValidUser]
+     usageLimit:Int
+     usagePerUserLimit:Int
+     startDate:Int
+     expiryDate:Date 
+     isActive:Boolean
+     userUsage:[UserUsageLimit]
+}
+
+
+type ValidCategory {
+ 
+ catogory:ObjectId
+ 
+}
+
+type ValidProduct {
+    products:ObjectId
+}
+
+type ValidUser {
+   
+    user:ObjectId
+}
+
+type UserUsageLimit {
+  userId: ObjectId
+  usageCount: Int
+}

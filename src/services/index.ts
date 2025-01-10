@@ -24,6 +24,7 @@ import * as dashboardService from "./dashboardService";
 import * as jobQueueService from "./jobQueueService";
 import * as deliveryAgentService from "./deliveryAgentService";
 import * as transactionlogs from "./transactionlogs"
+import * as coupenService  from "./couponService"
 
 
 
@@ -53,5 +54,6 @@ export {
     dashboardService,
     jobQueueService,
     deliveryAgentService,
-    transactionlogs
+    transactionlogs,
+    coupenService
 }
