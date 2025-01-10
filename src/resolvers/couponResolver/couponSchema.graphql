@@ -16,7 +16,15 @@ input Categoryvalid {
   category: ObjectId
 }
 
+type CategoryvalidType {
+  category: ObjectId
+}
+
 input Productvalid {
+  product: ObjectId
+}
+
+type ProductvalidType {
   product: ObjectId
 }
 
@@ -24,7 +32,15 @@ input Uservalid {
   user: ObjectId
 }
 
+type UservalidType {
+  user: ObjectId
+}
+
 input Brandvalid{
+  brand:ObjectId
+}
+
+type BrandvalidType{
   brand:ObjectId
 }
 
@@ -89,24 +105,24 @@ input getAllCoupenToAdminInput{
 
 type Coupon{
 
-     name:String 
-     code:String
-     description:String
-     couponType:String
-     discountType:String
-     couponApplicableType:String
-     discountValue:Int
-     max_discount:Int
-     minOrderAmount:Int
-     validCatogories:[ValidCategory]
-     validProducts:[ValidProduct]
-     validUsers:[ValidUser]
-     usageLimit:Int
-     usagePerUserLimit:Int
-     startDate:Int
-     expiryDate:Date 
-     isActive:Boolean
-     userUsage:[UserUsageLimit]
+      name:String
+    code:String
+    description:String
+    # couponType: String!
+    orderCount:Int
+    discountType: String
+    couponApplicableType: String
+    discountValue: Float
+    max_discount: Float
+    minOrderAmount: Float
+    validCategories: [CategoryvalidType]
+    validProducts: [ProductvalidType]
+    validUsers: [UservalidType]
+    validBrands: [BrandvalidType]
+    usageLimit: Int
+    usagePerUserLimit: Int
+    startDate: Date
+    expiryDate: Date
 }
 
 
