@@ -24,7 +24,7 @@ import * as dashboardService from "./dashboardService";
 import * as jobQueueService from "./jobQueueService";
 import * as deliveryAgentService from "./deliveryAgentService";
 import * as transactionlogs from "./transactionlogs"
-import * as couponService from "./couponService"
+import * as couponService  from "./couponService"
 
 
 
