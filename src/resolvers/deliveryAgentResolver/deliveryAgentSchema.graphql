@@ -102,7 +102,8 @@ input GetAssignedOrderBundleInput{
         _id:ObjectId!
         page:Int
         size:Int
-        search:String
+        startDate:Date
+        endDate:Date
 
 }
 
@@ -264,7 +265,8 @@ type GetDeliveryAgentReturnOrderResponse{
         _id:ObjectId!
         page:Int
         size:Int
-        search:String
+        startDate:Date
+        endDate:Date
         shippingStatus:String
         date:Date
  }
@@ -501,6 +503,7 @@ type AllAgents{
     isActive:Boolean
     vendorID:ObjectId
     wallet:Wallet
+    isAvailable:Boolean
 
 }
 
@@ -518,6 +521,10 @@ type DeliveryAgent{
     wallet:Wallet
     lastSettlementID:ObjectId
     settlementHistory:[SettlementHistory]
+    governorate:String,
+    village:String,
+    governorateID:String,
+    villageID:String
 }
 
 type DeliveryAgentResponse{

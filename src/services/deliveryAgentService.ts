@@ -5,7 +5,7 @@ import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs, otpService } from "../services"
+import { transactionlogs, otpService, dashboardService } from "../services"
 import { startOfDay, endOfDay } from "date-fns"
 
 
@@ -82,6 +82,10 @@ export interface IDeliveryAgentFilter {
   isActive: boolean;
   isAvailable: boolean;
   lastSettlementID: Types.ObjectId;
+  governorate:string;
+  village:string;
+  governorateID:string;
+  villageID:string;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -108,6 +112,10 @@ export interface IDeliveryAgentDocument extends Document {
   licence: FileData;
   isActive: boolean;
   isAvailable: boolean;
+  governorate:string;
+  village:string;
+  governorateID:string;
+  villageID:string;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -517,8 +525,13 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 
 
 export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string,bundleCount: number }) => {
+
+  return new Promise(async (resolve, reject) => {
+
   try {
     const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+
+
     if (assignOrder) {
       // check is this first assigning or reassigning
       if (assignOrder.returnStatus === "APPROVED") {
@@ -552,7 +565,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           ])
 
           if (result.length >= finalLimit) {
-            throw new Error("Assign order limit reached");
+            reject("Assign order limit reached.no more order can be assigned")
+            return;
           }
 
           // add order products model assign agent id and name
@@ -570,7 +584,7 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               'wallet.numberOfPendingReturns': 1
             }
           })
-          return true
+          resolve({ flag: true })
         } else {
           // reassign this oder to new delivery agent
           // find old delivery agent and update this agent numberOfOrderAssigned count
@@ -609,7 +623,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
           ])
 
           if (result.length >= finalLimit) {
-            throw new Error("Assign order limit reached");
+            reject("Assign order limit reached.no more order can be assigned")
+            return;
           }
 
 
@@ -628,17 +643,22 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               'wallet.numberOfPendingReturns': 1
             }
           })
+
+          resolve({ flag: true })
         }
-        return true
+       
       } else {
-        return false
+        reject({ flag: false })
       }
     } else {
-      return false
+      reject({ flag: false })
     }
   } catch (error) {
-    return false
+    reject({ flag: false })
   }
+
+  })
+
 }
 
 
@@ -881,6 +901,7 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
             isActive: 1,
             wallet: 1,
             settlementHistory: 1,
+            isAvailable: 1,
             createdAt: 1,
             updatedAt: 1,
           },
@@ -1695,7 +1716,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 }
 
 
-export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, search: string }): Promise<any> => {
+export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, startDate:Date,endDate:Date }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
 
@@ -1704,10 +1725,18 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: T
       let dataSize: any
       let result: any
       let matchObj: any = { returndeliveryAgentId: data._id }
-      if (data?.search) {
-        matchObj.$and = [{ returnOrderAssignedOn: { $gte: startOfDay(new Date(data?.search)) } }, { returnOrderAssignedOn: { $lte: endOfDay(new Date(data?.search)) } }]
+      // if (data?.startDate && data?.endDate) {
+      //   matchObj.$and = [{ returnOrderAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { returnOrderAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
+      // }
+      if (data?.startDate) {
+        matchObj.returnOrderAssignedOn = { $gte: startOfDay(new Date(data.startDate)) };
       }
-
+      if (data?.endDate) {
+        matchObj.returnOrderAssignedOn = {
+          ...(matchObj.returnOrderAssignedOn || {}),
+          $lte: endOfDay(new Date(data.endDate)),
+        };
+      }
 
 
 
@@ -1801,7 +1830,7 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: T
 }
 
 
-export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, search: string }): Promise<any> => {
+export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number,startDate:Date,endDate:Date }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
 
@@ -1810,10 +1839,20 @@ export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.O
       let dataSize: any
       let result: any
       let matchObj: any = { deliveryAgentId: data._id }
-      if (data?.search) {
-        matchObj.$and = [{ deliveryAssignedOn: { $gte: startOfDay(new Date(data?.search)) } }, { deliveryAssignedOn: { $lte: endOfDay(new Date(data?.search)) } }]
+      // if (data?.startDate || data?.endDate) {
+      //   console.log("START DATE = ",startOfDay(new Date(data?.startDate)))
+      //   console.log("END DATE = ",endOfDay(new Date(data?.endDate)))
+      //   matchObj.$and = [{ deliveryAssignedOn: { $gte: startOfDay(new Date(data?.startDate)) } }, { deliveryAssignedOn: { $lte: endOfDay(new Date(data?.endDate)) } }]
+      // }
+      if (data?.startDate) {
+        matchObj.deliveryAssignedOn = { $gte: startOfDay(new Date(data.startDate)) };
       }
-
+      if (data?.endDate) {
+        matchObj.deliveryAssignedOn = {
+          ...(matchObj.deliveryAssignedOn || {}),
+          $lte: endOfDay(new Date(data.endDate)),
+        };
+      }
       dataSize = await orderProductModel.aggregate([
         {
           $match: matchObj,

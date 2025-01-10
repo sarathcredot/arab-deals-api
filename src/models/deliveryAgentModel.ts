@@ -43,19 +43,19 @@ const deliveryAgentSchema = new Schema(
           },
           governorate: {
              type: String, 
-             required: true
+            //  required: true
              },
           village: {
              type: String,
-             required: true
+            //  required: true
             }, 
           governorateID: {
               type: String, 
-              required: true
+              // required: true
               },
            villageID: {
               type: String,
-              required: true
+              // required: true
              },     
           userID: {              //this is email
             type: String,

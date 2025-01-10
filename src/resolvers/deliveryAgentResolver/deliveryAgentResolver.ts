@@ -695,9 +695,9 @@ export const deliveryAgentResolver: Resolvers = {
 
         const { orderItemId, deliveryAgentId, deliveryAgentName,bundleCount } = input
 
-        const result = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+        const result:any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
 
-        if (result) {
+        if (result.flag) {
           return {
             status: true,
             msg: "order assign to delivery agent"
@@ -1125,8 +1125,12 @@ export const deliveryAgentResolver: Resolvers = {
     resetPassword: async (parent, { input }, { req }, info) => {
       try {
         // Verify that the request is made by a valid delivery agent
+        console.log("called")
         await verifyDeliveryAgent(req);
         const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+        console.log(agentId)
+        console.log("agent verified")
 
         const newPassword: string = input?.newPassword;
 
@@ -1144,6 +1148,8 @@ export const deliveryAgentResolver: Resolvers = {
             extensions: { code: "NOT_FOUND" },
           });
         }
+
+        console.log("existingAgent",existingAgent)
 
         // Hash and set the new password
         await existingAgent.setHash!(newPassword);
@@ -1304,6 +1310,10 @@ export const deliveryAgentResolver: Resolvers = {
             lastSettlementID: 1,
             wallet: 1,
             ID: 1,
+            governorate:1,
+            village:1,
+            governorateID:1,
+            villageID:1
           },
           { lean: true, page, limit },
           settlementHistoryFilter
@@ -1920,7 +1930,8 @@ export const deliveryAgentResolver: Resolvers = {
           _id: input._id,
           page: input?.page || 0,
           size: input?.size || 10,
-          search: input?.search || ""
+          startDate: input?.startDate || "",
+          endDate: input?.endDate || ""
         }
 
         const result = await deliveryAgentService.getAssignedReturnOrderBundleByDeliveryAgent(options)
@@ -1958,7 +1969,8 @@ export const deliveryAgentResolver: Resolvers = {
           _id: input._id,
           page: input?.page || 0,
           size: input?.size || 10,
-          search: input?.search || ""
+          startDate: input?.startDate || "",
+          endDate: input?.endDate || ""
         }
 
         const result = await deliveryAgentService.getAssignedOrderBundleByDeliveryAgent(options)

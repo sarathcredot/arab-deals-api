@@ -7,9 +7,8 @@ import { collections } from "../configs";
 const deliveryAgentConfigSchema = new Schema(
     {
         orderAssignLimit:{
-
-              type:Number,
-              default:0
+            type:Number,
+            default:0
         },
         returnOrderAssignLimit:{
             type:Number,
