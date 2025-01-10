@@ -1,4 +1,4 @@
-import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService } from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService,couponService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
@@ -7,6 +7,7 @@ import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 import { deliveryAgentModel } from "../../models/deliveryAgentModel";
 import { error } from "console";
+import { couponsModel } from ".././../models/couponsModel";
 
 
 
@@ -15,52 +16,98 @@ import { error } from "console";
 export const couponResolver: Resolvers = {
      Upload: GraphQLUpload,
      Mutation:{
-        suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
+        createCouponsByAdmin: async (parent, { input }, { req }, info) => {
             // await verifyAdmin(req);
-            const { agentId, isActive } = input;
-      
-            // Validate the input
-            if (!agentId) {
-              throw new GraphQLError("Agent ID is required", {
-                extensions: { code: "BAD_USER_INPUT" },
-              });
-            }
-      
             try {
-              // Check if the delivery agent exists
-              const existingAgent = await deliveryAgentService.findDeliveryAgentWithFilters(
-                { _id: agentId },
-                { _id: 1, isActive: 1 },
-                { lean: true }
-              );
-      
-              if (!existingAgent) {
-                throw new GraphQLError("Delivery Agent not found", {
-                  extensions: { code: "NOT_FOUND" },
+              let name: string = input.name
+              let code: string = input.code 
+              let description: string |null |undefined = input?.description ;
+              // let couponType: string = input.couponType 
+              let discountType: string = input.discountType 
+              let couponApplicableType: string |null |undefined = input?.couponApplicableType
+              let discountValue: number | null | undefined = input?.discountValue 
+              let orderCount: number | null | undefined  = input?.orderCount 
+              let max_discount: number | null | undefined = input?.max_discount;
+              let minOrderAmount: number | null | undefined = input?.minOrderAmount ;
+              let validCategories: couponService.ICategory[] | null | undefined = input?.validCategories as couponService.ICategory[] | null | undefined;
+              let validProducts: couponService.IProduct[] | null | undefined = input?.validProducts as couponService.IProduct[] | null | undefined;
+              let validUsers: couponService.IUser[] | null | undefined = input?.validUsers as couponService.IUser[] | null | undefined;
+              let validBrands: couponService.IBrand[] | null | undefined = input?.validBrands as couponService.IBrand[] | null | undefined;
+              let usageLimit: number| null | undefined = input?.usageLimit ;
+              let usagePerUserLimit: number|  null | undefined = input?.usagePerUserLimit ;
+              let startDate: Date = input?.startDate 
+              let expiryDate: Date = input?.expiryDate 
+              
+
+            const existingCoupon = await couponsModel.findOne({ code: code });  
+            
+            if(existingCoupon){
+                throw new GraphQLError("Coupon code already exists,Try another code", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Coupon code already exists"] },
+                  });
+            }
+
+
+            // Validate discountType and max_discount
+            
+            if (discountType === "PERCENTAGE" && !max_discount) {
+                throw new GraphQLError("max_discount is required for percentage-based discounts.", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["max_discount is required for percentage-based discounts."] },
                 });
-              }
+            }
+                
+
+             // Validate dates
+            if (startDate && expiryDate && new Date(startDate) >= new Date(expiryDate)) {
+                throw new GraphQLError("expiryDate must be after startDate.", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR" },
+                  });
+            }
+
+            
+            let newCouponData = {
+                    name,
+                    code,
+                    description,
+                    // couponType,
+                    orderCount,
+                    discountType,
+                    couponApplicableType,
+                    discountValue,
+                    max_discount,
+                    minOrderAmount,
+                    validCategories,
+                    validProducts,
+                    validBrands,
+                    validUsers,
+                    usageLimit,
+                    usagePerUserLimit,
+                    startDate,
+                    expiryDate
+              };
       
-              // Update the isActive status
-              const updatedAgent = await deliveryAgentService.suspendDeliveryAgent(
-                new Types.ObjectId(agentId),
-                isActive
-              );
+              const result = await couponService.createCouponsByAdmin(newCouponData);
+              console.log(result)
       
-              if (!updatedAgent) {
-                throw new GraphQLError("Unable to update Delivery Agent status", {
+              if (!result) {
+                throw new GraphQLError("Unable to create coupons!!Try again", {
                   extensions: { code: "INTERNAL_SERVER_ERROR" },
                 });
               }
-      
+   
               return {
-                _id: updatedAgent._id,
-                message: `${isActive ? "Activated delivery agent succsessfully" : "suspended delievery agent successfully"}`
+                success: true,
+                message: "Coupon created successfully.",
               };
-            } catch (error: any) {
-              throw new GraphQLError(error.message || "Error suspending Delivery Agent", {
+
+            } catch (error:any) {
+                console.error("Error in createCouponsByAdmin:", error);
+                throw new GraphQLError(error, {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
               });
             }
-          },
-     }
-}
+        },
+        
+     },
+
+    }

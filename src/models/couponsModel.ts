@@ -1,9 +1,10 @@
 
 import { Schema, model, Types } from "mongoose";
 import { collections } from "../configs";
-import { dashboardResolver } from "src/resolvers/dashboardResolver/dashboardResolver";
+
 
 const couponSchema = new Schema(
+
         {
           name:{
             type: String,
@@ -19,24 +20,22 @@ const couponSchema = new Schema(
            description: {
             type: String,
            },
-           couponType: {
-            type: String,
-            enum: ["USER_SPECIFIC","GLOBAL","FIRST_ORDER","FESTIVE_SALE"],   //flat for fixed amount
-            required: true,
-           },
+          //  couponType: {
+          //   type: String,
+          //   enum: ["PRIVATE","GLOBAL","FIRST_ORDER","FESTIVE_SALE"],   //flat for fixed amount
+          //   required: true,
+          //  },
            discountType: {
             type: String,
-            enum: ["PERCENTAGE", "FLAT"],                  //flat for fixed amount
+            enum: ["PERCENTAGE", "FLAT","FREE_SHIPPING"],                  //flat for fixed amount
             required: true,
            },
            couponApplicableType:{
             type: String,
-            enum: ["ORDER","SHIPPING","CATOGORY"],
-            required: true,
+            enum: ["BRAND","PRODUCT","CATEGORY"],
            },
            discountValue: {
             type: Number,
-            required: true,
            },
            max_discount: {                            //Optional, for percentage coupons
             type: Number,
@@ -44,33 +43,48 @@ const couponSchema = new Schema(
            minOrderAmount: {
             type: Number,
            },
-           validCatogories: [
+           validCategories: [
             {
-               catogory:{
-                    type: [Types.ObjectId],
-                    ref: "categories",
-                },
+              category: {
+                type: Types.ObjectId,
+                ref: "categories",
+              },
+              _id: false, 
             }
-           ],
-           validProducts: [
+          ],
+          
+          validProducts: [
             {
-                products:{
-                    type: [Types.ObjectId],
-                    ref: "products",
-                }
+              product: {
+                type: Types.ObjectId,
+                ref: "products",
+              },
+              _id: false, 
             }
-           ],
-           validUsers:[
-                {
-                user:{
-                    type: Types.ObjectId,
-                    ref: "users",
-                }
-                }
-           ],
+          ],
+          validBrands: [
+            {
+              brand: {
+                type: Types.ObjectId,
+                ref: "brands",
+              },
+              _id: false, 
+            }
+          ],
+          validUsers: [
+            {
+              user: {
+                type: Types.ObjectId,
+                ref: "users",
+              },
+              _id: false, 
+            }
+          ],
            usageLimit: {
             type: Number,                        //maximum number of times a coupon can be used
-            default: 0
+           },
+           orderCount: {
+             type: Number,
            },
            usagePerUserLimit: {
             type: Number, 
@@ -104,9 +118,6 @@ const couponSchema = new Schema(
             timestamps: true,
         }
 ); 
-
-
-
 
 const couponsModel = model(collections.COUPONS, couponSchema);
 

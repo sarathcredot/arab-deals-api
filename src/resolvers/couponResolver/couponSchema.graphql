@@ -1,0 +1,50 @@
+scalar ObjectId
+scalar Upload
+
+
+type Mutation {
+  createCouponsByAdmin(input:createCouponsByAdminInput!):createCouponsByAdminResponse!
+}
+
+input Categoryvalid {
+  category: ObjectId
+}
+
+input Productvalid {
+  product: ObjectId
+}
+
+input Uservalid {
+  user: ObjectId
+}
+
+input Brandvalid{
+  brand:ObjectId
+}
+
+
+input createCouponsByAdminInput{
+    name:String!
+    code:String!
+    description:String
+    # couponType: String!
+    orderCount:Int
+    discountType: String!
+    couponApplicableType: String
+    discountValue: Float
+    max_discount: Float
+    minOrderAmount: Float
+    validCategories: [Categoryvalid]
+    validProducts: [Productvalid]
+    validUsers: [Uservalid]
+    validBrands: [Brandvalid]
+    usageLimit: Int
+    usagePerUserLimit: Int
+    startDate: Date
+    expiryDate: Date
+}
+
+type createCouponsByAdminResponse{
+    success:Boolean
+    message:String
+}
