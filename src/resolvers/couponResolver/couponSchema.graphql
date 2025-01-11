@@ -3,8 +3,10 @@ scalar Upload
 
 
 type Mutation {
-  createCouponsByAdmin(input:createCouponsByAdminInput!):createCouponsByAdminResponse!
+   createCouponsByAdmin(input:CreateCouponsByAdminInput!):CreateCouponsByAdminResponse!
    adminSuspendTheCupone(input:adminSuspendTheCuponeInput):adminSuspendTheCuponeResponse!
+   editCouponsByAdmin(input:EditCouponsByAdminInput!):CreateCouponsByAdminResponse!
+   applyCouponByUser(input:applyCouponByUserInput!):CreateCouponsByAdminResponse!
 }
 
 type Query{
@@ -29,7 +31,7 @@ input Brandvalid{
 }
 
 
-input createCouponsByAdminInput{
+input CreateCouponsByAdminInput{
     name:String!
     code:String!
     description:String
@@ -50,9 +52,40 @@ input createCouponsByAdminInput{
     expiryDate: Date
 }
 
-type createCouponsByAdminResponse{
-    success:Boolean
-    message:String
+input EditCouponsByAdminInput{
+    _id:ObjectId!
+    name:String
+    code:String
+    description:String
+    # couponType: String!
+    orderCount:Int
+    discountType: String
+    couponApplicableType: String
+    discountValue: Float
+    max_discount: Float
+    minOrderAmount: Float
+    validCategories: [Categoryvalid]
+    validProducts: [Productvalid]
+    validUsers: [Uservalid]
+    validBrands: [Brandvalid]
+    usageLimit: Int
+    usagePerUserLimit: Int
+    startDate: Date
+    expiryDate: Date
+}
+
+input applyCouponByUserInput{
+  userId:ObjectId!
+  couponId:ObjectId
+  code:String
+  grandTotal:Float!
+  subTotal:Float!
+  shippingCharge:Float
+}
+
+type CreateCouponsByAdminResponse{
+    success:Boolean!
+    message:String!
 }
 
 
@@ -128,4 +161,10 @@ type ValidUser {
 type UserUsageLimit {
   userId: ObjectId
   usageCount: Int
+}
+
+
+schema {
+  mutation: Mutation
+  query: Query
 }

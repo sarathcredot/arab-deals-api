@@ -20,11 +20,6 @@ const couponSchema = new Schema(
            description: {
             type: String,
            },
-          //  couponType: {
-          //   type: String,
-          //   enum: ["PRIVATE","GLOBAL","FIRST_ORDER","FESTIVE_SALE"],   //flat for fixed amount
-          //   required: true,
-          //  },
            discountType: {
             type: String,
             enum: ["PERCENTAGE", "FLAT","FREE_SHIPPING"],                  //flat for fixed amount
@@ -32,7 +27,7 @@ const couponSchema = new Schema(
            },
            couponApplicableType:{
             type: String,
-            enum: ["BRAND","PRODUCT","CATEGORY"],
+            enum: ["BRAND","PRODUCT","CATEGORY"],         
            },
            discountValue: {
             type: Number,
@@ -87,8 +82,7 @@ const couponSchema = new Schema(
              type: Number,
            },
            usagePerUserLimit: {
-            type: Number, 
-            default:1                       //maximum number of times a coupon can be used by a user  
+            type: Number,                       //maximum number of times a coupon can be used by a user  
            },
            startDate: {
             type: Date,
@@ -124,3 +118,10 @@ const couponsModel = model(collections.COUPONS, couponSchema);
 export { couponsModel };
   
   
+
+
+ //  couponType: {
+          //   type: String,
+          //   enum: ["PRIVATE","GLOBAL","FIRST_ORDER","FESTIVE_SALE"],   //flat for fixed amount
+          //   required: true,
+          //  },
