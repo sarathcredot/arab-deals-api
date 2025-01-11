@@ -112,7 +112,7 @@ export const getAllCoupenToAdmin = (data: { page: number, size: number, isActive
                 {
                     $project:{
 
-                       
+                            _id:1,
                             name: 1,
                             code: 1,
                             description: 1,
@@ -130,7 +130,8 @@ export const getAllCoupenToAdmin = (data: { page: number, size: number, isActive
                             startDate: 1,
                             expiryDate: 1,
                             isActive: 1,
-                            userUsage: 1
+                            userUsage: 1,
+                            
                         
                     }
                 }
@@ -166,13 +167,14 @@ export const getAllCoupenToAdmin = (data: { page: number, size: number, isActive
 }
 
 
-export const adminSuspendTheCupone=(data:{_id:Types.ObjectId,isActive:boolean | undefined}):Promise<any>=>{
+export const adminSuspendTheCupone=(data:{_id:Types.ObjectId,isActive:any}):Promise<any>=>{
 
         return new Promise(async(resolve,reject)=>{
 
                  try {
+                  console.log(data)
 
-                     await couponsModel.findByIdAndUpdate({_id:data.isActive},{
+                     await couponsModel.findByIdAndUpdate({_id:data._id},{
 
                            $set:{
                               isActive:data.isActive
@@ -182,8 +184,29 @@ export const adminSuspendTheCupone=(data:{_id:Types.ObjectId,isActive:boolean | 
                       resolve({flag:true})
                     
                  } catch (error) {
-                    
+
+                 
+                    console.log("error",error)
                       reject()
                  }
         })
+}
+
+// delete coupon by admin
+
+export const adminDeleteTheCoupon=(_id:Types.ObjectId):Promise<any>=>{
+
+      return new Promise(async(resolve,reject)=>{
+
+            try {
+
+              await couponsModel.findOneAndDelete({_id:_id})
+              
+              resolve({flag:true})
+              
+            } catch (error) {
+              
+                reject()
+            }
+      })
 }

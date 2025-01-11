@@ -14,7 +14,10 @@ import { couponsModel } from ".././../models/couponsModel";
 
 
 export const couponResolver: Resolvers = {
+
+
      Upload: GraphQLUpload,
+
      Mutation:{
         createCouponsByAdmin: async (parent, { input }, { req }, info) => {
             // await verifyAdmin(req);
@@ -110,14 +113,16 @@ export const couponResolver: Resolvers = {
 
          // admin edit coupen 
 
-         adminSuspendTheCupone:async(parent, {input}, { req }, info)=>{
+      adminSuspendTheCupone:async(parent, {input}, { req }, info)=>{
 
           try {
+
+            console.log(input)
 
               const options={
 
                  _id:input?._id,
-                 isActive:input?.isActive || undefined
+                 isActive:input?.isActive
               }
 
               await couponService.adminSuspendTheCupone(options)
@@ -138,7 +143,35 @@ export const couponResolver: Resolvers = {
               });
             
           }
+     },
+
+     // delete coupon by admin
+
+     adminDeleteTheCoupon:async(parent, {input}, { req }, info)=>{
+
+              try {
+
+                   await couponService.adminDeleteTheCoupon(input?._id)
+
+                   return {
+                       status:true,
+                       msg:"Coupon deleted successfully "
+                   }
+                
+              } catch (error) {
+                
+                throw new GraphQLError("Coupen delete Failed " ,{
+                  extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    errors: [],
+                  },
+                });
+                      
+              }
      }
+
+
+
         
      },
 
@@ -148,9 +181,11 @@ export const couponResolver: Resolvers = {
     
       getAllCoupenToAdmin:async(parent, {input }, { req }, info)=>{
 
+        console.log("error")
+
            // admin verfy
 
-           await verifyAdmin(req)
+          //  await verifyAdmin(req)
 
             try {
                
@@ -167,14 +202,20 @@ export const couponResolver: Resolvers = {
                    if(input.expiryDate)options.expiryDate=input.expiryDate
 
                 const result= await couponService.getAllCoupenToAdmin(options)
-                return result
 
+               
+                return result
                       
                 
-            } catch (error) {
+            } catch (error:any) {
                 
                
-                  
+              throw new GraphQLError(error ,{
+                extensions: {
+                  code: "INTERNAL_SERVER_ERROR",
+                  errors: [],
+                },
+              });
             }
              
               
