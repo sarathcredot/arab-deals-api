@@ -86,7 +86,7 @@ type Mutation {
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput): adminSuspendTheCuponeResponse!
   editCouponsByAdmin(input: EditCouponsByAdminInput!): CreateCouponsByAdminResponse
-  applyCouponByUser(input: applyCouponByUserInput!): CreateCouponsByAdminResponse!
+  applyCouponByUser(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
@@ -3421,6 +3421,15 @@ input applyCouponByUserInput {
 type CreateCouponsByAdminResponse {
   success: Boolean
   message: String
+}
+
+type ApplyCouponsByAdminResponse {
+  success: Boolean
+  message: String
+  subtotal: Float
+  grandTotal: Float
+  discount: Float
+  shippingCharge: Float
 }
 
 input adminSuspendTheCuponeInput {

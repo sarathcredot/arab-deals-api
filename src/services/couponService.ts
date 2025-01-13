@@ -108,15 +108,15 @@ export const findusageLimit=async(couponId:Types.ObjectId):Promise<any> =>{
 }
 
  export const findusagePerUserLimit=async(couponId:Types.ObjectId,userId:Types.ObjectId):Promise<any> =>{
-    const result=await couponsModel.aggregate([
-        { $match: { _id: couponId } },
-        { $unwind: "$userUsage" },
-        {$match:{userId:userId}},
-        {$project:{
-          usageCount: "$userUsage.usageCount",
-        }}
-        
-    ])
+    const result = await couponsModel.aggregate([
+      { $match: { _id: couponId } }, // Match coupon by ID
+      { $unwind: "$userUsage" },      // Unwind userUsage array
+      { $match: { "userUsage.userId": userId } },  // Match the specific userId
+      { $project: { usageCount: "$userUsage.usageCount" } } // Get usageCount field
+    ]);
+
+
+    console.log("$userUsage.usageCount",result) 
 
     return result[0] ? result[0].usageCount : 0; 
  }
@@ -153,12 +153,43 @@ export const findusageLimit=async(couponId:Types.ObjectId):Promise<any> =>{
         },
         {
           $project: {
-            brandId: "$productDetails.brandId"
+            brandId: "$productDetails.brandId",
+            categoryId: "$productDetails.categoryId",
+             productId:"$productDetails._id"
           }
         }
      ])
 
      return result
+ }
+
+ //update useruage
+
+ export const updateUserUsage=async(userId:Types.ObjectId,couponId:Types.ObjectId,):Promise<any> =>{
+ 
+  try {
+
+    const result = await couponsModel.findOneAndUpdate(
+      { _id: couponId, "userUsage.userId": userId }, 
+      { $inc: { "userUsage.$.usageCount": 1 } },
+      { new: true }
+    );
+    
+    if (!result) {
+      
+      const addResult = await couponsModel.findOneAndUpdate(
+        { _id: couponId },
+        { $push: { userUsage: { userId, usageCount: 1 } } },
+        { new: true }
+      );
+     
+    }
+         
+    } catch (error:any) {
+      console.error("Error updating user usage:", error.message);
+      throw new Error("Failed to update user usage.");
+    }
+
  }
 
 
