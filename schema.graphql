@@ -83,9 +83,9 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
-  createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse!
+  createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput): adminSuspendTheCuponeResponse!
-  editCouponsByAdmin(input: EditCouponsByAdminInput!): CreateCouponsByAdminResponse!
+  editCouponsByAdmin(input: EditCouponsByAdminInput!): CreateCouponsByAdminResponse
   applyCouponByUser(input: applyCouponByUserInput!): CreateCouponsByAdminResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
@@ -106,10 +106,10 @@ type Mutation {
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createSuperAdmin(input: AdminSignUpInput!, image: Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
@@ -149,6 +149,7 @@ type Query {
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
+  getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
   getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
   getProductByAdmin(input: ProductId!): ProductResponse!
   getProductByVendor(input: ProductId!): ProductResponse!
@@ -253,6 +254,7 @@ type Query {
   getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
+  getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
@@ -264,6 +266,7 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -272,7 +275,6 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAdminRecord: getAdminRecordResponse
   getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
 }
@@ -1351,6 +1353,11 @@ input ProductFilters {
   vendorId: ObjectId
 }
 
+input ProductFiltersforCoupon {
+  brands: [String]
+  categories: [String]
+}
+
 input AttributeInput {
   id: String
   values: [String]
@@ -1499,6 +1506,10 @@ type Attributes {
 
 type ProductsResponse {
   maxRecords: Int!
+  records: [Product!]
+}
+
+type ProductsForCouponResponse {
   records: [Product!]
 }
 
@@ -3735,6 +3746,10 @@ input vendorIdInput {
   vendorId: String!
 }
 
+input categoryForCouponInput {
+  brands: [String]
+}
+
 type Category {
   categoryName: String
   _id: String
@@ -3796,6 +3811,15 @@ type getAllLeafRecordsResponse {
 
 type getAllCategoriesOfVendorResponse {
   records: [CategoryAssignedToVendor]
+}
+
+type CategoryRecord {
+  _id: String
+  categoryName: String
+}
+
+type CategoriesForCouponResponse {
+  records: [CategoryRecord]
 }
 
 type GetLevelCategoriesResponse {
@@ -4049,6 +4073,56 @@ type CategoryInBrands {
   description: String
 }
 
+type AttributeValue {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+input CreateAttributeValueInput {
+  attributeId: String!
+  value: String!
+  colorCode: String!
+  priority: Int!
+  isBlocked: Boolean
+}
+
+input AttributeValueEditInput {
+  attributeValueId: String!
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type CreateAttributeValueResponse {
+  _id: String
+  message: String
+}
+
+input AttributeValueRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type AttributeValueRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
 type Attribute {
   _id: String
   attributeType: String
@@ -4155,56 +4229,6 @@ type AttributesDetailsWithCategoryResponse {
 type AttributesDetailsWithCategoryInMobileResponse {
   record: CategoryWithCategory
   message: String
-}
-
-type AttributeValue {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-input CreateAttributeValueInput {
-  attributeId: String!
-  value: String!
-  colorCode: String!
-  priority: Int!
-  isBlocked: Boolean
-}
-
-input AttributeValueEditInput {
-  attributeValueId: String!
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-type CreateAttributeValueResponse {
-  _id: String
-  message: String
-}
-
-input AttributeValueRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type AttributeValueRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
-}
-
-type AttributeValueEditResponse {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
 }
 
 type getAllDeliveryAgentConfigResponse {
