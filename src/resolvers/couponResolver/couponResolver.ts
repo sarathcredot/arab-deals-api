@@ -18,6 +18,7 @@ export const couponResolver: Resolvers = {
      Mutation:{
         createCouponsByAdmin: async (parent, { input }, { req }, info) => {
             // await verifyAdmin(req);
+            console.log(input," = INPUT")
             try {
               let name: string = input.name
               let code: string = input.code 

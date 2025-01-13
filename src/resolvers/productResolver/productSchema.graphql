@@ -152,6 +152,7 @@ input ProductId {
 
 type Query {
     getProductsByAdmin(input:ProductFilters):ProductsResponse!
+    getProductsByAdminForCoupon(input:ProductFiltersforCoupon):ProductsForCouponResponse!
     getProductsByVendor(input:ProductByVendorFilters):ProductsResponse!
     getProductByAdmin(input: ProductId!): ProductResponse!
     getProductByVendor(input: ProductId!): ProductResponse!
@@ -195,6 +196,10 @@ type Query {
         bestSeller: Boolean
         status: String
         vendorId:ObjectId
+    }
+    input ProductFiltersforCoupon{
+        brands:[String]
+        categories:[String]
     }
 
     input AttributeInput {
@@ -356,6 +361,9 @@ type Query {
     
     type ProductsResponse {
         maxRecords: Int!
+        records: [Product!]
+    }
+    type ProductsForCouponResponse {
         records: [Product!]
     }
 

@@ -74,6 +74,7 @@
   getLevelCategories(input:GetLevelCategoriesInput): GetLevelCategoriesResponse!
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input:vendorIdInput!): getAllCategoriesOfVendorResponse!
+  getCategoriesByAdminForCoupon(input:categoryForCouponInput!): CategoriesForCouponResponse!
 }   
 
     # Input
@@ -101,6 +102,9 @@
 
     input vendorIdInput {
       vendorId: String!
+    }
+    input categoryForCouponInput{
+      brands:[String]
     }
 
 
@@ -176,6 +180,15 @@
     type getAllCategoriesOfVendorResponse{
       records:[CategoryAssignedToVendor]
     }
+   type CategoryRecord {
+    _id: String
+    categoryName: String
+    
+  } 
+      type CategoriesForCouponResponse {
+      records: [CategoryRecord]
+    }
+
 
     type GetLevelCategoriesResponse{
       records:[Category]

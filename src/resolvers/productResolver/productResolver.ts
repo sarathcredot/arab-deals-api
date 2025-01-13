@@ -924,7 +924,7 @@ export const productResolver: Resolvers = {
                     status,
                     vendorId
                 }
-
+                console.log("OPTION = ",options)
                 const result = await productService.getProductsByAdminWithFilters(options);
 
 
@@ -938,7 +938,34 @@ export const productResolver: Resolvers = {
             }
 
         },
+        // Fetch all product by admin
+        async getProductsByAdminForCoupon(parent, { input }, { req }, info) {
+            try {
+                await verifyAdmin(req);
+                console.log("Product input = ",input)
 
+                const brands: string[] = (input?.brands || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+
+
+                const data = {
+                    brands,
+                    categories
+                }
+                const result = await productService.getProductsByAdminForCoupon(data);
+                const response = {
+                    records: result.records
+                }
+                return response;
+                
+            } catch (error) {
+                throw error
+            }
+        },
         // fetch product in vendor side
         async getProductsByVendor(parent, { input }, { req }, info) {
 

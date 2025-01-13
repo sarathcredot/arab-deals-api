@@ -3,7 +3,7 @@ scalar Upload
 
 
 type Mutation {
-  createCouponsByAdmin(input:createCouponsByAdminInput!):createCouponsByAdminResponse!
+  createCouponsByAdmin(input:createCouponsByAdminInput!):createCouponsByAdminResponse
    adminSuspendTheCupone(input:adminSuspendTheCuponeInput):adminSuspendTheCuponeResponse!
 }
 
