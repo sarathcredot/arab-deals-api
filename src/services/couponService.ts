@@ -132,33 +132,33 @@ export const findusageLimit=async(couponId:Types.ObjectId):Promise<any> =>{
 
  export const findValidBrands=async(userId:Types.ObjectId,couponId:Types.ObjectId,grandTotal:number,subTotal:number,shippingCharge?:number | null):Promise<any> =>{
      const result=await cartModel.aggregate([
-
-      {
-        $match:{
-          userId:userId
-        }
-      },
-      {
-        $unwind:"$products"
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'productId',
-          foreignField: '_id',
-          as: 'productDetails',
+        {
+              $match:{
+                userId:userId
+              }
+            },
+            {
+              $unwind:"$products"
+            },
+            {
+              $lookup: {
+                from: 'products',
+                localField: 'products.productId',
+                foreignField: '_id',
+                as: 'productDetails',
+              },
+            },
+        {
+          $unwind: "$productDetails"
         },
-      },
-      {
-        $project:{
-          brandId:1
+        {
+          $project: {
+            brandId: "$productDetails.brandId"
+          }
         }
-      }
-
      ])
-     
 
-
+     return result
  }
 
 

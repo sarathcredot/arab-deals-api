@@ -84,8 +84,8 @@ input applyCouponByUserInput{
 }
 
 type CreateCouponsByAdminResponse{
-    success:Boolean!
-    message:String!
+    success:Boolean
+    message:String
 }
 
 

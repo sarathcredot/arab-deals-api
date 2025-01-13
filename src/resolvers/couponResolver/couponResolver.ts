@@ -432,10 +432,29 @@ export const couponResolver: Resolvers = {
              if(existingCoupon.discountType === "FLAT"){
                //check if there is any restriction
 
-               if(existingCoupon.couponApplicableType === "BRAND"){
-                  const result=await couponService.findValidBrands(userId,couponId,grandTotal,subTotal,shippingCharge)
+               if(existingCoupon.validBrands.length !== 0){
+                    if(existingCoupon.validCategories.length !== 0){
+                      
+                    }else{
+                      const result=await couponService.findValidBrands(userId,couponId,grandTotal,subTotal,shippingCharge)
 
-                  
+                      const matchingBrands= result
+                      .map((item:any) => item.brandId.toString()) 
+                      .filter((brandId:any) => existingCoupon.validBrands.includes(brandId));
+
+                      if(matchingBrands.length === 0){
+                        throw new GraphQLError("This coupon is not applicable for this product", {
+                          extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                        });
+                      }
+                      
+                   
+                      if(existingCoupon.discountValue){
+                        subTotal-existingCoupon?.discountValue
+                     }
+                      
+
+                    }
                  }
                }
 
