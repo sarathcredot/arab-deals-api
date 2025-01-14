@@ -37,6 +37,7 @@ type Mutation {
   updateUserProfile(input: updateUserProfileInput!): updateUserProfileResponse!
   updateUserProfileByAdmin(input: UpdateUserProfileByAdminInput!): UpdateUserProfileByAdminResponse!
   logoutUser: UserLogoutResponse!
+  accountDeleteByUser(input: accountDeleteByUserInput!): accountDeleteByUserResponse!
   userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
@@ -1038,6 +1039,15 @@ type GetMobileUserDefaultShippingAddressResponse {
   houseNumber: String
   country: String
   isDefault: Boolean
+}
+
+input accountDeleteByUserInput {
+  isDeleted: Boolean!
+}
+
+type accountDeleteByUserResponse {
+  success: Boolean
+  message: String
 }
 
 input userLoginOtpInput {
@@ -3489,7 +3499,6 @@ input EditCouponsByAdminInput {
 }
 
 input applyCouponByUserInput {
-  userId: ObjectId!
   couponId: ObjectId
   code: String
   grandTotal: Float!

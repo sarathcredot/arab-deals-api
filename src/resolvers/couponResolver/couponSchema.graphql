@@ -189,7 +189,6 @@ input EditCouponsByAdminInput{
 }
 
 input applyCouponByUserInput{
-  userId:ObjectId!
   couponId:ObjectId
   code:String
   grandTotal:Float!
