@@ -1319,7 +1319,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
       // check this order status POSTPONED
 
-      if (data.deliveryStatus === "POSTPONED") {
+      if (data.deliveryStatus === "POSTPONED"||data.deliveryStatus === "OUT_FOR_DELIVERY") {
 
         resolve({ flag: true })
         return;

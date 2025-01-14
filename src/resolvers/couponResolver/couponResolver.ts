@@ -21,6 +21,7 @@ export const couponResolver: Resolvers = {
         //create coupon by admin
         createCouponsByAdmin: async (parent, { input }, { req }, info) => {
               // await verifyAdmin(req);
+              console.log("INPUT = ",input)
               try {
                 let name: string = input.name
                 let code: string = input.code 
@@ -480,7 +481,7 @@ export const couponResolver: Resolvers = {
 
           // admin verfy
 
-          await verifyAdmin(req)
+          // await verifyAdmin(req)
 
             try {
               
