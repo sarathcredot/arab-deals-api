@@ -867,7 +867,7 @@ export const productResolver: Resolvers = {
                 const status = input?.status || "";
                 const vendorId: Types.ObjectId = input?.vendorId || null;
                 const page: number = input?.page || 0;
-                const size: number = input?.size || 10;
+                const size: number = input?.size || 1e6;
                 const minPrice: number | null = input?.minPrice || null;
                 const maxPrice: number | null = input?.maxPrice && input.maxPrice > 0 ? input.maxPrice : null;
                 const newest: boolean = input?.newest || false;
@@ -924,7 +924,7 @@ export const productResolver: Resolvers = {
                     status,
                     vendorId
                 }
-
+                console.log("OPTION = ",options)
                 const result = await productService.getProductsByAdminWithFilters(options);
 
 
@@ -938,7 +938,34 @@ export const productResolver: Resolvers = {
             }
 
         },
+        // Fetch all product by admin
+        async getProductsByAdminForCoupon(parent, { input }, { req }, info) {
+            try {
+                await verifyAdmin(req);
+                console.log("Product input = ",input)
 
+                const brands: string[] = (input?.brands || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+                const categories: string[] = (input?.categories || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+
+
+                const data = {
+                    brands,
+                    categories
+                }
+                const result = await productService.getProductsByAdminForCoupon(data);
+                const response = {
+                    records: result.records
+                }
+                return response;
+                
+            } catch (error) {
+                throw error
+            }
+        },
         // fetch product in vendor side
         async getProductsByVendor(parent, { input }, { req }, info) {
 

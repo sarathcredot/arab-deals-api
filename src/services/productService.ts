@@ -708,7 +708,7 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
             }
         }
     );
-
+    console.log("pipline",JSON.stringify(pipeline,null,2))
     const result = await productModel.aggregate(pipeline);
     let response = {
         records: [],
@@ -721,6 +721,38 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
 
     return response;
 }
+
+export const getProductsByAdminForCoupon = async (data:any): Promise<any> => {
+
+    let matchObj:any={};
+
+    if(data?.brands?.length){
+        matchObj.brandId ={$in:data?.brands.map((item:any)=> new Types.ObjectId(item))} 
+    }
+    if(data?.categories?.length){
+        matchObj.categoryId ={$in:data?.categories.map((item:any)=> new Types.ObjectId(item))} 
+    }
+
+    let pipeline: PipelineStage[] = [
+        {$match:matchObj},
+        {
+            $project:{
+                _id:1,
+                productName:1,
+            }
+        }
+    ];
+
+    const result = await productModel.aggregate(pipeline);
+
+    if (result.length) {
+      let response = {
+        records:result||[],
+      };
+        return response;
+    }
+}
+
 
 
 export const getProductsByVendorWithFilters = async (options: IProductsByVendorOptions): Promise<any> => {

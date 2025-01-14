@@ -1,7 +1,9 @@
 import { couponsModel } from "../models/couponsModel";
-import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
+import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
 import { collections } from "../configs";
 import { startOfDay, endOfDay } from "date-fns"
+import { orderModel } from "../models/orderModel";
+import { cartModel } from "../models/cartModel";
 
 
 
@@ -68,9 +70,128 @@ export interface ICouponsDocument extends Document {
 
 
 export const createCouponsByAdmin = async (newCouponData: ICoupons): Promise<ICouponsDocument> => {
-  let coupon = new couponsModel(newCouponData) as ICouponsDocument;
-  return await coupon.save();
+    let coupon = new couponsModel(newCouponData) as ICouponsDocument;
+    return await coupon.save();
 };
+
+export const editCouponsByAdmin=async(couponId:Types.ObjectId,updateData: any):Promise<any> =>{
+  try {
+
+    console.log("couponId",couponId)
+    const result = await couponsModel.findByIdAndUpdate(
+      couponId,
+      { $set: updateData },
+      { new: true } 
+    );
+    console.log("result",result)
+    return result;
+  } catch (error) {
+    console.error("Error in editCouponsByAdmin service:", error);
+    throw new Error("Failed to update coupon.");
+  }
+}
+
+//to find usagelimit
+export const findusageLimit=async(couponId:Types.ObjectId):Promise<any> =>{
+  const result = await couponsModel.aggregate([
+    { $match: { _id: couponId } }, // Match the specific coupon by ID
+    { $unwind: "$userUsage" }, // Deconstruct the userUsage array
+    {
+      $group: {
+        _id: null, // No grouping key needed, just sum the usageCount
+        totalUsage: { $sum: "$userUsage.usageCount" },
+      },
+    },
+  ]);
+
+  return result[0]?.totalUsage || 0; 
+}
+
+ export const findusagePerUserLimit=async(couponId:Types.ObjectId,userId:Types.ObjectId):Promise<any> =>{
+    const result = await couponsModel.aggregate([
+      { $match: { _id: couponId } }, // Match coupon by ID
+      { $unwind: "$userUsage" },      // Unwind userUsage array
+      { $match: { "userUsage.userId": userId } },  // Match the specific userId
+      { $project: { usageCount: "$userUsage.usageCount" } } // Get usageCount field
+    ]);
+
+
+    console.log("$userUsage.usageCount",result) 
+
+    return result[0] ? result[0].usageCount : 0; 
+ }
+
+ //find ordercount of user
+
+ export const findOrderCount=async(userId:Types.ObjectId):Promise<any> =>{
+     const result=await orderModel.find({userId})
+     return result? result.length : 0;
+ }
+
+ //find validbrands
+
+ export const findValidBrands=async(userId:Types.ObjectId,couponId:Types.ObjectId,grandTotal:number,subTotal:number,shippingCharge?:number | null):Promise<any> =>{
+     const result=await cartModel.aggregate([
+        {
+              $match:{
+                userId:userId
+              }
+            },
+            {
+              $unwind:"$products"
+            },
+            {
+              $lookup: {
+                from: 'products',
+                localField: 'products.productId',
+                foreignField: '_id',
+                as: 'productDetails',
+              },
+            },
+        {
+          $unwind: "$productDetails"
+        },
+        {
+          $project: {
+            brandId: "$productDetails.brandId",
+            categoryId: "$productDetails.categoryId",
+             productId:"$productDetails._id"
+          }
+        }
+     ])
+
+     return result
+ }
+
+ //update useruage
+
+ export const updateUserUsage=async(userId:Types.ObjectId,couponId:Types.ObjectId,):Promise<any> =>{
+ 
+  try {
+
+    const result = await couponsModel.findOneAndUpdate(
+      { _id: couponId, "userUsage.userId": userId }, 
+      { $inc: { "userUsage.$.usageCount": 1 } },
+      { new: true }
+    );
+    
+    if (!result) {
+      
+      const addResult = await couponsModel.findOneAndUpdate(
+        { _id: couponId },
+        { $push: { userUsage: { userId, usageCount: 1 } } },
+        { new: true }
+      );
+     
+    }
+         
+    } catch (error:any) {
+      console.error("Error updating user usage:", error.message);
+      throw new Error("Failed to update user usage.");
+    }
+
+ }
+
 
 
 // get all coupon list in admin port

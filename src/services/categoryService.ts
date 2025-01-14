@@ -1,5 +1,5 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, PipelineStage, UpdateQuery } from "mongoose";
-import { categoryModel, productModel } from "../models";
+import { brandModel, categoryModel, productModel } from "../models";
 
 
 
@@ -196,6 +196,79 @@ export const updateCategoryNameForProducts = async (options: QueryOptions): Prom
         return false;
     }
 
+}
+export const getCategoriesByAdminForCoupon = async (data:any): Promise<any> => {
+
+    if(!data?.brands?.length){
+        const result = await categoryModel.find();
+
+    if (result.length) {
+      let response = {
+        records:result||[],
+      };
+        return response;
+    }
+    }
+    let matchObj:any={};
+
+    if(data?.brands?.length){
+        matchObj._id ={$in:data?.brands.map((item:any)=> new Types.ObjectId(item))} 
+        console.log("brand id = ",matchObj._id)
+    }
+
+    let pipeline: PipelineStage[] = [
+        {$match:matchObj},
+        {
+            $unwind:
+              {
+                path: "$categories",
+                preserveNullAndEmptyArrays: true
+              }
+          },
+          {
+            $group:
+              {
+                _id: "$categories"
+              }
+          },
+          {
+            $lookup:
+              {
+                from: "categories",
+                localField: "_id",
+                foreignField: "_id",
+                as: "category"
+              }
+          },
+          {
+            $unwind:
+              {
+                path: "$category"
+              }
+          },
+          {
+            $replaceRoot:
+              {
+                newRoot: "$category"
+              }
+          },
+        {
+            $project:{
+                _id:1,
+                categoryName:1,
+            }
+        }
+    ];
+    console.log("pipeline = ",JSON.stringify(pipeline,null,2))
+    const result = await brandModel.aggregate(pipeline);
+    console.log("result = ",result)
+
+    if (result.length) {
+      let response = {
+        records:result||[],
+      };
+        return response;
+    }
 }
 
 

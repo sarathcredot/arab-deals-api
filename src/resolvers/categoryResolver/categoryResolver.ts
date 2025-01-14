@@ -714,6 +714,31 @@ export const categoryResolver: Resolvers = {
                 throw error;
             }
         },
+        // Fetch all product by admin
+        async getCategoriesByAdminForCoupon(parent, { input }, { req }, info) {
+            try {
+                await verifyAdmin(req);
+                console.log("Product input = ",input)
+
+                const brands: string[] = (input?.brands || []).map((item: string | null) => {
+                    return item ? new Types.ObjectId(item).toString() : '';
+                }).filter((item) => item ? true : false);
+
+
+                const data = {
+                    brands
+                }
+                const result = await categoryService.getCategoriesByAdminForCoupon(data);
+                console.log("RESULT CATEGORY =",result)
+                const response = {
+                    records: result.records
+                }
+                return response;
+                
+            } catch (error) {
+                throw error
+            }
+        },
 
     }
 
