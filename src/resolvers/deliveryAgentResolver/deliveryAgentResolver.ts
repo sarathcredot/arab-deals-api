@@ -879,9 +879,9 @@ export const deliveryAgentResolver: Resolvers = {
 
         // check this delivery status POSTPONED
 
-        if (input.deliveryStatus === "POSTPONED") {
+        if (input.deliveryStatus === "POSTPONED"||input.deliveryStatus === "OUT_FOR_DELIVERY") {
 
-          console.log("postpond")
+          console.log(input.deliveryStatus)
           const obj = {
 
             deliveryAgentId: agentId,
