@@ -7,6 +7,7 @@ type Mutation {
    adminSuspendTheCupone(input:adminSuspendTheCuponeInput):adminSuspendTheCuponeResponse!
    editCouponsByAdmin(input:EditCouponsByAdminInput!):CreateCouponsByAdminResponse
    applyCouponByUser(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
+   applyCouponByUserInMobile(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
 }
 
 type Query{
