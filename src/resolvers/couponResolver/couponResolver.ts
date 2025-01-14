@@ -229,20 +229,20 @@ export const couponResolver: Resolvers = {
         const options = {
 
           _id: input?._id,
-          isActive: input?.isActive || undefined
+          isActive: input?.isActive?? undefined
         }
 
         await couponService.adminSuspendTheCupone(options)
 
         return {
           status: true,
-          msg: "Coupen successfully suspended "
+          msg: "Coupen status changed"
         }
 
 
       } catch (error: any) {
 
-        throw new GraphQLError("Coupen suspended Failed ", {
+        throw new GraphQLError("Coupen status changing Failed ", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
