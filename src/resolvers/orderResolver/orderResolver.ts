@@ -1949,9 +1949,9 @@ export const orderResolver: Resolvers = {
 
         // find products delivery type and delivery agents
         const options={
-          proid:input.productId ,
-          villageID:input.villageID || "",
-          governorateID:input.governorateID || " "
+          proid: input.productId,
+          villageID: input.villageID || "",
+          governorateID: input.governorateID || " "
 
         }
         const result: any =

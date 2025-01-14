@@ -422,6 +422,10 @@ type OrderShippingAddress {
   apartment: String
   suite: String
   unit: String
+  governorateID: String
+  governorate: String
+  village: String
+  villageID: String
 }
 
 type OrderPriceInfo {
