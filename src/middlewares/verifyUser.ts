@@ -27,7 +27,7 @@ export const verifyUser = async (req: CustomRequest) => {
         }
 
         let user = await userService.findUserWithFilters(
-            { _id: decoded.id, isBlocked: false },
+            { _id: decoded.id, isBlocked: false,isDeleted:false },
             { _id: 1 },
             { lean: true }
         );

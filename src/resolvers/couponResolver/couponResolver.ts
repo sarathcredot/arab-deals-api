@@ -329,12 +329,12 @@ export const couponResolver: Resolvers = {
             //update shipping charge
              //update userusage
               
-            // await verifyUser(req) 
-            // const userId = req.authAccount?._id; 
+            await verifyUser(req) 
+            const userId = req.authAccount?._id; 
              let shippingCharge: number|null|undefined =input?.shippingCharge;
 
              
-             let {couponId,code,grandTotal,subTotal,userId}=input
+             let {couponId,code,grandTotal,subTotal}=input
 
          
 
@@ -1146,12 +1146,12 @@ export const couponResolver: Resolvers = {
            //update shipping charge
             //update userusage
              
-           // await verifyUser(req) 
-           // const userId = req.authAccount?._id; 
+           await verifyUser(req) 
+           const userId = req.authAccount?._id; 
             let shippingCharge: number|null|undefined =input?.shippingCharge;
 
             
-            let {couponId,code,grandTotal,subTotal,userId}=input
+            let {couponId,code,grandTotal,subTotal}=input
 
         
 
