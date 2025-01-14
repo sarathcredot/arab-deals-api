@@ -2028,7 +2028,7 @@ export const couponResolver: Resolvers = {
       }
 
 
-    }
+    },
 
 
 

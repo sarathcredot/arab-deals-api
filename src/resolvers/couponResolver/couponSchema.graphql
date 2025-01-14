@@ -3,15 +3,17 @@ scalar Upload
 
 
 type Mutation {
-  createCouponsByAdmin(input:createCouponsByAdminInput!):createCouponsByAdminResponse!
+  # createCouponsByAdmin(input:createCouponsByAdminInput!):CreateCouponsByAdminResponse!
    adminSuspendTheCupone(input:adminSuspendTheCuponeInput!):adminSuspendTheCuponeResponse!
    adminDeleteTheCoupon(input:adminDeleteTheCouponInput!):adminDeleteTheCouponResponse!
    createCouponsByAdmin(input:CreateCouponsByAdminInput!):CreateCouponsByAdminResponse
-   adminSuspendTheCupone(input:adminSuspendTheCuponeInput):adminSuspendTheCuponeResponse!
+  #  adminSuspendTheCupone(input:adminSuspendTheCuponeInput):adminSuspendTheCuponeResponse!
    editCouponsByAdmin(input:EditCouponsByAdminInput!):CreateCouponsByAdminResponse
    applyCouponByUser(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
    applyCouponByUserInMobile(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
 }
+
+
 
 type Query{
       getAllCoupenToAdmin(input:getAllCoupenToAdminInput!):getAllCoupenToAdminResponse!
@@ -199,6 +201,7 @@ type CreateCouponsByAdminResponse{
     success:Boolean
     message:String
 }
+
 
 type ApplyCouponsByAdminResponse{
   success:Boolean
