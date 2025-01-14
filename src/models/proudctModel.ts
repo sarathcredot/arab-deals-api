@@ -74,6 +74,7 @@ const productSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: collections.BRANDS
         },
+        
         brandName: {
             type: String,
         },
@@ -145,6 +146,7 @@ const productSchema = new Schema(
         offerPrice: {  // offer selling price
             type: Number,
             min: 0,
+            
             required: true
         },
         sellingPrice: {  // actual selling price

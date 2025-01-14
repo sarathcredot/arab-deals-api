@@ -10,12 +10,93 @@ type Mutation {
 
 type Query{
       getAllCoupenToAdmin(input:getAllCoupenToAdminInput!):getAllCoupenToAdminResponse!
+      getCouponsByUser:[Coupon]!
+      getCouponsByUserMobile:[Coupon]!
+      getOneCouponDetails(input:getOneCouponDetailsInput):getOneCouponDetailsRespons!
+
+
 }
+
+
+
+input getOneCouponDetailsInput{
+
+     _id:ObjectId!
+}
+
+type getOneCouponDetailsRespons{
+
+   _id: ID
+  name: String
+  code: String
+  description: String
+  discountType: String
+  discountValue: Int
+  max_discount: Int
+  minOrderAmount: Int
+  usageLimit: Int
+  orderCount: Int
+  usagePerUserLimit: Int
+  startDate: String
+  expiryDate: String
+  isActive: Boolean
+  userDetailsArrya:[userDetailsArrayTypeNew]
+  productDetailsArrya:[productDetailsArryaType]
+  categoriesDetailsArrya:[categoriesDetailsArryaType]
+  brandDeatailsArrya:[brandDeatailsArryaType]
+ 
+
+}
+
+
+ type userDetailsArrayTypeNew{
+
+     _id:ObjectId
+     firstName:String
+
+ }
+
+ type productDetailsArryaType{
+
+     _id:ObjectId
+     productName:String
+
+ }
+
+ type categoriesDetailsArryaType{
+
+     _id:ObjectId
+     categoryName:String
+
+ }
+
+ type brandDeatailsArryaType{
+
+      _id:ObjectId
+      brandName:String
+
+
+ }
+
+
+
+
+input getCouponsByUserInput{
+
+     userId:ObjectId
+}
+
+
+
+
+
 
 
 input Categoryvalid {
   category: ObjectId
 }
+
+
 
 type CategoryvalidType {
   category: ObjectId
@@ -108,12 +189,14 @@ input getAllCoupenToAdminInput{
 
     page:Int
     size:Int
-    isActive:Boolean
+    isActive:String
     startDate:Date
     expiryDate:Date
+    search:String
 
 
 }
+
 
 type Coupon{
       _id:ObjectId
