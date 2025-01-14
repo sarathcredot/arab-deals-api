@@ -83,10 +83,12 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
+  adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
-  adminSuspendTheCupone(input: adminSuspendTheCuponeInput): adminSuspendTheCuponeResponse!
   editCouponsByAdmin(input: EditCouponsByAdminInput!): CreateCouponsByAdminResponse
-  applyCouponByUser(input: applyCouponByUserInput!): CreateCouponsByAdminResponse!
+  applyCouponByUser(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
+  applyCouponByUserInMobile(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
@@ -236,6 +238,9 @@ type Query {
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
   getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
+  getCouponsByUser: [Coupon]!
+  getCouponsByUserMobile: [Coupon]!
+  getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
   getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
   getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
@@ -3352,7 +3357,60 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
+input getOneCouponDetailsInput {
+  _id: ObjectId!
+}
+
+type getOneCouponDetailsRespons {
+  _id: ID
+  name: String
+  code: String
+  description: String
+  discountType: String
+  discountValue: Int
+  max_discount: Int
+  minOrderAmount: Int
+  usageLimit: Int
+  orderCount: Int
+  usagePerUserLimit: Int
+  startDate: String
+  expiryDate: String
+  isActive: Boolean
+  userDetailsArrya: [userDetailsArrayTypeNew]
+  productDetailsArrya: [productDetailsArryaType]
+  categoriesDetailsArrya: [categoriesDetailsArryaType]
+  brandDeatailsArrya: [brandDeatailsArryaType]
+}
+
+type userDetailsArrayTypeNew {
+  _id: ObjectId
+  firstName: String
+}
+
+type productDetailsArryaType {
+  _id: ObjectId
+  productName: String
+}
+
+type categoriesDetailsArryaType {
+  _id: ObjectId
+  categoryName: String
+}
+
+type brandDeatailsArryaType {
+  _id: ObjectId
+  brandName: String
+}
+
+input getCouponsByUserInput {
+  userId: ObjectId
+}
+
 input Categoryvalid {
+  category: ObjectId
+}
+
+type CategoryvalidType {
   category: ObjectId
 }
 
@@ -3360,12 +3418,33 @@ input Productvalid {
   product: ObjectId
 }
 
+type ProductvalidType {
+  product: ObjectId
+}
+
 input Uservalid {
+  user: ObjectId
+}
+
+type UservalidType {
   user: ObjectId
 }
 
 input Brandvalid {
   brand: ObjectId
+}
+
+type BrandvalidType {
+  brand: ObjectId
+}
+
+input adminDeleteTheCouponInput {
+  _id: ObjectId
+}
+
+type adminDeleteTheCouponResponse {
+  status: Boolean
+  msg: String
 }
 
 input CreateCouponsByAdminInput {
@@ -3423,6 +3502,15 @@ type CreateCouponsByAdminResponse {
   message: String
 }
 
+type ApplyCouponsByAdminResponse {
+  success: Boolean
+  message: String
+  subtotal: Float
+  grandTotal: Float
+  discount: Float
+  shippingCharge: Float
+}
+
 input adminSuspendTheCuponeInput {
   _id: ObjectId
   isActive: Boolean
@@ -3441,30 +3529,32 @@ type getAllCoupenToAdminResponse {
 input getAllCoupenToAdminInput {
   page: Int
   size: Int
-  isActive: Boolean
+  isActive: String
   startDate: Date
   expiryDate: Date
+  search: String
 }
 
 type Coupon {
+  _id: ObjectId
   name: String
   code: String
   description: String
-  couponType: String
+  orderCount: Int
   discountType: String
   couponApplicableType: String
-  discountValue: Int
-  max_discount: Int
-  minOrderAmount: Int
-  validCatogories: [ValidCategory]
-  validProducts: [ValidProduct]
-  validUsers: [ValidUser]
+  discountValue: Float
+  max_discount: Float
+  minOrderAmount: Float
+  validCategories: [CategoryvalidType]
+  validProducts: [ProductvalidType]
+  validUsers: [UservalidType]
+  validBrands: [BrandvalidType]
   usageLimit: Int
   usagePerUserLimit: Int
-  startDate: Int
+  startDate: Date
   expiryDate: Date
   isActive: Boolean
-  userUsage: [UserUsageLimit]
 }
 
 type ValidCategory {
