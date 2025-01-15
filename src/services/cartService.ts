@@ -55,7 +55,7 @@ export interface ICartProduct {
     skuId: string;
     warehouseSkuId: string;
     sellingPrice: number;
-    mrp: number;
+    mrp: number; 
 }
 
 
@@ -233,6 +233,11 @@ export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> =
     return await cartModel.aggregate(pipeline);
 
 
+}
+
+
+export const findUserCart = async (userId: Types.ObjectId): Promise<any> => {
+    return await cartModel.findOne({ userId: userId });
 }
 
 

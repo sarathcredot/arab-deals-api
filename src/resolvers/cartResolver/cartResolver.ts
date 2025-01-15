@@ -5,6 +5,7 @@ import * as validators from "./cartValidator";
 import { GraphQLError } from "graphql";
 import { validateInput, verifyMobileUser, verifyUser } from "../../middlewares";
 import { Types } from "mongoose";
+import { cartModel } from "src/models";
 
 export const cartResolver: Resolvers = {
     Upload: GraphQLUpload,
@@ -218,7 +219,7 @@ export const cartResolver: Resolvers = {
 
         },
 
-        
+
         bulkAddToCartInMobile: async (parent, { input }, { req }, info) => {
             try {
                 await verifyMobileUser(req);
@@ -549,21 +550,18 @@ export const cartResolver: Resolvers = {
                 const cart = await cartService.getCart(userId);
                 const user_Id = userId;
 
-                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+                // const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 
-                if (!shippingConfig) {
-                    throw new GraphQLError("Settings not found", {
-                        extensions: {
-                            code: "INTERNAL_SERVER_ERROR",
-                            errors: [],
-                        },
-                    });
-                }
+                // if (!shippingConfig) {
+                //     throw new GraphQLError("Settings not found", {
+                //         extensions: {
+                //             code: "INTERNAL_SERVER_ERROR",
+                //             errors: [],
+                //         },
+                //     });
+                // }
 
-                let subTotal = 0;
-                let grandTotal = 0;
-                let discount = 0;
-                let deliveryCharge = shippingConfig.shippingCharge || 0;
+
                 let validList = [];
                 let updateList = [];
 
@@ -584,20 +582,29 @@ export const cartResolver: Resolvers = {
                             product.quantity = product.stock;
                             updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
                         }
-                        subTotal += product.quantity * product.sellingPrice;
+                        // subTotal += product.quantity * product.sellingPrice;
                         delete product.isBlocked;
                         validList.push({ ...product, image: product.image.fileURL });
                     }
 
                     await Promise.all(updateList);
                 }
+                const userCart=await cartService.findUserCart(userId)
 
-                if (subTotal >= shippingConfig.freeShippingThreshold!) {
-                    deliveryCharge = 0;
-                }
+                let subTotal = userCart.subTotal || 0;
+                let grandTotal = userCart.grandTotal || 0;
+                let discount = 0;
+                let deliveryCharge = userCart.shippingCharge || 0;
+                
+
+               
+
+                // if (subTotal >= shippingConfig.freeShippingThreshold!) {
+                //     deliveryCharge = 0;
+                // }
 
 
-                grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
+                // grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
 
 
 
@@ -616,26 +623,23 @@ export const cartResolver: Resolvers = {
         },
         getCartInMobile: async (parent, { }, { req }, info) => {
             try {
-                await verifyMobileUser(req);
+                await verifyUser(req);
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
                 const cart = await cartService.getCart(userId);
                 const user_Id = userId;
 
-                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+                // const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 
-                if (!shippingConfig) {
-                    throw new GraphQLError("Settings not found", {
-                        extensions: {
-                            code: "INTERNAL_SERVER_ERROR",
-                            errors: [],
-                        },
-                    });
-                }
+                // if (!shippingConfig) {
+                //     throw new GraphQLError("Settings not found", {
+                //         extensions: {
+                //             code: "INTERNAL_SERVER_ERROR",
+                //             errors: [],
+                //         },
+                //     });
+                // }
 
-                let subTotal = 0;
-                let grandTotal = 0;
-                let discount = 0;
-                let deliveryCharge = shippingConfig.shippingCharge || 0;
+
                 let validList = [];
                 let updateList = [];
 
@@ -656,20 +660,29 @@ export const cartResolver: Resolvers = {
                             product.quantity = product.stock;
                             updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
                         }
-                        subTotal += product.quantity * product.sellingPrice;
+                        // subTotal += product.quantity * product.sellingPrice;
                         delete product.isBlocked;
                         validList.push({ ...product, image: product.image.fileURL });
                     }
 
                     await Promise.all(updateList);
                 }
+                const userCart=await cartService.findUserCart(userId)
 
-                if (subTotal >= shippingConfig.freeShippingThreshold!) {
-                    deliveryCharge = 0;
-                }
+                let subTotal = userCart.subTotal || 0;
+                let grandTotal = userCart.grandTotal || 0;
+                let discount = 0;
+                let deliveryCharge = userCart.shippingCharge || 0;
+                
+
+               
+
+                // if (subTotal >= shippingConfig.freeShippingThreshold!) {
+                //     deliveryCharge = 0;
+                // }
 
 
-                grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
+                // grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
 
 
 
