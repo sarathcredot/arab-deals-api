@@ -19,6 +19,7 @@ export const cartResolver: Resolvers = {
                 const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
 
+                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
 
                 if (!product) {
@@ -63,10 +64,14 @@ export const cartResolver: Resolvers = {
                     }
                     else {
                         await cartService.addItem(productId, userId, quantity);
+
                     }
                 } else {
                     try {
-                        await cartService.createCart(input.productId, userId, quantity);
+                        const shippingCharge = shippingConfig?.shippingCharge || 0; 
+                        const subTotal = product.sellingPrice * quantity;
+                        const grandTotal = subTotal + shippingCharge;
+                        await cartService.createCart(input.productId, userId, quantity,shippingCharge,grandTotal,subTotal);
                     } catch (error) {
                         console.log(error);
                     }
@@ -91,6 +96,7 @@ export const cartResolver: Resolvers = {
                 const quantity: number = input.quantity;
                 const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
+                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
 
@@ -139,7 +145,10 @@ export const cartResolver: Resolvers = {
                     }
                 } else {
                     try {
-                        await cartService.createCart(input.productId, userId, quantity);
+                        const shippingCharge = shippingConfig?.shippingCharge || 0; 
+                        const subTotal = product.sellingPrice * quantity;
+                        const grandTotal = subTotal + shippingCharge;
+                        await cartService.createCart(input.productId, userId, quantity,shippingCharge,grandTotal,subTotal);
                     } catch (error) {
                         console.log(error);
                     }
@@ -155,6 +164,8 @@ export const cartResolver: Resolvers = {
                 throw error;
             }
         },
+
+        
         bulkAddToCart: async (parent, { input }, { req }, info) => {
 
             try {

@@ -17,7 +17,7 @@ const productSchema = new Schema(
     },
 );
 
-const cartSchema = new Schema(
+const cartSchema = new Schema( 
     {
         products: {
             type: [productSchema],

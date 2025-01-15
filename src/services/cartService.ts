@@ -59,7 +59,32 @@ export interface ICartProduct {
 }
 
 
-export const createCart = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
+export const updateCartTotals = async (userId: Types.ObjectId): Promise<any> => {
+    const cart = await cartModel.findOne({ userId }).populate('products.productId');
+
+    if (cart) {
+        const subTotal = cart.products.reduce((total, item) => {
+            const product = item.productId as { sellingPrice: number }; 
+            const price = product.sellingPrice || 0;
+            return total + price * item.quantity;
+        }, 0);
+
+        const shippingCharge = cart.shippingCharge || 0;
+        const grandTotal = subTotal + shippingCharge;
+
+        cart.subTotal = subTotal;
+        cart.shippingCharge = shippingCharge;
+        cart.grandTotal = grandTotal;
+
+        await cart.save();
+    }
+
+    return cart;
+};
+
+
+
+export const createCart = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number,shippingCharge?:number,grandTotal?:number,subTotal?:number): Promise<any> => {
     return await cartModel.create({
         userId: userId,
         products: [
@@ -68,6 +93,9 @@ export const createCart = async (productId: Types.ObjectId, userId: Types.Object
                 quantity: quantity,
             },
         ],
+        shippingCharge:shippingCharge,
+        grandTotal:grandTotal,
+        subTotal:subTotal
     });
 }
 
@@ -86,7 +114,8 @@ export const checkItemExists = async (productId: Types.ObjectId): Promise<any> =
 export const editQuantityOfItem = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
     const filter = { "products.productId": productId, userId };
     const update: UpdateQuery<any> = { $inc: { "products.$.quantity": quantity } };
-    return await cartModel.updateOne(filter, update);
+    await cartModel.updateOne(filter, update);
+    return await updateCartTotals(userId);
 }
 export const removeItem = async (productId: Types.ObjectId, userId: Types.ObjectId): Promise<any> => {
     return await cartModel.findOneAndUpdate(
@@ -103,7 +132,7 @@ export const updateQuantity = async (productId: Types.ObjectId, userId: Types.Ob
     );
 }
 export const addItem = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
-    return await cartModel.findOneAndUpdate(
+   await cartModel.findOneAndUpdate(
         { userId: userId },
         {
             $push: {
@@ -115,6 +144,8 @@ export const addItem = async (productId: Types.ObjectId, userId: Types.ObjectId,
         },
         { new: true }
     );
+
+    return await updateCartTotals(userId);
 }
 
 export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> => {
