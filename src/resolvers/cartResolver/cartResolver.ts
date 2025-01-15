@@ -165,7 +165,7 @@ export const cartResolver: Resolvers = {
             }
         },
 
-        
+
         bulkAddToCart: async (parent, { input }, { req }, info) => {
 
             try {
@@ -217,6 +217,8 @@ export const cartResolver: Resolvers = {
             }
 
         },
+
+        
         bulkAddToCartInMobile: async (parent, { input }, { req }, info) => {
             try {
                 await verifyMobileUser(req);

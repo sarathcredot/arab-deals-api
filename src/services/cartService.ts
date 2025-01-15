@@ -118,11 +118,13 @@ export const editQuantityOfItem = async (productId: Types.ObjectId, userId: Type
     return await updateCartTotals(userId);
 }
 export const removeItem = async (productId: Types.ObjectId, userId: Types.ObjectId): Promise<any> => {
-    return await cartModel.findOneAndUpdate(
+     await cartModel.findOneAndUpdate(
         { userId: userId },
         { $pull: { products: { productId: productId } } },
         { new: true }
     );
+
+    return await updateCartTotals(userId);
 }
 export const updateQuantity = async (productId: Types.ObjectId, userId: Types.ObjectId, newQuantity: number): Promise<any> => {
     return await cartModel.findOneAndUpdate(
