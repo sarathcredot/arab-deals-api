@@ -1066,6 +1066,7 @@ export const orderResolver: Resolvers = {
     },
     getAdminOrderDetails: async (parent, { input }, { req }, info) => {
       // await verifyAdmin(req);
+      
       await validateInput(validators.getAdminOrderDetailsValidator, req);
 
       const response = await orderService.getAdminOrderDetails(input.orderId);

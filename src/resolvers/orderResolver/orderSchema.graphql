@@ -96,10 +96,10 @@ type returnAddress {
   apartment: String
   suite: String
   unit: String
-  governorate:String
-  village:String
-  governorateID:String
-  villageID:String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
 }
 
 input ReturnAddressInput {
@@ -114,10 +114,10 @@ input ReturnAddressInput {
   apartment: String
   suite: String
   unit: String
-  governorate:String!
-  village:String!
-  governorateID:String!
-  villageID:String!
+  governorate: String!
+  village: String!
+  governorateID: String!
+  villageID: String!
 }
 
 input ReturnUserOrderProductInput {
@@ -252,10 +252,8 @@ type AllAgents {
 
 input GetProductDeliveryTypeDeliveryAgentsInput {
   productId: ObjectId
-  villageID:String
-  governorateID:String
-  
-
+  villageID: String
+  governorateID: String
 }
 
 type GetProductDeliveryTypeDeliveryAgentsResponse {
@@ -422,6 +420,10 @@ type OrderShippingAddress {
   apartment: String
   suite: String
   unit: String
+  governorateID: String
+  governorate: String
+  village: String
+  villageID: String
 }
 
 type OrderPriceInfo {
