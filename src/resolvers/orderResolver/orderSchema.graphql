@@ -17,6 +17,12 @@ type Mutation {
     input: ReturnUserOrderProductInput!
     image: [Upload]
   ): ReturnUserOrderProductResponse!
+
+   returnUserOrderProductInMob(
+    input: ReturnUserOrderProductInput!
+    image: [Upload]
+  ): ReturnUserOrderProductResponse!
+
   returnUserOrderProductInMobile(
     input: ReturnUserOrderProductInMobileInput!
   ): ReturnUserOrderProductInMobileResponse!

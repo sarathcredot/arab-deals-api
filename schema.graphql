@@ -53,6 +53,7 @@ type Mutation {
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
   returnUserOrderProduct(input: ReturnUserOrderProductInput!, image: [Upload]): ReturnUserOrderProductResponse!
+  returnUserOrderProductInMob(input: ReturnUserOrderProductInput!, image: [Upload]): ReturnUserOrderProductResponse!
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!

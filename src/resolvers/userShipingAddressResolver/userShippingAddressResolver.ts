@@ -260,7 +260,6 @@ export const userShippingAddressResolver: Resolvers = {
 
         },
 
-
         removeMobileUserShippingAddress: async (parent, { input }, { req }, info) => {
 
             await verifyMobileUser(req);

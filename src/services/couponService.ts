@@ -4,6 +4,8 @@ import { collections } from "../configs";
 import { startOfDay, endOfDay } from "date-fns"
 import { orderModel } from "../models/orderModel";
 import { cartModel } from "../models/cartModel";
+import { GraphQLError } from "graphql";
+import { getBestSellingProducts } from "./orderProductService";
 
 
 
@@ -192,6 +194,42 @@ export const findusageLimit=async(couponId:Types.ObjectId):Promise<any> =>{
 
  }
 
+
+ export const findSubTotal = async (userId: Types.ObjectId): Promise<any> => {
+  const result = await cartModel.aggregate([
+    {
+      $match: {
+        userId: userId,
+      },
+    },
+    {
+      $unwind: "$products",
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.productId",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $unwind: "$productDetails",
+    },
+    {
+      $project: {
+        brandId: "$productDetails.brandId",
+        categoryId: "$productDetails.categoryId",
+        productId: "$productDetails._id",
+        sellingprice: {
+          $multiply: ["$productDetails.sellingprice", "$products.quantity"],
+        },
+      },
+    },
+  ]);
+
+  return result;
+};
 
 
 // get all coupon list in admin port
