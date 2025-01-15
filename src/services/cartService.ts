@@ -127,11 +127,12 @@ export const removeItem = async (productId: Types.ObjectId, userId: Types.Object
     return await updateCartTotals(userId);
 }
 export const updateQuantity = async (productId: Types.ObjectId, userId: Types.ObjectId, newQuantity: number): Promise<any> => {
-    return await cartModel.findOneAndUpdate(
+    await cartModel.findOneAndUpdate(
         { userId: userId, "products.productId": productId },
         { $set: { "products.$.quantity": newQuantity } },
         { new: true }
     );
+    return await updateCartTotals(userId);
 }
 export const addItem = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
    await cartModel.findOneAndUpdate(
