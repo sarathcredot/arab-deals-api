@@ -229,20 +229,20 @@ export const couponResolver: Resolvers = {
         const options = {
 
           _id: input?._id,
-          isActive: input?.isActive || undefined
+          isActive: input?.isActive?? undefined
         }
 
         await couponService.adminSuspendTheCupone(options)
 
         return {
           status: true,
-          msg: "Coupen successfully suspended "
+          msg: "Coupen status changed"
         }
 
 
       } catch (error: any) {
 
-        throw new GraphQLError("Coupen suspended Failed ", {
+        throw new GraphQLError("Coupen status changing Failed ", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
@@ -261,6 +261,8 @@ export const couponResolver: Resolvers = {
         let discount: number | undefined = 0;
 
         // TODO: 
+        // calculate user cart grandtotal/subtotal/shipping charge
+
         //check the coupon is currently active or not
         //check the coupon is expired or not   if expired throw error
         //if there is valid users array/check user exist in that otherwise throw error
@@ -332,12 +334,12 @@ export const couponResolver: Resolvers = {
         //update shipping charge
         //update userusage
 
-        // await verifyUser(req) 
-        // const userId = req.authAccount?._id; 
+        await verifyUser(req) 
+        const userId = req.authAccount?._id; 
         let shippingCharge: number | null | undefined = input?.shippingCharge;
 
 
-        let { couponId, code, grandTotal, subTotal, userId } = input
+        let { couponId, code, grandTotal, subTotal } = input
 
 
 
@@ -435,6 +437,12 @@ export const couponResolver: Resolvers = {
             });
           }
         }
+
+
+        //calculate grand total/subtotal/shipping charge 
+       
+        // const subTotal=await couponService.findSubTotal(userId)
+
 
         //check the discount type of coupon
 
@@ -1149,12 +1157,12 @@ export const couponResolver: Resolvers = {
         //update shipping charge
         //update userusage
 
-        // await verifyUser(req) 
-        // const userId = req.authAccount?._id; 
+        await verifyUser(req) 
+        const userId = req.authAccount?._id; 
         let shippingCharge: number | null | undefined = input?.shippingCharge;
 
 
-        let { couponId, code, grandTotal, subTotal, userId } = input
+        let { couponId, code, grandTotal, subTotal } = input
 
 
 

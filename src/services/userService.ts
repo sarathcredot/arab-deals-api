@@ -1,5 +1,5 @@
 import { FilterQuery, PipelineStage, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { userModel } from '../models';
+import { orderProductModel, userModel } from '../models';
 
 
 export interface IUser {
@@ -22,6 +22,7 @@ export interface IUserDocument extends Document {
   displayName?: string;
   mobileNumber?: string;
   isBlocked?: boolean;
+  isDeleted?: boolean;
   token?: string;
   mobileToken?: string;
 }
@@ -107,6 +108,11 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
         ],
         data: [
           {
+            $sort: {
+              createdAt: -1
+            }
+          },
+          {
             $skip: options.page * options.size
           },
           {
@@ -151,6 +157,28 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
 
 export const logoutUser = async (userId: Types.ObjectId): Promise<IUserDocument | null> => {
   return await userModel.findByIdAndUpdate(userId, { $set: { token: `Token-${Date.now()}` } });
+}
+
+
+export const accountDeleteByUser = async (userId: Types.ObjectId,isDeleted: boolean): Promise<IUserDocument | null> => {
+  return await userModel.findByIdAndUpdate(userId, 
+    { $set: { isDeleted: isDeleted ,deletedAt: new Date() ,token:""} },
+    { new: true }
+  );
+}
+
+export const updateOrdersByUserId = async (userId: Types.ObjectId,updateStatus:any): Promise<any> => {
+      // Define the shipping statuses to filter
+  const shippingStatusesToCancel = ["PENDING", "PACKAGE_IN_PROGRESS", "SHIPPED"];
+  
+  // Update orders that match the user ID and the specified shipping statuses
+  return await orderProductModel.updateMany(
+    {
+      userId,
+      shippingStatus: { $in: shippingStatusesToCancel } // Match orders with these shipping statuses
+    },
+    updateStatus // Set the new status 
+  );
 }
 
 

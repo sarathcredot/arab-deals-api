@@ -646,7 +646,7 @@
 
 
 
-import { adminService, jwtService, spaceService, userService, otpService } from "../../services";
+import { adminService, jwtService, spaceService, userService, otpService, orderProductService } from "../../services";
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import * as validators from "./userValidator";
@@ -656,6 +656,7 @@ import { GraphQLError } from "graphql";
 import { validateInput, verifySuperAdmin, verifyAdmin, verifyUser, verifyMobileUser } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
+import { userModel } from "../../models/userModel";
 
 export const userResolver: Resolvers = {
   Upload: GraphQLUpload,
@@ -673,6 +674,17 @@ export const userResolver: Resolvers = {
           }
         });
       }
+
+      if (user?.isDeleted) {
+        throw new GraphQLError("User is Deleted", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+
+
       const mobileOtp = await otpService.generateOtp();
       if (!mobileOtp) {
         throw new GraphQLError('OTP generation failed', {
@@ -1135,9 +1147,90 @@ export const userResolver: Resolvers = {
         _id: userId
       }
       return response;
-    }
-  },
+    },
 
+    accountDeleteByUser: async (parent, {input}, { req }, info) => {
+      //TODO: check if user exist // throw error 
+      //add  a field for isDeleted for soft delete 
+      //when user deleted then set isDeleted to true
+      //set all orders of user to cancelled
+
+      await verifyUser(req);
+      const userId = req.authAccount._id;
+
+      const {isDeleted}=input;
+
+      const user=await userModel.findById(userId);
+      if(!user){
+        throw new GraphQLError('User not found', {
+          extensions: {
+            code: 'BAD_REQUEST',
+            errors: [],
+          },
+        });
+      }
+
+      if(user.isBlocked){
+        throw new GraphQLError('Your Account is blocked', {
+          extensions: {
+            code: 'BAD_REQUEST',
+            errors: [],
+          },
+        });
+      }
+
+      if(user.isDeleted){
+        throw new GraphQLError('Your Account is Already Deleted', {
+          extensions: {
+            code: 'BAD_REQUEST',
+            errors: [],
+          },
+        });
+        }
+
+
+      // Perform soft delete by updating the isDeleted field
+
+      const updateUser= await userService.accountDeleteByUser(userId,isDeleted);
+
+      if(!updateUser){  
+        throw new GraphQLError('Something Went Wrong!!Account Not Deleted', {
+          extensions: {
+            code: 'BAD_REQUEST',
+            errors: [],
+          },
+      })
+    }
+
+      // Cancel all active orders of the user
+      const orderStatusUpdate=await userService.updateOrdersByUserId(userId,{shippingStatus:"CANCELED"} );
+
+      if(!updateUser){  
+        throw new GraphQLError('Something Went Wrong!!Orders Not Canceled', {
+          extensions: {
+            code: 'BAD_REQUEST',
+            errors: [],
+          },
+        })
+      }
+
+
+      const response = {
+         success:true,
+         message:"Account Deleted Successfully"  
+      }
+      
+      return response;
+    }
+
+
+
+
+
+
+
+
+  },
   Query: {
     async getUsersByAdmin(parent, { input }, { req }, info) {
 
