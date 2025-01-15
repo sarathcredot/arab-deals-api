@@ -261,6 +261,8 @@ export const couponResolver: Resolvers = {
         let discount: number | undefined = 0;
 
         // TODO: 
+        // calculate user cart grandtotal/subtotal/shipping charge
+
         //check the coupon is currently active or not
         //check the coupon is expired or not   if expired throw error
         //if there is valid users array/check user exist in that otherwise throw error
@@ -435,6 +437,12 @@ export const couponResolver: Resolvers = {
             });
           }
         }
+
+
+        //calculate grand total/subtotal/shipping charge 
+       
+        // const subTotal=await couponService.findSubTotal(userId)
+
 
         //check the discount type of coupon
 
