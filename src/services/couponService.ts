@@ -157,7 +157,10 @@ export const findusageLimit=async(couponId:Types.ObjectId):Promise<any> =>{
           $project: {
             brandId: "$productDetails.brandId",
             categoryId: "$productDetails.categoryId",
-             productId:"$productDetails._id"
+             productId:"$productDetails._id",
+             sellingprice: {
+              $multiply: ["$productDetails.sellingPrice", "$products.quantity"],
+            },
           }
         }
      ])

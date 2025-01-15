@@ -36,6 +36,13 @@ const cartSchema = new Schema(
         shippingCharge: {
             type: Number
         },
+        discount: {
+            type: Number
+        },
+        isCouponApplied: {
+            type: Boolean,
+            default: false
+        }
     },
 
     {

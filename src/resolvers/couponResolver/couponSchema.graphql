@@ -191,9 +191,6 @@ input EditCouponsByAdminInput{
 input applyCouponByUserInput{
   couponId:ObjectId
   code:String
-  grandTotal:Float!
-  subTotal:Float!
-  shippingCharge:Float
 }
 
 type CreateCouponsByAdminResponse{
