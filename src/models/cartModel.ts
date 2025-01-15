@@ -27,6 +27,15 @@ const cartSchema = new Schema(
             ref: collections.USERS,
             unique: true
         },
+        grandTotal:{
+            type: Number
+        },
+        subTotal: {
+            type: Number
+        },
+        shippingCharge: {
+            type: Number
+        },
     },
 
     {
