@@ -803,6 +803,156 @@ export const orderResolver: Resolvers = {
     },
 
 
+    returnUserOrderProductInMob:async (parent, { input, image }, { req }, info) => {
+      //add product image and return address
+      console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
+      // Verify user and validate input
+      await verifyUser(req);
+      await validateInput(validators.returnUserOrderValidator, req);
+
+      // Extract user ID and input
+      const userId = req.authAccount?._id;
+      if (!userId) {
+        throw new GraphQLError("Unauthorized", {
+          extensions: { code: "UNAUTHORIZED" },
+        });
+      }
+
+      const { _id, returnUserReason, bankDetails = {}, returnAddress } = input;
+
+      console.log(input, "INPUT FOR RETURN ORDER!!!!!!!!");
+
+      // Fetch order product
+      const orderProduct = await orderProductService.getOrderProductWithFilters(
+        {
+          _id,
+        }
+      );
+
+      if (!orderProduct) {
+        throw new GraphQLError("Order not found", {
+          extensions: { code: "BAD_REQUEST", errors: [] },
+        });
+      }
+
+      console.log(orderProduct);
+
+      if (orderProduct.shippingStatus !== "DELIVERED") {
+        throw new GraphQLError("Order can't be returned", {
+          extensions: { code: "BAD_REQUEST", errors: [] },
+        });
+      }
+
+      // console.log("Delivery Date:", orderProduct.deliveryDate);
+      // console.log("Return Period:", orderProduct.returnPeriod);
+      // console.log(
+      //     "Days Difference:",
+      //     moment(orderProduct.deliveryDate).diff(moment(), "days")
+      // );
+
+      const returnDeadline = moment(orderProduct.deliveryDate).add(
+        orderProduct.returnPeriod || 0,
+        "days"
+      );
+      const isReturnable = moment().isSameOrBefore(returnDeadline);
+
+      console.log(isReturnable);
+
+      if (!isReturnable) {
+        throw new GraphQLError("Order can't be returned", {
+          extensions: { code: "BAD_REQUEST", errors: [] },
+        });
+      }
+
+      let returnProductImage: orderProductService.FileData[] = [];
+
+      if (image) {
+        try {
+          for (let images of image) {
+            const { createReadStream, filename, mimetype, encoding } =
+              await images;
+            const key = spaceService.getFileKey(
+              filePaths.returnProduct,
+              filename,
+              []
+            );
+            const stream = createReadStream();
+            const file = await spaceService.publicFileUpload(
+              key,
+              mimetype,
+              { mimetype: mimetype },
+              stream
+            );
+
+            returnProductImage.push({
+              fileType: "PUBLIC",
+              fileURL: file.location,
+              mimeType: mimetype,
+              originalName: filename,
+            });
+          }
+        } catch (error) {
+          throw new GraphQLError("image upload failed", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+          });
+        }
+      }
+
+      if (!returnProductImage) {
+        throw new GraphQLError("image upload failed", {
+          extensions: {
+            code: "BAD_REQUEST",
+          },
+        });
+      }
+
+      const validatedBankDetails = {
+        accountHolderName: bankDetails?.accountHolderName || "",
+        accountNumber: bankDetails?.accountNumber || "",
+        ifscCode: bankDetails?.ifscCode || "",
+        bankName: bankDetails?.bankName || "",
+        branchName: bankDetails?.branchName || "",
+      };
+
+      const validatedReturnAddress = returnAddress
+        ? {
+          firstname: returnAddress.firstname || "",
+          email: returnAddress.email || "",
+          mobile: returnAddress.mobile || "",
+          country: returnAddress.country || "India", // Default to "India"
+          houseNumber: returnAddress.houseNumber || "",
+          streetName: returnAddress.streetName || "",
+          apartment: returnAddress.apartment || "",
+          suite: returnAddress.suite || "",
+          unit: returnAddress.unit || "",
+          city: returnAddress.city || "",
+          postCode: returnAddress.postCode || "",
+          governorate: returnAddress.governorate,
+          village: returnAddress.village,
+          governorateID: returnAddress.governorateID,
+          villageID: returnAddress.villageID
+        }
+        : null;
+
+      orderProduct.returnUserReason = returnUserReason;
+      orderProduct.returnRequestDate = moment().toDate();
+      orderProduct.refundBankDetails = validatedBankDetails;
+      if (validatedReturnAddress) {
+        orderProduct.returnAddress = validatedReturnAddress;
+      }
+      orderProduct.returnStatus = "PENDING";
+      orderProduct.returnProductImage = returnProductImage;
+
+      await orderProduct.save();
+
+      const response = {
+        _id: _id,
+      };
+
+      return response;
+    },
+
+
     returnUserOrderProductInMobile: async (
       parent,
       { input },
@@ -852,6 +1002,7 @@ export const orderResolver: Resolvers = {
 
       return response;
     },
+
     cancelUserOrderProduct: async (parent, { input }, { req }, info) => {
       await verifyUser(req);
       await validateInput(validators.cancelUserOrderValidator, req);
