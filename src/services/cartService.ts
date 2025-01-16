@@ -1,6 +1,7 @@
 import { Types, Document, FilterQuery, UpdateQuery, ObjectId, Model, Collection } from "mongoose";
 import { cartModel } from "../models";
 import { collections } from "../configs";
+import { settingsService } from ".";
 
 export interface Icart {
     productId: Types.ObjectId,
@@ -61,6 +62,7 @@ export interface ICartProduct {
 
 export const updateCartTotals = async (userId: Types.ObjectId): Promise<any> => {
     const cart = await cartModel.findOne({ userId }).populate('products.productId');
+     const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 
     if (cart) {
         const subTotal = cart.products.reduce((total, item) => {
@@ -69,7 +71,7 @@ export const updateCartTotals = async (userId: Types.ObjectId): Promise<any> => 
             return total + price * item.quantity;
         }, 0);
 
-        const shippingCharge = cart.shippingCharge || 0;
+        const shippingCharge = shippingConfig?.shippingCharge || 0;
         const grandTotal = subTotal + shippingCharge;
 
         cart.subTotal = subTotal;
@@ -244,23 +246,9 @@ export const findUserCart = async (userId: Types.ObjectId): Promise<any> => {
             userId:userId
           }
         },
-        {
-          $lookup: {
-            from: "coupons",
-            localField: "appliedCoupon",
-            foreignField: "_id",
-            as: "coupon"
-          }
-        },
-        {
-          $unwind: {
-            path: "$coupon",
-            
-          }
-        }
       ]
    )
-
+   console.log(result)
    return result[0]
 }
 

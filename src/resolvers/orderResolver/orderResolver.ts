@@ -29,6 +29,7 @@ export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
     createUserOrder: async (parent, { input }, { req }, info) => {
+      console.log("create user order resolver called");
       await verifyUser(req);
       await validateInput(validators.createOrderValidator, req);
 

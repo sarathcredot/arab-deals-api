@@ -6,6 +6,7 @@ import { GraphQLError } from "graphql";
 import { validateInput, verifyMobileUser, verifyUser } from "../../middlewares";
 import { Types } from "mongoose";
 import { cartModel } from "../../models/cartModel";
+import { couponsModel } from "../../models/couponsModel";
 
 export const cartResolver: Resolvers = {
     Upload: GraphQLUpload,
@@ -559,6 +560,10 @@ export const cartResolver: Resolvers = {
                 await verifyUser(req);
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
                 const cart = await cartService.getCart(userId);
+
+                console.log(userId)
+
+                console.log("cart: ", cart);
                 const user_Id = userId;
 
                 // const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
@@ -600,22 +605,25 @@ export const cartResolver: Resolvers = {
 
                     await Promise.all(updateList);
                 }
+
+                
                 const userCart=await cartService.findUserCart(userId)
 
                 console.log("Usercart",userCart)
 
-                let subTotal = userCart.subTotal || 0;
-                let grandTotal = userCart.grandTotal || 0;
-                let discount = userCart.discount || 0;
-                let deliveryCharge = userCart.shippingCharge || 0;
-                let isCouponApplied = userCart.isCouponApplied || false;
-                let appliedCoupon = userCart?.coupon?._id || null;
-                let code=userCart?.coupon?.code || null
+                let subTotal = userCart?.subTotal || 0;
+                let grandTotal = userCart?.grandTotal || 0;
+                let discount = userCart?.discount || 0;
+                let deliveryCharge = userCart?.shippingCharge || 0;
+                let isCouponApplied = userCart?.isCouponApplied || false;
+                let appliedCoupon = userCart?.aplliedCoupon || null;
+                let code:string | undefined="";
 
+                if(userCart?.isCouponApplied){
+                    const coupon=await couponsModel.findOne({_id:userCart?.appliedCoupon})
+                    code=coupon?.code
+                }
 
-                
-
-               
 
                 // if (subTotal >= shippingConfig.freeShippingThreshold!) {
                 //     deliveryCharge = 0;
