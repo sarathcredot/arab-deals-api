@@ -42,6 +42,10 @@ const cartSchema = new Schema(
         isCouponApplied: {
             type: Boolean,
             default: false
+        },
+        appliedCoupon: {
+            type: Schema.Types.ObjectId,
+            ref: collections.COUPONS
         }
     },
 

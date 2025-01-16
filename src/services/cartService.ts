@@ -237,7 +237,31 @@ export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> =
 
 
 export const findUserCart = async (userId: Types.ObjectId): Promise<any> => {
-    return await cartModel.findOne({ userId: userId });
+   const result=await cartModel.aggregate(
+    [
+        {
+          $match: {
+            userId:userId
+          }
+        },
+        {
+          $lookup: {
+            from: "coupons",
+            localField: "appliedCoupon",
+            foreignField: "_id",
+            as: "coupon"
+          }
+        },
+        {
+          $unwind: {
+            path: "$coupon",
+            
+          }
+        }
+      ]
+   )
+
+   return result[0]
 }
 
 

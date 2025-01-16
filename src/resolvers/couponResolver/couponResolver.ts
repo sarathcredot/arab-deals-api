@@ -117,7 +117,6 @@ export const couponResolver: Resolvers = {
 
     //edit coupon by admin
 
-
     editCouponsByAdmin: async (parent, { input }, { req }, info) => {
       // await verifyAdmin(req);
       console.log("called")
@@ -252,7 +251,6 @@ export const couponResolver: Resolvers = {
       }
     },
 
-
     //apply coupon API by user
 
     applyCouponByUser: async (parent, { input }, { req }, info) => {
@@ -263,9 +261,24 @@ export const couponResolver: Resolvers = {
         await verifyUser(req) 
         const userId = req.authAccount?._id; 
        
+        let code;
+        let couponId;
 
+        if(input?.code){
+          const coupon=await couponsModel.findOne({code:input?.code})
 
-        let { couponId, code  } = input
+          if(!coupon){
+            throw new GraphQLError("Coupon code not exists,Try another code", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Coupon code not exists"] },
+            });
+          }
+
+          couponId=coupon?._id;
+          code=coupon?.code;
+        }else{
+          couponId=input?.couponId;    
+          code=input?.code;
+        }
 
         const userCart=await cartService.findUserCart(userId)
 
@@ -303,6 +316,12 @@ export const couponResolver: Resolvers = {
         if (!existingCart) {
           throw new GraphQLError("cart not found!!Try again", {
             extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["cart not found!!Try again"] },
+          });
+        }
+
+        if(existingCart.isCouponApplied){
+          throw new GraphQLError("Only one coupon can be applied!!", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["This coupon is not active!!"] },
           });
         }
 
@@ -428,7 +447,7 @@ export const couponResolver: Resolvers = {
                 let discountSubTotal=subTotal-existingCoupon.discountValue
                 let discountGrandTotal = grandTotal - existingCoupon.discountValue;
   
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -437,7 +456,7 @@ export const couponResolver: Resolvers = {
               }
               // Update userUsage
 
-              const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
 
 
@@ -477,7 +496,7 @@ export const couponResolver: Resolvers = {
                 let discountSubTotal=subTotal-existingCoupon.discountValue
                 let discountGrandTotal = grandTotal - existingCoupon.discountValue;
   
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -486,7 +505,7 @@ export const couponResolver: Resolvers = {
               }
               // Update userUsage
 
-              const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
             }
             //to check if there is oly valid categories
@@ -526,7 +545,7 @@ export const couponResolver: Resolvers = {
               let discountSubTotal=subTotal-existingCoupon.discountValue
               let discountGrandTotal = grandTotal - existingCoupon.discountValue;
 
-              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true }, { new: true })
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
               if(!discountResult){
                 throw new GraphQLError("Error in applying coupon", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -536,7 +555,7 @@ export const couponResolver: Resolvers = {
 
             // Update userUsage
 
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
           } else if (existingCoupon.validProducts.length !== 0) {
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
@@ -573,7 +592,7 @@ export const couponResolver: Resolvers = {
               let discountSubTotal=subTotal-existingCoupon.discountValue
               let discountGrandTotal = grandTotal - existingCoupon.discountValue;
 
-              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true }, { new: true })
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
               if(!discountResult){
                 throw new GraphQLError("Error in applying coupon", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -582,7 +601,7 @@ export const couponResolver: Resolvers = {
             }
             // Update userUsage
 
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
           } else {
             if (existingCoupon.minOrderAmount && subTotal < existingCoupon.minOrderAmount) {
               throw new GraphQLError("This coupon is not applicable for this order", {
@@ -594,7 +613,7 @@ export const couponResolver: Resolvers = {
               let discountSubTotal=subTotal-existingCoupon.discountValue
               let discountGrandTotal = grandTotal - existingCoupon.discountValue;
 
-              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true }, { new: true })
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
               if(!discountResult){
                 throw new GraphQLError("Error in applying coupon", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -604,7 +623,7 @@ export const couponResolver: Resolvers = {
 
             // Update userUsage
 
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
           }
 
@@ -674,7 +693,7 @@ export const couponResolver: Resolvers = {
                 if (existingCoupon.max_discount >= discount_amount) {
                   let discountSubTotal=subTotal-discount_amount;
                   let discountGrandTotal=grandTotal-discount_amount;
-                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true }, { new: true })
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                   if(!discountResult){
                     throw new GraphQLError("Error in applying coupon", {
                       extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -685,7 +704,7 @@ export const couponResolver: Resolvers = {
                 } else {
                   let discountSubTotal=subTotal-existingCoupon.max_discount;
                   let discountGrandTotal=grandTotal-existingCoupon.max_discount;
-                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true }, { new: true })
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                   if(!discountResult){
                     throw new GraphQLError("Error in applying coupon", {
                       extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -696,7 +715,7 @@ export const couponResolver: Resolvers = {
               }
 
               // Update userUsage
-              const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
 
 
@@ -753,7 +772,7 @@ export const couponResolver: Resolvers = {
                 if (existingCoupon.max_discount >= discount_amount) {
                   let discountSubTotal=subTotal-discount_amount;
                   let discountGrandTotal=grandTotal-discount_amount;
-                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true }, { new: true })
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                   if(!discountResult){
                     throw new GraphQLError("Error in applying coupon", {
                       extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -764,7 +783,7 @@ export const couponResolver: Resolvers = {
                 } else {
                   let discountSubTotal=subTotal-existingCoupon.max_discount;
                   let discountGrandTotal=grandTotal-existingCoupon.max_discount;
-                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true }, { new: true })
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                   if(!discountResult){
                     throw new GraphQLError("Error in applying coupon", {
                       extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -777,7 +796,7 @@ export const couponResolver: Resolvers = {
              
               // Update userUsage
 
-              const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
             }
             //to check if there is oly valid categories
@@ -833,7 +852,7 @@ export const couponResolver: Resolvers = {
               if (existingCoupon.max_discount >= discount_amount) {
                 let discountSubTotal=subTotal-discount_amount;
                 let discountGrandTotal=grandTotal-discount_amount;
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -844,7 +863,7 @@ export const couponResolver: Resolvers = {
               } else {
                 let discountSubTotal=subTotal-existingCoupon.max_discount;
                 let discountGrandTotal=grandTotal-existingCoupon.max_discount;
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -855,7 +874,7 @@ export const couponResolver: Resolvers = {
             }
             // Update userUsage
 
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
 
           } else if (existingCoupon.validProducts.length !== 0) {
@@ -906,7 +925,7 @@ export const couponResolver: Resolvers = {
               if (existingCoupon.max_discount >= discount_amount) {
                 let discountSubTotal=subTotal-discount_amount;
                 let discountGrandTotal=grandTotal-discount_amount;
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -917,7 +936,7 @@ export const couponResolver: Resolvers = {
               } else {
                 let discountSubTotal=subTotal-existingCoupon.max_discount;
                 let discountGrandTotal=grandTotal-existingCoupon.max_discount;
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -927,7 +946,7 @@ export const couponResolver: Resolvers = {
               }
             }
             // Update userUsage
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
 
 
@@ -950,7 +969,7 @@ export const couponResolver: Resolvers = {
               if (existingCoupon.max_discount >= discount_amount) {
                 let discountSubTotal=subTotal-discount_amount;
                 let discountGrandTotal=grandTotal-discount_amount;
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -961,7 +980,7 @@ export const couponResolver: Resolvers = {
               } else {
                 let discountSubTotal=subTotal-existingCoupon.max_discount;
                 let discountGrandTotal=grandTotal-existingCoupon.max_discount;
-                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true }, { new: true })
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
                 if(!discountResult){
                   throw new GraphQLError("Error in applying coupon", {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -972,7 +991,7 @@ export const couponResolver: Resolvers = {
             }
 
             // Update userUsage
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
 
 
@@ -1026,7 +1045,7 @@ export const couponResolver: Resolvers = {
 
               let discount_shippingCharge = 0;
               let discount_grandTotal=subTotal+discount_shippingCharge
-              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge }, { new: true })
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge,appliedCoupon:couponId }, { new: true })
               if(!discountResult){
                 throw new GraphQLError("Error in applying coupon", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -1036,7 +1055,7 @@ export const couponResolver: Resolvers = {
 
               discount=discount_shippingCharge
 
-              const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
 
 
@@ -1077,7 +1096,7 @@ export const couponResolver: Resolvers = {
 
               let discount_shippingCharge = 0;
               let discount_grandTotal=subTotal+discount_shippingCharge
-              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge }, { new: true })
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge,appliedCoupon:couponId }, { new: true })
               if(!discountResult){
                 throw new GraphQLError("Error in applying coupon", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -1089,7 +1108,7 @@ export const couponResolver: Resolvers = {
 
               // Update userUsage
 
-              const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
             }
             //to check if there is oly valid categories
@@ -1127,7 +1146,7 @@ export const couponResolver: Resolvers = {
 
             let discount_shippingCharge = 0;
             let discount_grandTotal=subTotal+discount_shippingCharge
-            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge }, { new: true })
+            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge ,appliedCoupon:couponId}, { new: true })
             if(!discountResult){
               throw new GraphQLError("Error in applying coupon", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -1139,7 +1158,7 @@ export const couponResolver: Resolvers = {
 
             // Update userUsage
 
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
           } else if (existingCoupon.validProducts.length !== 0) {
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
@@ -1177,7 +1196,7 @@ export const couponResolver: Resolvers = {
 
             let discount_shippingCharge = 0;
             let discount_grandTotal=subTotal+discount_shippingCharge
-            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge }, { new: true })
+            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge ,appliedCoupon:couponId}, { new: true })
             if(!discountResult){
               throw new GraphQLError("Error in applying coupon", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -1189,7 +1208,7 @@ export const couponResolver: Resolvers = {
 
             // Update userUsage
 
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
           } else {
             if (existingCoupon.minOrderAmount && subTotal < existingCoupon.minOrderAmount) {
               throw new GraphQLError("This coupon is not applicable for this order", {
@@ -1200,7 +1219,7 @@ export const couponResolver: Resolvers = {
            
             let discount_shippingCharge = 0;
             let discount_grandTotal=subTotal+discount_shippingCharge
-            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge }, { new: true })
+            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge,appliedCoupon:couponId }, { new: true })
             if(!discountResult){
               throw new GraphQLError("Error in applying coupon", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -1210,7 +1229,7 @@ export const couponResolver: Resolvers = {
 
             discount=discount_shippingCharge
             // Update userUsage
-            const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
 
           }
 
@@ -1221,10 +1240,6 @@ export const couponResolver: Resolvers = {
         return {
           success: true,
           message: "Coupon applied successfully.",
-          subtotal: subTotal,
-          grandTotal: grandTotal,
-          discount: discount,
-          shippingCharge: shippingCharge
         };
 
       } catch (error: any) {
@@ -1234,6 +1249,1086 @@ export const couponResolver: Resolvers = {
       }
     },
 
+
+    //apply coupon by user in mobile
+
+    applyCouponByUserInMobile: async (parent, { input }, { req }, info) => {
+      try {
+
+        let discount: number | undefined = 0;
+
+        await verifyUser(req) 
+        const userId = req.authAccount?._id; 
+       
+
+
+        let code;
+        let couponId;
+
+        if(input?.code){
+          const coupon=await couponsModel.findOne({code:input?.code})
+
+          if(!coupon){
+            throw new GraphQLError("Coupon code not exists,Try another code", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Coupon code not exists"] },
+            });
+          }
+
+          couponId=coupon?._id;
+          code=coupon?.code;
+        }else{
+          couponId=input?.couponId;    
+          code=input?.code;
+        }
+
+        const userCart=await cartService.findUserCart(userId)
+
+        let subTotal=userCart?.subTotal;
+
+        let grandTotal=userCart?.grandTotal;
+
+        let shippingCharge=userCart?.shippingCharge
+
+
+        const existingCoupon = await couponsModel.findOne({
+          $or: [
+            { code: code },
+            { _id: couponId }
+          ]
+        })
+
+        if (!existingCoupon) {
+          throw new GraphQLError("Coupon code not exists,Try another code", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Coupon code not exists"] },
+          });
+        }
+
+        const existingUser = await userModel.findOne({ _id: userId })
+
+        if (!existingUser) {
+          throw new GraphQLError("Something went Wrong!!Login Again!!", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Something went Wrong!!Login Again!!"] },
+          });
+        }
+
+
+        const existingCart = await cartModel.findOne({ userId: userId })
+
+        if (!existingCart) {
+          throw new GraphQLError("cart not found!!Try again", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["cart not found!!Try again"] },
+          });
+        }
+
+        if(existingCart.isCouponApplied){
+          throw new GraphQLError("Only one coupon can be applied!!", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["This coupon is not active!!"] },
+          });
+        }
+
+        //check coupon active or not
+        if (!existingCoupon.isActive) {
+          throw new GraphQLError("This coupon is not active!!", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["This coupon is not active!!"] },
+          });
+        }
+
+        //check expired or not
+
+        if (existingCoupon.expiryDate && new Date() > new Date(existingCoupon.expiryDate)) {
+          throw new GraphQLError("This coupon is expired!!", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["This coupon is expired!!"] },
+          });
+        }
+
+        //check if he is a valid user or not
+
+        if (existingCoupon.validUsers.length !== 0) {
+          const validUser = existingCoupon.validUsers.find(users => users?.user?.toString() === userId.toString());
+
+          if (!validUser) {
+            throw new GraphQLError("ith anta allaaa!!!", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["ithanta allaa !!"] },
+            });
+          }
+        }
+
+
+        //check the usage limit of this coupon exceed or not
+
+        if (existingCoupon.usageLimit) {
+          const result = await couponService.findusageLimit(couponId)
+          if (result >= existingCoupon.usageLimit) {
+            throw new GraphQLError("The limit of coupon is reached", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["The limit of coupon is reached"] },
+            });
+          }
+        }
+
+
+        //check the usage per user limit of this coupon exceed or not
+
+        if (existingCoupon.usagePerUserLimit) {
+          const result = await couponService.findusagePerUserLimit(couponId, userId)
+          if (result >= existingCoupon.usagePerUserLimit) {
+            throw new GraphQLError("usage limit reached", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["The limit of coupon is reached"] },
+            });
+          }
+
+        }
+
+
+        //check if there is any orderlimit
+        if (existingCoupon.orderCount) {
+          const result = await couponService.findOrderCount(userId)
+
+          if (existingCoupon.orderCount - 1 !== result) {
+            throw new GraphQLError("you can't apply  for this code", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+            });
+          }
+        }
+
+
+        //calculate grand total/subtotal/shipping charge 
+       
+        // const subTotal=await couponService.findSubTotal(userId)
+
+
+        //check the discount type of coupon
+
+        //FLAT COUPON
+
+        if (existingCoupon.discountType === "FLAT") {
+          //check if there is any restriction
+
+          //check if there is any valid brands
+
+          if (existingCoupon.validBrands.length !== 0) {
+
+            //checking if there is any certain categories under brand
+            if (existingCoupon.validCategories.length !== 0) {
+              const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+
+              const matchingBrands = result.filter((item: any) =>
+                existingCoupon.validBrands.some((validBrand: any) =>
+                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                ) &&
+                existingCoupon.validCategories.some((validCategory: any) =>
+                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                )
+              );
+
+              console.log("matchingBrands", matchingBrands);
+
+
+              if (matchingBrands.length === 0) {
+                throw new GraphQLError("This coupon is not applicable for this product", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+
+
+              let product_sum = 0;
+
+              for (const item of matchingBrands) {  
+                  product_sum += item.sellingprice;
+              }
+
+
+              if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+                throw new GraphQLError("This coupon is not applicable for this order", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+                });
+              }
+
+              if (existingCoupon.discountValue) {
+                let discountSubTotal=subTotal-existingCoupon.discountValue
+                let discountGrandTotal = grandTotal - existingCoupon.discountValue;
+  
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+              }
+              // Update userUsage
+
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+
+
+            } else {
+              //if only brands
+              const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+              console.log("brandResult", result)
+
+              const matchingBrands = result.filter((item: any) =>
+                existingCoupon.validBrands.some((validBrand: any) =>
+                  validBrand.brand.equals(item.brandId)
+                )
+              );
+              console.log("matchingBrands", matchingBrands)
+
+              if (matchingBrands.length === 0) {
+                throw new GraphQLError("This coupon is not applicable for this product", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+
+
+              let product_sum = 0;
+
+              for (const item of matchingBrands) {  
+                  product_sum += item.sellingprice;
+              }
+
+
+              if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+                throw new GraphQLError("This coupon is not applicable for this order", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+                });
+              }
+
+              if (existingCoupon.discountValue) {
+                let discountSubTotal=subTotal-existingCoupon.discountValue
+                let discountGrandTotal = grandTotal - existingCoupon.discountValue;
+  
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+              }
+              // Update userUsage
+
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+            }
+            //to check if there is oly valid categories
+          } else if (existingCoupon.validCategories.length !== 0) {
+            const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+
+            const matchingCategories = result.filter((item: any) =>
+              existingCoupon.validCategories.some((validCategory: any) =>
+                validCategory.category.equals(item.categoryId)
+              )
+            );
+
+            if (matchingCategories.length === 0) {
+              throw new GraphQLError("This coupon is not applicable for this product", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+
+            
+
+
+            let product_sum = 0;
+
+            for (const item of matchingCategories) {  
+                product_sum += item.sellingprice;
+            }
+
+
+            if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+            if (existingCoupon.discountValue) {
+              let discountSubTotal=subTotal-existingCoupon.discountValue
+              let discountGrandTotal = grandTotal - existingCoupon.discountValue;
+
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+              if(!discountResult){
+                throw new GraphQLError("Error in applying coupon", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+            }
+
+            // Update userUsage
+
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+          } else if (existingCoupon.validProducts.length !== 0) {
+            const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+
+
+            const matchingProducts = result.filter((item: any) =>
+              existingCoupon.validProducts.some((validProducts: any) =>
+                validProducts.product.equals(item.productId)
+              )
+            );
+
+            if (matchingProducts.length === 0) {
+              throw new GraphQLError("This coupon is not applicable for this product", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+
+
+            let product_sum = 0;
+
+            for (const item of matchingProducts) {  
+                product_sum += item.sellingprice;
+            }
+
+
+            if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+            if (existingCoupon.discountValue) {
+              let discountSubTotal=subTotal-existingCoupon.discountValue
+              let discountGrandTotal = grandTotal - existingCoupon.discountValue;
+
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+              if(!discountResult){
+                throw new GraphQLError("Error in applying coupon", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+            }
+            // Update userUsage
+
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+          } else {
+            if (existingCoupon.minOrderAmount && subTotal < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+            if (existingCoupon.discountValue) {
+              let discountSubTotal=subTotal-existingCoupon.discountValue
+              let discountGrandTotal = grandTotal - existingCoupon.discountValue;
+
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.discountValue,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+              if(!discountResult){
+                throw new GraphQLError("Error in applying coupon", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+            }
+
+            // Update userUsage
+
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+          }
+
+          discount = existingCoupon?.discountValue
+
+        }
+
+
+        //PERCENTAGE COUPON
+
+        if (existingCoupon.discountType === "PERCENTAGE") {
+          if (existingCoupon.validBrands.length !== 0) {
+
+            //checking if there is any certain categories under brand
+            if (existingCoupon.validCategories.length !== 0) {
+              //write logic here
+
+              const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+              console.log("result", result)
+
+              const matchingBrands = result.filter((item: any) =>
+                existingCoupon.validBrands.some((validBrand: any) =>
+                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                ) &&
+                existingCoupon.validCategories.some((validCategory: any) =>
+                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                )
+              );
+
+              console.log("matchingBrands", matchingBrands)
+
+
+              if (matchingBrands.length === 0) {
+                throw new GraphQLError("This coupon is not applicable for this product", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+
+
+              let product_sum = 0;
+              let discount_amount = 0;
+
+
+              for (const item of matchingBrands) {  
+                  product_sum += item.sellingprice;
+              }
+
+              console.log("Product_sum", product_sum)
+
+
+
+              if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+                throw new GraphQLError("This coupon is not applicable for this order", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+                });
+              }
+
+
+
+              if (existingCoupon.discountValue) {
+                discount_amount = ((existingCoupon?.discountValue) / 100) * product_sum;
+              }
+
+
+              
+              if (existingCoupon.max_discount) {
+                if (existingCoupon.max_discount >= discount_amount) {
+                  let discountSubTotal=subTotal-discount_amount;
+                  let discountGrandTotal=grandTotal-discount_amount;
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                  if(!discountResult){
+                    throw new GraphQLError("Error in applying coupon", {
+                      extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                    });
+                  }
+                  discount = discount_amount
+
+                } else {
+                  let discountSubTotal=subTotal-existingCoupon.max_discount;
+                  let discountGrandTotal=grandTotal-existingCoupon.max_discount;
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                  if(!discountResult){
+                    throw new GraphQLError("Error in applying coupon", {
+                      extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                    });
+                  }
+                  discount=existingCoupon.max_discount
+                }
+              }
+
+              // Update userUsage
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+
+
+            } else {
+              //if only brands
+              const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+              // const matchingBrands= result
+              // .map((item:any) => item.brandId.toString()) 
+              // .filter((brandId:any) => existingCoupon.validBrands.includes(brandId));
+
+              const matchingBrands = result.filter((item: any) =>
+                existingCoupon.validBrands.some((validBrand: any) =>
+                  validBrand.brand.equals(item.brandId)
+                )
+              );
+
+              console.log("matchingBrands", matchingBrands)
+
+              if (matchingBrands.length === 0) {
+                throw new GraphQLError("This coupon is not applicable for this product", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+
+
+              let product_sum = 0;
+              let discount_amount = 0;
+
+
+              for (const item of matchingBrands) {  
+                product_sum += item.sellingprice;
+            }
+
+
+            console.log("Product_sum", product_sum)
+
+
+
+              if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+                throw new GraphQLError("This coupon is not applicable for this order", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+                });
+              }
+
+
+
+              if (existingCoupon.discountValue) {
+                discount_amount = ((existingCoupon?.discountValue) / 100) * product_sum;
+              }
+
+
+              if (existingCoupon.max_discount) {
+                if (existingCoupon.max_discount >= discount_amount) {
+                  let discountSubTotal=subTotal-discount_amount;
+                  let discountGrandTotal=grandTotal-discount_amount;
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                  if(!discountResult){
+                    throw new GraphQLError("Error in applying coupon", {
+                      extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                    });
+                  }
+                  discount = discount_amount
+
+                } else {
+                  let discountSubTotal=subTotal-existingCoupon.max_discount;
+                  let discountGrandTotal=grandTotal-existingCoupon.max_discount;
+                  const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                  if(!discountResult){
+                    throw new GraphQLError("Error in applying coupon", {
+                      extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                    });
+                  }
+                  discount=existingCoupon.max_discount
+                }
+              }
+
+             
+              // Update userUsage
+
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+            }
+            //to check if there is oly valid categories
+          } else if (existingCoupon.validCategories.length !== 0) {
+            //write logic here
+
+            //if only brands
+            const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+            // const matchingBrands= result
+            // .map((item:any) => item.brandId.toString()) 
+            // .filter((brandId:any) => existingCoupon.validBrands.includes(brandId));
+
+            const matchingCategories = result.filter((item: any) =>
+              existingCoupon.validCategories.some((validCategory: any) =>
+                validCategory.category.equals(item.categoryId)
+              )
+            );
+
+            if (matchingCategories.length === 0) {
+              throw new GraphQLError("This coupon is not applicable for this product", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+
+
+            let product_sum = 0;
+            let discount_amount = 0;
+
+
+
+            for (const item of matchingCategories) {
+              product_sum += item.sellingPrice;
+            }
+
+
+
+            if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+
+
+            if (existingCoupon.discountValue) {
+              discount_amount = ((existingCoupon?.discountValue) / 100) * product_sum;
+            }
+
+
+           
+            if (existingCoupon.max_discount) {
+              if (existingCoupon.max_discount >= discount_amount) {
+                let discountSubTotal=subTotal-discount_amount;
+                let discountGrandTotal=grandTotal-discount_amount;
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+                discount = discount_amount
+
+              } else {
+                let discountSubTotal=subTotal-existingCoupon.max_discount;
+                let discountGrandTotal=grandTotal-existingCoupon.max_discount;
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+                discount=existingCoupon.max_discount
+              }
+            }
+            // Update userUsage
+
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+
+          } else if (existingCoupon.validProducts.length !== 0) {
+            //write logic here
+
+            const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+            const matchingProducts = result.filter((item: any) =>
+              existingCoupon.validProducts.some((validProducts: any) =>
+                validProducts.product.equals(item.productId)
+              )
+            );
+
+            if (matchingProducts.length === 0) {
+              throw new GraphQLError("This coupon is not applicable for this product", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+
+
+            let product_sum = 0;
+            let discount_amount = 0;
+
+
+
+
+            for (const item of matchingProducts) {
+              product_sum += item.sellingPrice;
+            }
+
+
+
+            if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+
+
+            if (existingCoupon.discountValue) {
+              discount_amount = ((existingCoupon?.discountValue) / 100) * product_sum;
+            }
+
+
+            
+            if (existingCoupon.max_discount) {
+              if (existingCoupon.max_discount >= discount_amount) {
+                let discountSubTotal=subTotal-discount_amount;
+                let discountGrandTotal=grandTotal-discount_amount;
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+                discount = discount_amount
+
+              } else {
+                let discountSubTotal=subTotal-existingCoupon.max_discount;
+                let discountGrandTotal=grandTotal-existingCoupon.max_discount;
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+                discount=existingCoupon.max_discount
+              }
+            }
+            // Update userUsage
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+
+
+          } else {
+            //write logic here
+            let discount_amount = 0;
+
+            if (existingCoupon.minOrderAmount && subTotal < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+
+            if (existingCoupon.discountValue) {
+              discount_amount = ((existingCoupon?.discountValue) / 100) * subTotal;
+            }
+
+            if (existingCoupon.max_discount) {
+              if (existingCoupon.max_discount >= discount_amount) {
+                let discountSubTotal=subTotal-discount_amount;
+                let discountGrandTotal=grandTotal-discount_amount;
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:discount_amount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+                discount = discount_amount
+
+              } else {
+                let discountSubTotal=subTotal-existingCoupon.max_discount;
+                let discountGrandTotal=grandTotal-existingCoupon.max_discount;
+                const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { subTotal: discountSubTotal, grandTotal: discountGrandTotal,discount:existingCoupon.max_discount,isCouponApplied:true,appliedCoupon:couponId }, { new: true })
+                if(!discountResult){
+                  throw new GraphQLError("Error in applying coupon", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                  });
+                }
+                discount=existingCoupon.max_discount
+              }
+            }
+
+            // Update userUsage
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+
+
+          }
+        }
+
+        //FREE_SHIPPING COUPONS
+
+
+        if (existingCoupon.discountType === "FREE_SHIPPING") {
+
+          if (existingCoupon.validBrands.length !== 0) {
+
+            //checking if there is any certain categories under brand
+            if (existingCoupon.validCategories.length !== 0) {
+              const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+
+              const matchingBrands = result.filter((item: any) =>
+                existingCoupon.validBrands.some((validBrand: any) =>
+                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                ) &&
+                existingCoupon.validCategories.some((validCategory: any) =>
+                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                )
+              );
+
+              console.log("matchingBrands", matchingBrands);
+
+
+              if (matchingBrands.length === 0) {
+                throw new GraphQLError("This coupon is not applicable for this product", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+
+              let product_sum = 0;
+            
+              for (const item of matchingBrands) {  
+                product_sum += item.sellingprice;
+            }
+
+
+
+
+              if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+                throw new GraphQLError("This coupon is not applicable for this order", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+                });
+              }
+
+              let discount_shippingCharge = 0;
+              let discount_grandTotal=subTotal+discount_shippingCharge
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge,appliedCoupon:couponId }, { new: true })
+              if(!discountResult){
+                throw new GraphQLError("Error in applying coupon", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+              // Update userUsage
+
+              discount=discount_shippingCharge
+
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+
+
+            } else {
+              //if only brands
+              const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+              console.log("brandResult", result)
+
+              const matchingBrands = result.filter((item: any) =>
+                existingCoupon.validBrands.some((validBrand: any) =>
+                  validBrand.brand.equals(item.brandId)
+                )
+              );
+              console.log("matchingBrands", matchingBrands)
+
+              if (matchingBrands.length === 0) {
+                throw new GraphQLError("This coupon is not applicable for this product", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+
+
+             
+              let product_sum = 0;
+            
+              for (const item of matchingBrands) {  
+                product_sum += item.sellingprice;
+            }
+
+
+
+
+              if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+                throw new GraphQLError("This coupon is not applicable for this order", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+                });
+              }
+
+              let discount_shippingCharge = 0;
+              let discount_grandTotal=subTotal+discount_shippingCharge
+              const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge,appliedCoupon:couponId }, { new: true })
+              if(!discountResult){
+                throw new GraphQLError("Error in applying coupon", {
+                  extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+                });
+              }
+              // Update userUsage
+
+              discount=discount_shippingCharge
+
+              // Update userUsage
+
+              // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+            }
+            //to check if there is oly valid categories
+          } else if (existingCoupon.validCategories.length !== 0) {
+            const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+
+            const matchingCategories = result.filter((item: any) =>
+              existingCoupon.validCategories.some((validCategory: any) =>
+                validCategory.category.equals(item.categoryId)
+              )
+            );
+
+            if (matchingCategories.length === 0) {
+              throw new GraphQLError("This coupon is not applicable for this product", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+
+
+            let product_sum = 0;
+            
+            for (const item of matchingCategories) {  
+              product_sum += item.sellingprice;
+          }
+
+
+
+
+            if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+            let discount_shippingCharge = 0;
+            let discount_grandTotal=subTotal+discount_shippingCharge
+            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge ,appliedCoupon:couponId}, { new: true })
+            if(!discountResult){
+              throw new GraphQLError("Error in applying coupon", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+            // Update userUsage
+
+            discount=discount_shippingCharge
+
+            // Update userUsage
+
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+          } else if (existingCoupon.validProducts.length !== 0) {
+            const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+
+
+            const matchingProducts = result.filter((item: any) =>
+              existingCoupon.validProducts.some((validProducts: any) =>
+                validProducts.product.equals(item.productId)
+              )
+            );
+
+            if (matchingProducts.length === 0) {
+              throw new GraphQLError("This coupon is not applicable for this product", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+
+
+           
+            let product_sum = 0;
+            
+            for (const item of matchingProducts) {  
+              product_sum += item.sellingprice;
+          }
+
+
+
+
+            if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+            let discount_shippingCharge = 0;
+            let discount_grandTotal=subTotal+discount_shippingCharge
+            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge ,appliedCoupon:couponId}, { new: true })
+            if(!discountResult){
+              throw new GraphQLError("Error in applying coupon", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+            // Update userUsage
+
+            discount=discount_shippingCharge
+
+            // Update userUsage
+
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+          } else {
+            if (existingCoupon.minOrderAmount && subTotal < existingCoupon.minOrderAmount) {
+              throw new GraphQLError("This coupon is not applicable for this order", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
+              });
+            }
+
+           
+            let discount_shippingCharge = 0;
+            let discount_grandTotal=subTotal+discount_shippingCharge
+            const discountResult = await cartModel.findByIdAndUpdate(existingCart._id, { grandTotal: discount_grandTotal,discount:shippingCharge,isCouponApplied:true,shippingCharge:discount_shippingCharge,appliedCoupon:couponId }, { new: true })
+            if(!discountResult){
+              throw new GraphQLError("Error in applying coupon", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
+              });
+            }
+            // Update userUsage
+
+            discount=discount_shippingCharge
+            // Update userUsage
+            // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
+
+          }
+
+        }
+
+
+
+        return {
+          success: true,
+          message: "Coupon applied successfully.",
+        };
+
+      } catch (error: any) {
+        throw new GraphQLError(error, {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+      }
+    },
+
+    //remove coupon by user
+    removeCoupon: async (parent, {  }, { req }, info) => {
+      await verifyUser(req) 
+      const userId = req.authAccount?._id; 
+  
+       const existingCart = await cartModel.findOne({ userId: userId })
+
+        if (!existingCart) {
+          throw new GraphQLError("cart not found!!Try again", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["cart not found!!Try again"] },
+          });
+        }
+
+        const result =await cartService.updateCartTotals(userId)
+
+        if(!result){
+          throw new GraphQLError("Error in removing coupon", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't remove this code"] }, 
+          });
+        }
+
+
+        const updateresult= await cartModel.findByIdAndUpdate(existingCart._id, { isCouponApplied: false,discount:0,appliedCoupon:null }, { new: true });
+
+
+        if(!updateresult){
+          throw new GraphQLError("Error in removing coupon", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't remove this code"] }, 
+          });
+        }
+
+
+        return {
+          success: true,
+          message: "Coupon removed successfully."
+        }
+
+    },
+
+    //remove coupon by user in mobile
+
+    removeCouponInMobile: async (parent, { }, { req }, info) => {
+      await verifyUser(req) 
+      const userId = req.authAccount?._id; 
+     
+
+       const existingCart = await cartModel.findOne({ userId: userId })
+
+        if (!existingCart) {
+          throw new GraphQLError("cart not found!!Try again", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["cart not found!!Try again"] },
+          });
+        }
+
+        const result =await cartService.updateCartTotals(userId)
+
+        if(!result){
+          throw new GraphQLError("Error in removing coupon", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't remove this code"] }, 
+          });
+        }
+
+
+        const updateresult= await cartModel.findByIdAndUpdate(existingCart._id, { isCouponApplied: false,discount:0,appliedCoupon:null }, { new: true });
+
+
+        if(!updateresult){
+          throw new GraphQLError("Error in removing coupon", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't remove this code"] }, 
+          });
+        }
+
+
+        return {
+          success: true,
+          message: "Coupon removed successfully."
+        }
+
+    },
 
     
     adminDeleteTheCoupon: async (parent, { input }, { req }, info) => {
@@ -1373,8 +2468,6 @@ export const couponResolver: Resolvers = {
 
 
     },
-
-
 
 
    // get coupons by user in web 
