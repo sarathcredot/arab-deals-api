@@ -162,7 +162,7 @@ export const logoutUser = async (userId: Types.ObjectId): Promise<IUserDocument 
 
 export const accountDeleteByUser = async (userId: Types.ObjectId,isDeleted: boolean): Promise<IUserDocument | null> => {
   return await userModel.findByIdAndUpdate(userId, 
-    { $set: { isDeleted: isDeleted ,deletedAt: new Date() ,token:""} },
+    { $set: { isDeleted: isDeleted ,deletedAt: new Date() ,token:"",isBlocked:true,mobileNumber:""} },
     { new: true }
   );
 }
