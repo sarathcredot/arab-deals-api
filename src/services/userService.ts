@@ -108,6 +108,11 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
         ],
         data: [
           {
+            $sort: {
+              createdAt: -1
+            }
+          },
+          {
             $skip: options.page * options.size
           },
           {

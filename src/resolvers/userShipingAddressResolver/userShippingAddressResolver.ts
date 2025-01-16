@@ -74,6 +74,10 @@ export const userShippingAddressResolver: Resolvers = {
                 unit: input.unit || "",
                 city: input.city,
                 postCode: input.postCode,
+                governorate:input.governorate || "",
+                village:input.village || "",
+                governorateID:input.governorateID || "",
+                villageID:input.villageID || "",
                 isDefault: input.isDefault || (isExists ? false : true) // Set isDefault from input if provided, otherwise check if address exists
             };
 
@@ -108,6 +112,8 @@ export const userShippingAddressResolver: Resolvers = {
                     },
                 });
             }
+
+            console.log(input, " = INPUT")
 
             if (input.firstname) {
                 shippingAddress.firstname = input.firstname;
@@ -215,6 +221,22 @@ export const userShippingAddressResolver: Resolvers = {
             }
             if (input.suite) {
                 shippingAddress.suite = input.suite;
+            }
+
+            if(input.governorate){
+                shippingAddress.governorate=input.governorate;
+            }
+            
+            if(input.village){
+                shippingAddress.village=input.village;
+            }
+
+            if(input.governorateID){
+                shippingAddress.governorateID=input.governorateID;
+            }
+            
+            if(input.villageID){
+                shippingAddress.villageID=input.villageID;
             }
 
             await shippingAddress.save();
