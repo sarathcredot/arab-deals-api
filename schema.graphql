@@ -242,7 +242,7 @@ type Query {
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
   getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
-  getCouponsByUser: [Coupon]!
+  getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
   getCouponsByUserMobile: [Coupon]!
   getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
   getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
@@ -3385,6 +3385,16 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
+type getCouponsByUserResponse {
+  records: [Coupon]!
+  maxRecords: Int
+}
+
+input getCouponsByUserInput {
+  page: Int
+  size: Int
+}
+
 input getOneCouponDetailsInput {
   _id: ObjectId!
 }
@@ -3438,10 +3448,6 @@ type categoriesDetailsArryaType {
 type brandDeatailsArryaType {
   _id: ObjectId
   brandName: String
-}
-
-input getCouponsByUserInput {
-  userId: ObjectId
 }
 
 input Categoryvalid {

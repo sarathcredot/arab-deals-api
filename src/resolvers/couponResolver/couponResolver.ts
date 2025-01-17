@@ -2483,7 +2483,7 @@ export const couponResolver: Resolvers = {
 
 
    // get coupons by user in web 
-    getCouponsByUser: async (parent, { }, { req }, info) => {
+    getCouponsByUser: async (parent, {input }, { req }, info) => {
 
       // user verfy
 
@@ -2491,9 +2491,16 @@ export const couponResolver: Resolvers = {
 
 
       try {
+        
+           const options={
 
+            userid:req.authAccount._id,
+            page:input?.page || 0,
+            size:input?.size || 10
 
-        const result = await couponService.getCouponsByUser(req.authAccount._id)
+           }
+
+        const result = await couponService.getCouponsByUser(options)
 
         console.log("user coupons", result)
 
@@ -2521,13 +2528,15 @@ export const couponResolver: Resolvers = {
 
       await verifyUser(req)
 
+      console.log("user data",req.authAccount._id)
+
 
       try {
 
 
-        const result = await couponService.getCouponsByUser(req.authAccount._id)
+        const result = await couponService.getCouponsByUserMobile(req.authAccount._id)
 
-        console.log("user coupons", result)
+        
 
         return result;
 
