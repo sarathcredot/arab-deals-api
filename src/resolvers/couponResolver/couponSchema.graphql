@@ -3,21 +3,23 @@ scalar Upload
 
 
 type Mutation {
-  # createCouponsByAdmin(input:createCouponsByAdminInput!):CreateCouponsByAdminResponse!
+ 
    adminSuspendTheCupone(input:adminSuspendTheCuponeInput!):adminSuspendTheCuponeResponse!
    adminDeleteTheCoupon(input:adminDeleteTheCouponInput!):adminDeleteTheCouponResponse!
    createCouponsByAdmin(input:CreateCouponsByAdminInput!):CreateCouponsByAdminResponse
-  #  adminSuspendTheCupone(input:adminSuspendTheCuponeInput):adminSuspendTheCuponeResponse!
+  
    editCouponsByAdmin(input:EditCouponsByAdminInput!):CreateCouponsByAdminResponse
    applyCouponByUser(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
    applyCouponByUserInMobile(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
+   removeCoupon:removeCouponResponse!
+   removeCouponInMobile:removeCouponResponse!
 }
 
 
 
 type Query{
       getAllCoupenToAdmin(input:getAllCoupenToAdminInput!):getAllCoupenToAdminResponse!
-      getCouponsByUser:[Coupon]!
+      getCouponsByUser(input:getCouponsByUserInput!):getCouponsByUserResponse!
       getCouponsByUserMobile:[Coupon]!
       getOneCouponDetails(input:getOneCouponDetailsInput):getOneCouponDetailsRespons!
 
@@ -25,10 +27,35 @@ type Query{
 }
 
 
+type getCouponsByUserResponse{
+
+       records:[Coupon]!,
+       maxRecords:Int
+
+}
+
+input getCouponsByUserInput{
+     
+     
+      page:Int
+      size:Int
+}
+
+
 
 input getOneCouponDetailsInput{
 
      _id:ObjectId!
+}
+
+input removeCouponInput{
+    couponId:ObjectId
+    code:String
+}
+
+type removeCouponResponse{
+  success:Boolean
+  message:String
 }
 
 type getOneCouponDetailsRespons{
@@ -88,10 +115,6 @@ type getOneCouponDetailsRespons{
 
 
 
-input getCouponsByUserInput{
-
-     userId:ObjectId
-}
 
 
 
@@ -191,9 +214,6 @@ input EditCouponsByAdminInput{
 input applyCouponByUserInput{
   couponId:ObjectId
   code:String
-  grandTotal:Float!
-  subTotal:Float!
-  shippingCharge:Float
 }
 
 type CreateCouponsByAdminResponse{
@@ -205,10 +225,6 @@ type CreateCouponsByAdminResponse{
 type ApplyCouponsByAdminResponse{
   success:Boolean
   message:String
-  subtotal: Float,
-  grandTotal: Float,
-  discount: Float,
-  shippingCharge: Float
 }
 
 

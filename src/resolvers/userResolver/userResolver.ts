@@ -1157,8 +1157,10 @@ export const userResolver: Resolvers = {
 
       await verifyUser(req);
       const userId = req.authAccount._id;
+      console.log("input",input)
 
-      const {isDeleted}=input;
+      const isDeleted=input.isDeleted;
+      const deleteReason:string | undefined | null=input?.deleteReason
 
       const user=await userModel.findById(userId);
       if(!user){
@@ -1191,7 +1193,7 @@ export const userResolver: Resolvers = {
 
       // Perform soft delete by updating the isDeleted field
 
-      const updateUser= await userService.accountDeleteByUser(userId,isDeleted);
+      const updateUser= await userService.accountDeleteByUser(userId,isDeleted,deleteReason);
 
       if(!updateUser){  
         throw new GraphQLError('Something Went Wrong!!Account Not Deleted', {
@@ -1214,6 +1216,8 @@ export const userResolver: Resolvers = {
         })
       }
 
+      console.log("updateduser",updateUser)
+
 
       const response = {
          success:true,
@@ -1222,12 +1226,6 @@ export const userResolver: Resolvers = {
       
       return response;
     }
-
-
-
-
-
-
 
 
   },
@@ -1243,12 +1241,14 @@ export const userResolver: Resolvers = {
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
         const isBlocked: Boolean | null = input?.isBlocked ?? null;
+        const isDeleted: Boolean | null = input?.isDeleted ?? null;
         const query: string = input?.query ? input.query.replace(/[^0-9a-zA-Z]/g, ' ') : '';
 
         const options: userService.IUsersOptions = {
           page,
           size,
           isBlocked,
+          isDeleted,
           query
         }
 

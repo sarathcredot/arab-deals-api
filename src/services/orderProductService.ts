@@ -545,6 +545,25 @@ export const getOrderProductsWithFiltersIncludeVendorNew = async (
       },
     },
     {
+      $lookup: {
+        from: collections.ORDERS,
+        localField: "orderId",
+        foreignField: "orderId",
+        as: "orderDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$orderDetails",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        shippingAddress: "$orderDetails.shippingAddress",
+      },
+    },
+    {
       $addFields: {
         vendorName: "$vendor.fullName",
       },
@@ -1588,6 +1607,20 @@ export const getReturnProducts = async (
 
   pipeline.push(
     {
+      $lookup: {
+        from: collections.ORDERS,
+        localField: "orderId",
+        foreignField: "orderId",
+        as: "orderDetails"
+      }
+    },
+    {
+      $unwind: {
+        path: "$orderDetails",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
       $facet: {
         metadata: [
           {
@@ -1692,6 +1725,7 @@ export const getReturnProducts = async (
               returnRejectedDate: 1,
               courierId: 1,
               invoiceNumber: 1,
+              shippingAddress: "$orderDetails.shippingAddress"
             },
           },
         ],
