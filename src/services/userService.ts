@@ -10,6 +10,7 @@ export interface IUser {
   displayName?: string;
   mobileNumber?: string;
   isBlocked?: boolean;
+  isDeleted?: boolean;
   token?: string;
   mobileToken?: string;
 }
@@ -35,6 +36,7 @@ export interface IUsersOptions {
   page: number,
   size: number,
   isBlocked: Boolean | null,
+  isDeleted: Boolean | null,
   query: string
 }
 
@@ -95,6 +97,20 @@ export const getUsersByAdminWithFilters = async (options: IUsersOptions): Promis
       }
     )
   }
+
+  if (options.isDeleted != null) {
+
+    pipeline.push(
+      {
+        $match: {
+          isDeleted: options.isDeleted
+        }
+      }
+    )
+  }
+
+
+
   pipeline.push(
     {
       $facet: {
@@ -160,9 +176,9 @@ export const logoutUser = async (userId: Types.ObjectId): Promise<IUserDocument 
 }
 
 
-export const accountDeleteByUser = async (userId: Types.ObjectId,isDeleted: boolean): Promise<IUserDocument | null> => {
+export const accountDeleteByUser = async (userId: Types.ObjectId,isDeleted: boolean,deleteReason?: string | undefined |null): Promise<IUserDocument | null> => {
   return await userModel.findByIdAndUpdate(userId, 
-    { $set: { isDeleted: isDeleted ,deletedAt: new Date() ,token:""} },
+    { $set: { isDeleted: isDeleted ,deletedAt: new Date() ,token:"",isBlocked:true,mobileNumber:null,deleteReason:deleteReason } },
     { new: true }
   );
 }

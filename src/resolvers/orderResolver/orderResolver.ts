@@ -1,5 +1,6 @@
 import {
   cartService,
+  couponService,
   deliveryAgentService,
   orderProductService,
   orderService,
@@ -22,11 +23,13 @@ import { Types } from "mongoose";
 import moment from "moment";
 import { filePaths } from "../../configs";
 import { GraphQLUpload } from "graphql-upload-ts";
+import { cartModel } from "../../models/cartModel";
 
 export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
     createUserOrder: async (parent, { input }, { req }, info) => {
+      console.log("create user order resolver called");
       await verifyUser(req);
       await validateInput(validators.createOrderValidator, req);
 
@@ -202,6 +205,21 @@ export const orderResolver: Resolvers = {
         console.log(error);
       }
 
+      const userCart=await cartModel.findOne({userId:userId})
+
+      if(userCart?.isCouponApplied){
+        const couponId=userCart?.appliedCoupon
+        if(!couponId) {
+          throw new GraphQLError("Coupon not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+        await couponService.updateUserUsage(userId, couponId)
+      }
+      
       let response = {
         orderId: orderId,
       };

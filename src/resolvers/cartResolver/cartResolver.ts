@@ -5,6 +5,8 @@ import * as validators from "./cartValidator";
 import { GraphQLError } from "graphql";
 import { validateInput, verifyMobileUser, verifyUser } from "../../middlewares";
 import { Types } from "mongoose";
+import { cartModel } from "../../models/cartModel";
+import { couponsModel } from "../../models/couponsModel";
 
 export const cartResolver: Resolvers = {
     Upload: GraphQLUpload,
@@ -19,6 +21,7 @@ export const cartResolver: Resolvers = {
                 const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
 
+                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
 
                 if (!product) {
@@ -47,6 +50,7 @@ export const cartResolver: Resolvers = {
                 }
 
                 const cart = await cartService.checkCartExist(userId)
+
                 if (cart) {
 
                     let itemExist = false;
@@ -63,10 +67,17 @@ export const cartResolver: Resolvers = {
                     }
                     else {
                         await cartService.addItem(productId, userId, quantity);
+
                     }
+
+                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null}, { new: true });
+
                 } else {
                     try {
-                        await cartService.createCart(input.productId, userId, quantity);
+                        const shippingCharge = shippingConfig?.shippingCharge || 0; 
+                        const subTotal = product.sellingPrice * quantity;
+                        const grandTotal = subTotal + shippingCharge;
+                        await cartService.createCart(input.productId, userId, quantity,shippingCharge,grandTotal,subTotal);
                     } catch (error) {
                         console.log(error);
                     }
@@ -76,6 +87,7 @@ export const cartResolver: Resolvers = {
                     message: "Items added to cart",
 
                 }
+
                 return response;
             } catch (error) {
                 console.log(error);
@@ -91,6 +103,7 @@ export const cartResolver: Resolvers = {
                 const quantity: number = input.quantity;
                 const userId: Types.ObjectId = req.authAccount._id;
                 const productId: Types.ObjectId = new Types.ObjectId(input.productId);
+                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 
                 const product = await productService.getProductWithFilters({ _id: productId }, {}, {});
 
@@ -137,9 +150,14 @@ export const cartResolver: Resolvers = {
                     else {
                         await cartService.addItem(productId, userId, quantity);
                     }
+
+                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null}, { new: true });
                 } else {
                     try {
-                        await cartService.createCart(input.productId, userId, quantity);
+                        const shippingCharge = shippingConfig?.shippingCharge || 0; 
+                        const subTotal = product.sellingPrice * quantity;
+                        const grandTotal = subTotal + shippingCharge;
+                        await cartService.createCart(input.productId, userId, quantity,shippingCharge,grandTotal,subTotal);
                     } catch (error) {
                         console.log(error);
                     }
@@ -155,6 +173,8 @@ export const cartResolver: Resolvers = {
                 throw error;
             }
         },
+
+
         bulkAddToCart: async (parent, { input }, { req }, info) => {
 
             try {
@@ -206,6 +226,8 @@ export const cartResolver: Resolvers = {
             }
 
         },
+
+
         bulkAddToCartInMobile: async (parent, { input }, { req }, info) => {
             try {
                 await verifyMobileUser(req);
@@ -293,6 +315,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null }, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -358,6 +381,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null}, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -431,6 +455,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null}, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -500,6 +525,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null}, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -534,23 +560,24 @@ export const cartResolver: Resolvers = {
                 await verifyUser(req);
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
                 const cart = await cartService.getCart(userId);
+
+                console.log(userId)
+
+                console.log("cart: ", cart);
                 const user_Id = userId;
 
-                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+                // const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 
-                if (!shippingConfig) {
-                    throw new GraphQLError("Settings not found", {
-                        extensions: {
-                            code: "INTERNAL_SERVER_ERROR",
-                            errors: [],
-                        },
-                    });
-                }
+                // if (!shippingConfig) {
+                //     throw new GraphQLError("Settings not found", {
+                //         extensions: {
+                //             code: "INTERNAL_SERVER_ERROR",
+                //             errors: [],
+                //         },
+                //     });
+                // }
 
-                let subTotal = 0;
-                let grandTotal = 0;
-                let discount = 0;
-                let deliveryCharge = shippingConfig.shippingCharge || 0;
+
                 let validList = [];
                 let updateList = [];
 
@@ -571,7 +598,7 @@ export const cartResolver: Resolvers = {
                             product.quantity = product.stock;
                             updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
                         }
-                        subTotal += product.quantity * product.sellingPrice;
+                        // subTotal += product.quantity * product.sellingPrice;
                         delete product.isBlocked;
                         validList.push({ ...product, image: product.image.fileURL });
                     }
@@ -579,12 +606,31 @@ export const cartResolver: Resolvers = {
                     await Promise.all(updateList);
                 }
 
-                if (subTotal >= shippingConfig.freeShippingThreshold!) {
-                    deliveryCharge = 0;
+                
+                const userCart=await cartService.findUserCart(userId)
+
+                console.log("Usercart",userCart)
+
+                let subTotal = userCart?.subTotal || 0;
+                let grandTotal = userCart?.grandTotal || 0;
+                let discount = userCart?.discount || 0;
+                let deliveryCharge = userCart?.shippingCharge || 0;
+                let isCouponApplied = userCart?.isCouponApplied || false;
+                let appliedCoupon = userCart?.aplliedCoupon || null;
+                let code:string | undefined="";
+
+                if(userCart?.isCouponApplied){
+                    const coupon=await couponsModel.findOne({_id:userCart?.appliedCoupon})
+                    code=coupon?.code
                 }
 
 
-                grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
+                // if (subTotal >= shippingConfig.freeShippingThreshold!) {
+                //     deliveryCharge = 0;
+                // }
+
+
+                // grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
 
 
 
@@ -592,7 +638,11 @@ export const cartResolver: Resolvers = {
                     products: validList,
                     grandTotal,
                     deliveryCharge,
-                    subTotal
+                    subTotal,
+                    discount,
+                    isCouponApplied,
+                    appliedCoupon,
+                    code
                 }
                 return response
             } catch (error) {
@@ -603,26 +653,23 @@ export const cartResolver: Resolvers = {
         },
         getCartInMobile: async (parent, { }, { req }, info) => {
             try {
-                await verifyMobileUser(req);
+                await verifyUser(req);
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
                 const cart = await cartService.getCart(userId);
                 const user_Id = userId;
 
-                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+                // const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
 
-                if (!shippingConfig) {
-                    throw new GraphQLError("Settings not found", {
-                        extensions: {
-                            code: "INTERNAL_SERVER_ERROR",
-                            errors: [],
-                        },
-                    });
-                }
+                // if (!shippingConfig) {
+                //     throw new GraphQLError("Settings not found", {
+                //         extensions: {
+                //             code: "INTERNAL_SERVER_ERROR",
+                //             errors: [],
+                //         },
+                //     });
+                // }
 
-                let subTotal = 0;
-                let grandTotal = 0;
-                let discount = 0;
-                let deliveryCharge = shippingConfig.shippingCharge || 0;
+
                 let validList = [];
                 let updateList = [];
 
@@ -643,20 +690,32 @@ export const cartResolver: Resolvers = {
                             product.quantity = product.stock;
                             updateList.push(cartService.updateQuantity(product.productId, user_Id, product.quantity));
                         }
-                        subTotal += product.quantity * product.sellingPrice;
+                        // subTotal += product.quantity * product.sellingPrice;
                         delete product.isBlocked;
                         validList.push({ ...product, image: product.image.fileURL });
                     }
 
                     await Promise.all(updateList);
                 }
+                const userCart=await cartService.findUserCart(userId)
 
-                if (subTotal >= shippingConfig.freeShippingThreshold!) {
-                    deliveryCharge = 0;
-                }
+                let subTotal = userCart.subTotal || 0;
+                let grandTotal = userCart.grandTotal || 0;
+                let discount = userCart.discount || 0;
+                let deliveryCharge = userCart.shippingCharge || 0;
+                let isCouponApplied = userCart.isCouponApplied || false;
+                let appliedCoupon = userCart.coupon._id || null;
+                let code=userCart.coupon.code || null
+                
+
+               
+
+                // if (subTotal >= shippingConfig.freeShippingThreshold!) {
+                //     deliveryCharge = 0;
+                // }
 
 
-                grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
+                // grandTotal = parseFloat((subTotal + deliveryCharge).toFixed(2));
 
 
 
@@ -664,7 +723,11 @@ export const cartResolver: Resolvers = {
                     products: validList,
                     grandTotal,
                     deliveryCharge,
-                    subTotal
+                    subTotal,
+                    discount,
+                    isCouponApplied,
+                    appliedCoupon,
+                    code
                 }
                 return response
             } catch (error) {
