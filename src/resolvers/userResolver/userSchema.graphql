@@ -34,6 +34,7 @@ type Query{
 
 input accountDeleteByUserInput{
    isDeleted:Boolean!
+   deleteReason:String
 }
 
 type accountDeleteByUserResponse{
@@ -58,6 +59,7 @@ input userFilters{
   page: Int
   size: Int
   isBlocked:Boolean
+  isDeleted:Boolean
   query: String
 }
 
@@ -144,6 +146,7 @@ type user{
   displayName: String
   mobileNumber: String
   isBlocked: Boolean
+  isDeleted:Boolean
 }
 
 type usersResponse {

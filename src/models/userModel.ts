@@ -37,6 +37,9 @@ const userSchema = new Schema(
     deletedAt: {
       type: Date,
     },
+    deleteReason:{
+      type: String
+    },
     token: {
       type: String,
     },
