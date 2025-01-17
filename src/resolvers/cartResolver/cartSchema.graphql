@@ -109,6 +109,10 @@ type getCartResponse{
   grandTotal:Float
   subTotal:Float
   deliveryCharge:Int
+  discount:Float
+  isCouponApplied:Boolean
+  appliedCoupon:ObjectId
+  code:String
 }
 
 type getCartInMobileResponse{
@@ -116,6 +120,10 @@ type getCartInMobileResponse{
   grandTotal:Float
   subTotal:Float
   deliveryCharge:Int
+  discount:Float
+  isCouponApplied:Boolean
+  appliedCoupon:ObjectId
+  code:String
 }
 
 

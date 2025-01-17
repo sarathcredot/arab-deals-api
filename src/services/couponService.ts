@@ -4,6 +4,8 @@ import { collections } from "../configs";
 import { startOfDay, endOfDay } from "date-fns"
 import { orderModel } from "../models/orderModel";
 import { cartModel } from "../models/cartModel";
+import { GraphQLError } from "graphql";
+import { getBestSellingProducts } from "./orderProductService";
 
 
 
@@ -130,35 +132,38 @@ export const findOrderCount = async (userId: Types.ObjectId): Promise<any> => {
 
 //find validbrands
 
-export const findValidBrands = async (userId: Types.ObjectId, couponId: Types.ObjectId, grandTotal: number, subTotal: number, shippingCharge?: number | null): Promise<any> => {
-  const result = await cartModel.aggregate([
-    {
-      $match: {
-        userId: userId
-      }
-    },
-    {
-      $unwind: "$products"
-    },
-    {
-      $lookup: {
-        from: 'products',
-        localField: 'products.productId',
-        foreignField: '_id',
-        as: 'productDetails',
-      },
-    },
-    {
-      $unwind: "$productDetails"
-    },
-    {
-      $project: {
-        brandId: "$productDetails.brandId",
-        categoryId: "$productDetails.categoryId",
-        productId: "$productDetails._id"
-      }
-    }
-  ])
+ export const findValidBrands=async(userId:Types.ObjectId,couponId:Types.ObjectId,grandTotal:number,subTotal:number,shippingCharge?:number | null):Promise<any> =>{
+     const result=await cartModel.aggregate([
+        {
+              $match:{
+                userId:userId
+              }
+            },
+            {
+              $unwind:"$products"
+            },
+            {
+              $lookup: {
+                from: 'products',
+                localField: 'products.productId',
+                foreignField: '_id',
+                as: 'productDetails',
+              },
+            },
+        {
+          $unwind: "$productDetails"
+        },
+        {
+          $project: {
+            brandId: "$productDetails.brandId",
+            categoryId: "$productDetails.categoryId",
+             productId:"$productDetails._id",
+             sellingprice: {
+              $multiply: ["$productDetails.sellingPrice", "$products.quantity"],
+            },
+          }
+        }
+     ])
 
   return result
 }
@@ -192,6 +197,42 @@ export const updateUserUsage = async (userId: Types.ObjectId, couponId: Types.Ob
 
 }
 
+
+ export const findSubTotal = async (userId: Types.ObjectId): Promise<any> => {
+  const result = await cartModel.aggregate([
+    {
+      $match: {
+        userId: userId,
+      },
+    },
+    {
+      $unwind: "$products",
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.productId",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $unwind: "$productDetails",
+    },
+    {
+      $project: {
+        brandId: "$productDetails.brandId",
+        categoryId: "$productDetails.categoryId",
+        productId: "$productDetails._id",
+        sellingprice: {
+          $multiply: ["$productDetails.sellingprice", "$products.quantity"],
+        },
+      },
+    },
+  ]);
+
+  return result;
+};
 
 
 // get all coupon list in admin port

@@ -11,6 +11,8 @@ type Mutation {
    editCouponsByAdmin(input:EditCouponsByAdminInput!):CreateCouponsByAdminResponse
    applyCouponByUser(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
    applyCouponByUserInMobile(input:applyCouponByUserInput!):ApplyCouponsByAdminResponse!
+   removeCoupon:removeCouponResponse!
+   removeCouponInMobile:removeCouponResponse!
 }
 
 
@@ -44,6 +46,16 @@ input getCouponsByUserInput{
 input getOneCouponDetailsInput{
 
      _id:ObjectId!
+}
+
+input removeCouponInput{
+    couponId:ObjectId
+    code:String
+}
+
+type removeCouponResponse{
+  success:Boolean
+  message:String
 }
 
 type getOneCouponDetailsRespons{
@@ -200,12 +212,8 @@ input EditCouponsByAdminInput{
 }
 
 input applyCouponByUserInput{
-  userId:ObjectId!
   couponId:ObjectId
   code:String
-  grandTotal:Float!
-  subTotal:Float!
-  shippingCharge:Float
 }
 
 type CreateCouponsByAdminResponse{
@@ -217,10 +225,6 @@ type CreateCouponsByAdminResponse{
 type ApplyCouponsByAdminResponse{
   success:Boolean
   message:String
-  subtotal: Float,
-  grandTotal: Float,
-  discount: Float,
-  shippingCharge: Float
 }
 
 

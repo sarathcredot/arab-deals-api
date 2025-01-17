@@ -17,7 +17,7 @@ const productSchema = new Schema(
     },
 );
 
-const cartSchema = new Schema(
+const cartSchema = new Schema( 
     {
         products: {
             type: [productSchema],
@@ -27,6 +27,26 @@ const cartSchema = new Schema(
             ref: collections.USERS,
             unique: true
         },
+        grandTotal:{
+            type: Number
+        },
+        subTotal: {
+            type: Number
+        },
+        shippingCharge: {
+            type: Number
+        },
+        discount: {
+            type: Number
+        },
+        isCouponApplied: {
+            type: Boolean,
+            default: false
+        },
+        appliedCoupon: {
+            type: Schema.Types.ObjectId,
+            ref: collections.COUPONS
+        }
     },
 
     {

@@ -37,6 +37,7 @@ type Mutation {
   updateUserProfile(input: updateUserProfileInput!): updateUserProfileResponse!
   updateUserProfileByAdmin(input: UpdateUserProfileByAdminInput!): UpdateUserProfileByAdminResponse!
   logoutUser: UserLogoutResponse!
+  accountDeleteByUser(input: accountDeleteByUserInput!): accountDeleteByUserResponse!
   userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
@@ -52,6 +53,7 @@ type Mutation {
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
   returnUserOrderProduct(input: ReturnUserOrderProductInput!, image: [Upload]): ReturnUserOrderProductResponse!
+  returnUserOrderProductInMob(input: ReturnUserOrderProductInput!, image: [Upload]): ReturnUserOrderProductResponse!
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
@@ -89,6 +91,8 @@ type Mutation {
   editCouponsByAdmin(input: EditCouponsByAdminInput!): CreateCouponsByAdminResponse
   applyCouponByUser(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
   applyCouponByUserInMobile(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
+  removeCoupon: removeCouponResponse!
+  removeCouponInMobile: removeCouponResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
@@ -863,6 +867,10 @@ input CreateMobileUserShippingAddressInput {
   apartment: String
   suite: String
   unit: String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
   isDefault: Boolean
 }
 
@@ -898,6 +906,10 @@ input EditMobileUserShippingAddressInput {
   postCode: String
   houseNumber: String
   country: String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
 }
 
 input UserRemoveShippingAddressInput {
@@ -1038,6 +1050,15 @@ type GetMobileUserDefaultShippingAddressResponse {
   houseNumber: String
   country: String
   isDefault: Boolean
+}
+
+input accountDeleteByUserInput {
+  isDeleted: Boolean!
+}
+
+type accountDeleteByUserResponse {
+  success: Boolean
+  message: String
 }
 
 input userLoginOtpInput {
@@ -1990,6 +2011,10 @@ type OrderShippingAddress {
   apartment: String
   suite: String
   unit: String
+  governorateID: String
+  governorate: String
+  village: String
+  villageID: String
 }
 
 type OrderPriceInfo {
@@ -3371,6 +3396,16 @@ input getOneCouponDetailsInput {
   _id: ObjectId!
 }
 
+input removeCouponInput {
+  couponId: ObjectId
+  code: String
+}
+
+type removeCouponResponse {
+  success: Boolean
+  message: String
+}
+
 type getOneCouponDetailsRespons {
   _id: ID
   name: String
@@ -3495,12 +3530,8 @@ input EditCouponsByAdminInput {
 }
 
 input applyCouponByUserInput {
-  userId: ObjectId!
   couponId: ObjectId
   code: String
-  grandTotal: Float!
-  subTotal: Float!
-  shippingCharge: Float
 }
 
 type CreateCouponsByAdminResponse {
@@ -3511,10 +3542,6 @@ type CreateCouponsByAdminResponse {
 type ApplyCouponsByAdminResponse {
   success: Boolean
   message: String
-  subtotal: Float
-  grandTotal: Float
-  discount: Float
-  shippingCharge: Float
 }
 
 input adminSuspendTheCuponeInput {
@@ -4015,6 +4042,10 @@ type getCartResponse {
   grandTotal: Float
   subTotal: Float
   deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  code: String
 }
 
 type getCartInMobileResponse {
@@ -4022,6 +4053,10 @@ type getCartInMobileResponse {
   grandTotal: Float
   subTotal: Float
   deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  code: String
 }
 
 input AddBrandInput {

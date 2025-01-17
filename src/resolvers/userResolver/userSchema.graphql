@@ -9,6 +9,7 @@ scalar ObjectId
   updateUserProfile(input:updateUserProfileInput!):updateUserProfileResponse!
   updateUserProfileByAdmin(input:UpdateUserProfileByAdminInput!):UpdateUserProfileByAdminResponse!
   logoutUser:UserLogoutResponse!
+  accountDeleteByUser(input:accountDeleteByUserInput!):accountDeleteByUserResponse!
 
   # Mobile API
     userLoginOtpInMobile(input: userLoginOtpInMobileInput!): userLoginOtpInMobileResponse!
@@ -30,6 +31,15 @@ type Query{
 }
                   
 # user auth Input
+
+input accountDeleteByUserInput{
+   isDeleted:Boolean!
+}
+
+type accountDeleteByUserResponse{
+  success:Boolean
+  message:String
+}
 
 input userLoginOtpInput {
   mobileNumber: String!
