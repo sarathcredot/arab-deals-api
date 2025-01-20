@@ -2060,7 +2060,7 @@ export const deliveryAgentResolver: Resolvers = {
           villageID:input?.villageID || "",
           governorateID:input?.governorateID || ""
         }
-
+console.log(options, 'INPUT OPTIONS')
         const result = await deliveryAgentService.getDeliveryAgentlistCustomizOrderAssigen(options)
 
         return result
