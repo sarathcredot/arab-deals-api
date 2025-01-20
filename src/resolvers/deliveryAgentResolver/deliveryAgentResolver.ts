@@ -58,6 +58,7 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(input)
       // await verifyAdmin(req);
       await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
+      console.log("Step 1: Input received", input);
 
       let fullName: string = input.fullName;
       let contactNumber: string = input.contactNumber;
@@ -65,33 +66,35 @@ export const deliveryAgentResolver: Resolvers = {
       let password: string = input.password;
       let agentType: string = input.agentType;
       let vendorID: Types.ObjectId = input?.vendorID;
-      let licence: deliveryAgentService.FileData | undefined;
       let governorate: string = input.governorate;
       let village: string = input.village;
       let governorateID: string = input.governorateID;
       let villageID: string = input.villageID;
 
-
-
-
       try {
         // Check if the contact number already exists
+        console.log("Step 2: Querying for existing contact");
         const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
           { contactNumber },
           { _id: 1 },
           { lean: true }
         );
 
-        console.log(existingContact)
+        console.log("Step 3: Query result", existingContact);
 
         if (existingContact) {
+          console.log("Step 4: Contact already exists, throwing error");
           throw new GraphQLError("Contact number already exists", {
             extensions: { code: "BAD_REQUEST" },
           });
 
         }
 
+        console.log("Step 5: Contact does not exist, proceeding to image upload");
 
+        let licence: deliveryAgentService.FileData | undefined;
+
+      
         if (image) {
           try {
 
