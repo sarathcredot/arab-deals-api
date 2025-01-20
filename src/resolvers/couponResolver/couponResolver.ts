@@ -347,8 +347,8 @@ export const couponResolver: Resolvers = {
           const validUser = existingCoupon.validUsers.find(users => users?.user?.toString() === userId.toString());
 
           if (!validUser) {
-            throw new GraphQLError("ith anta allaaa!!!", {
-              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["ithanta allaa !!"] },
+            throw new GraphQLError("This coupon is not valid for you", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["This coupon is not valid for you"] },
             });
           }
         }
@@ -384,7 +384,7 @@ export const couponResolver: Resolvers = {
           const result = await couponService.findOrderCount(userId)
 
           if (existingCoupon.orderCount - 1 !== result) {
-            throw new GraphQLError(`This coupon is only applicable for ${existingCoupon.orderCount} order`, {
+            throw new GraphQLError(`This coupon is only applicable for your ${existingCoupon.orderCount} order`, {
               extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
             });
           }
@@ -439,7 +439,7 @@ export const couponResolver: Resolvers = {
 
 
               if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-                throw new GraphQLError("This coupon is not applicable for this order", {
+                throw new GraphQLError("Order amount is below the required minimum", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
                 });
               }
@@ -488,7 +488,7 @@ export const couponResolver: Resolvers = {
 
 
               if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-                throw new GraphQLError("This coupon is not applicable for this order", {
+                throw new GraphQLError("Order amount is below the required minimum", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
                 });
               }
@@ -537,7 +537,7 @@ export const couponResolver: Resolvers = {
 
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -584,7 +584,7 @@ export const couponResolver: Resolvers = {
 
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -605,7 +605,7 @@ export const couponResolver: Resolvers = {
             // const updatedCoupon = await couponService.updateUserUsage(userId, couponId)
           } else {
             if (existingCoupon.minOrderAmount && subTotal < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum   ", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -677,7 +677,7 @@ export const couponResolver: Resolvers = {
 
 
               if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-                throw new GraphQLError("This coupon is not applicable for this order", {
+                throw new GraphQLError("Order amount is below the required minimum", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
                 });
               }
@@ -757,7 +757,7 @@ export const couponResolver: Resolvers = {
 
 
               if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-                throw new GraphQLError("This coupon is not applicable for this order", {
+                throw new GraphQLError("Order amount is below the required minimum", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
                 });
               }
@@ -838,7 +838,7 @@ export const couponResolver: Resolvers = {
 
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -911,7 +911,7 @@ export const couponResolver: Resolvers = {
 
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -958,7 +958,7 @@ export const couponResolver: Resolvers = {
             let discount_amount = 0;
 
             if (existingCoupon.minOrderAmount && subTotal < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -1043,7 +1043,7 @@ export const couponResolver: Resolvers = {
 
 
               if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-                throw new GraphQLError("This coupon is not applicable for this order", {
+                throw new GraphQLError("Order amount is below the required minimum", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
                 });
               }
@@ -1094,7 +1094,7 @@ export const couponResolver: Resolvers = {
 
 
               if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-                throw new GraphQLError("This coupon is not applicable for this order", {
+                throw new GraphQLError("Order amount is below the required minimum", {
                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
                 });
               }
@@ -1144,7 +1144,7 @@ export const couponResolver: Resolvers = {
 
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -1194,7 +1194,7 @@ export const couponResolver: Resolvers = {
 
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
-              throw new GraphQLError("This coupon is not applicable for this order", {
+              throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
             }
@@ -1217,7 +1217,6 @@ export const couponResolver: Resolvers = {
           } else {
 
             if (existingCoupon.minOrderAmount && grandTotal < existingCoupon.minOrderAmount) {
-              console.log("called")
               throw new GraphQLError("Order amount is below the required minimum", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Order amount is below the required minimum"] },
               });
