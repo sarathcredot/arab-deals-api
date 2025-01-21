@@ -58,4 +58,4 @@ const cartSchema = new Schema(
 
 const cartModel = model(collections.CARTS, cartSchema);
 
-export { cartModel };
+export { cartModel }; 

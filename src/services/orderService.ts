@@ -33,8 +33,11 @@ export interface IOrder {
     shippingAddress?: IShippingAddress;
     orderStatus?: string;
     vendorIds?: Types.ObjectId[];
+    grandTotal: number | null | undefined;
+    shippingCharge:  number | null | undefined;
+    subTotal: number | null | undefined;
+    discount: number | null | undefined;
 }
-
 
 export interface IOrderDocument extends Document {
     _id?: Types.ObjectId;

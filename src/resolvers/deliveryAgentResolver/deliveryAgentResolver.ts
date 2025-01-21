@@ -58,8 +58,7 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(input)
       // await verifyAdmin(req);
       await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
-      console.log("Step 1: Input received", input);
-
+    
       let fullName: string = input.fullName;
       let contactNumber: string = input.contactNumber;
       let userID: string = input.userID;
@@ -73,28 +72,9 @@ export const deliveryAgentResolver: Resolvers = {
 
       try {
         // Check if the contact number already exists
-        console.log("Step 2: Querying for existing contact");
-        const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
-          { contactNumber },
-          { _id: 1 },
-          { lean: true }
-        );
-
-        console.log("Step 3: Query result", existingContact);
-
-        if (existingContact) {
-          console.log("Step 4: Contact already exists, throwing error");
-          throw new GraphQLError("Contact number already exists", {
-            extensions: { code: "BAD_REQUEST" },
-          });
-
-        }
-
-        console.log("Step 5: Contact does not exist, proceeding to image upload");
-
+       
         let licence: deliveryAgentService.FileData | undefined;
 
-      
         if (image) {
           try {
 
@@ -121,6 +101,22 @@ export const deliveryAgentResolver: Resolvers = {
           throw new GraphQLError("License not found", {
             extensions: { code: "BAD_REQUEST" },
           });
+        }
+
+        const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { contactNumber },
+          { _id: 1 },
+          { lean: true }
+        );
+
+      
+
+        if (existingContact) {
+       
+          throw new GraphQLError("Contact number already exists", {
+            extensions: { code: "BAD_REQUEST" },
+          });
+
         }
 
         const ID = uuidv4();
@@ -160,6 +156,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
+    
 
     // delivery agent suspension from admin side
     suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
