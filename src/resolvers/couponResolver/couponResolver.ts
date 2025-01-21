@@ -13,8 +13,6 @@ import { userModel } from '../../models/userModel'
 import { productModel } from "../../models/proudctModel";
 
 
-
-
 export const couponResolver: Resolvers = {
 
 
@@ -1264,7 +1262,6 @@ export const couponResolver: Resolvers = {
 
 
     //apply coupon by user in mobile
-
     applyCouponByUserInMobile: async (parent, { input }, { req }, info) => {
       try {
 
@@ -2372,7 +2369,6 @@ export const couponResolver: Resolvers = {
       }
     }
 
-
   },
 
 
@@ -2527,7 +2523,6 @@ export const couponResolver: Resolvers = {
 
 
     // get coupons by user in mobile
-
     getCouponsByUserMobile: async (parent, { }, { req }, info) => {
 
       // user verfy
