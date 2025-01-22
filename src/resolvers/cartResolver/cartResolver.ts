@@ -656,7 +656,7 @@ export const cartResolver: Resolvers = {
         getCartInMobile: async (parent, { }, { req }, info) => {
             try {
                 await verifyUser(req);
-                const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
+                const userId: Types.ObjectId = new Types.ObjectId(req?.authAccount?._id)
                 const cart = await cartService.getCart(userId);
                 const user_Id = userId;
 
