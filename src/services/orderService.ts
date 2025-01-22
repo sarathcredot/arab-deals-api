@@ -32,14 +32,18 @@ export interface IShippingAddress {
 }
 
 export interface IOrder {
-  _id?: Types.ObjectId;
-  userId?: Types.ObjectId;
-  orderId?: string;
-  paymentMode?: string;
-  orderDate?: Date;
-  shippingAddress?: IShippingAddress;
-  orderStatus?: string;
-  vendorIds?: Types.ObjectId[];
+    _id?: Types.ObjectId;
+    userId?: Types.ObjectId;
+    orderId?: string;
+    paymentMode?: string;
+    orderDate?: Date;
+    shippingAddress?: IShippingAddress;
+    orderStatus?: string;
+    vendorIds?: Types.ObjectId[];
+    grandTotal: number | null | undefined;
+    shippingCharge:  number | null | undefined;
+    subTotal: number | null | undefined;
+    discount: number | null | undefined;
 }
 
 export interface IOrderDocument extends Document {

@@ -166,14 +166,16 @@ export const orderResolver: Resolvers = {
         (calculatedSellingPrice + calculatedShippingCharge).toFixed(2)
       );
 
-      if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
-        throw new GraphQLError("Cart changed, order failed", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: [],
-          },
-        });
-      }
+      // if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
+      //   throw new GraphQLError("Cart changed, order failed", {
+      //     extensions: {
+      //       code: "BAD_REQUEST",
+      //       errors: [],
+      //     },
+      //   });
+      // }
+
+      const userCart=await cartModel.findOne({userId:userId})
 
       const order: orderService.IOrder = {
         userId: userId,
@@ -183,6 +185,10 @@ export const orderResolver: Resolvers = {
         shippingAddress: shippingAddress,
         orderStatus: "PENDING",
         vendorIds: vendorIds,
+        grandTotal: userCart?.grandTotal,
+        shippingCharge: userCart?.shippingCharge,
+        subTotal: userCart?.subTotal,
+        discount: userCart?.discount
       };
       await Promise.all([
         orderService.createOrder(order),
@@ -204,8 +210,6 @@ export const orderResolver: Resolvers = {
       } catch (error) {
         console.log(error);
       }
-
-      const userCart=await cartModel.findOne({userId:userId})
 
       if(userCart?.isCouponApplied){
         const couponId=userCart?.appliedCoupon
@@ -363,14 +367,16 @@ export const orderResolver: Resolvers = {
         (calculatedSellingPrice + calculatedShippingCharge).toFixed(2)
       );
 
-      if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
-        throw new GraphQLError("Cart changed, order failed", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: [],
-          },
-        });
-      }
+      // if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
+      //   throw new GraphQLError("Cart changed, order failed", {
+      //     extensions: {
+      //       code: "BAD_REQUEST",
+      //       errors: [],
+      //     },
+      //   });
+      // }
+
+      const userCart=await cartModel.findOne({userId:userId})
 
       const order: orderService.IOrder = {
         userId: userId,
@@ -380,6 +386,10 @@ export const orderResolver: Resolvers = {
         shippingAddress: shippingAddress,
         orderStatus: "PENDING",
         vendorIds: vendorIds,
+        grandTotal: userCart?.grandTotal,
+        shippingCharge: userCart?.shippingCharge,
+        subTotal: userCart?.subTotal,
+        discount: userCart?.discount
       };
       await Promise.all([
         orderService.createOrder(order),
@@ -401,6 +411,20 @@ export const orderResolver: Resolvers = {
       } catch (error) {
         console.log(error);
       }
+
+      if(userCart?.isCouponApplied){
+        const couponId=userCart?.appliedCoupon
+        if(!couponId) {
+          throw new GraphQLError("Coupon not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+        await couponService.updateUserUsage(userId, couponId)
+      }
+      
 
       let response = {
         orderId: orderId,
