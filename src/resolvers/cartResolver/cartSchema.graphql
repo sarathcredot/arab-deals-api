@@ -112,6 +112,7 @@ type getCartResponse{
   discount:Float
   isCouponApplied:Boolean
   appliedCoupon:ObjectId
+  appliedProducts:[ObjectId]
   code:String
 }
 
