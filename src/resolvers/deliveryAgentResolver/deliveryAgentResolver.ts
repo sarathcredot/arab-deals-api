@@ -58,39 +58,22 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(input)
       // await verifyAdmin(req);
       await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
-
+    
       let fullName: string = input.fullName;
       let contactNumber: string = input.contactNumber;
       let userID: string = input.userID;
       let password: string = input.password;
       let agentType: string = input.agentType;
       let vendorID: Types.ObjectId = input?.vendorID;
-      let licence: deliveryAgentService.FileData | undefined;
       let governorate: string = input.governorate;
       let village: string = input.village;
       let governorateID: string = input.governorateID;
       let villageID: string = input.villageID;
 
-
-
-
       try {
         // Check if the contact number already exists
-        const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
-          { contactNumber },
-          { _id: 1 },
-          { lean: true }
-        );
-
-        console.log(existingContact)
-
-        if (existingContact) {
-          throw new GraphQLError("Contact number already exists", {
-            extensions: { code: "BAD_REQUEST" },
-          });
-
-        }
-
+       
+        let licence: deliveryAgentService.FileData | undefined;
 
         if (image) {
           try {
@@ -118,6 +101,22 @@ export const deliveryAgentResolver: Resolvers = {
           throw new GraphQLError("License not found", {
             extensions: { code: "BAD_REQUEST" },
           });
+        }
+
+        const existingContact = await deliveryAgentService.findDeliveryAgentWithFilters(
+          { contactNumber },
+          { _id: 1 },
+          { lean: true }
+        );
+
+      
+
+        if (existingContact) {
+       
+          throw new GraphQLError("Contact number already exists", {
+            extensions: { code: "BAD_REQUEST" },
+          });
+
         }
 
         const ID = uuidv4();
@@ -157,6 +156,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
+    
 
     // delivery agent suspension from admin side
     suspendDeliveryAgent: async (parent, { input }, { req }, info) => {

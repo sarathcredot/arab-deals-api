@@ -1252,6 +1252,8 @@ export const userResolver: Resolvers = {
           query
         }
 
+        
+
         const result = await userService.getUsersByAdminWithFilters(options);
 
         const response = {

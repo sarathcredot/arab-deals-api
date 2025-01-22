@@ -616,7 +616,7 @@ export const cartResolver: Resolvers = {
                 let discount = userCart?.discount || 0;
                 let deliveryCharge = userCart?.shippingCharge || 0;
                 let isCouponApplied = userCart?.isCouponApplied || false;
-                let appliedCoupon = userCart?.aplliedCoupon || null;
+                let appliedCoupon = userCart?.appliedCoupon || null;
                 let code:string | undefined="";
 
                 if(userCart?.isCouponApplied){
