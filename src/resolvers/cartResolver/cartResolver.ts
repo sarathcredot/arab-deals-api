@@ -654,7 +654,7 @@ export const cartResolver: Resolvers = {
         getCartInMobile: async (parent, { }, { req }, info) => {
             try {
                 await verifyUser(req);
-                const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
+                const userId: Types.ObjectId = new Types.ObjectId(req?.authAccount?._id)
                 const cart = await cartService.getCart(userId);
                 const user_Id = userId;
 
@@ -699,13 +699,13 @@ export const cartResolver: Resolvers = {
                 }
                 const userCart=await cartService.findUserCart(userId)
 
-                let subTotal = userCart.subTotal || 0;
-                let grandTotal = userCart.grandTotal || 0;
-                let discount = userCart.discount || 0;
-                let deliveryCharge = userCart.shippingCharge || 0;
-                let isCouponApplied = userCart.isCouponApplied || false;
-                let appliedCoupon = userCart.coupon._id || null;
-                let code=userCart.coupon.code || null
+                let subTotal = userCart?.subTotal || 0;
+                let grandTotal = userCart?.grandTotal || 0;
+                let discount = userCart?.discount || 0;
+                let deliveryCharge = userCart?.shippingCharge || 0;
+                let isCouponApplied = userCart?.isCouponApplied || false;
+                let appliedCoupon = userCart?.coupon?._id || null;
+                let code=userCart?.coupon?.code || null
                 
 
                

@@ -121,6 +121,7 @@ export const createUserJWT = (id: string): Promise<string> => {
 export const verifyUserJWT = (token: string): JwtPayload => {
     return new Promise((resolve, reject) => {
         try {
+
             const decoded = jwt.verify(token, userSecretKey, { ignoreExpiration: true });
 
             resolve(decoded);
