@@ -1915,6 +1915,20 @@ export const getVendorReturnProducts = async (
       },
     },
     {
+      $lookup: {
+        from: collections.ORDERS,
+        localField: "orderId",
+        foreignField: "orderId",
+        as: "orderDetails"
+      }
+    },
+    {
+      $unwind: {
+        path: "$orderDetails",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
       $facet: {
         metadata: [
           {
@@ -2019,6 +2033,7 @@ export const getVendorReturnProducts = async (
               returnRejectedDate: 1,
               courierId: 1,
               invoiceNumber: 1,
+              shippingAddress: "$orderDetails.shippingAddress"
             },
           },
         ],

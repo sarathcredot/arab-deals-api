@@ -70,7 +70,7 @@ export const cartResolver: Resolvers = {
 
                     }
 
-                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null}, { new: true });
+                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null,appliedProducts:null}, { new: true });
 
                 } else {
                     try {
@@ -151,7 +151,7 @@ export const cartResolver: Resolvers = {
                         await cartService.addItem(productId, userId, quantity);
                     }
 
-                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null}, { new: true });
+                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null,appliedProducts:null}, { new: true });
                 } else {
                     try {
                         const shippingCharge = shippingConfig?.shippingCharge || 0; 
@@ -315,7 +315,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null }, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null ,appliedProducts:null}, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -381,7 +381,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null}, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null,appliedProducts:null}, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -455,7 +455,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null}, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null,appliedProducts:null}, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -525,7 +525,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null}, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null,appliedProducts:null}, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -616,7 +616,8 @@ export const cartResolver: Resolvers = {
                 let discount = userCart?.discount || 0;
                 let deliveryCharge = userCart?.shippingCharge || 0;
                 let isCouponApplied = userCart?.isCouponApplied || false;
-                let appliedCoupon = userCart?.aplliedCoupon || null;
+                let appliedCoupon = userCart?.appliedCoupon || null;
+                let appliedProducts = userCart?.appliedProducts || null;
                 let code:string | undefined="";
 
                 if(userCart?.isCouponApplied){
@@ -642,6 +643,7 @@ export const cartResolver: Resolvers = {
                     discount,
                     isCouponApplied,
                     appliedCoupon,
+                    appliedProducts,
                     code
                 }
                 return response
@@ -654,7 +656,7 @@ export const cartResolver: Resolvers = {
         getCartInMobile: async (parent, { }, { req }, info) => {
             try {
                 await verifyUser(req);
-                const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id)
+                const userId: Types.ObjectId = new Types.ObjectId(req?.authAccount?._id)
                 const cart = await cartService.getCart(userId);
                 const user_Id = userId;
 
@@ -705,6 +707,7 @@ export const cartResolver: Resolvers = {
                 let deliveryCharge = userCart.shippingCharge || 0;
                 let isCouponApplied = userCart.isCouponApplied || false;
                 let appliedCoupon = userCart.coupon._id || null;
+                let appliedProducts = userCart.appliedProducts || null;
                 let code=userCart.coupon.code || null
                 
 
@@ -727,6 +730,7 @@ export const cartResolver: Resolvers = {
                     discount,
                     isCouponApplied,
                     appliedCoupon,
+                    appliedProducts,
                     code
                 }
                 return response

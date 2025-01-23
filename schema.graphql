@@ -132,6 +132,7 @@ type Query {
   getMobileWishListProducts: GetMobileWishListProductsResponse!
   getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
+  getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
   getVendorRecordByVendor: VendorsRecordByVendorResponse!
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
@@ -2205,6 +2206,7 @@ type VendorOrderProduct {
   username: String
   deliveryAgentId: ObjectId
   deliveryAgentName: String
+  shippingAddress: OrderShippingAddress
 }
 
 type GetAdminOrdersResponse {
@@ -4049,6 +4051,7 @@ type getCartResponse {
   discount: Float
   isCouponApplied: Boolean
   appliedCoupon: ObjectId
+  appliedProducts: [ObjectId]
   code: String
 }
 

@@ -6,6 +6,7 @@ import { orderModel } from "../models/orderModel";
 import { cartModel } from "../models/cartModel";
 import { GraphQLError } from "graphql";
 import { getBestSellingProducts } from "./orderProductService";
+import { quartersInYear } from "date-fns/constants";
 
 
 
@@ -158,6 +159,8 @@ export const findOrderCount = async (userId: Types.ObjectId): Promise<any> => {
             brandId: "$productDetails.brandId",
             categoryId: "$productDetails.categoryId",
              productId:"$productDetails._id",
+             price:"$productDetails.sellingPrice",
+             quantity:"$products.quantity",
              sellingprice: {
               $multiply: ["$productDetails.sellingPrice", "$products.quantity"],
             },

@@ -121,6 +121,29 @@ export const orderResolver: Resolvers = {
         calculatedSellingPrice += product.quantity * product.sellingPrice;
       }
 
+      const userCart=await cartModel.findOne({userId:userId})
+
+      let appliedProducts:Types.ObjectId[] | null |undefined=userCart?.appliedProducts  
+
+      let totalDiscountPrice: number | undefined | null = 0;
+
+      appliedProducts?.forEach((id) => {
+        const product = cartItems.find((item) => item.productId.toString() === id.toString());
+        if (product) {
+         totalDiscountPrice =(totalDiscountPrice || 0) + product.sellingPrice
+        }
+      });
+      
+
+      const appliedProductCounts: Record<string, number> = {};
+
+      appliedProducts?.forEach((id) => {
+        const key = id.toString(); // Ensure consistent key format
+        appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
+      });
+
+      
+
       const products: orderProductService.IOrderProduct[] = [];
 
       let itemCount = 0;
@@ -128,6 +151,16 @@ export const orderResolver: Resolvers = {
       cartItems.forEach((product, index) => {
         for (let i = 0; i < product.quantity; i++) {
           itemCount++;
+          const productIdKey = product.productId.toString();
+          const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+          let discountSellingPrice ;
+          if (isDiscounted) {
+            // Decrease the count of the product ID in the appliedProductCounts map
+            let actualSellingPrice=product.sellingPrice
+            discountSellingPrice =  Math.round((actualSellingPrice/(totalDiscountPrice || 0))*(userCart?.discount || 0))
+            appliedProductCounts[productIdKey]--;
+          }
+
           products.push({
             userId: userId,
             productId: product.productId,
@@ -145,7 +178,7 @@ export const orderResolver: Resolvers = {
             },
             returnPeriod: shippingConfig.returnPeriod || 0,
             mrp: product.mrp,
-            sellingPrice: product.sellingPrice,
+            sellingPrice: isDiscounted ? product.sellingPrice - (discountSellingPrice ?? 0) : product.sellingPrice,
             shippingCharge: 0,
             paymentMode: paymentMode,
             paymentStatus: "PENDING",
@@ -166,14 +199,15 @@ export const orderResolver: Resolvers = {
         (calculatedSellingPrice + calculatedShippingCharge).toFixed(2)
       );
 
-      if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
-        throw new GraphQLError("Cart changed, order failed", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: [],
-          },
-        });
-      }
+      // if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
+      //   throw new GraphQLError("Cart changed, order failed", {
+      //     extensions: {
+      //       code: "BAD_REQUEST",
+      //       errors: [],
+      //     },
+      //   });
+      // }
+
 
       const order: orderService.IOrder = {
         userId: userId,
@@ -183,6 +217,10 @@ export const orderResolver: Resolvers = {
         shippingAddress: shippingAddress,
         orderStatus: "PENDING",
         vendorIds: vendorIds,
+        grandTotal: userCart?.grandTotal,
+        shippingCharge: userCart?.shippingCharge,
+        subTotal: userCart?.subTotal,
+        discount: userCart?.discount
       };
       await Promise.all([
         orderService.createOrder(order),
@@ -204,8 +242,6 @@ export const orderResolver: Resolvers = {
       } catch (error) {
         console.log(error);
       }
-
-      const userCart=await cartModel.findOne({userId:userId})
 
       if(userCart?.isCouponApplied){
         const couponId=userCart?.appliedCoupon
@@ -363,14 +399,16 @@ export const orderResolver: Resolvers = {
         (calculatedSellingPrice + calculatedShippingCharge).toFixed(2)
       );
 
-      if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
-        throw new GraphQLError("Cart changed, order failed", {
-          extensions: {
-            code: "BAD_REQUEST",
-            errors: [],
-          },
-        });
-      }
+      // if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
+      //   throw new GraphQLError("Cart changed, order failed", {
+      //     extensions: {
+      //       code: "BAD_REQUEST",
+      //       errors: [],
+      //     },
+      //   });
+      // }
+
+      const userCart=await cartModel.findOne({userId:userId})
 
       const order: orderService.IOrder = {
         userId: userId,
@@ -380,6 +418,10 @@ export const orderResolver: Resolvers = {
         shippingAddress: shippingAddress,
         orderStatus: "PENDING",
         vendorIds: vendorIds,
+        grandTotal: userCart?.grandTotal,
+        shippingCharge: userCart?.shippingCharge,
+        subTotal: userCart?.subTotal,
+        discount: userCart?.discount
       };
       await Promise.all([
         orderService.createOrder(order),
@@ -401,6 +443,20 @@ export const orderResolver: Resolvers = {
       } catch (error) {
         console.log(error);
       }
+
+      if(userCart?.isCouponApplied){
+        const couponId=userCart?.appliedCoupon
+        if(!couponId) {
+          throw new GraphQLError("Coupon not found", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+        await couponService.updateUserUsage(userId, couponId)
+      }
+      
 
       let response = {
         orderId: orderId,
@@ -669,7 +725,6 @@ export const orderResolver: Resolvers = {
       return response;
     },
 
-
     //API for return request from user
     returnUserOrderProduct: async (parent, { input, image }, { req }, info) => {
       //add product image and return address
@@ -820,7 +875,6 @@ export const orderResolver: Resolvers = {
       return response;
     },
 
-
     returnUserOrderProductInMob:async (parent, { input, image }, { req }, info) => {
       //add product image and return address
       console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
@@ -969,7 +1023,6 @@ export const orderResolver: Resolvers = {
 
       return response;
     },
-
 
     returnUserOrderProductInMobile: async (
       parent,

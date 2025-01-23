@@ -116,10 +116,18 @@ const orderSchema = new Schema(
             ],
             default: []
         },
-
-        
-       
-
+        grandTotal:{
+            type: Number
+        },
+        subTotal: {
+            type: Number
+        },
+        shippingCharge: {
+            type: Number
+        },
+        discount: {
+            type: Number
+        },
     },
     {
         _id: true,
