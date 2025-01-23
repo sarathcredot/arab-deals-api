@@ -33,11 +33,13 @@ export interface IAuthUtilityProjection {
 
 export const generateOtp = async function (): Promise<IOtpFile> {
 
-  const otp = otpGenerator.generate(5, {
-    lowerCaseAlphabets: false,
-    upperCaseAlphabets: false,
-    specialChars: false,
-  });
+  // const otp = otpGenerator.generate(5, {
+  //   lowerCaseAlphabets: false,
+  //   upperCaseAlphabets: false,
+  //   specialChars: false,
+  // });
+
+  const otp=12345
 
   const expiresAt = moment().add(5, "minutes");
 
