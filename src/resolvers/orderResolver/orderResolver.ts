@@ -123,15 +123,17 @@ export const orderResolver: Resolvers = {
 
       const userCart=await cartModel.findOne({userId:userId})
 
-      let appliedProducts:Types.ObjectId[] | null |undefined=userCart?.appliedProducts
-      let discountSellingPrice: number | undefined;
+      let appliedProducts:Types.ObjectId[] | null |undefined=userCart?.appliedProducts  
 
-      if (appliedProducts?.length) {
-        discountSellingPrice = userCart?.discount ? userCart.discount / appliedProducts.length : 0;
-      } else {
-        // Handle the case where there are no applied products
-        discountSellingPrice = undefined; // Or assign a default value if needed
-      }
+      let totalDiscountPrice: number | undefined | null = 0;
+
+      appliedProducts?.forEach((id) => {
+        const product = cartItems.find((item) => item.productId.toString() === id.toString());
+        if (product) {
+         totalDiscountPrice =(totalDiscountPrice || 0) + product.sellingPrice
+        }
+      });
+      
 
       const appliedProductCounts: Record<string, number> = {};
 
@@ -149,14 +151,13 @@ export const orderResolver: Resolvers = {
       cartItems.forEach((product, index) => {
         for (let i = 0; i < product.quantity; i++) {
           itemCount++;
-
-
           const productIdKey = product.productId.toString();
-          const isDiscounted =
-            appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
-      
+          const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+          let discountSellingPrice ;
           if (isDiscounted) {
             // Decrease the count of the product ID in the appliedProductCounts map
+            let actualSellingPrice=product.sellingPrice
+            discountSellingPrice =  Math.round((actualSellingPrice/(totalDiscountPrice || 0))*(userCart?.discount || 0))
             appliedProductCounts[productIdKey]--;
           }
 
