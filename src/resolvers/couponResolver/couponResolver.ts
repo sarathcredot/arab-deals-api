@@ -396,7 +396,6 @@ export const couponResolver: Resolvers = {
           }
         }
 
-
         //calculate grand total/subtotal/shipping charge 
        
         // const subTotal=await couponService.findSubTotal(userId)
@@ -1790,8 +1789,6 @@ export const couponResolver: Resolvers = {
 
         }
 
-
-
         return {
           success: true,
           message: "Coupon applied successfully.",
@@ -3098,14 +3095,7 @@ export const couponResolver: Resolvers = {
       }
     },
 
-
-
-
-
   },
-
-
-
 
 
 }

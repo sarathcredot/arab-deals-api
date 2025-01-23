@@ -121,6 +121,27 @@ export const orderResolver: Resolvers = {
         calculatedSellingPrice += product.quantity * product.sellingPrice;
       }
 
+      const userCart=await cartModel.findOne({userId:userId})
+
+      let appliedProducts:Types.ObjectId[] | null |undefined=userCart?.appliedProducts
+      let discountSellingPrice: number | undefined;
+
+      if (appliedProducts?.length) {
+        discountSellingPrice = userCart?.discount ? userCart.discount / appliedProducts.length : 0;
+      } else {
+        // Handle the case where there are no applied products
+        discountSellingPrice = undefined; // Or assign a default value if needed
+      }
+
+      const appliedProductCounts: Record<string, number> = {};
+
+      appliedProducts?.forEach((id) => {
+        const key = id.toString(); // Ensure consistent key format
+        appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
+      });
+
+      
+
       const products: orderProductService.IOrderProduct[] = [];
 
       let itemCount = 0;
@@ -128,6 +149,17 @@ export const orderResolver: Resolvers = {
       cartItems.forEach((product, index) => {
         for (let i = 0; i < product.quantity; i++) {
           itemCount++;
+
+
+          const productIdKey = product.productId.toString();
+          const isDiscounted =
+            appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+      
+          if (isDiscounted) {
+            // Decrease the count of the product ID in the appliedProductCounts map
+            appliedProductCounts[productIdKey]--;
+          }
+
           products.push({
             userId: userId,
             productId: product.productId,
@@ -145,7 +177,7 @@ export const orderResolver: Resolvers = {
             },
             returnPeriod: shippingConfig.returnPeriod || 0,
             mrp: product.mrp,
-            sellingPrice: product.sellingPrice,
+            sellingPrice: isDiscounted ? product.sellingPrice - (discountSellingPrice ?? 0) : product.sellingPrice,
             shippingCharge: 0,
             paymentMode: paymentMode,
             paymentStatus: "PENDING",
@@ -175,7 +207,6 @@ export const orderResolver: Resolvers = {
       //   });
       // }
 
-      const userCart=await cartModel.findOne({userId:userId})
 
       const order: orderService.IOrder = {
         userId: userId,

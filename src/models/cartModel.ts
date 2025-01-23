@@ -47,10 +47,12 @@ const cartSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: collections.COUPONS
         },
-        appliedProducts:{
-            type:[Types.ObjectId],
-            ref: collections.PRODUCTS    
-      }
+        appliedProducts:[
+            {
+                type: Schema.Types.ObjectId,
+                ref: collections.PRODUCTS
+            }
+        ]
     },
 
     {
