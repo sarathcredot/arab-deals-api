@@ -46,7 +46,13 @@ const cartSchema = new Schema(
         appliedCoupon: {
             type: Schema.Types.ObjectId,
             ref: collections.COUPONS
-        }
+        },
+        appliedProducts:[
+            {
+                type: Schema.Types.ObjectId,
+                ref: collections.PRODUCTS
+            }
+        ]
     },
 
     {

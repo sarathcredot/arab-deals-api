@@ -1546,8 +1546,11 @@ export const productResolver: Resolvers = {
                 const query: string = (input.query.replace(/[^0-9a-zA-Z]/g, ' ')).trim().toLowerCase();
                 let suggestions: productService.IProductSuggestion[] = [];
 
+                console.log(query,'SEARCH QUERY');
+
                 if (query) {
                     suggestions = await productService.getProductsAutoComplete(query);
+                    console.log(suggestions, 'SUGGESTIONS')
                 }
 
                 let response = {
