@@ -1578,27 +1578,17 @@ export const deliveryAgentResolver: Resolvers = {
           settlement: input?.settlement
         }
         console.log(options);
-
         const result = await deliveryAgentService.viewAllDeliveryAgents(options)
-
         console.log("result = ", result)
-
         return result
-
       } catch (error) {
-
         throw new GraphQLError("Unable find all delivery agents", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
           },
         });
-
-
-
       }
-
-
     },
 
     //get all settlement history by admin

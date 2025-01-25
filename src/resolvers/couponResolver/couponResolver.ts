@@ -1175,7 +1175,7 @@ export const couponResolver: Resolvers = {
 
 
             for (const item of matchingCategories) {
-              product_sum += item.sellingPrice;
+              product_sum += item.sellingprice;
             }
 
 
@@ -1293,14 +1293,20 @@ export const couponResolver: Resolvers = {
 
           } else if (existingCoupon.validProducts.length !== 0) {
             //write logic here
+            console.log("called")
 
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+            console.log("result", result)
 
             const matchingProducts = result.filter((item: any) =>
               existingCoupon.validProducts.some((validProducts: any) =>
                 validProducts.product.equals(item.productId)
               )
             );
+
+
+            console.log("matchingProducts",matchingProducts)
 
             if (matchingProducts.length === 0) {
               throw new GraphQLError("This coupon is not applicable for this product", {
@@ -1313,13 +1319,11 @@ export const couponResolver: Resolvers = {
             let discount_amount = 0;
 
 
-
-
             for (const item of matchingProducts) {
-              product_sum += item.sellingPrice;
+              product_sum += item.sellingprice;
             }
 
-
+            console.log("product_sum",product_sum)
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
               throw new GraphQLError("Order amount is below the required minimum", {
