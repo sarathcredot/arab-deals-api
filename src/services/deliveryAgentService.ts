@@ -855,9 +855,10 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
     try {
       let pipeline: any[] = [];
       const active = options.isActive ? JSON.parse(options.isActive) : undefined;
-      const search = options.search?.trim() || ''; // Ensure search is a trimmed string or empty
+      const search = options.search?.trim() || ''; 
       const settlement = options.settlement
       console.log("try catch =", { active, search, settlement })
+
       // Building the base match query
       const matchQuery: any = {};
       if (active !== undefined) matchQuery.isActive = active;
@@ -865,6 +866,7 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
       if (search) matchQuery.fullName = { $regex: search, $options: 'i' };
       if(settlement)matchQuery["wallet.totalSettlement"] = { $gt: 0 };
       console.log("match query = ", matchQuery);
+      
 
       // Count the total number of documents matching the criteria
       dataSize = await deliveryAgentModel.find(matchQuery);
