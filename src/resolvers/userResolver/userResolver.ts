@@ -1132,6 +1132,7 @@ export const userResolver: Resolvers = {
     logoutUser: async (parent, { }, { req }, info) => {
       await verifyUser(req);
       const userId = req.authAccount._id;
+      console.log("logut req",userId)
       await userService.logoutUser(userId);
       const response = {
         _id: userId
@@ -1193,7 +1194,10 @@ export const userResolver: Resolvers = {
 
       // Perform soft delete by updating the isDeleted field
 
+      console.log("update user")
+
       const updateUser= await userService.accountDeleteByUser(userId,isDeleted,deleteReason);
+      console.log("update user",updateUser)
 
       if(!updateUser){  
         throw new GraphQLError('Something Went Wrong!!Account Not Deleted', {
