@@ -2730,7 +2730,7 @@ export const couponResolver: Resolvers = {
 
 
             for (const item of matchingCategories) {
-              product_sum += item.sellingPrice;
+              product_sum += item.sellingprice;
             }
 
 
@@ -2871,7 +2871,7 @@ export const couponResolver: Resolvers = {
 
 
             for (const item of matchingProducts) {
-              product_sum += item.sellingPrice;
+              product_sum += item.sellingprice;
             }
 
 
