@@ -701,14 +701,14 @@ export const cartResolver: Resolvers = {
                 }
                 const userCart=await cartService.findUserCart(userId)
 
-                let subTotal = userCart.subTotal || 0;
-                let grandTotal = userCart.grandTotal || 0;
-                let discount = userCart.discount || 0;
-                let deliveryCharge = userCart.shippingCharge || 0;
-                let isCouponApplied = userCart.isCouponApplied || false;
-                let appliedCoupon = userCart.coupon._id || null;
-                let appliedProducts = userCart.appliedProducts || null;
-                let code=userCart.coupon.code || null
+                let subTotal = userCart?.subTotal || 0;
+                let grandTotal = userCart?.grandTotal || 0;
+                let discount = userCart?.discount || 0;
+                let deliveryCharge = userCart?.shippingCharge || 0;
+                let isCouponApplied = userCart?.isCouponApplied || false;
+                let appliedCoupon = userCart?.coupon?._id || null;
+                let appliedProducts = userCart?.appliedProducts || null;
+                let code=userCart?.coupon?.code || null
                 
 
                
