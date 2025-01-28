@@ -727,38 +727,12 @@ export const getOneCouponDetails = (couponID: Types.ObjectId): Promise<any> => {
     try {
 
       const result = await couponsModel.aggregate([
+
         {
           $match: {
-            _id: couponID
+            _id:couponID
           }
         },
-        // {
-        //   $project: {
-        //     validUsersCount: { $size: { $ifNull: ["$validUsers", []] } },
-        //     validProductsCount: { $size: { $ifNull: ["$validProducts", []] } },
-        //     validCategories:{ $size: { $ifNull: ["$validCategories", []] } },
-        //     validBrands:{ $size: { $ifNull: ["$validBrands", []] } },
-        //     code: 1,
-        //     name: 1,
-        //     description: 1,
-        //     usageLimit: 1,
-        //     discountType: 1,
-        //     couponApplicableType: 1,
-        //     discountValue: 1,
-        //     max_discount: 1,
-        //     minOrderAmount: 1,
-        //     usagePerUserLimit: 1,
-        //     usageLimit: 1,
-        //     orderCount: 1,
-        //     startDate: 1,
-        //     expiryDate: 1,
-        //     isActive: 1,
-        //     validUsers: 1,
-        //     validProducts: 1,
-        //     validCategories:1,
-        //     validBrands:1
-        //   }
-        // },
         {
           $lookup: {
             from: "users",
@@ -776,6 +750,48 @@ export const getOneCouponDetails = (couponID: Types.ObjectId): Promise<any> => {
           }
         },
         {
+          $unwind: {
+            path: "$userUsage",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "userUsage.userId",
+            foreignField: "_id",
+            as: "usedUsers",
+            pipeline: [
+              {
+                $project: {
+                  _id: 1,
+                  firstName: 1,
+                  mobileNumber: 1,
+                  displayName: 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          $addFields: {
+            "usedUsers": {
+              $map: {
+                input: "$usedUsers",
+                as: "user",
+                in: {
+                  _id: "$$user._id",
+                  firstName: "$$user.firstName",
+                  mobileNumber: "$$user.mobileNumber",
+                  displayName: "$$user.displayName",
+                  usageCount: "$userUsage.usageCount"
+                }
+              }
+            }
+          }
+        },
+        
+        {
           $lookup: {
             from: "products",
             localField: "validProducts.product",
@@ -784,10 +800,8 @@ export const getOneCouponDetails = (couponID: Types.ObjectId): Promise<any> => {
             pipeline: [
               {
                 $project: {
-
                   _id: 1,
                   productName: 1
-
                 }
               }
             ]
@@ -802,10 +816,8 @@ export const getOneCouponDetails = (couponID: Types.ObjectId): Promise<any> => {
             pipeline: [
               {
                 $project: {
-
                   _id: 1,
                   categoryName: 1
-
                 }
               }
             ]
@@ -822,10 +834,33 @@ export const getOneCouponDetails = (couponID: Types.ObjectId): Promise<any> => {
                 $project: {
                   _id: 1,
                   brandName: 1
-
                 }
               }
             ]
+          }
+        },
+        {
+          $group: {
+            _id: "$_id",
+            code: { $first: "$code" },
+            name: { $first: "$name" },
+            description: { $first: "$description" },
+            discountType: { $first: "$discountType" },
+            couponApplicableType: { $first: "$couponApplicableType" },
+            discountValue: { $first: "$discountValue" },
+            max_discount: { $first: "$max_discount" },
+            minOrderAmount: { $first: "$minOrderAmount" },
+            usagePerUserLimit: { $first: "$usagePerUserLimit" },
+            usageLimit: { $first: "$usageLimit" },
+            orderCount: { $first: "$orderCount" },
+            startDate: { $first: "$startDate" },
+            expiryDate: { $first: "$expiryDate" },
+            isActive: { $first: "$isActive" },
+            userDetailsArrya: { $first: "$userDetails" },
+            productDetailsArrya: { $first: "$productDetails" },
+            categoriesDetailsArrya: { $first: "$categoriesDetails" },
+            brandDeatailsArrya: { $first: "$brandsDetails" },
+            usedUsers: { $push: { $arrayElemAt: ["$usedUsers", 0] } } // Consolidate usedUsers
           }
         },
         {
@@ -844,12 +879,16 @@ export const getOneCouponDetails = (couponID: Types.ObjectId): Promise<any> => {
             startDate: 1,
             expiryDate: 1,
             isActive: 1,
-            userDetailsArrya: "$userDetails",
-            productDetailsArrya: "$productDetails",
-            categoriesDetailsArrya: "$categoriesDetails",
-            brandDeatailsArrya: "$brandsDetails"
+            userDetailsArrya: 1,
+            productDetailsArrya: 1,
+            categoriesDetailsArrya: 1,
+            brandDeatailsArrya: 1,
+            usedUsers: 1
           }
         }
+      
+      
+       
       ])
 
       const final = result[0]
