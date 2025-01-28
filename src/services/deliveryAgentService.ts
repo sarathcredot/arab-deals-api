@@ -864,6 +864,7 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
       if (active !== undefined) matchQuery.isActive = active;
       if (options.agentType) matchQuery.agentType = options.agentType;
       if (search) matchQuery.fullName = { $regex: search, $options: 'i' };
+      if(settlement)matchQuery["wallet.totalSettlement"] = { $gt: 0 };
       console.log("match query = ", matchQuery);
       
 
@@ -878,12 +879,12 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
       pipeline = [
         { $sort: sortField },
         { $match: matchQuery }, // Apply match query
-        ...(settlement
-          ? [
-            { $match: { 'wallet.totalSettlement': { $gt: 0 } } }, // Filter out agents with zero total settlement
-          ]
-          : []),
-        { $match: matchQuery }, // Apply match query
+        // ...(settlement
+        //   ? [
+        //     { $match: { 'wallet.totalSettlement': { $gt: 0 } } }, // Filter out agents with zero total settlement
+        //   ]
+        //   : []),
+        // { $match: matchQuery }, // Apply match query
         ...(options.page !== null && options.size !== null
           ? [
             { $skip: options.page * options.size }, // Skip to the desired page

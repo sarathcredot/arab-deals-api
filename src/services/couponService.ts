@@ -405,7 +405,17 @@ export const getCouponsByUser = (data: { userid: Types.ObjectId, page: number, s
                   startDate: { $lte: todayDate }
                 },
                 {
-                  expiryDate: { $gte: todayDate }
+                  $expr:{
+                    $cond:{
+                      if:{
+                        $eq:["$expiryDate",null]
+                      },
+                      then:true,
+                      else: {
+                         $gte: ["$expiryDate", todayDate] 
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -580,6 +590,7 @@ export const getCouponsByUser = (data: { userid: Types.ObjectId, page: number, s
 
       }
 
+      console.log("res",result)
 
 
       resolve(response)
