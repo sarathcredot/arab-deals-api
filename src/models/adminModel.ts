@@ -53,6 +53,10 @@ const adminSchema = new Schema(
       enum: ['SUPER_ADMIN', 'SUB_ADMIN'],
       required: true,
     },
+    role:[{
+      type: Schema.Types.ObjectId,
+      ref: collections.ROLES
+    }],
     isBlocked: {
       type: Boolean,
       default: false,

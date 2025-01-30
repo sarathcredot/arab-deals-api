@@ -1303,6 +1303,7 @@ export const userResolver: Resolvers = {
 
     },
     async getUserRecord(parent, { }, { req }, info) {
+      console.log("called")
 
       try {
         await verifyUser(req);
@@ -1317,6 +1318,7 @@ export const userResolver: Resolvers = {
             mobileNumber: 1, _id: 1,
           },
           {});
+          
         if (!result) {
           throw new GraphQLError("INTERNAL_SERVER_ERROR", {
             extensions: {
@@ -1330,6 +1332,8 @@ export const userResolver: Resolvers = {
           record: result.toObject(),
           message: "User fetched succesfully"
         }
+
+        console.log("response", response);
 
         return response;
 

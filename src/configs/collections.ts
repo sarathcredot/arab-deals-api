@@ -23,5 +23,6 @@ export const collections = {
     COUNTRIES: "countries",
     JOBS: "jobs",
     DELIVERY_AGENT_CONFIGS: "delivery_agent_configs",
-    COUPONS:"coupons"
+    COUPONS:"coupons",
+    ROLES:"roles"
 }
