@@ -216,11 +216,11 @@ type getOneAdminDetailsResponse{
   email: String
   accType: String
   isBlocked: Boolean
-  roles:[roles]
+  roles:[adminroles]
 
 }
 
- type roles {
+ type adminroles {
     _id:ObjectId
     name:String
     description:String

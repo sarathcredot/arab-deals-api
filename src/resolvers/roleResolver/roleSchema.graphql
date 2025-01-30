@@ -1,0 +1,88 @@
+scalar ObjectId
+scalar Upload
+
+
+type Mutation {
+    createRoleBySuperAdmin(input:createRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+    updateRoleBySuperAdmin(input:updateRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+    deleteRoleBySuperAdmin(input:deleteRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+    updateStatusRoleBySuperAdmin(input:updateStatusRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+}
+
+
+type Query {
+     getRoleBySuperAdmin(input:getRoleBySuperAdminInput!):getRoleBySuperAdminResponse!
+     getAllRolesBySuperAdmin(input:getAllRolesBySuperAdminInput):getAllRolesBySuperAdminResponse!
+}
+
+
+input createRoleBySuperAdminInput{
+    name:String!
+    description:String
+    permissions:[String]
+}
+
+input updateRoleBySuperAdminInput{
+    roleId:ObjectId!
+    name:String
+    description:String
+    permissions:[String]
+}
+
+input deleteRoleBySuperAdminInput {
+     roleId:ObjectId!
+}
+
+input getRoleBySuperAdminInput {
+     roleId:ObjectId!
+}
+
+input updateStatusRoleBySuperAdminInput {
+    roleId:ObjectId!
+    isEnable:Boolean!
+}
+
+input getAllRolesBySuperAdminInput{
+     page:Int
+     size:Int
+     search:String
+     isEnable:Boolean
+}
+
+type createRoleBySuperAdminResponse{
+      success: Boolean,
+      message: String,
+}
+
+type getRoleBySuperAdminResponse{
+    _id:ObjectId
+    name:String
+    description:String
+    permissions:[String]
+    isEnable:Boolean
+}
+
+type Roles {
+    _id:ObjectId
+    name:String
+    description:String
+    permissions:[String]
+    isEnable:Boolean
+}
+
+type getAllRolesBySuperAdminResponse {
+    success:Boolean
+    data:[Roles]
+    maxRecords:Int
+}
+
+
+
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}
