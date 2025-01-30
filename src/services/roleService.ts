@@ -49,6 +49,11 @@ export const getAllRolesBySuperAdmin=async(options:any,matchQuery:any): Promise<
 
     const result=await roleModel.aggregate([
         {
+            $sort:{
+                createdAt:-1
+            }
+        },
+        {
             $match:matchQuery
         },
         {
