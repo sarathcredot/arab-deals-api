@@ -4,14 +4,26 @@ scalar Upload
 
 type Mutation {
     createRoleBySuperAdmin(input:createRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+    updateRoleBySuperAdmin(input:updateRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+    deleteRoleBySuperAdmin(input:deleteRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
 }
-
 
 
 input createRoleBySuperAdminInput{
     name:String!
     description:String
     permissions:[String]
+}
+
+input updateRoleBySuperAdminInput{
+    roleId:ObjectId!
+    name:String
+    description:String
+    permissions:[String]
+}
+
+input deleteRoleBySuperAdminInput {
+     roleId:ObjectId!
 }
 
 type createRoleBySuperAdminResponse{

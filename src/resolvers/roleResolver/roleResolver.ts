@@ -18,6 +18,8 @@ export const roleResolver: Resolvers = {
 
     Upload: GraphQLUpload,
     Mutation:{
+
+        //to create different sub admin roles by super admin
        createRoleBySuperAdmin:async(parent,{input},{req},info)=>{
         //   await verifySuperAdmin(req);
           try {
@@ -68,7 +70,107 @@ export const roleResolver: Resolvers = {
             extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
           }
+       },
+
+       //to update different sub admin roles by super admin
+       updateRoleBySuperAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+        try {
+            const roleId:Types.ObjectId=input.roleId;
+            const name:string |undefined |null=input?.name;
+            const description:string |undefined|null=input?.description;
+            const permissions = (input?.permissions) as string[];
+
+            if(!roleId){
+                throw new GraphQLError("role id is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["role id is required"] },
+                });
+            }
+
+            const existingRole = await roleModel.findById(roleId)
+
+            if(!existingRole){
+                throw new GraphQLError("role not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["role not found"] },
+                });
+             }
+
+
+             let updateRoleData :any={}
+             if(name){
+                updateRoleData.name=name
+             }
+
+             if(description){
+                updateRoleData.description=description
+             }
+
+             if(permissions){
+                updateRoleData.permissions=permissions
+             }
+
+
+             const result=await roleService.updateRoleBySuperAdmin(roleId,updateRoleData)
+
+            if(!result){
+                throw new GraphQLError("unable to update role", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to update role"] },
+                });
+            }
+
+            return {
+                success: true,
+                message: "admin role updated succesfully",
+            }
+        
+
+        } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+        }
+       },
+
+       deleteRoleBySuperAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+        try {
+            const roleId:Types.ObjectId=input.roleId;
+
+            if(!roleId){
+                throw new GraphQLError("role id is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["role id is required"] },
+                });
+            }
+
+            const existingRole = await roleModel.findById(roleId)
+
+            if(!existingRole){
+                throw new GraphQLError("role not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["role not found"] },
+                });
+             }
+
+
+             const result=await roleService.deleteRoleBySuperAdmin(roleId)
+
+            if(!result){
+                throw new GraphQLError("unable to delete role", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to delete role"] },
+                });
+            }
+
+
+            return {
+                success: true,
+                message: "admin role deleted succesfully",
+            }
+
+        } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+        }
        }
-   
-  }
+
+}
 }
