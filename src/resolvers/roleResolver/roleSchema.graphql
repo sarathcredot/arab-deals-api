@@ -6,6 +6,7 @@ type Mutation {
     createRoleBySuperAdmin(input:createRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
     updateRoleBySuperAdmin(input:updateRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
     deleteRoleBySuperAdmin(input:deleteRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+    updateStatusRoleBySuperAdmin(input:updateStatusRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
 }
 
 
@@ -35,6 +36,11 @@ input getRoleBySuperAdminInput {
      roleId:ObjectId!
 }
 
+input updateStatusRoleBySuperAdminInput {
+    roleId:ObjectId!
+    isEnable:Boolean!
+}
+
 type createRoleBySuperAdminResponse{
       success: Boolean,
       message: String,
@@ -45,6 +51,7 @@ type getRoleBySuperAdminResponse{
     name:String
     description:String
     permissions:[String]
+    isEnable:Boolean
 }
 
 

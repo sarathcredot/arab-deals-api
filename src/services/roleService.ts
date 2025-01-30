@@ -23,3 +23,9 @@ export const deleteRoleBySuperAdmin=async (roleId:Types.ObjectId): Promise<any> 
     const deleteRole=await roleModel.findByIdAndDelete(roleId);
     return deleteRole;
 }
+
+
+export const updateStatusRoleBySuperAdmin=async (roleId:Types.ObjectId,isEnable:boolean): Promise<any> => {
+    const updateRole=await roleModel.findByIdAndUpdate(roleId,{isEnable:isEnable},{new:true});
+    return updateRole;
+}

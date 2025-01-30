@@ -171,6 +171,48 @@ export const roleResolver: Resolvers = {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
             })
         }
+       },
+
+       //toggle status of sub admin roles by super admin
+
+       updateStatusRoleBySuperAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+        try {
+
+            const roleId:Types.ObjectId=input.roleId;
+            const isEnable:boolean=input.isEnable
+
+            if(!roleId){
+                throw new GraphQLError("role id is required", { 
+                    extensions: { code: "BAD_REQUEST", errors: ["role id is required"] },
+                });
+            }
+
+            const existingRole = await roleModel.findById(roleId)
+
+            if(!existingRole){
+                throw new GraphQLError("role not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["role not found"] },
+                });
+             }
+
+             const result =await roleService.updateStatusRoleBySuperAdmin(roleId,isEnable)
+             if(!result){
+                throw new GraphQLError("unable to update role status", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to update role status"] },
+                });
+             }
+
+             return {
+                success:true,
+                message:"role status updated successfully"
+             }
+
+        } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+        }
        }
 
     },
@@ -204,6 +246,11 @@ export const roleResolver: Resolvers = {
                 })
             }
         }
+
+        //to get all roles by super admin
+
+
+        
 
     }
 }
