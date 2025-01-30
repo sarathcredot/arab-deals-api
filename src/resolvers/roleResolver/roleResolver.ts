@@ -9,7 +9,7 @@ import { Types } from "mongoose";
 import { error } from "console";
 import moment from "moment";
 import { finished } from "stream/promises";
-import { startOfDay, endOfDay } from "date-fns"
+import { startOfDay, endOfDay, max } from "date-fns"
 import path from "path";
 import fs from "fs";
 import { roleModel } from "../../models/roleModel";
@@ -245,12 +245,55 @@ export const roleResolver: Resolvers = {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
             }
-        }
+        },
 
         //to get all roles by super admin
 
+        getAllRolesBySuperAdmin:async(parent,{input},{req},info)=>{
+            // await verifySuperAdmin(req);
+            try {
 
-        
+            const page:number=input?.page || 0;
+            const size:number=input?.size || 100;
+
+            const options:any={
+                page:page,
+                size:size
+            }
+            
+            const matchQuery:any={};
+
+            if (input?.search) {
+                matchQuery.name = { $regex: input.search, $options: "i" };
+            }
+
+            if(input?.isEnable !== undefined){
+                matchQuery.isEnable=input?.isEnable
+            }
+
+
+             const response =await roleService.getAllRolesBySuperAdmin(options,matchQuery);
+
+             if(!response){
+                throw new GraphQLError("unable to fetch roles", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch roles"] },    
+                });
+             }
+
+
+             return {
+                success:true,
+                data:response.records,
+                maxRecords:response.maxRecords
+             }
+
+            } catch (error:any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        }
+
 
     }
 }

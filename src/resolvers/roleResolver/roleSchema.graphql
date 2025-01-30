@@ -12,6 +12,7 @@ type Mutation {
 
 type Query {
      getRoleBySuperAdmin(input:getRoleBySuperAdminInput!):getRoleBySuperAdminResponse!
+     getAllRolesBySuperAdmin(input:getAllRolesBySuperAdminInput):getAllRolesBySuperAdminResponse!
 }
 
 
@@ -41,6 +42,13 @@ input updateStatusRoleBySuperAdminInput {
     isEnable:Boolean!
 }
 
+input getAllRolesBySuperAdminInput{
+     page:Int
+     size:Int
+     search:String
+     isEnable:Boolean
+}
+
 type createRoleBySuperAdminResponse{
       success: Boolean,
       message: String,
@@ -52,6 +60,20 @@ type getRoleBySuperAdminResponse{
     description:String
     permissions:[String]
     isEnable:Boolean
+}
+
+type Roles {
+    _id:ObjectId
+    name:String
+    description:String
+    permissions:[String]
+    isEnable:Boolean
+}
+
+type getAllRolesBySuperAdminResponse {
+    success:Boolean
+    data:[Roles]
+    maxRecords:Int
 }
 
 
