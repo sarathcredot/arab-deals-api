@@ -1,0 +1,31 @@
+scalar ObjectId
+scalar Upload
+
+
+type Mutation {
+    createRoleBySuperAdmin(input:createRoleBySuperAdminInput!):createRoleBySuperAdminResponse!
+}
+
+
+
+input createRoleBySuperAdminInput{
+    name:String!
+    description:String
+    permissions:[String]
+}
+
+type createRoleBySuperAdminResponse{
+      success: Boolean,
+      message: String,
+}
+
+
+
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}

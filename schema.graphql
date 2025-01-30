@@ -44,6 +44,7 @@ type Mutation {
   logoutMobileUser: LogoutMobileUserResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
+  createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
@@ -1239,6 +1240,17 @@ type GetShippingSettingsResponse {
   shippingCharge: Float
   freeShippingThreshold: Int
   returnPeriod: Int
+}
+
+input createRoleBySuperAdminInput {
+  name: String!
+  description: String
+  permissions: [String]
+}
+
+type createRoleBySuperAdminResponse {
+  success: Boolean
+  message: String
 }
 
 type File {
