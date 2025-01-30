@@ -17,9 +17,14 @@ export const userShippingAddressResolver: Resolvers = {
             await verifyUser(req);
             await validateInput(validators.userShippingAddressCreateValidator, req);
 
+            const objid=new Types.ObjectId("673c243c654d2aad9749d942")
+
             const userId = req.authAccount._id;
+            // const userId = objid
 
             const isExists = await userShippingAddressService.getShippingAddressWithFilters({ userId: userId }, { _id: 1 }, { lean: true });
+
+             console.log("user add shiping address",input)
 
             let userShippingAddress: userShippingAddressService.IShippingAddress = {
                 userId: userId,
@@ -27,12 +32,14 @@ export const userShippingAddressResolver: Resolvers = {
                 mobile: input.mobile,
                 email: input.email || "",
                 country: "India",
-                houseNumber: input.houseNumber,
-                streetName: input.streetName,
-                apartment: input.apartment || "",
-                suite: input.suite || "",
-                unit: input.unit || "",
-                city: input.city,
+                address:input.address || "",
+                label:input.label || "",
+                // houseNumber: input.houseNumber|| "",
+                // streetName: input.streetName|| "",
+                // apartment: input.apartment || "",
+                // suite: input.suite || "",
+                // unit: input.unit || "",
+                // city: input.city|| "",
                 postCode: input.postCode,
                 governorate:input.governorate,
                 village:input.village,
@@ -67,12 +74,14 @@ export const userShippingAddressResolver: Resolvers = {
                 mobile: input.mobile,
                 email: input.email || "",
                 country: "India",
-                houseNumber: input.houseNumber,
-                streetName: input.streetName,
-                apartment: input.apartment || "",
-                suite: input.suite || "",
-                unit: input.unit || "",
-                city: input.city,
+                address:input.address || "",
+                label:input.label || "",
+                // houseNumber: input.houseNumber,
+                // streetName: input.streetName,
+                // apartment: input.apartment || "",
+                // suite: input.suite || "",
+                // unit: input.unit || "",
+                // city: input.city,
                 postCode: input.postCode,
                 governorate:input.governorate || "",
                 village:input.village || "",
@@ -124,27 +133,27 @@ export const userShippingAddressResolver: Resolvers = {
             if (input.mobile) {
                 shippingAddress.mobile = input.mobile;
             }
-            if (input.streetName) {
-                shippingAddress.streetName = input.streetName;
+            if (input.address) {
+                shippingAddress.address = input.address;
             }
-            if (input.city) {
-                shippingAddress.city = input.city;
+            if (input.label) {
+                shippingAddress.label = input.label;
             }
             if (input.country) {
                 shippingAddress.country = input.country;
             }
-            if (input.houseNumber) {
-                shippingAddress.houseNumber = input.houseNumber;
-            }
+            // if (input.houseNumber) {
+            //     shippingAddress.houseNumber = input.houseNumber;
+            // }
             if (input.postCode) {
                 shippingAddress.postCode = input.postCode;
             }
-            if (input.apartment) {
-                shippingAddress.apartment = input.apartment;
-            }
-            if (input.suite) {
-                shippingAddress.suite = input.suite;
-            }
+            // if (input.apartment) {
+            //     shippingAddress.apartment = input.apartment;
+            // }
+            // if (input.suite) {
+            //     shippingAddress.suite = input.suite;
+            // }
             
             if(input.governorate){
                 shippingAddress.governorate=input.governorate;
@@ -201,27 +210,27 @@ export const userShippingAddressResolver: Resolvers = {
             if (input.mobile) {
                 shippingAddress.mobile = input.mobile;
             }
-            if (input.streetName) {
-                shippingAddress.streetName = input.streetName;
+            if (input.address) {
+                shippingAddress.address = input.address;
             }
-            if (input.city) {
-                shippingAddress.city = input.city;
+            if (input.label) {
+                shippingAddress.label = input.label;
             }
             if (input.country) {
                 shippingAddress.country = input.country;
             }
-            if (input.houseNumber) {
-                shippingAddress.houseNumber = input.houseNumber;
-            }
-            if (input.postCode) {
-                shippingAddress.postCode = input.postCode;
-            }
-            if (input.apartment) {
-                shippingAddress.apartment = input.apartment;
-            }
-            if (input.suite) {
-                shippingAddress.suite = input.suite;
-            }
+            // if (input.houseNumber) {
+            //     shippingAddress.houseNumber = input.houseNumber;
+            // }
+            // if (input.postCode) {
+            //     shippingAddress.postCode = input.postCode;
+            // }
+            // if (input.apartment) {
+            //     shippingAddress.apartment = input.apartment;
+            // }
+            // if (input.suite) {
+            //     shippingAddress.suite = input.suite;
+            // }
 
             if(input.governorate){
                 shippingAddress.governorate=input.governorate;
@@ -389,6 +398,10 @@ export const userShippingAddressResolver: Resolvers = {
         }
 
     },
+
+
+
+
 
     Query: {
         async getUserShippingAddress(parent, { input }, { req }, info) {

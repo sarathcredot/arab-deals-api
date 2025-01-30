@@ -24,14 +24,16 @@ input UserCreateShippingAddressInput {
     firstname: String!
     email: String
     mobile: String!
-    streetName: String!
-    city: String!
-    houseNumber: String!
+    # streetName: String!
+    # city: String!
+    # houseNumber: String!
+    address:String,
+    label:String
     country: String
     postCode: String!
-    apartment: String
-    suite: String
-    unit: String
+    # apartment: String
+    # suite: String
+    # unit: String
     governorate:String!
     village:String!
     governorateID:String!
@@ -43,14 +45,16 @@ input CreateMobileUserShippingAddressInput {
     firstname: String!
     email: String
     mobile: String!
-    streetName: String!
-    city: String!
-    houseNumber: String!
+    # streetName: String!
+    # city: String!
+    # houseNumber: String!
     country: String
     postCode: String!
-    apartment: String
-    suite: String
-    unit: String
+    # apartment: String
+    # suite: String
+    # unit: String
+    address:String,
+    label:String
     governorate:String
     village:String
     governorateID:String
@@ -66,11 +70,13 @@ input UserEditShippingAddressInput {
     firstname: String
     email: String
     mobile: String
-    streetName: String
-    city: String
-    apartment: String
-    suite: String
-    unit: String
+    # streetName: String
+    # city: String
+    # apartment: String
+    # suite: String
+    # unit: String
+    address:String,
+    label:String
     postCode: String
     houseNumber: String
     country: String
@@ -86,11 +92,13 @@ input EditMobileUserShippingAddressInput {
     firstname: String
     email: String
     mobile: String
-    streetName: String
-    city: String
-    apartment: String
-    suite: String
-    unit: String
+    # streetName: String
+    # city: String
+    # apartment: String
+    # suite: String
+    # unit: String
+    address:String,
+    label:String
     postCode: String
     houseNumber: String
     country: String
@@ -210,6 +218,8 @@ type UserShippingAddress {
     governorateID:String
     villageID:String
     isDefault: Boolean
+    address:String,
+    label:String
 }
 
 type GetUserShippingAddressesResponse {
@@ -239,6 +249,8 @@ type GetUserShippingAddressResponse {
     governorateID:String
     villageID:String
     isDefault: Boolean
+    address:String,
+    label:String
 }
 
 
@@ -256,6 +268,8 @@ type GetMobileUserShippingAddressResponse {
     houseNumber: String
     country: String
     isDefault: Boolean
+    address:String,
+    label:String
 }
 
 
@@ -274,6 +288,8 @@ type GetMobileUserDefaultShippingAddressResponse {
     houseNumber: String
     country: String
     isDefault: Boolean
+    address:String,
+    label:String
 }
 
 # Schema

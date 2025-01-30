@@ -78,6 +78,7 @@ type getOneCouponDetailsRespons{
   productDetailsArrya:[productDetailsArryaType]
   categoriesDetailsArrya:[categoriesDetailsArryaType]
   brandDeatailsArrya:[brandDeatailsArryaType]
+  usedUsers:[usedUsersArryaType]
  
 
 }
@@ -108,6 +109,18 @@ type getOneCouponDetailsRespons{
 
       _id:ObjectId
       brandName:String
+
+
+ }
+
+ type usedUsersArryaType{
+
+      _id:ObjectId
+      firstName:String
+      mobileNumber:String
+      displayName:String
+      usageCount:Int
+
 
 
  }

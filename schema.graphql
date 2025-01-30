@@ -841,14 +841,10 @@ input UserCreateShippingAddressInput {
   firstname: String!
   email: String
   mobile: String!
-  streetName: String!
-  city: String!
-  houseNumber: String!
+  address: String
+  label: String
   country: String
   postCode: String!
-  apartment: String
-  suite: String
-  unit: String
   governorate: String!
   village: String!
   governorateID: String!
@@ -860,14 +856,10 @@ input CreateMobileUserShippingAddressInput {
   firstname: String!
   email: String
   mobile: String!
-  streetName: String!
-  city: String!
-  houseNumber: String!
   country: String
   postCode: String!
-  apartment: String
-  suite: String
-  unit: String
+  address: String
+  label: String
   governorate: String
   village: String
   governorateID: String
@@ -880,11 +872,8 @@ input UserEditShippingAddressInput {
   firstname: String
   email: String
   mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
+  address: String
+  label: String
   postCode: String
   houseNumber: String
   country: String
@@ -899,11 +888,8 @@ input EditMobileUserShippingAddressInput {
   firstname: String
   email: String
   mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
+  address: String
+  label: String
   postCode: String
   houseNumber: String
   country: String
@@ -991,6 +977,8 @@ type UserShippingAddress {
   governorateID: String
   villageID: String
   isDefault: Boolean
+  address: String
+  label: String
 }
 
 type GetUserShippingAddressesResponse {
@@ -1019,6 +1007,8 @@ type GetUserShippingAddressResponse {
   governorateID: String
   villageID: String
   isDefault: Boolean
+  address: String
+  label: String
 }
 
 type GetMobileUserShippingAddressResponse {
@@ -1035,6 +1025,8 @@ type GetMobileUserShippingAddressResponse {
   houseNumber: String
   country: String
   isDefault: Boolean
+  address: String
+  label: String
 }
 
 type GetMobileUserDefaultShippingAddressResponse {
@@ -1051,6 +1043,8 @@ type GetMobileUserDefaultShippingAddressResponse {
   houseNumber: String
   country: String
   isDefault: Boolean
+  address: String
+  label: String
 }
 
 input accountDeleteByUserInput {
@@ -1781,6 +1775,7 @@ input ReturnAddressInput {
   village: String!
   governorateID: String!
   villageID: String!
+  address: String
 }
 
 input ReturnUserOrderProductInput {
@@ -2019,6 +2014,8 @@ type OrderShippingAddress {
   governorate: String
   village: String
   villageID: String
+  address: String
+  label: String
 }
 
 type OrderPriceInfo {
@@ -3431,6 +3428,7 @@ type getOneCouponDetailsRespons {
   productDetailsArrya: [productDetailsArryaType]
   categoriesDetailsArrya: [categoriesDetailsArryaType]
   brandDeatailsArrya: [brandDeatailsArryaType]
+  usedUsers: [usedUsersArryaType]
 }
 
 type userDetailsArrayTypeNew {
@@ -3451,6 +3449,14 @@ type categoriesDetailsArryaType {
 type brandDeatailsArryaType {
   _id: ObjectId
   brandName: String
+}
+
+type usedUsersArryaType {
+  _id: ObjectId
+  firstName: String
+  mobileNumber: String
+  displayName: String
+  usageCount: Int
 }
 
 input Categoryvalid {
