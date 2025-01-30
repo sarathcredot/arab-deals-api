@@ -1,12 +1,12 @@
 # generated Schema - do not edit # 
 
+scalar Upload
+
+scalar JSONObject
+
 scalar ObjectId
 
 type Mutation {
-  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
-  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
-  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
-  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -17,6 +17,10 @@ type Mutation {
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   logoutVendor: LogoutVendorResponse!
+  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
+  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
+  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
+  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
   updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
   updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
@@ -64,9 +68,6 @@ type Mutation {
   exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
   exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   editDeliveryAgentData(input: EditAgentDataInput!, image: Upload): EditAgentDataInputResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!, image: Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): AllDeliveryAgentResponse!
@@ -85,6 +86,9 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
   adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
@@ -116,6 +120,7 @@ type Mutation {
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
   editAttribute(input: AttributeEditInput!): AttributeEditResponse!
+  createAdmin(input: createAdminInput!, image: Upload): createAdminResponse!
   createSuperAdmin(input: AdminSignUpInput!, image: Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
@@ -124,243 +129,10 @@ type Mutation {
   logoutAdmin: LogoutAdminResponse!
   cretaeDeliveryAgentConfig(input: cretaeDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
   updateDeliveryAgentConfig(input: updateDeliveryAgentConfigInput!): cretaeDeliveryAgentConfigResponse!
+  suspendAdmin(input: suspendAdminInput!): suspendAdminResponse!
+  deleteAdminAccount(input: suspendAdminInput!): suspendAdminResponse!
+  editAdminAccount(input: editAdminAccountInput!, image: Upload): editAdminAccountResponse!
 }
-
-type Query {
-  getWishListProducts: GetWishListProductsResponse!
-  getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
-  getMobileWishListProducts: GetMobileWishListProductsResponse!
-  getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
-  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
-  getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
-  getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
-  getVendorRecordByVendor: VendorsRecordByVendorResponse!
-  getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
-  getKycStatus: VendorRecordKycStatusResponse!
-  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
-  getVendorOutletRecord: VendorOutletRecordResponse!
-  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
-  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
-  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
-  getUserShippingAddresses: GetUserShippingAddressesResponse!
-  getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
-  getUserDefaultShippingAddress: GetUserShippingAddressResponse!
-  getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
-  getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
-  getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
-  getUsersByAdmin(input: userFilters): usersResponse!
-  getUserRecordByAdmin(input: userInput!): userResponse!
-  getUserRecord: GetUserRecordResponse!
-  getUserRecordInMobile: GetUserRecordInMobileResponse!
-  getPaymentSettings: GetPaymentSettingsResponse!
-  getShippingSettings: GetShippingSettingsResponse!
-  getProductsByAdmin(input: ProductFilters): ProductsResponse!
-  getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
-  getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
-  getProductByAdmin(input: ProductId!): ProductResponse!
-  getProductByVendor(input: ProductId!): ProductResponse!
-  getVariantsByAdmin(input: VariantsByAdminInput!): VariantsByAdminResponse!
-  getProducts(input: ProductFilters): ProductsResponse!
-  getProduct(input: ProductId!): ProductResponse!
-  getVariants(input: VariantsInput!): VariantsResponse!
-  getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
-  getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
-  getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
-  getVariantsTableByVendor(input: ProductVariantsByVendorFilter!): VariantsTableByVendorResponse!
-  getProductsMaxPrice(input: categoriesInput): getProductsMaxPriceResponse!
-  getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
-  getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
-  getVariantsInMobile(input: VariantsInMobileInput!): VariantsInMobileResponse!
-  getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
-  getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
-  getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
-  getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
-  getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
-  getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
-  getAdminReturnProducts(input: GetAdminReturnProductsInput!): GetAdminReturnProductsResponse!
-  getAdminRefundProducts(input: GetAdminRefundProductsInput!): GetAdminRefundProductsResponse!
-  getAdminOrderProduct(input: GetAdminOrderProductInput!): GetAdminOrderProductResponse!
-  getAdminOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
-  getUserOrderProductsByAdmin(input: GetUserOrderProductsByAdminInput!): GetUserOrderProductsByAdminResponse!
-  getUserOrderProducts(input: GetUserOrderProductsInput!): GetUserOrderProductsResponse!
-  getUserOrderProductsInMobile(input: GetUserOrderProductsInMobileInput!): GetUserOrderProductsInMobileResponse!
-  getUserOrderProduct(input: GetUserOrderProductInput!): GetUserOrderProductResponse!
-  getUserOrderProductInMobile(input: GetUserOrderProductInMobileInput!): GetUserOrderProductInMobileResponse!
-  getUserOrderDetails(input: GetUserOrderDetailsInput!): GetUserOrderDetailsResponse!
-  getUserOrderDetailsInMobile(input: GetUserOrderDetailsInMobileInput!): GetUserOrderDetailsInMobileResponse!
-  getVendorOrders(input: GetVendorOrdersInput!): GetAdminOrdersResponse!
-  getVendorShippingProducts(input: GetVendorShippingProductsInput!): GetVendorShippingProductsResponse!
-  getVendorReturnProducts(input: GetVendorReturnProductsInput!): GetVendorReturnProductsResponse!
-  getVendorRefundProducts(input: GetVendorRefundProductsInput!): GetVendorRefundProductsResponse!
-  getVendorOrderProduct(input: GetVendorOrderProductInput!): GetVendorOrderProductResponse!
-  getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
-  getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
-  getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
-  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
-  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
-  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
-  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
-  getAgentSettlementHistoryByAgent(input: getAgentSettlementHistoryByAgentInput): [Settlement]!
-  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
-  getSettlementHistoryByAdmin: [Settlement]!
-  getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
-  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): GetAssignedOrderDetailByDeliveryAgentResponseArry!
-  getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
-  getTodayAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
-  getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
-  getAssignedOrderBundleByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderBundleByDeliveryAgentResponse!
-  getAssignedReturnOrderBundleByDeliveryAgent(input: GetAssignedOrderBundleInput): GetAssignedOrderBundleByDeliveryAgentResponse!
-  getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
-  getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
-  getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
-  getDeliveryAgentlistCustomizOrderAssigen(input: getDeliveryAgentlistCustomizOrderAssigenInput): [getDeliveryAgentlistCustomizOrderAssigenResponse]!
-  getLocationsData: [Locations]!
-  getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
-  getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
-  getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
-  getDashboardVendorsGraph(input: GetDashboardVendorsGraphInput!): GetDashboardVendorsGraphResposne!
-  getDashboardOrderSummary(input: GetDashboardOrderSummaryInput!): GetDashboardOrderSummaryResponse!
-  getDashboardOrdersGraph(input: GetDashboardOrdersGraphInput!): GetDashboardOrdersGraphResposne!
-  getDashboardOrdersPieChartData(input: GetDashboardOrdersPieChartDataInput!): GetDashboardOrdersPieChartDataResponse!
-  getDashboardReturnedOrdersPieChartData(input: GetDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
-  getDashboardReturnedOrderSummary(input: GetDashboardReturnedOrderSummaryInput!): GetDashboardReturnedOrderSummaryResponse!
-  getDashboardRefundOrdersPieChartData(input: GetDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
-  getDashboardRefundOrdersSummary(input: getDashboardRefundOrdersSummaryInput!): GetDashboardRefundOrderSummaryResponse!
-  getDashboardOrdersAmountPieChartData(input: GetDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
-  getDashboardShippingChargePieChartData(input: GetDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  getVendorDashboardOrderSummary: GetVendorDashboardOrderSummaryResponse!
-  getVendorDashboardOrdersGraph(input: GetVendorDashboardOrdersGraphInput!): GetVendorDashboardOrdersGraphResposne!
-  getVendorDashboardOrdersPieChartData(input: GetVendorDashboardOrdersPieChartDataInput!): GetVendorDashboardOrdersPieChartDataResponse!
-  getVendorDashboardReturnedOrdersPieChartData(input: GetVendorDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
-  getVendorDashboardReturnedOrderSummary: GetDashboardReturnedOrderSummaryResponse!
-  getVendorDashboardRefundOrdersPieChartData(input: GetVendorDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
-  getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
-  getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
-  getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
-  getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
-  getCouponsByUserMobile: [Coupon]!
-  getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
-  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
-  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
-  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
-  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
-  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
-  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
-  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
-  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
-  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
-  getActiveCategoryTree: getActiveCategoryTreeResponse!
-  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
-  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
-  getAllLeafRecords: getAllLeafRecordsResponse!
-  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
-  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
-  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
-  getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
-  getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
-  getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
-  getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
-  getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
-  getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
-  getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!): BrandsDetailsWithCategoryResponse!
-  getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
-  getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
-  getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
-  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
-  getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
-  getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
-  getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
-  getAttributeRecordsByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
-  getAttributesDetailsWithCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
-  getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAdminRecord: getAdminRecordResponse
-  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
-}
-
-input AddToWishListInput {
-  productId: ObjectId!
-}
-
-input RemoveFromWishListInput {
-  productId: ObjectId!
-}
-
-input GetWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-input AddToMobileWishListInput {
-  productId: ObjectId!
-}
-
-input RemoveFromMobileWishListInput {
-  productId: ObjectId!
-}
-
-input GetMobileWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-type AddToWishListResponse {
-  message: String
-}
-
-type RemoveFromWishListResponse {
-  message: String
-}
-
-type AddToMobileWishListResponse {
-  message: String
-}
-
-type RemoveFromMobileWishListResponse {
-  message: String
-}
-
-type WishListProduct {
-  productId: ObjectId!
-  productName: String!
-  shortDescription: String
-  sellingPrice: Float!
-  image: String
-}
-
-type GetWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-type GetMobileWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetMobileWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-}
-
-scalar Upload
-
-scalar JSONObject
 
 input sendOtpInput {
   fullName: String!
@@ -571,6 +343,171 @@ type VerifyVendorLoginOtpResponse {
   countryCode: String
 }
 
+type Query {
+  getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
+  getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
+  getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
+  getVendorRecordByVendor: VendorsRecordByVendorResponse!
+  getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
+  getKycStatus: VendorRecordKycStatusResponse!
+  getWishListProducts: GetWishListProductsResponse!
+  getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
+  getMobileWishListProducts: GetMobileWishListProductsResponse!
+  getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
+  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
+  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getUserShippingAddresses: GetUserShippingAddressesResponse!
+  getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
+  getUserDefaultShippingAddress: GetUserShippingAddressResponse!
+  getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
+  getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
+  getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
+  getUsersByAdmin(input: userFilters): usersResponse!
+  getUserRecordByAdmin(input: userInput!): userResponse!
+  getUserRecord: GetUserRecordResponse!
+  getUserRecordInMobile: GetUserRecordInMobileResponse!
+  getPaymentSettings: GetPaymentSettingsResponse!
+  getShippingSettings: GetShippingSettingsResponse!
+  getProductsByAdmin(input: ProductFilters): ProductsResponse!
+  getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
+  getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
+  getProductByAdmin(input: ProductId!): ProductResponse!
+  getProductByVendor(input: ProductId!): ProductResponse!
+  getVariantsByAdmin(input: VariantsByAdminInput!): VariantsByAdminResponse!
+  getProducts(input: ProductFilters): ProductsResponse!
+  getProduct(input: ProductId!): ProductResponse!
+  getVariants(input: VariantsInput!): VariantsResponse!
+  getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
+  getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
+  getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
+  getVariantsTableByVendor(input: ProductVariantsByVendorFilter!): VariantsTableByVendorResponse!
+  getProductsMaxPrice(input: categoriesInput): getProductsMaxPriceResponse!
+  getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
+  getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
+  getVariantsInMobile(input: VariantsInMobileInput!): VariantsInMobileResponse!
+  getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
+  getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
+  getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
+  getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
+  getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
+  getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
+  getAdminReturnProducts(input: GetAdminReturnProductsInput!): GetAdminReturnProductsResponse!
+  getAdminRefundProducts(input: GetAdminRefundProductsInput!): GetAdminRefundProductsResponse!
+  getAdminOrderProduct(input: GetAdminOrderProductInput!): GetAdminOrderProductResponse!
+  getAdminOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
+  getUserOrderProductsByAdmin(input: GetUserOrderProductsByAdminInput!): GetUserOrderProductsByAdminResponse!
+  getUserOrderProducts(input: GetUserOrderProductsInput!): GetUserOrderProductsResponse!
+  getUserOrderProductsInMobile(input: GetUserOrderProductsInMobileInput!): GetUserOrderProductsInMobileResponse!
+  getUserOrderProduct(input: GetUserOrderProductInput!): GetUserOrderProductResponse!
+  getUserOrderProductInMobile(input: GetUserOrderProductInMobileInput!): GetUserOrderProductInMobileResponse!
+  getUserOrderDetails(input: GetUserOrderDetailsInput!): GetUserOrderDetailsResponse!
+  getUserOrderDetailsInMobile(input: GetUserOrderDetailsInMobileInput!): GetUserOrderDetailsInMobileResponse!
+  getVendorOrders(input: GetVendorOrdersInput!): GetAdminOrdersResponse!
+  getVendorShippingProducts(input: GetVendorShippingProductsInput!): GetVendorShippingProductsResponse!
+  getVendorReturnProducts(input: GetVendorReturnProductsInput!): GetVendorReturnProductsResponse!
+  getVendorRefundProducts(input: GetVendorRefundProductsInput!): GetVendorRefundProductsResponse!
+  getVendorOrderProduct(input: GetVendorOrderProductInput!): GetVendorOrderProductResponse!
+  getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
+  getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
+  getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
+  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
+  getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
+  getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
+  getAgentSettlementHistoryByAgent(input: getAgentSettlementHistoryByAgentInput): [Settlement]!
+  getDeliveryAgentByAgent(input: GetDeliveryAgentByAgentInput!): DeliveryAgentResponse
+  getSettlementHistoryByAdmin: [Settlement]!
+  getAllAssignOrderAgentProfile: GetAllAssignOrderAgentProfileResponse!
+  getAssignedeOrderDeatilsByAgentProfile(input: getAssignedeOrderDeatilsByAgentProfileInput!): GetAssignedOrderDetailByDeliveryAgentResponseArry!
+  getAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
+  getTodayAssignedOrderByAgentProfile(input: getAssignedOrderByAgentProfileInput): getAssignedOrderByAgentProfileResponse!
+  getAssignedOrderByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderByDeliveryAgentResponse!
+  getAssignedOrderBundleByDeliveryAgent(input: GetAssignedOrderByDeliveryAgentInput): GetAssignedOrderBundleByDeliveryAgentResponse!
+  getAssignedReturnOrderBundleByDeliveryAgent(input: GetAssignedOrderBundleInput): GetAssignedOrderBundleByDeliveryAgentResponse!
+  getDeliveryAgentReturnOrder(input: GetDeliveryAgentReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getAssignedReturnOrderByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
+  getDeliveryAgentlistCustomizOrderAssigen(input: getDeliveryAgentlistCustomizOrderAssigenInput): [getDeliveryAgentlistCustomizOrderAssigenResponse]!
+  getLocationsData: [Locations]!
+  getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
+  getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
+  getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
+  getDashboardVendorsGraph(input: GetDashboardVendorsGraphInput!): GetDashboardVendorsGraphResposne!
+  getDashboardOrderSummary(input: GetDashboardOrderSummaryInput!): GetDashboardOrderSummaryResponse!
+  getDashboardOrdersGraph(input: GetDashboardOrdersGraphInput!): GetDashboardOrdersGraphResposne!
+  getDashboardOrdersPieChartData(input: GetDashboardOrdersPieChartDataInput!): GetDashboardOrdersPieChartDataResponse!
+  getDashboardReturnedOrdersPieChartData(input: GetDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
+  getDashboardReturnedOrderSummary(input: GetDashboardReturnedOrderSummaryInput!): GetDashboardReturnedOrderSummaryResponse!
+  getDashboardRefundOrdersPieChartData(input: GetDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
+  getDashboardRefundOrdersSummary(input: getDashboardRefundOrdersSummaryInput!): GetDashboardRefundOrderSummaryResponse!
+  getDashboardOrdersAmountPieChartData(input: GetDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
+  getDashboardShippingChargePieChartData(input: GetDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
+  getVendorDashboardOrderSummary: GetVendorDashboardOrderSummaryResponse!
+  getVendorDashboardOrdersGraph(input: GetVendorDashboardOrdersGraphInput!): GetVendorDashboardOrdersGraphResposne!
+  getVendorDashboardOrdersPieChartData(input: GetVendorDashboardOrdersPieChartDataInput!): GetVendorDashboardOrdersPieChartDataResponse!
+  getVendorDashboardReturnedOrdersPieChartData(input: GetVendorDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
+  getVendorDashboardReturnedOrderSummary: GetDashboardReturnedOrderSummaryResponse!
+  getVendorDashboardRefundOrdersPieChartData(input: GetVendorDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
+  getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
+  getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
+  getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
+  getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
+  getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
+  getCouponsByUserMobile: [Coupon]!
+  getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
+  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
+  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
+  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
+  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
+  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
+  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
+  getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
+  getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
+  getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
+  getActiveCategoryTree: getActiveCategoryTreeResponse!
+  getActiveCategoryTreeInMobile: getActiveCategoryTreeInMobileesponse!
+  getCategoriesAutoComplete(input: GetCategoriesAutoCompleteInput!): GetCategoriesAutoCompleteRespons
+  getAllLeafRecords: getAllLeafRecordsResponse!
+  getLevelCategories(input: GetLevelCategoriesInput): GetLevelCategoriesResponse!
+  getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
+  getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
+  getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
+  getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
+  getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
+  getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+  getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
+  getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
+  getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!): BrandsDetailsWithCategoryResponse!
+  getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
+  getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
+  getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
+  getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
+  getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
+  getAttributeRecordsByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
+  getAttributesDetailsWithCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
+  getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAdminRecord: getAdminRecordResponse
+  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
+  getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
+  getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
+}
+
 type CreateVendorResponse {
   _id: String
   message: String
@@ -604,6 +541,75 @@ type VendorsRecordsByAdminResponse {
   maxRecords: Int!
   records: [VendorWithKycData]
   message: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+input AddToWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromWishListInput {
+  productId: ObjectId!
+}
+
+input GetWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+input AddToMobileWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromMobileWishListInput {
+  productId: ObjectId!
+}
+
+input GetMobileWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+type AddToWishListResponse {
+  message: String
+}
+
+type RemoveFromWishListResponse {
+  message: String
+}
+
+type AddToMobileWishListResponse {
+  message: String
+}
+
+type RemoveFromMobileWishListResponse {
+  message: String
+}
+
+type WishListProduct {
+  productId: ObjectId!
+  productName: String!
+  shortDescription: String
+  sellingPrice: Float!
+  image: String
+}
+
+type GetWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetWishListProductStatusResponse {
+  isExist: Boolean!
+}
+
+type GetMobileWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetMobileWishListProductStatusResponse {
+  isExist: Boolean!
 }
 
 type VendorOutlet {
@@ -2624,23 +2630,6 @@ type GetAdminDownloadTokenResponse {
   url: String!
 }
 
-input GetAdminSignedFileUrlInput {
-  fileURL: String!
-  mimeType: String!
-}
-
-input GetUserIvoiceUrlInput {
-  _id: ObjectId!
-}
-
-type GetAdminSignedFileUrlResponse {
-  url: String
-}
-
-type GetUserIvoiceUrlResponse {
-  url: String
-}
-
 input getDeliveryAgentlistCustomizOrderAssigenInput {
   deliveryAgentType: String!
   vendorID: ObjectId
@@ -3189,6 +3178,23 @@ type LoginDeliveryAgentResponse {
   fullName: String
   token: String
   msg: String
+}
+
+input GetAdminSignedFileUrlInput {
+  fileURL: String!
+  mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+  _id: ObjectId!
+}
+
+type GetAdminSignedFileUrlResponse {
+  url: String
+}
+
+type GetUserIvoiceUrlResponse {
+  url: String
 }
 
 input GetDashboardUsersGraphInput {
@@ -4375,6 +4381,41 @@ type AttributesDetailsWithCategoryInMobileResponse {
   message: String
 }
 
+input editAdminAccountInput {
+  id: ObjectId
+  fullName: String!
+  email: String!
+  accType: String!
+  role: [ObjectId]
+}
+
+type editAdminAccountResponse {
+  status: Boolean
+  msg: String
+}
+
+type suspendAdminResponse {
+  status: Boolean
+  msg: String
+}
+
+input suspendAdminInput {
+  id: ObjectId
+}
+
+input createAdminInput {
+  fullName: String!
+  email: String!
+  accType: String!
+  password: String!
+  role: [ObjectId]
+}
+
+type createAdminResponse {
+  status: Boolean
+  msg: String
+}
+
 type getAllDeliveryAgentConfigResponse {
   _id: ObjectId
   orderAssignLimit: Int
@@ -4452,6 +4493,47 @@ type AdminAuthResponse {
 type UpdateAdminResponse {
   _id: String
   message: String
+}
+
+input getAllAdminDataInput {
+  page: Int
+  size: Int
+  isBlocked: String
+  search: String
+}
+
+input getOneAdminDetailsInput {
+  _id: ObjectId
+}
+
+type getOneAdminDetailsResponse {
+  _id: String
+  fullName: String
+  email: String
+  accType: String
+  isBlocked: Boolean
+  roles: [roles]
+}
+
+type roles {
+  _id: ObjectId
+  name: String
+  description: String
+  permissions: [String]
+  isEnable: Boolean
+}
+
+type getAllAdminDataResponse {
+  records: [getAllAdminDataType]
+  maxRecords: Int
+}
+
+type getAllAdminDataType {
+  _id: String
+  fullName: String
+  email: String
+  accType: String
+  isBlocked: Boolean
 }
 
 type getAdminRecordResponse {

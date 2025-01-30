@@ -7,6 +7,23 @@ export const SuperAdminCreateValidator = [
   body('variables.input.fullName').trim().notEmpty(),
 ];
 
+export const AdminCreateValidator = [
+  body('variables.input.email').trim().isEmail(),
+  body('variables.input.password').isLength({ min: 6, max: 20 }),
+  body('variables.input.fullName').trim().notEmpty(),
+  body('variables.input.accType').trim().notEmpty(),
+];
+
+export const AdminEditValidator = [
+  body('variables.input.email').trim().isEmail(),
+  // body('variables.input.password').isLength({ min: 6, max: 20 }),
+  body('variables.input.fullName').trim().notEmpty(),
+  body('variables.input.accType').trim().notEmpty(),
+];
+
+
+
+
 export const adminLoginValidator = [
   body('variables.input.email').trim().isEmail(),
   body('variables.input.password').isLength({ min: 6, max: 20 }),

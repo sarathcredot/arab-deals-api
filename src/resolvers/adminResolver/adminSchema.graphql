@@ -8,6 +8,7 @@
 # Admin auth Mutations
 
  type Mutation {
+  createAdmin(input:createAdminInput!,image:Upload):createAdminResponse!
   createSuperAdmin(input: AdminSignUpInput!, image:Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image:Upload): AddAdminResponse!
   loginAdmin(input: AdminLoginInput!): AdminAuthResponse!
@@ -16,8 +17,61 @@
   logoutAdmin:LogoutAdminResponse!
   cretaeDeliveryAgentConfig(input:cretaeDeliveryAgentConfigInput!):cretaeDeliveryAgentConfigResponse!
   updateDeliveryAgentConfig(input:updateDeliveryAgentConfigInput!):cretaeDeliveryAgentConfigResponse!
+  suspendAdmin(input:suspendAdminInput!):suspendAdminResponse!
+  deleteAdminAccount(input:suspendAdminInput!):suspendAdminResponse!
+  editAdminAccount(input:editAdminAccountInput!,image:Upload):editAdminAccountResponse!
   
 }
+
+
+
+input editAdminAccountInput{
+       
+       id:ObjectId  
+       fullName:String!
+       email:String!
+       accType:String!
+       role:[ObjectId]
+}
+
+type editAdminAccountResponse{
+
+      status:Boolean
+      msg:String
+}
+
+
+
+type suspendAdminResponse{
+
+     status:Boolean
+     msg:String
+}
+
+input suspendAdminInput{
+
+     id:ObjectId
+}
+
+
+
+ input createAdminInput{
+
+       fullName:String!
+       email:String!
+       accType:String!
+       password:String!
+       role:[ObjectId]
+}
+
+
+type createAdminResponse{
+
+    status:Boolean,
+    msg:String
+}
+
+
 
 
 type getAllDeliveryAgentConfigResponse{
@@ -134,7 +188,69 @@ type UpdateAdminResponse {
 type Query {
     getAdminRecord: getAdminRecordResponse
     getAllDeliveryAgentConfig:getAllDeliveryAgentConfigResponse!
+    getAllAdminData(input:getAllAdminDataInput):getAllAdminDataResponse!
+    getOneAdminDetails(input:getOneAdminDetailsInput):getOneAdminDetailsResponse!
 }
+
+
+input getAllAdminDataInput{
+      
+      page:Int
+      size:Int
+      isBlocked:String
+      search:String
+
+}
+
+
+input getOneAdminDetailsInput{
+
+     _id:ObjectId
+}
+
+
+type getOneAdminDetailsResponse{
+
+     _id: String
+  fullName: String
+  email: String
+  accType: String
+  isBlocked: Boolean
+  roles:[roles]
+
+}
+
+ type roles {
+    _id:ObjectId
+    name:String
+    description:String
+    permissions:[String]
+    isEnable:Boolean
+}
+
+
+type getAllAdminDataResponse{
+
+     records:[getAllAdminDataType]
+     maxRecords:Int
+
+}
+
+type getAllAdminDataType{
+
+  _id: String
+  fullName: String
+  email: String
+  accType: String
+  isBlocked: Boolean
+ 
+  
+}
+
+
+
+
+
 
 type getAdminRecordResponse{
    record: Admin

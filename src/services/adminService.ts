@@ -1,5 +1,6 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { adminModel, vendorModel ,deliveryAgentConfigModel} from '../models';
+import { adminModel, vendorModel, deliveryAgentConfigModel } from '../models';
+
 
 export interface FileData {
   _id?: string,
@@ -32,6 +33,7 @@ export interface IAdminDocument extends Document {
   accType?: string;
   isBlocked?: boolean;
   fullName?: string;
+  role?: any;
   token?: string;
   profilePic?: {
     fileType?: string,
@@ -105,77 +107,267 @@ export const logoutAdmin = async (id: Types.ObjectId): Promise<void> => {
 
 
 
-export const cretaeDeliveryAgentConfig=async(limit:number):Promise<any>=>{
+export const cretaeDeliveryAgentConfig = async (limit: number): Promise<any> => {
 
-         return new Promise(async(resolve,reject)=>{
+  return new Promise(async (resolve, reject) => {
 
-                 try {
+    try {
 
-                  const options={
+      const options = {
 
-                    orderAssignLimit:limit
+        orderAssignLimit: limit
+      }
+
+      const final = new deliveryAgentConfigModel(options)
+      await final.save()
+      resolve({})
+
+    } catch (error) {
+
+      reject(error)
+    }
+  })
+}
+
+export const updateDeliveryAgentConfig = async (data: { deliveryLimit: number, _id: Types.ObjectId, returnLimit: number }): Promise<any> => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+
+      await deliveryAgentConfigModel.findByIdAndUpdate({ _id: data._id }, {
+
+        $set: {
+          orderAssignLimit: data.deliveryLimit,
+          returnOrderAssignLimit: data.returnLimit
+        }
+
+      }, { upsert: true })
+
+      resolve({})
+
+    } catch (error) {
+
+      reject(error)
+    }
+  })
+}
+
+
+export const getAllDeliveryAgentConfig = async (): Promise<any> => {
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+
+      const result = await deliveryAgentConfigModel.findOne()
+
+      resolve(result)
+
+    } catch (error) {
+
+      reject(error)
+    }
+  })
+}
+
+
+
+export const getSubAdminAllPermissions = async (id: Types.ObjectId): Promise<any> => {
+
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      const result = await adminModel.aggregate(
+
+        [
+          {
+            $match: {
+              _id: id
+            }
+          },
+          {
+            $lookup: {
+              from: "roles",
+              localField: "role",
+              foreignField: "_id",
+              as: "roals"
+            }
+          },
+          {
+            $addFields: {
+              "allPermissions": {
+                $reduce: {
+                  input: "$roals.permissions",
+                  initialValue: [],
+                  in: { "$setUnion": ["$$value", "$$this"] }
+                }
+              }
+            }
+          },
+
+          {
+            $project: {
+
+              accType: 1,
+              allPermissions: 1
+            }
+          }
+        ]
+
+      )
+
+      resolve(result[0])
+
+    } catch (error) {
+
+      reject()
+    }
+  })
+}
+
+
+
+
+export const getAllAdminsDetails=async({page,size,isBlocked,search}:{page:number,size:number,isBlocked:any,search:any}): Promise<any>=>{
+
+       return new Promise(async(resolve,reject)=>{
+
+             try {
+
+                 const matchingObj:any={}
+
+                  if(isBlocked){
+
+                    const value=JSON.parse(isBlocked)
+                     matchingObj.isBlocked=value
                   }
 
-                   const final=new deliveryAgentConfigModel(options)
-                  await final.save()
-                   resolve({})
-                  
-                 } catch (error) {
+                  if(search){
+
+                      matchingObj.fullName=search
+                  }
+
+                  const resutlCount=await adminModel.find(matchingObj)
+
+                   const result=await adminModel.find(matchingObj,
+                    { 
+                      fullName:1,
+                      email:1,
+                      isBlocked:1,
+                      accType:1
+                     
+
+                    })
+                    .sort({createdAt: -1 })
+                    .skip(page * size )
+                    .limit(size)
+                    
                    
-                     reject(error)
-                 }  
+                    let response: any = {
+                      records: [],
+                      maxRecords: 0,
+                    };
+              
+                    if (result.length) {
+                      response.records = result;
+                      response.maxRecords = resutlCount?.length || 0;
+                    }
+              
+                   
+                    resolve(response)
+               
+            
+                  } catch (error) {
+               
+                console.log(error)
+                  reject()
+             }
+       })
+}
+
+
+
+export const getOneAdminDetails=async(id:Types.ObjectId): Promise<any>=>{
+
+      return new Promise(async(resolve,reject)=>{
+
+            try {
+
+            const result=await adminModel.aggregate(
+
+              [
+                {
+                  $match: {
+                    _id:id
+                  }
+                },
+                {
+                  $lookup: {
+                    from: "roles",
+                    localField: "role",
+                    foreignField: "_id",
+                    as: "roles"
+                  }
+                },
+                {
+                  $project: {
+                    fullName:1,
+                    email:1,
+                    isBlocked:1,
+                    accType:1,
+                    roles:1
+                  }
+                }
+                
+                  
+              ]
+            )
+
+            resolve(result[0])
+              
+            } catch (error) {
+              
+
+                 reject()
+            }
+      })
+       
+}
+
+
+export const updateAdminDetails=async(data:{id:Types.ObjectId,fullName:string,email:string,accType:string,role:any,profilePic:any}): Promise<any>=>{
+     
+    
+         return new Promise(async(resolve,reject)=>{
+  
+            try {
+
+              await adminModel.findByIdAndUpdate({_id:data.id},{
+
+                $set:{
+                   
+                    fullName:data.fullName,
+                    email:data.email,
+                    accType:data.accType,
+                    role:data.role,
+                    profilePic:data.profilePic
+                }
+             })
+
+             resolve(true)
+              
+            } catch (error) {
+              
+                 reject()
+            }
+                 
          })
 }
-
-export const updateDeliveryAgentConfig=async(data:{deliveryLimit:number,_id:Types.ObjectId,returnLimit:number}):Promise<any>=>{
-
-  return new Promise(async(resolve,reject)=>{
-
-          try {
-
-             
-            await deliveryAgentConfigModel.findByIdAndUpdate({_id:data._id},{
-
-                  $set:{
-                        orderAssignLimit:data.deliveryLimit,
-                        returnOrderAssignLimit:data.returnLimit
-                  }
-                   
-            },{upsert:true})
-           
-            resolve({})
-           
-          } catch (error) {
-            
-              reject(error)
-          }  
-  })
-}
-
-
-export const getAllDeliveryAgentConfig=async():Promise<any>=>{
-
-  return new Promise(async(resolve,reject)=>{
-
-          try {
-
-             
-          const result = await deliveryAgentConfigModel.findOne()
-           
-            resolve(result)
-           
-          } catch (error) {
-            
-              reject(error)
-          }  
-  })
-}
-
-
-
-
-
-
 
 
 

@@ -8,10 +8,125 @@ import { GraphQLError } from "graphql";
 import { validateInput, verifySuperAdmin, verifyAdmin } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
+import { adminModel, vendorModel, deliveryAgentConfigModel } from './../../models';
+
 
 export const adminResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
+
+    // create super admin and sub admin 
+    createAdmin: async (parent, { input, image }, { req }, info) => {
+
+      await validateInput(validators.AdminCreateValidator, req);
+      try {
+
+        // input validation 
+        let profilePic: adminService.FileData | null = null;
+        let email: string = input?.email.toLowerCase();
+        let fullName: string = input?.fullName;
+        let password: string = input?.password;
+        let accType: string = input?.accType
+
+        if (image) {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.adminProfile, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+          profilePic = {
+            fileType: "PUBLIC",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          }
+        }
+
+        const existingAdmin = await adminService.findAdminWithFilters({ email: email }, { _id: 1, email: 1 }, { lean: true });
+        if (existingAdmin) {
+          throw new GraphQLError('Admin with this email already exists', {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+        }
+
+        const newAdminData: any = {
+
+          fullName,
+          email,
+          accType,
+        }
+
+        // check this admin is sub Admin or super admin
+
+        if (accType === "SUB_ADMIN") {
+
+          newAdminData.role = input.role
+        }
+
+        if (profilePic) {
+          newAdminData.profilePic = profilePic;
+        }
+
+
+        await adminService.createAdmin(newAdminData, password);
+
+        return {
+
+          status: true,
+          msg: "Account created successfully"
+        }
+
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+
+    },
+
+
+    // suspend admin
+
+    suspendAdmin: async (parent, { input }, { req }, info) => {
+
+
+      try {
+
+        await adminModel.findByIdAndUpdate({ _id: input?.id }, {
+
+          $set: {
+            isBlocked: true
+          }
+        })
+
+        return {
+
+          status: true,
+          msg: "This admin suspended successfully "
+        }
+
+      } catch (error) {
+
+        throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+      }
+    },
+
+
+
     createSuperAdmin: async (parent, { input, image }, { req }, info) => {
 
       await validateInput(validators.SuperAdminCreateValidator, req);
@@ -152,7 +267,7 @@ export const adminResolver: Resolvers = {
 
       console.log(admin, " = ADMIN");
       if (!admin) {
-        console.log("login req","no accout")
+        console.log("login req", "no accout")
         throw new GraphQLError("Invalid Account", {
           extensions: {
             code: "BAD_REQUEST",
@@ -161,7 +276,7 @@ export const adminResolver: Resolvers = {
         });
       }
       else if (admin.isBlocked) {
-        console.log("login req","block accout")
+        console.log("login req", "block accout")
         throw new GraphQLError("Admin Blocked", {
           extensions: {
             code: "BAD_REQUEST",
@@ -170,7 +285,7 @@ export const adminResolver: Resolvers = {
         });
       }
       else if (! await admin.verifyHash?.(password)) {
-        console.log("login req","no ac")
+        console.log("login req", "no ac")
         throw new GraphQLError("Invalid Account", {
           extensions: {
             code: "BAD_REQUEST",
@@ -178,9 +293,28 @@ export const adminResolver: Resolvers = {
           }
         });
       }
-      console.log('PASSWORD CHECK = ', await admin.verifyHash?.(password), )
+      console.log('PASSWORD CHECK = ', await admin.verifyHash?.(password),)
 
-      let token = await jwtService.createAdminJWT(admin._id!.toString());
+      const tokenData = {
+
+        id: admin._id!.toString(),
+        accType: admin?.accType || "",
+        role: admin?.role || []
+
+      }
+
+      if (admin.accType === "SUB_ADMIN") {
+
+        const id = new Types.ObjectId(admin?._id)
+        const result = await adminService.getSubAdminAllPermissions(id)
+        tokenData.role = result?.allPermissions
+
+      }
+
+      let token = await jwtService.createAdminJWT(tokenData);
+
+
+
 
       console.log(token, 'ADMIN TOKEN ')
       admin.token = token;
@@ -293,6 +427,129 @@ export const adminResolver: Resolvers = {
       }
     },
 
+    // delete admin account 
+
+    deleteAdminAccount: async (parent, { input }, { req }, info) => {
+
+      try {
+
+        await adminModel.findByIdAndDelete({ _id: input.id })
+
+        return {
+
+          status: true,
+          msg: ""
+        }
+
+      } catch (error) {
+
+        throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
+    },
+
+
+    // edit admin account
+
+    editAdminAccount: async (parent, { input,image }, { req }, info) => {
+
+
+      await validateInput(validators.AdminEditValidator, req);
+
+
+      try {
+
+        let profilePic: adminService.FileData | null = null;
+        let email: string = input?.email.toLowerCase();
+        let fullName: string = input?.fullName;
+        let accType: string = input?.accType
+
+         const admindata=await adminModel.findById({_id:input?.id})
+
+         if(!admindata){
+          
+          throw new GraphQLError('Account not found', {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+         }
+
+         const isEmailExists=await adminModel.findOne({email:email})
+
+         if(isEmailExists){
+
+          throw new GraphQLError('Admin with this email already exists', {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: []
+            }
+          });
+         }
+
+         if (image) {
+          const { createReadStream, filename, mimetype, encoding } = await image;
+          const key = spaceService.getFileKey(filePaths.adminProfile, filename, []);
+          const stream = createReadStream();
+          const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+          profilePic = {
+            fileType: "PUBLIC",
+            fileURL: file.location,
+            mimeType: mimetype,
+            originalName: filename
+          }
+        }
+
+        const updateAdminData: any = {
+          id:input.id,
+          fullName,
+          email,
+          accType,
+          role:[]
+        }
+
+
+        if (accType === "SUB_ADMIN") {
+
+          updateAdminData.role = input.role
+        }
+
+        if (profilePic) {
+          updateAdminData.profilePic = profilePic;
+        }
+
+
+        
+        await adminService.updateAdminDetails(updateAdminData)
+        
+          
+          return{
+
+              status:true,
+              msg:"Admin details updated successfully "
+          }
+  
+
+
+      } catch (error:any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+    },
+
+
+
 
     // create deliveryagent config
 
@@ -302,19 +559,19 @@ export const adminResolver: Resolvers = {
 
       try {
 
-        const limit=input.limit || 0
+        const limit = input.limit || 0
 
         await adminService.cretaeDeliveryAgentConfig(limit)
 
-       return{
+        return {
 
-          status:true,
-          msg:""
-       }
-          
+          status: true,
+          msg: ""
+        }
 
-      } catch (error:any) {
-         
+
+      } catch (error: any) {
+
         throw new GraphQLError("INTERNAL_SERVER_ERROR", {
           extensions: {
             code: "BAD_REQUEST",
@@ -326,39 +583,31 @@ export const adminResolver: Resolvers = {
 
     },
 
-    
-    updateDeliveryAgentConfig:async(parent, { input }, { req }, info)=>{
-          // await verifyAdmin(req)
 
-            try {
-              const {deliveryLimit,returnLimit,_id}=input 
+    updateDeliveryAgentConfig: async (parent, { input }, { req }, info) => {
+      // await verifyAdmin(req)
 
-               await adminService.updateDeliveryAgentConfig({deliveryLimit ,returnLimit ,_id})  
-               
-               return{
+      try {
+        const { deliveryLimit, returnLimit, _id } = input
 
-                   status:true,
-                   msg:""
-               }
-              
-            } catch (error:any) {
-              
-              throw new GraphQLError("INTERNAL_SERVER_ERROR", {
-                extensions: {
-                  code: "BAD_REQUEST",
-                  errors: []
-                }
-              });
-            }
+        await adminService.updateDeliveryAgentConfig({ deliveryLimit, returnLimit, _id })
+
+        return {
+
+          status: true,
+          msg: ""
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
+      }
     },
-
-   
-
-
-
-
-
-
 
 
 
@@ -406,24 +655,87 @@ export const adminResolver: Resolvers = {
 
     },
 
-    getAllDeliveryAgentConfig:async(parent, {},{ req }, info)=>{
+    getAllDeliveryAgentConfig: async (parent, { }, { req }, info) => {
 
       try {
 
-       const result = await adminService.getAllDeliveryAgentConfig()
+        const result = await adminService.getAllDeliveryAgentConfig()
 
-       return result
-       
+        return result
+
       } catch (error) {
-       
-       throw new GraphQLError("INTERNAL_SERVER_ERROR", {
-         extensions: {
-           code: "BAD_REQUEST",
-           errors: []
-         }
-       });
+
+        throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: []
+          }
+        });
       }
-},
+    },
+
+
+    getAllAdminData: async (parent, { input }, { req }, info) => {
+
+      try {
+
+        const page: number = input?.page || 0;
+        const size: number = input?.size || 10;
+
+        const options: any = {
+
+          page,
+          size,
+          isBlocked: input?.isBlocked,
+          search: input?.search
+        }
+
+        const result = await adminService.getAllAdminsDetails(options)
+
+        return result;
+
+      } catch (error: any) {
+
+        throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+      }
+
+
+    },
+
+    getOneAdminDetails: async (parent, { input }, { req }, info) => {
+
+
+      try {
+
+        const result = await adminService.getOneAdminDetails(input?._id)
+
+        return result;
+
+      } catch (error) {
+
+        throw new GraphQLError("INTERNAL_SERVER_ERROR", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+    },
+
+
+
+
+
+
+
+
+
   },
 };
 
