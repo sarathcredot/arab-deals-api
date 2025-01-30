@@ -53,6 +53,7 @@ const adminSchema = new Schema(
       enum: ['SUPER_ADMIN', 'SUB_ADMIN'],
       required: true,
     },
+   
     isBlocked: {
       type: Boolean,
       default: false,

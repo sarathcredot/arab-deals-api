@@ -1088,7 +1088,8 @@ export const orderResolver: Resolvers = {
           governorate: returnAddress.governorate,
           village: returnAddress.village,
           governorateID: returnAddress.governorateID,
-          villageID: returnAddress.villageID
+          villageID: returnAddress.villageID,
+          address:returnAddress.address || ""
         }
         : null;
 

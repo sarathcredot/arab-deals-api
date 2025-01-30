@@ -124,6 +124,7 @@ input ReturnAddressInput {
   village: String!
   governorateID: String!
   villageID: String!
+  address:String
 }
 
 input ReturnUserOrderProductInput {
@@ -430,6 +431,9 @@ type OrderShippingAddress {
   governorate: String
   village: String
   villageID: String
+  address:String
+  label:String
+
 }
 
 type OrderPriceInfo {
