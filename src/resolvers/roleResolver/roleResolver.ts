@@ -130,7 +130,8 @@ export const roleResolver: Resolvers = {
             })
         }
        },
-
+       
+       //to delete sub admin roles by super admin
        deleteRoleBySuperAdmin:async(parent,{input},{req},info)=>{
         //   await verifySuperAdmin(req);
         try {
@@ -172,5 +173,37 @@ export const roleResolver: Resolvers = {
         }
        }
 
-}
+    },
+    Query:{
+
+        //to get one specific role by super admin
+        getRoleBySuperAdmin:async(parent,{input},{req},info)=>{
+            // await verifySuperAdmin(req);
+            try {
+
+                const roleId:Types.ObjectId=input.roleId;
+
+                if(!roleId){
+                    throw new GraphQLError("role id is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["role id is required"] },
+                    });
+                }
+
+                const existingRole = await roleModel.findById(roleId)
+
+                if(!existingRole){
+                    throw new GraphQLError("role not found", {
+                        extensions: { code: "BAD_REQUEST", errors: ["role not found"] },
+                    });
+                }
+
+              return existingRole;
+            } catch (error:any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        }
+
+    }
 }

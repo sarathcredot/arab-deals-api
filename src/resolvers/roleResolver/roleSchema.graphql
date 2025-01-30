@@ -9,6 +9,11 @@ type Mutation {
 }
 
 
+type Query {
+     getRoleBySuperAdmin(input:getRoleBySuperAdminInput!):getRoleBySuperAdminResponse!
+}
+
+
 input createRoleBySuperAdminInput{
     name:String!
     description:String
@@ -26,9 +31,20 @@ input deleteRoleBySuperAdminInput {
      roleId:ObjectId!
 }
 
+input getRoleBySuperAdminInput {
+     roleId:ObjectId!
+}
+
 type createRoleBySuperAdminResponse{
       success: Boolean,
       message: String,
+}
+
+type getRoleBySuperAdminResponse{
+    _id:ObjectId
+    name:String
+    description:String
+    permissions:[String]
 }
 
 
