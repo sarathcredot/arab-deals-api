@@ -4467,6 +4467,7 @@ type suspendAdminResponse {
 
 input suspendAdminInput {
   id: ObjectId
+  status: Boolean
 }
 
 input createAdminInput {

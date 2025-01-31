@@ -103,7 +103,7 @@ export const adminResolver: Resolvers = {
         await adminModel.findByIdAndUpdate({ _id: input?.id }, {
 
           $set: {
-            isBlocked: true
+            isBlocked: input?.status
           }
         })
 
