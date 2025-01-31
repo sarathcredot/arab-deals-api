@@ -433,7 +433,7 @@ export const adminResolver: Resolvers = {
 
       try {
 
-        await adminModel.findByIdAndDelete({ _id: input.id })
+        await adminModel.findByIdAndDelete({ _id: input?.id })
 
         return {
 

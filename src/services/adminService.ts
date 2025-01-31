@@ -233,140 +233,181 @@ export const getSubAdminAllPermissions = async (id: Types.ObjectId): Promise<any
 
 
 
-export const getAllAdminsDetails=async({page,size,isBlocked,search}:{page:number,size:number,isBlocked:any,search:any}): Promise<any>=>{
+export const getAllAdminsDetails = async ({ page, size, isBlocked, search }: { page: number, size: number, isBlocked: any, search: any }): Promise<any> => {
 
-       return new Promise(async(resolve,reject)=>{
+  return new Promise(async (resolve, reject) => {
 
-             try {
+    try {
 
-                 const matchingObj:any={}
+      const matchingObj: any = {}
 
-                  if(isBlocked){
+      if (isBlocked) {
 
-                    const value=JSON.parse(isBlocked)
-                     matchingObj.isBlocked=value
-                  }
+        const value = JSON.parse(isBlocked)
+        matchingObj.isBlocked = value
+      }
 
-                  if(search){
+      if (search) {
 
-                      matchingObj.fullName=search
-                  }
+        matchingObj.fullName = search
+      }
 
-                  const resutlCount=await adminModel.find(matchingObj)
+      const resutlCount = await adminModel.find(matchingObj)
 
-                   const result=await adminModel.find(matchingObj,
-                    { 
-                      fullName:1,
-                      email:1,
-                      isBlocked:1,
-                      accType:1
-                     
+      //  const result=await adminModel.find(matchingObj,
+      //   { 
+      //     fullName:1,
+      //     email:1,
+      //     isBlocked:1,
+      //     accType:1
 
-                    })
-                    .sort({createdAt: -1 })
-                    .skip(page * size )
-                    .limit(size)
-                    
-                   
-                    let response: any = {
-                      records: [],
-                      maxRecords: 0,
-                    };
-              
-                    if (result.length) {
-                      response.records = result;
-                      response.maxRecords = resutlCount?.length || 0;
-                    }
-              
-                   
-                    resolve(response)
-               
-            
-                  } catch (error) {
-               
-                console.log(error)
-                  reject()
-             }
-       })
+
+      //   })
+      //   .sort({createdAt: -1 })
+      //   .skip(page * size )
+      //   .limit(size)
+
+
+      const result = await adminModel.aggregate(
+
+        [
+          {
+            $match: matchingObj
+          },
+          {
+            $lookup: {
+              from: "roles",
+              localField: "role",
+              foreignField: "_id",
+              as: "roles"
+            }
+          },
+          {
+
+            $sort: {
+              createdAt: -1
+            }
+          },
+          {
+            $skip: page * size,
+          },
+          {
+            $limit: size,
+          },
+          {
+            $project: {
+              fullName: 1,
+              email: 1,
+              isBlocked: 1,
+              accType: 1,
+              roles: 1
+            }
+          }
+
+
+        ]
+
+      )
+
+      let response: any = {
+        records: [],
+        maxRecords: 0,
+      };
+
+      if (result.length) {
+        response.records = result;
+        response.maxRecords = resutlCount?.length || 0;
+      }
+
+
+      resolve(response)
+
+
+    } catch (error) {
+
+      console.log(error)
+      reject()
+    }
+  })
 }
 
 
 
-export const getOneAdminDetails=async(id:Types.ObjectId): Promise<any>=>{
+export const getOneAdminDetails = async (id: Types.ObjectId): Promise<any> => {
 
-      return new Promise(async(resolve,reject)=>{
+  return new Promise(async (resolve, reject) => {
 
-            try {
+    try {
 
-            const result=await adminModel.aggregate(
+      const result = await adminModel.aggregate(
 
-              [
-                {
-                  $match: {
-                    _id:id
-                  }
-                },
-                {
-                  $lookup: {
-                    from: "roles",
-                    localField: "role",
-                    foreignField: "_id",
-                    as: "roles"
-                  }
-                },
-                {
-                  $project: {
-                    fullName:1,
-                    email:1,
-                    isBlocked:1,
-                    accType:1,
-                    roles:1
-                  }
-                }
-                
-                  
-              ]
-            )
-
-            resolve(result[0])
-              
-            } catch (error) {
-              
-
-                 reject()
+        [
+          {
+            $match: {
+              _id: id
             }
+          },
+          {
+            $lookup: {
+              from: "roles",
+              localField: "role",
+              foreignField: "_id",
+              as: "roles"
+            }
+          },
+          {
+            $project: {
+              fullName: 1,
+              email: 1,
+              isBlocked: 1,
+              accType: 1,
+              roles: 1
+            }
+          }
+
+
+        ]
+      )
+
+      resolve(result[0])
+
+    } catch (error) {
+
+
+      reject()
+    }
+  })
+
+}
+
+
+export const updateAdminDetails = async (data: { id: Types.ObjectId, fullName: string, email: string, accType: string, role: any, profilePic: any }): Promise<any> => {
+
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      await adminModel.findByIdAndUpdate({ _id: data.id }, {
+
+        $set: {
+
+          fullName: data.fullName,
+          email: data.email,
+          accType: data.accType,
+          role: data.role,
+          profilePic: data.profilePic
+        }
       })
-       
-}
 
+      resolve(true)
 
-export const updateAdminDetails=async(data:{id:Types.ObjectId,fullName:string,email:string,accType:string,role:any,profilePic:any}): Promise<any>=>{
-     
-    
-         return new Promise(async(resolve,reject)=>{
-  
-            try {
+    } catch (error) {
 
-              await adminModel.findByIdAndUpdate({_id:data.id},{
+      reject()
+    }
 
-                $set:{
-                   
-                    fullName:data.fullName,
-                    email:data.email,
-                    accType:data.accType,
-                    role:data.role,
-                    profilePic:data.profilePic
-                }
-             })
-
-             resolve(true)
-              
-            } catch (error) {
-              
-                 reject()
-            }
-                 
-         })
+  })
 }
 
 
