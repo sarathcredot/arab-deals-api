@@ -1302,11 +1302,13 @@ export const userResolver: Resolvers = {
       }
 
     },
+
+
     async getUserRecord(parent, { }, { req }, info) {
       console.log("called")
 
       try {
-        // await verifyUser(req);
+        await verifyUser(req);
 
         const _id: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 

@@ -727,15 +727,7 @@ export const adminResolver: Resolvers = {
         });
       }
     },
-
-
-
-
-
-
-
-
-
+  
   },
 };
 
