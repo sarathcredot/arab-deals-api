@@ -17,7 +17,8 @@ export const adminResolver: Resolvers = {
 
     // create super admin and sub admin 
     createAdmin: async (parent, { input, image }, { req }, info) => {
-
+ 
+       await verifySuperAdmin(req)
       await validateInput(validators.AdminCreateValidator, req);
       try {
 
@@ -97,22 +98,34 @@ export const adminResolver: Resolvers = {
 
     suspendAdmin: async (parent, { input }, { req }, info) => {
 
-
+      await verifySuperAdmin(req)
       try {
 
         await adminModel.findByIdAndUpdate({ _id: input?.id }, {
 
           $set: {
-            isBlocked: true
+            isBlocked: input?.status
           }
         })
 
-        return {
+        if(input?.status){
+           
+          return {
 
-          status: true,
-          msg: "This admin suspended successfully "
+            status: true,
+            msg: " This admin account deactivate successfully "
+          }
+  
+        }else{
+
+          return {
+
+            status: true,
+            msg: "This admin account activate successfully"
+          }
         }
 
+       
       } catch (error) {
 
         throw new GraphQLError("INTERNAL_SERVER_ERROR", {
@@ -431,14 +444,15 @@ export const adminResolver: Resolvers = {
 
     deleteAdminAccount: async (parent, { input }, { req }, info) => {
 
+      await verifySuperAdmin(req)
       try {
 
-        await adminModel.findByIdAndDelete({ _id: input.id })
+        await adminModel.findByIdAndDelete({ _id: input?.id })
 
         return {
 
           status: true,
-          msg: ""
+          msg: "admin account deleted successfully"
         }
 
       } catch (error) {
@@ -457,7 +471,7 @@ export const adminResolver: Resolvers = {
 
     editAdminAccount: async (parent, { input,image }, { req }, info) => {
 
-
+      // await verifySuperAdmin(req)
       await validateInput(validators.AdminEditValidator, req);
 
 
@@ -482,7 +496,13 @@ export const adminResolver: Resolvers = {
 
          const isEmailExists=await adminModel.findOne({email:email})
 
-         if(isEmailExists){
+         console.log("input id",input.id.toString())
+
+         console.log("email exit",isEmailExists?._id.toString())
+
+         if(isEmailExists && isEmailExists._id.toString()!==input?.id.toString()){
+
+           console.log("exit")
 
           throw new GraphQLError('Admin with this email already exists', {
             extensions: {
@@ -490,7 +510,10 @@ export const adminResolver: Resolvers = {
               errors: []
             }
           });
-         }
+        
+        }
+
+        
 
          if (image) {
           const { createReadStream, filename, mimetype, encoding } = await image;
@@ -556,7 +579,7 @@ export const adminResolver: Resolvers = {
 
     cretaeDeliveryAgentConfig: async (parent, { input }, { req }, info) => {
 
-
+    await verifyAdmin(req)
       try {
 
         const limit = input.limit || 0
@@ -585,7 +608,8 @@ export const adminResolver: Resolvers = {
 
 
     updateDeliveryAgentConfig: async (parent, { input }, { req }, info) => {
-      // await verifyAdmin(req)
+     
+      await verifyAdmin(req)
 
       try {
         const { deliveryLimit, returnLimit, _id } = input
@@ -677,6 +701,7 @@ export const adminResolver: Resolvers = {
 
     getAllAdminData: async (parent, { input }, { req }, info) => {
 
+       await verifySuperAdmin(req)
       try {
 
         const page: number = input?.page || 0;
@@ -710,6 +735,8 @@ export const adminResolver: Resolvers = {
 
     getOneAdminDetails: async (parent, { input }, { req }, info) => {
 
+
+         await verifySuperAdmin(req)  
 
       try {
 

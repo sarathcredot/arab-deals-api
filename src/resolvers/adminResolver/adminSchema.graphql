@@ -18,12 +18,16 @@
   cretaeDeliveryAgentConfig(input:cretaeDeliveryAgentConfigInput!):cretaeDeliveryAgentConfigResponse!
   updateDeliveryAgentConfig(input:updateDeliveryAgentConfigInput!):cretaeDeliveryAgentConfigResponse!
   suspendAdmin(input:suspendAdminInput!):suspendAdminResponse!
-  deleteAdminAccount(input:suspendAdminInput!):suspendAdminResponse!
+  deleteAdminAccount(input:deleteAdminAccountInput!):suspendAdminResponse!
   editAdminAccount(input:editAdminAccountInput!,image:Upload):editAdminAccountResponse!
   
 }
 
 
+input deleteAdminAccountInput{
+
+    id:ObjectId
+}
 
 input editAdminAccountInput{
        
@@ -51,6 +55,7 @@ type suspendAdminResponse{
 input suspendAdminInput{
 
      id:ObjectId
+     status:Boolean
 }
 
 
@@ -243,7 +248,7 @@ type getAllAdminDataType{
   email: String
   accType: String
   isBlocked: Boolean
- 
+  roles:[adminroles]
   
 }
 
