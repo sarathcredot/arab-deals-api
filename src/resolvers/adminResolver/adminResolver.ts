@@ -107,12 +107,24 @@ export const adminResolver: Resolvers = {
           }
         })
 
-        return {
+        if(input?.status){
+           
+          return {
 
-          status: true,
-          msg: "This admin suspended successfully "
+            status: true,
+            msg: " This admin account deactivate successfully "
+          }
+  
+        }else{
+
+          return {
+
+            status: true,
+            msg: "This admin account activate successfully"
+          }
         }
 
+       
       } catch (error) {
 
         throw new GraphQLError("INTERNAL_SERVER_ERROR", {
@@ -482,7 +494,8 @@ export const adminResolver: Resolvers = {
 
          const isEmailExists=await adminModel.findOne({email:email})
 
-         if(isEmailExists){
+         if(isEmailExists && isEmailExists._id!==input.id){
+
 
           throw new GraphQLError('Admin with this email already exists', {
             extensions: {
@@ -490,7 +503,10 @@ export const adminResolver: Resolvers = {
               errors: []
             }
           });
-         }
+        
+        }
+
+        
 
          if (image) {
           const { createReadStream, filename, mimetype, encoding } = await image;
