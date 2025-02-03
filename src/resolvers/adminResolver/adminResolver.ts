@@ -450,7 +450,7 @@ export const adminResolver: Resolvers = {
         return {
 
           status: true,
-          msg: ""
+          msg: "admin account deleted successfully"
         }
 
       } catch (error) {
