@@ -326,7 +326,7 @@ type GetDeliveryAgentReturnOrderResponse{
   userName: String
   email: String
   mobileNumber: String
-   houseNumber: String
+  houseNumber: String
   streetName: String
   apartment: String
   suite: String
@@ -334,6 +334,10 @@ type GetDeliveryAgentReturnOrderResponse{
   city: String
   country: String
   postCode: String
+  label:String
+  address:String
+
+
  }
 
 type GetAssignedOrderDetailByDeliveryAgentResponseArry{
@@ -401,6 +405,8 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   city: String
   country: String
   postCode: String
+  label:String
+  address:String
         
  }
 

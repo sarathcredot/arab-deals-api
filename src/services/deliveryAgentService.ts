@@ -1687,6 +1687,8 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
               suite: "$orderDetails.shippingAddress.suite",
               unit: "$orderDetails.shippingAddress.unit",
               city: "$orderDetails.shippingAddress.city",
+              label:"$orderDetails.shippingAddress.label",
+              address:"$orderDetails.shippingAddress.address",
               postCode: "$orderDetails.shippingAddress.postCode"
             },
           },
@@ -2044,7 +2046,11 @@ export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.Ob
               suite: "$orderDetails.shippingAddress.suite",
               unit: "$orderDetails.shippingAddress.unit",
               city: "$orderDetails.shippingAddress.city",
-              postCode: "$orderDetails.shippingAddress.postCode"
+              label:"$orderDetails.shippingAddress.label",
+              address:"$orderDetails.shippingAddress.address",
+              postCode: "$orderDetails.shippingAddress.postCode",
+             
+
             },
           },
         ]
@@ -2206,6 +2212,8 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             suite: "$userDetails.shippingAddress.suite",
             unit: "$userDetails.shippingAddress.unit",
             city: "$userDetails.shippingAddress.city",
+            label:"$userDetails.shippingAddress.label",
+            address:"$userDetails.shippingAddress.address",
             postCode: "$userDetails.shippingAddress.postCode"
 
           },
