@@ -1829,6 +1829,7 @@ type returnAddress {
   village: String
   governorateID: String
   villageID: String
+  address: String
 }
 
 input ReturnAddressInput {
@@ -2979,6 +2980,8 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry {
   suite: String
   unit: String
   city: String
+  label: String
+  deliveryAddress: String
   country: String
   postCode: String
   returnStatus: String

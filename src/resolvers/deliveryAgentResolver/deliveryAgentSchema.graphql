@@ -384,7 +384,7 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry{
   returnPostponedDate:Date
   returnPostponedRemarks:String
   returnCollectedDate:Date
-  address:String
+  
 }
  
  type getAssignedeOrderDeatilsByAgentProfileResponse{

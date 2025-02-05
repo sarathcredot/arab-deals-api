@@ -2200,6 +2200,8 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             returnPostponedDate: 1,
             returnPostponedRemarks: 1,
             returnCollectedDate: 1,
+            address:1,
+
 
             // User information from the aggregated userDetails
             userName: "$userDetails.shippingAddress.firstname",
@@ -2213,7 +2215,7 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             unit: "$userDetails.shippingAddress.unit",
             city: "$userDetails.shippingAddress.city",
             label:"$userDetails.shippingAddress.label",
-            address:"$userDetails.shippingAddress.address",
+            deliveryAddress:"$userDetails.shippingAddress.address",
             postCode: "$userDetails.shippingAddress.postCode"
 
           },
