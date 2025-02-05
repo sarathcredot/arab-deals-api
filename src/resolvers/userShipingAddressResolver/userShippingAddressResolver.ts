@@ -261,7 +261,7 @@ export const userShippingAddressResolver: Resolvers = {
         removeUserShippingAddress: async (parent, { input }, { req }, info) => {
 
             await verifyUser(req);
-            await validateInput(validators.userShippingAddressUpdateValidator, req);
+            // await validateInput(validators.userShippingAddressUpdateValidator, req);
 
             const filters = {
                 _id: new Types.ObjectId(input._id),

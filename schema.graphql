@@ -815,7 +815,7 @@ input EditMobileUserShippingAddressInput {
 }
 
 input UserRemoveShippingAddressInput {
-  _id: ObjectId!
+  _id: String!
 }
 
 input RemoveMobileUserShippingAddressInput {
@@ -847,7 +847,6 @@ type EditMobileUserShippingAddressResponse {
 }
 
 type UserRemoveShippingAddressResponse {
-  _id: ObjectId!
   message: String
 }
 
@@ -1829,6 +1828,7 @@ type returnAddress {
   village: String
   governorateID: String
   villageID: String
+  address: String
 }
 
 input ReturnAddressInput {
@@ -2954,6 +2954,8 @@ type GetAssignedOrderByDeliveryAgentResponseArry {
   city: String
   country: String
   postCode: String
+  label: String
+  address: String
 }
 
 type GetAssignedOrderDetailByDeliveryAgentResponseArry {
@@ -2977,6 +2979,8 @@ type GetAssignedOrderDetailByDeliveryAgentResponseArry {
   suite: String
   unit: String
   city: String
+  label: String
+  deliveryAddress: String
   country: String
   postCode: String
   returnStatus: String
@@ -3019,6 +3023,8 @@ type getAssignedeOrderDeatilsByAgentProfileResponse {
   city: String
   country: String
   postCode: String
+  label: String
+  address: String
 }
 
 type getAssignedOrderByAgentProfileResponse {

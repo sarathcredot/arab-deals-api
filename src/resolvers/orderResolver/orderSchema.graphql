@@ -106,6 +106,7 @@ type returnAddress {
   village: String
   governorateID: String
   villageID: String
+  address:String
 }
 
 input ReturnAddressInput {

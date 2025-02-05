@@ -598,7 +598,8 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                         $project: {
                             _id: 0,
                             firstName: 1,
-                            lastName: 1
+                            lastName: 1,
+                            displayName:1,
                         }
                     }
                 ],
@@ -659,7 +660,7 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                 paymentMode: 1,
                 orderDate: 1,
                 orderStatus: 1,
-                username: { $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"] },
+                username: "$userInfo.displayName",
                 orderPriceInfo: 1,
                 shippingAddress: 1
             }
