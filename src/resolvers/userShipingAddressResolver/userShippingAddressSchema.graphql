@@ -112,7 +112,7 @@ input EditMobileUserShippingAddressInput {
 # Shipping Address Remove Input
 
 input UserRemoveShippingAddressInput {
-    _id: ObjectId!
+    _id: String!
 }
 
 
@@ -155,7 +155,6 @@ type EditMobileUserShippingAddressResponse {
 # Shipping Address Remove Output
 
 type UserRemoveShippingAddressResponse {
-    _id: ObjectId!
     message: String
 }
 
