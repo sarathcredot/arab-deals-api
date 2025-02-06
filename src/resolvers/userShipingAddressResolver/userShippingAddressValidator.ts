@@ -5,14 +5,14 @@ export const userShippingAddressCreateValidator = [
     body('variables.input.firstname').trim().notEmpty(),
     body('variables.input.email').trim().optional({ checkFalsy: true }).isEmail(),
     body('variables.input.mobile').trim().notEmpty(),
-    body('variables.input.streetName').trim().notEmpty(),
-    body('variables.input.city').trim().notEmpty(),
+    body('variables.input.address').trim().notEmpty(),
+    body('variables.input.label').trim().notEmpty(),
     body('variables.input.postCode').trim().notEmpty(),
-    body('variables.input.apartment').trim().optional({ checkFalsy: true }),
-    body('variables.input.suite').trim().optional({ checkFalsy: true }),
-    body('variables.input.unit').trim().optional({ checkFalsy: true }),
+    // body('variables.input.apartment').trim().optional({ checkFalsy: true }),
+    // body('variables.input.suite').trim().optional({ checkFalsy: true }),
+    // body('variables.input.unit').trim().optional({ checkFalsy: true }),
     body('variables.input.country').trim().optional({ checkFalsy: true }),
-    body('variables.input.houseNumber').trim().optional({ checkFalsy: true }),
+    // body('variables.input.houseNumber').trim().optional({ checkFalsy: true }),
 ];
 
 
@@ -30,14 +30,16 @@ export const userShippingAddressUpdateValidator = [
     body('variables.input.first').trim().optional({ checkFalsy: true }),
     body('variables.input.email').trim().optional({ checkFalsy: true }).isEmail(),
     body('variables.input.mobile').trim().optional({ checkFalsy: true }),
-    body('variables.input.streetName').trim().optional({ checkFalsy: true }),
-    body('variables.input.city').trim().optional({ checkFalsy: true }),
+    body('variables.input.address').trim().notEmpty(),
+    body('variables.input.label').trim().notEmpty(),
+    // body('variables.input.streetName').trim().optional({ checkFalsy: true }),
+    // body('variables.input.city').trim().optional({ checkFalsy: true }),
     body('variables.input.country').trim().optional({ checkFalsy: true }),
-    body('variables.input.apartment').trim().optional({ checkFalsy: true }),
+    // body('variables.input.apartment').trim().optional({ checkFalsy: true }),
     body('variables.input.postCode').trim().optional({ checkFalsy: true }),
-    body('variables.input.suite').trim().optional({ checkFalsy: true }),
-    body('variables.input.unit').trim().optional({ checkFalsy: true }),
-    body('variables.input.houseNumber').trim().optional({ checkFalsy: true }),
+    // body('variables.input.suite').trim().optional({ checkFalsy: true }),
+    // body('variables.input.unit').trim().optional({ checkFalsy: true }),
+    // body('variables.input.houseNumber').trim().optional({ checkFalsy: true }),
 
 ];
 

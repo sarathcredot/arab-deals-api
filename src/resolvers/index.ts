@@ -22,8 +22,9 @@ import { dashboardResolver } from "./dashboardResolver/dashboardResolver";
 import { jobResolver } from "./jobResolver/jobResolver";
 import { scalarTypeResolver } from "./scalarTypeResolver/scalarTypeReolver";
 import { settingsResolver } from "./settingsResolver/settingsResolver";
-import {deliveryAgentResolver} from './deliveryAgentResolver/deliveryAgentResolver'
-import {couponResolver}  from './couponResolver/couponResolver'
+import {deliveryAgentResolver} from './deliveryAgentResolver/deliveryAgentResolver';
+import {couponResolver}  from './couponResolver/couponResolver';
+import {roleResolver} from './roleResolver/roleResolver'
 
 
 
@@ -52,7 +53,8 @@ export const resolvers: Resolvers = mergeResolvers(
         jobResolver,
         settingsResolver,
         deliveryAgentResolver,
-        couponResolver
+        couponResolver,
+        roleResolver
      
     ]
 );

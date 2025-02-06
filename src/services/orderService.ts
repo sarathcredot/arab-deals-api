@@ -578,6 +578,8 @@ export const getAdminOrderDetails = async (
               _id: 0,
               firstName: 1,
               lastName: 1,
+              displayName:1,
+
             },
           },
         ],
@@ -643,6 +645,7 @@ export const getAdminOrderDetails = async (
         },
         orderPriceInfo: 1,
         shippingAddress: 1,
+        displayName:1,
       },
     }
   );

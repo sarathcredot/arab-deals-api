@@ -1132,7 +1132,7 @@ export const userResolver: Resolvers = {
     logoutUser: async (parent, { }, { req }, info) => {
       await verifyUser(req);
       const userId = req.authAccount._id;
-      console.log("logut req",userId)
+      console.log("logut req", userId)
       await userService.logoutUser(userId);
       const response = {
         _id: userId
@@ -1150,7 +1150,7 @@ export const userResolver: Resolvers = {
       return response;
     },
 
-    accountDeleteByUser: async (parent, {input}, { req }, info) => {
+    accountDeleteByUser: async (parent, { input }, { req }, info) => {
       //TODO: check if user exist // throw error 
       //add  a field for isDeleted for soft delete 
       //when user deleted then set isDeleted to true
@@ -1158,13 +1158,13 @@ export const userResolver: Resolvers = {
 
       await verifyUser(req);
       const userId = req.authAccount._id;
-      console.log("input",input)
+      console.log("input", input)
 
-      const isDeleted=input.isDeleted;
-      const deleteReason:string | undefined | null=input?.deleteReason
+      const isDeleted = input.isDeleted;
+      const deleteReason: string | undefined | null = input?.deleteReason
 
-      const user=await userModel.findById(userId);
-      if(!user){
+      const user = await userModel.findById(userId);
+      if (!user) {
         throw new GraphQLError('User not found', {
           extensions: {
             code: 'BAD_REQUEST',
@@ -1173,7 +1173,7 @@ export const userResolver: Resolvers = {
         });
       }
 
-      if(user.isBlocked){
+      if (user.isBlocked) {
         throw new GraphQLError('Your Account is blocked', {
           extensions: {
             code: 'BAD_REQUEST',
@@ -1182,36 +1182,36 @@ export const userResolver: Resolvers = {
         });
       }
 
-      if(user.isDeleted){
+      if (user.isDeleted) {
         throw new GraphQLError('Your Account is Already Deleted', {
           extensions: {
             code: 'BAD_REQUEST',
             errors: [],
           },
         });
-        }
+      }
 
 
       // Perform soft delete by updating the isDeleted field
 
       console.log("update user")
 
-      const updateUser= await userService.accountDeleteByUser(userId,isDeleted,deleteReason);
-      console.log("update user",updateUser)
+      const updateUser = await userService.accountDeleteByUser(userId, isDeleted, deleteReason);
+      console.log("update user", updateUser)
 
-      if(!updateUser){  
+      if (!updateUser) {
         throw new GraphQLError('Something Went Wrong!!Account Not Deleted', {
           extensions: {
             code: 'BAD_REQUEST',
             errors: [],
           },
-      })
-    }
+        })
+      }
 
       // Cancel all active orders of the user
-      const orderStatusUpdate=await userService.updateOrdersByUserId(userId,{shippingStatus:"CANCELED"} );
+      const orderStatusUpdate = await userService.updateOrdersByUserId(userId, { shippingStatus: "CANCELED" });
 
-      if(!updateUser){  
+      if (!updateUser) {
         throw new GraphQLError('Something Went Wrong!!Orders Not Canceled', {
           extensions: {
             code: 'BAD_REQUEST',
@@ -1220,14 +1220,14 @@ export const userResolver: Resolvers = {
         })
       }
 
-      console.log("updateduser",updateUser)
+      console.log("updateduser", updateUser)
 
 
       const response = {
-         success:true,
-         message:"Account Deleted Successfully"  
+        success: true,
+        message: "Account Deleted Successfully"
       }
-      
+
       return response;
     }
 
@@ -1256,7 +1256,7 @@ export const userResolver: Resolvers = {
           query
         }
 
-        
+
 
         const result = await userService.getUsersByAdminWithFilters(options);
 
@@ -1302,7 +1302,10 @@ export const userResolver: Resolvers = {
       }
 
     },
+
+
     async getUserRecord(parent, { }, { req }, info) {
+      console.log("called")
 
       try {
         await verifyUser(req);
@@ -1317,6 +1320,7 @@ export const userResolver: Resolvers = {
             mobileNumber: 1, _id: 1,
           },
           {});
+          
         if (!result) {
           throw new GraphQLError("INTERNAL_SERVER_ERROR", {
             extensions: {
@@ -1330,7 +1334,7 @@ export const userResolver: Resolvers = {
           record: result.toObject(),
           message: "User fetched succesfully"
         }
-
+        console.log("user data", response)
         return response;
 
       } catch (error) {

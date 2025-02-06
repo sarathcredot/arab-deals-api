@@ -29,24 +29,30 @@ const userShippingAddressSchema = new Schema(
     },
     houseNumber: {
       type: String,
-      required: true,
+      // required: true,
+      default:""
     },
     streetName: {
       type: String,
-      required: true,
+      // required: true,
+      default:""
     },
     apartment: {
       type: String,
+      default:""
     },
     suite: {
       type: String,
+      default:""
     },
     unit: {
       type: String,
+      default:""
     },
     city: {
       type: String,
-      required: true,
+      // required: true,
+      default:""
     },
     postCode: {
       type: String,
@@ -73,6 +79,15 @@ const userShippingAddressSchema = new Schema(
       type: String,
       required: true,
     },
+    address:{
+       
+        type:String,
+        require:true
+    },
+    label:{
+      type:String,
+      require:true
+    }
   },
   {
     _id: true,

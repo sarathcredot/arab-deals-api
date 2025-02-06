@@ -34,10 +34,10 @@ export const getAuthTokenFromHeaders = (req: Request): string => {
     }
 }
 
-export const createAdminJWT = (id: string): Promise<string> => {
+export const createAdminJWT = ({id,role,accType}:{id:string,role:any,accType:string}): Promise<string> => {
     return new Promise((resolve, reject) => {
         try {
-            const token = jwt.sign({ id }, adminSecretKey, { expiresIn: "1hr" });
+            const token = jwt.sign({ id ,accType, role  }, adminSecretKey, { expiresIn: "1hr" });
             resolve(token);
         } catch (e) {
             reject(new GraphQLError("JWT error", {

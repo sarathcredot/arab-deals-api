@@ -106,6 +106,7 @@ type returnAddress {
   village: String
   governorateID: String
   villageID: String
+  address:String
 }
 
 input ReturnAddressInput {
@@ -124,6 +125,7 @@ input ReturnAddressInput {
   village: String!
   governorateID: String!
   villageID: String!
+  address:String
 }
 
 input ReturnUserOrderProductInput {
@@ -430,6 +432,9 @@ type OrderShippingAddress {
   governorate: String
   village: String
   villageID: String
+  address:String
+  label:String
+
 }
 
 type OrderPriceInfo {
@@ -635,6 +640,7 @@ type GetAdminOrderDetailsResponse {
   username: String
   shippingAddress: OrderShippingAddress
   orderPriceInfo: OrderPriceInfo
+   displayName:String
 }
 
 type GetAdminShippingProductsResponse {
