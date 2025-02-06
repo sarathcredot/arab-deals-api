@@ -599,7 +599,7 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                             _id: 0,
                             firstName: 1,
                             lastName: 1,
-                            displayName:1,
+                            displayName:1 ,
                         }
                     }
                 ],
@@ -660,7 +660,7 @@ export const getAdminOrderDetails = async (orderId: string): Promise<IOrderDetai
                 paymentMode: 1,
                 orderDate: 1,
                 orderStatus: 1,
-                username: "$userInfo.displayName",
+                username: "$userInfo.displayName" ,
                 orderPriceInfo: 1,
                 shippingAddress: 1
             }
