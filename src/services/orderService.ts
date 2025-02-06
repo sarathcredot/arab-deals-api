@@ -640,12 +640,10 @@ export const getAdminOrderDetails = async (
         paymentMode: 1,
         orderDate: 1,
         orderStatus: 1,
-        username: {
-          $concat: ["$userInfo.firstName", " ", "$userInfo.lastName"],
-        },
+        username: "$userInfo.displayName",
         orderPriceInfo: 1,
         shippingAddress: 1,
-        displayName:1,
+        
       },
     }
   );
