@@ -9,6 +9,9 @@ const notificationSchema=new Schema({
     message:{
         type:String,
      },
+     title:{
+      type:String,
+     },
      permissions:{
         type:[String],
         enum:[ "dashboard","users","vendors","delivery-boys","settlement","kyc","coupons","product","brands","category","assign-attribute","attributes","orders","shipping-orders","return-orders","refund-orders","cmslisting","settings" ]

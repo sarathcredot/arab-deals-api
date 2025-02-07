@@ -7,6 +7,7 @@ export interface INotification {
     orderId?: string;
     productId?: Types.ObjectId;
     type: string;
+    title:string;
 }
 
 
