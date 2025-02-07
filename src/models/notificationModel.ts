@@ -13,7 +13,7 @@ const notificationSchema=new Schema({
      },
      permissions:{
         type:[String],
-        enum:""
+        enum:[ "dashboard","users","vendors","delivery-boys","settlement","kyc","coupons","product","brands","category","assign-attribute","attributes","orders","shipping-orders","return-orders","refund-orders","cmslisting","settings" ]
      },
      orderId:{
  
