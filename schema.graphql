@@ -20,14 +20,6 @@ type Mutation {
   addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
   updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
   updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
-  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
-  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
-  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
-  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
-  createMobileUserShippingAddress(input: CreateMobileUserShippingAddressInput!): CreateMobileUserShippingAddressResponse!
-  editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
-  removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
-  updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
@@ -42,6 +34,14 @@ type Mutation {
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
   logoutMobileUser: LogoutMobileUserResponse!
+  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
+  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
+  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
+  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
+  createMobileUserShippingAddress(input: CreateMobileUserShippingAddressInput!): CreateMobileUserShippingAddressResponse!
+  editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
+  removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
+  updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
   createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
@@ -61,16 +61,6 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
-  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
-  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   editDeliveryAgentData(input: EditAgentDataInput!, image: Upload): EditAgentDataInputResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!, image: Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): AllDeliveryAgentResponse!
@@ -89,6 +79,16 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
+  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
+  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
   adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
@@ -148,12 +148,6 @@ type Query {
   getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
   getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
   getVendorOutletRecord: VendorOutletRecordResponse!
-  getUserShippingAddresses: GetUserShippingAddressesResponse!
-  getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
-  getUserDefaultShippingAddress: GetUserShippingAddressResponse!
-  getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
-  getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
-  getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
@@ -161,6 +155,12 @@ type Query {
   getUserRecordByAdmin(input: userInput!): userResponse!
   getUserRecord: GetUserRecordResponse!
   getUserRecordInMobile: GetUserRecordInMobileResponse!
+  getUserShippingAddresses: GetUserShippingAddressesResponse!
+  getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
+  getUserDefaultShippingAddress: GetUserShippingAddressResponse!
+  getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
+  getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
+  getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
   getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
@@ -207,11 +207,6 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
-  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
-  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
@@ -230,6 +225,11 @@ type Query {
   getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getDeliveryAgentlistCustomizOrderAssigen(input: getDeliveryAgentlistCustomizOrderAssigenInput): [getDeliveryAgentlistCustomizOrderAssigenResponse]!
   getLocationsData: [Locations]!
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
+  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -752,215 +752,6 @@ type VendorOutletStatusUpdationResponse {
   message: String
 }
 
-input UserCreateShippingAddressInput {
-  firstname: String!
-  email: String
-  mobile: String!
-  address: String
-  label: String
-  country: String
-  postCode: String!
-  governorate: String!
-  village: String!
-  governorateID: String!
-  villageID: String!
-  isDefault: Boolean
-}
-
-input CreateMobileUserShippingAddressInput {
-  firstname: String!
-  email: String
-  mobile: String!
-  country: String
-  postCode: String!
-  address: String
-  label: String
-  governorate: String
-  village: String
-  governorateID: String
-  villageID: String
-  isDefault: Boolean
-}
-
-input UserEditShippingAddressInput {
-  _id: ObjectId!
-  firstname: String
-  email: String
-  mobile: String
-  address: String
-  label: String
-  postCode: String
-  houseNumber: String
-  country: String
-  governorate: String
-  village: String
-  governorateID: String
-  villageID: String
-}
-
-input EditMobileUserShippingAddressInput {
-  _id: ObjectId!
-  firstname: String
-  email: String
-  mobile: String
-  address: String
-  label: String
-  postCode: String
-  houseNumber: String
-  country: String
-  governorate: String
-  village: String
-  governorateID: String
-  villageID: String
-}
-
-input UserRemoveShippingAddressInput {
-  _id: String!
-}
-
-input RemoveMobileUserShippingAddressInput {
-  _id: ObjectId!
-}
-
-input updateUserShippingAddressAsDefaultInput {
-  addressId: ObjectId!
-}
-
-input UpdateMobileUserShippingAddressAsDefaultInput {
-  addressId: ObjectId!
-}
-
-type UserCreateShippingAddressResponse {
-  _id: ObjectId!
-}
-
-type CreateMobileUserShippingAddressResponse {
-  _id: ObjectId!
-}
-
-type UserEditShippingAddressResponse {
-  _id: ObjectId!
-}
-
-type EditMobileUserShippingAddressResponse {
-  _id: ObjectId!
-}
-
-type UserRemoveShippingAddressResponse {
-  message: String
-}
-
-type RemoveMobileUserShippingAddressResponse {
-  _id: ObjectId!
-  message: String
-}
-
-type updateUserShippingAddressAsDefaultResponse {
-  _id: ObjectId!
-  message: String
-}
-
-type UpdateMobileUserShippingAddressAsDefaultResponse {
-  _id: ObjectId!
-  message: String
-}
-
-input GetUserShippingAddressInput {
-  _id: ObjectId!
-}
-
-input GetMobileUserShippingAddressInput {
-  _id: ObjectId!
-}
-
-type UserShippingAddress {
-  _id: ObjectId
-  firstname: String
-  email: String
-  mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
-  postCode: String
-  houseNumber: String
-  country: String
-  governorate: String
-  village: String
-  governorateID: String
-  villageID: String
-  isDefault: Boolean
-  address: String
-  label: String
-}
-
-type GetUserShippingAddressesResponse {
-  address: [UserShippingAddress]
-}
-
-type GetMobileUserShippingAddressesResponse {
-  address: [UserShippingAddress]
-}
-
-type GetUserShippingAddressResponse {
-  _id: ObjectId
-  firstname: String
-  email: String
-  mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
-  postCode: String
-  houseNumber: String
-  country: String
-  governorate: String
-  village: String
-  governorateID: String
-  villageID: String
-  isDefault: Boolean
-  address: String
-  label: String
-}
-
-type GetMobileUserShippingAddressResponse {
-  _id: ObjectId
-  firstname: String
-  email: String
-  mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
-  postCode: String
-  houseNumber: String
-  country: String
-  isDefault: Boolean
-  address: String
-  label: String
-}
-
-type GetMobileUserDefaultShippingAddressResponse {
-  _id: ObjectId
-  firstname: String
-  email: String
-  mobile: String
-  streetName: String
-  city: String
-  apartment: String
-  suite: String
-  unit: String
-  postCode: String
-  houseNumber: String
-  country: String
-  isDefault: Boolean
-  address: String
-  label: String
-}
-
 input UpdateVendorCompanyByAdminInput {
   _id: ObjectId!
   companyName: String
@@ -1215,6 +1006,215 @@ type GetUserRecordResponse {
 type GetUserRecordInMobileResponse {
   record: user
   message: String
+}
+
+input UserCreateShippingAddressInput {
+  firstname: String!
+  email: String
+  mobile: String!
+  address: String
+  label: String
+  country: String
+  postCode: String!
+  governorate: String!
+  village: String!
+  governorateID: String!
+  villageID: String!
+  isDefault: Boolean
+}
+
+input CreateMobileUserShippingAddressInput {
+  firstname: String!
+  email: String
+  mobile: String!
+  country: String
+  postCode: String!
+  address: String
+  label: String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
+  isDefault: Boolean
+}
+
+input UserEditShippingAddressInput {
+  _id: ObjectId!
+  firstname: String
+  email: String
+  mobile: String
+  address: String
+  label: String
+  postCode: String
+  houseNumber: String
+  country: String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
+}
+
+input EditMobileUserShippingAddressInput {
+  _id: ObjectId!
+  firstname: String
+  email: String
+  mobile: String
+  address: String
+  label: String
+  postCode: String
+  houseNumber: String
+  country: String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
+}
+
+input UserRemoveShippingAddressInput {
+  _id: String!
+}
+
+input RemoveMobileUserShippingAddressInput {
+  _id: ObjectId!
+}
+
+input updateUserShippingAddressAsDefaultInput {
+  addressId: ObjectId!
+}
+
+input UpdateMobileUserShippingAddressAsDefaultInput {
+  addressId: ObjectId!
+}
+
+type UserCreateShippingAddressResponse {
+  _id: ObjectId!
+}
+
+type CreateMobileUserShippingAddressResponse {
+  _id: ObjectId!
+}
+
+type UserEditShippingAddressResponse {
+  _id: ObjectId!
+}
+
+type EditMobileUserShippingAddressResponse {
+  _id: ObjectId!
+}
+
+type UserRemoveShippingAddressResponse {
+  message: String
+}
+
+type RemoveMobileUserShippingAddressResponse {
+  _id: ObjectId!
+  message: String
+}
+
+type updateUserShippingAddressAsDefaultResponse {
+  _id: ObjectId!
+  message: String
+}
+
+type UpdateMobileUserShippingAddressAsDefaultResponse {
+  _id: ObjectId!
+  message: String
+}
+
+input GetUserShippingAddressInput {
+  _id: ObjectId!
+}
+
+input GetMobileUserShippingAddressInput {
+  _id: ObjectId!
+}
+
+type UserShippingAddress {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
+  isDefault: Boolean
+  address: String
+  label: String
+}
+
+type GetUserShippingAddressesResponse {
+  address: [UserShippingAddress]
+}
+
+type GetMobileUserShippingAddressesResponse {
+  address: [UserShippingAddress]
+}
+
+type GetUserShippingAddressResponse {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  governorate: String
+  village: String
+  governorateID: String
+  villageID: String
+  isDefault: Boolean
+  address: String
+  label: String
+}
+
+type GetMobileUserShippingAddressResponse {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  isDefault: Boolean
+  address: String
+  label: String
+}
+
+type GetMobileUserDefaultShippingAddressResponse {
+  _id: ObjectId
+  firstname: String
+  email: String
+  mobile: String
+  streetName: String
+  city: String
+  apartment: String
+  suite: String
+  unit: String
+  postCode: String
+  houseNumber: String
+  country: String
+  isDefault: Boolean
+  address: String
+  label: String
 }
 
 scalar Date
@@ -2594,125 +2594,6 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
-input ExportAdminOrdersInput {
-  _id: ObjectId
-  userId: ObjectId
-  orderId: String
-  paymentMode: String
-  orderStatus: String
-  startDate: Date
-  endDate: Date
-  postCode: String
-  page: Int
-  size: Int
-}
-
-input GetJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-}
-
-input GetAgentJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-  agentId: ObjectId
-}
-
-input GetAdminDownloadTokenInput {
-  _id: ObjectId!
-}
-
-input ExportAdminShippingProductsInput {
-  _id: ObjectId
-  userId: ObjectId
-  vendorId: ObjectId
-  orderId: String
-  productId: ObjectId
-  itemId: String
-  skuId: String
-  paymentMode: String
-  paymentStatus: String
-  shippingStatus: String
-  orderStartDate: Date
-  orderEndDate: Date
-  shippingStartDate: Date
-  shippingEndDate: Date
-  deliveryStartDate: Date
-  deliveryEndDate: Date
-  cancelledStartDate: Date
-  cancelledEndDate: Date
-  courierId: String
-  invoiceNumber: String
-  page: Int
-  size: Int
-  sort: String
-}
-
-input ExportAdminSettlementHistoryInput {
-  type: String
-  agentId: ObjectId
-  startDate: Date
-  endDate: Date
-  page: Int
-  size: Int
-}
-
-input AssignOrderInput {
-  shippingStatus: String
-  agentId: ObjectId
-  page: Int
-  size: Int
-}
-
-input ExportAllSettlementHistoryInput {
-  page: Int
-  size: Int
-}
-
-type ExportAdminOrdersResponse {
-  message: String
-}
-
-type ExportAdminShippingProductsResponse {
-  message: String
-}
-
-type JobRecord {
-  _id: ObjectId
-  name: String
-  status: String
-  isExpired: Boolean
-  createdAt: Date
-}
-
-type GetJobQueueResponse {
-  maxRecords: Int
-  records: [JobRecord]
-}
-
-type GetAdminDownloadTokenResponse {
-  url: String!
-}
-
-input GetAdminSignedFileUrlInput {
-  fileURL: String!
-  mimeType: String!
-}
-
-input GetUserIvoiceUrlInput {
-  _id: ObjectId!
-}
-
-type GetAdminSignedFileUrlResponse {
-  url: String
-}
-
-type GetUserIvoiceUrlResponse {
-  url: String
-}
-
 input getDeliveryAgentlistCustomizOrderAssigenInput {
   deliveryAgentType: String!
   vendorID: ObjectId
@@ -3267,6 +3148,125 @@ type LoginDeliveryAgentResponse {
   fullName: String
   token: String
   msg: String
+}
+
+input GetAdminSignedFileUrlInput {
+  fileURL: String!
+  mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+  _id: ObjectId!
+}
+
+type GetAdminSignedFileUrlResponse {
+  url: String
+}
+
+type GetUserIvoiceUrlResponse {
+  url: String
+}
+
+input ExportAdminOrdersInput {
+  _id: ObjectId
+  userId: ObjectId
+  orderId: String
+  paymentMode: String
+  orderStatus: String
+  startDate: Date
+  endDate: Date
+  postCode: String
+  page: Int
+  size: Int
+}
+
+input GetJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+}
+
+input GetAgentJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+  agentId: ObjectId
+}
+
+input GetAdminDownloadTokenInput {
+  _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+  _id: ObjectId
+  userId: ObjectId
+  vendorId: ObjectId
+  orderId: String
+  productId: ObjectId
+  itemId: String
+  skuId: String
+  paymentMode: String
+  paymentStatus: String
+  shippingStatus: String
+  orderStartDate: Date
+  orderEndDate: Date
+  shippingStartDate: Date
+  shippingEndDate: Date
+  deliveryStartDate: Date
+  deliveryEndDate: Date
+  cancelledStartDate: Date
+  cancelledEndDate: Date
+  courierId: String
+  invoiceNumber: String
+  page: Int
+  size: Int
+  sort: String
+}
+
+input ExportAdminSettlementHistoryInput {
+  type: String
+  agentId: ObjectId
+  startDate: Date
+  endDate: Date
+  page: Int
+  size: Int
+}
+
+input AssignOrderInput {
+  shippingStatus: String
+  agentId: ObjectId
+  page: Int
+  size: Int
+}
+
+input ExportAllSettlementHistoryInput {
+  page: Int
+  size: Int
+}
+
+type ExportAdminOrdersResponse {
+  message: String
+}
+
+type ExportAdminShippingProductsResponse {
+  message: String
+}
+
+type JobRecord {
+  _id: ObjectId
+  name: String
+  status: String
+  isExpired: Boolean
+  createdAt: Date
+}
+
+type GetJobQueueResponse {
+  maxRecords: Int
+  records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+  url: String!
 }
 
 input GetDashboardUsersGraphInput {
