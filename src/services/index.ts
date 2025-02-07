@@ -26,6 +26,7 @@ import * as deliveryAgentService from "./deliveryAgentService";
 import * as transactionlogs from "./transactionlogs"
 import * as couponService  from "./couponService"
 import * as roleService from './roleService'
+import * as notificationService from './notificationService'
 
 
 
@@ -57,5 +58,6 @@ export {
     deliveryAgentService,
     transactionlogs,
     couponService,
-    roleService
+    roleService,
+    notificationService
 }

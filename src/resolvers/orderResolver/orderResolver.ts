@@ -2,6 +2,7 @@ import {
   cartService,
   couponService,
   deliveryAgentService,
+  notificationService,
   orderProductService,
   orderService,
   productService,
@@ -255,6 +256,18 @@ export const orderResolver: Resolvers = {
         }
         await couponService.updateUserUsage(userId, couponId)
       }
+
+       //create order placed notification
+
+
+      await notificationService.createNotification({
+        message: "You have a new order!!!!",
+        type: "new_order",   
+        permissions:["orders","shipping-orders"],
+        orderId: orderId
+      })
+
+
       
       let response = {
         orderId: orderId,

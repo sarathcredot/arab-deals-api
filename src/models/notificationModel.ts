@@ -1,6 +1,4 @@
 
-
-
 import {Schema,model} from "mongoose"
 import {collections} from "../configs"
 
@@ -16,12 +14,9 @@ const notificationSchema=new Schema({
         enum:[ "dashboard","users","vendors","delivery-boys","settlement","kyc","coupons","product","brands","category","assign-attribute","attributes","orders","shipping-orders","return-orders","refund-orders","cmslisting","settings" ]
      },
      orderId:{
- 
           type:String
-        
       },
       productId:{
-
            type:Schema.ObjectId
       },
       type:{
