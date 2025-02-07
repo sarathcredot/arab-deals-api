@@ -26,7 +26,11 @@ const notificationSchema=new Schema({
       },
       type:{
 
-        type:String
+        type:String,
+        enum: ["low_stock", "out_of_stock", "new_order", "return_order"],
+      },
+      view:{
+        type:[Schema.ObjectId]
       }
     },
     {
