@@ -23,14 +23,6 @@ type Mutation {
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
-  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
-  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
-  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
-  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
-  createMobileUserShippingAddress(input: CreateMobileUserShippingAddressInput!): CreateMobileUserShippingAddressResponse!
-  editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
-  removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
-  updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
   userLoginOtp(input: userLoginOtpInput!): userLoginOtpResponse!
   userVerifyOtp(input: userVerifyOtpInput!): userVerifyOtpResponse!
   userBlock(input: userBlockInput!): userBlockResponse!
@@ -42,6 +34,14 @@ type Mutation {
   userVerifyOtpInMobile(input: userVerifyOtpInMobileInput!): userVerifyOtpInMobileResponse!
   updateUserProfileInMobile(input: updateUserProfileInMobileInput!): updateUserProfileInMobileResponse!
   logoutMobileUser: LogoutMobileUserResponse!
+  createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
+  editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
+  removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
+  updateUserShippingAddressAsDefault(input: updateUserShippingAddressAsDefaultInput!): updateUserShippingAddressAsDefaultResponse!
+  createMobileUserShippingAddress(input: CreateMobileUserShippingAddressInput!): CreateMobileUserShippingAddressResponse!
+  editMobileUserShippingAddress(input: EditMobileUserShippingAddressInput!): EditMobileUserShippingAddressResponse!
+  removeMobileUserShippingAddress(input: RemoveMobileUserShippingAddressInput!): RemoveMobileUserShippingAddressResponse!
+  updateMobileUserShippingAddressAsDefault(input: UpdateMobileUserShippingAddressAsDefaultInput!): UpdateMobileUserShippingAddressAsDefaultResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
   createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
@@ -102,9 +102,6 @@ type Mutation {
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
-  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
-  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
-  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -113,6 +110,9 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
+  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
+  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
+  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
@@ -151,16 +151,16 @@ type Query {
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getUsersByAdmin(input: userFilters): usersResponse!
+  getUserRecordByAdmin(input: userInput!): userResponse!
+  getUserRecord: GetUserRecordResponse!
+  getUserRecordInMobile: GetUserRecordInMobileResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
   getMobileUserShippingAddresses: GetMobileUserShippingAddressesResponse!
   getMobileUserShippingAddress(input: GetMobileUserShippingAddressInput!): GetMobileUserShippingAddressResponse!
   getMobileUserDefaultShippingAddress: GetMobileUserDefaultShippingAddressResponse!
-  getUsersByAdmin(input: userFilters): usersResponse!
-  getUserRecordByAdmin(input: userInput!): userResponse!
-  getUserRecord: GetUserRecordResponse!
-  getUserRecordInMobile: GetUserRecordInMobileResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
   getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
@@ -264,6 +264,8 @@ type Query {
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -275,8 +277,6 @@ type Query {
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -849,6 +849,165 @@ type GetVendorCompanyRecordResponse {
   message: String
 }
 
+input accountDeleteByUserInput {
+  isDeleted: Boolean!
+  deleteReason: String
+}
+
+type accountDeleteByUserResponse {
+  success: Boolean
+  message: String
+}
+
+input userLoginOtpInput {
+  mobileNumber: String!
+}
+
+input userLoginOtpInMobileInput {
+  mobileNumber: String!
+}
+
+input userBlockInput {
+  _id: String!
+  isBlocked: Boolean!
+}
+
+input userFilters {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+  isDeleted: Boolean
+  query: String
+}
+
+input userVerifyOtpInput {
+  code: String!
+  _id: ObjectId!
+}
+
+input userVerifyOtpInMobileInput {
+  code: String!
+  _id: ObjectId!
+}
+
+input updateUserProfileInput {
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+}
+
+input UpdateUserProfileByAdminInput {
+  _id: ObjectId
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+  mobileNumber: String
+  isBlocked: Boolean
+}
+
+input updateUserProfileInMobileInput {
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+}
+
+input userInput {
+  _id: String!
+}
+
+type userBlockResponse {
+  message: String
+}
+
+type userLoginOtpResponse {
+  message: String!
+  mobileNumber: String!
+  _id: ObjectId!
+}
+
+type userLoginOtpInMobileResponse {
+  message: String!
+  mobileNumber: String!
+  _id: ObjectId!
+}
+
+type userVerifyOtpResponse {
+  userId: String
+  token: String
+  message: String
+}
+
+type userVerifyOtpInMobileResponse {
+  userId: String
+  token: String
+  message: String
+}
+
+type userSignUpResponse {
+  _id: String
+  message: String
+  token: String
+}
+
+type user {
+  _id: String
+  email: String
+  firstName: String
+  lastName: String
+  displayName: String
+  mobileNumber: String
+  isBlocked: Boolean
+  isDeleted: Boolean
+}
+
+type usersResponse {
+  maxRecords: Int!
+  records: [user!]
+}
+
+type updateUserProfileResponse {
+  message: String
+}
+
+type UpdateUserProfileByAdminResponse {
+  message: String
+}
+
+type updateUserProfileInMobileResponse {
+  message: String
+}
+
+type userResponse {
+  record: user
+  message: String
+}
+
+type userInMobileResponse {
+  record: user
+  message: String
+}
+
+type UserLogoutResponse {
+  _id: ObjectId!
+}
+
+type LogoutMobileUserResponse {
+  _id: ObjectId!
+}
+
+type GetUserRecordResponse {
+  record: user
+  message: String
+}
+
+type GetUserRecordInMobileResponse {
+  record: user
+  message: String
+}
+
 input UserCreateShippingAddressInput {
   firstname: String!
   email: String
@@ -1056,165 +1215,6 @@ type GetMobileUserDefaultShippingAddressResponse {
   isDefault: Boolean
   address: String
   label: String
-}
-
-input accountDeleteByUserInput {
-  isDeleted: Boolean!
-  deleteReason: String
-}
-
-type accountDeleteByUserResponse {
-  success: Boolean
-  message: String
-}
-
-input userLoginOtpInput {
-  mobileNumber: String!
-}
-
-input userLoginOtpInMobileInput {
-  mobileNumber: String!
-}
-
-input userBlockInput {
-  _id: String!
-  isBlocked: Boolean!
-}
-
-input userFilters {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-  isDeleted: Boolean
-  query: String
-}
-
-input userVerifyOtpInput {
-  code: String!
-  _id: ObjectId!
-}
-
-input userVerifyOtpInMobileInput {
-  code: String!
-  _id: ObjectId!
-}
-
-input updateUserProfileInput {
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-}
-
-input UpdateUserProfileByAdminInput {
-  _id: ObjectId
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-  mobileNumber: String
-  isBlocked: Boolean
-}
-
-input updateUserProfileInMobileInput {
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-}
-
-input userInput {
-  _id: String!
-}
-
-type userBlockResponse {
-  message: String
-}
-
-type userLoginOtpResponse {
-  message: String!
-  mobileNumber: String!
-  _id: ObjectId!
-}
-
-type userLoginOtpInMobileResponse {
-  message: String!
-  mobileNumber: String!
-  _id: ObjectId!
-}
-
-type userVerifyOtpResponse {
-  userId: String
-  token: String
-  message: String
-}
-
-type userVerifyOtpInMobileResponse {
-  userId: String
-  token: String
-  message: String
-}
-
-type userSignUpResponse {
-  _id: String
-  message: String
-  token: String
-}
-
-type user {
-  _id: String
-  email: String
-  firstName: String
-  lastName: String
-  displayName: String
-  mobileNumber: String
-  isBlocked: Boolean
-  isDeleted: Boolean
-}
-
-type usersResponse {
-  maxRecords: Int!
-  records: [user!]
-}
-
-type updateUserProfileResponse {
-  message: String
-}
-
-type UpdateUserProfileByAdminResponse {
-  message: String
-}
-
-type updateUserProfileInMobileResponse {
-  message: String
-}
-
-type userResponse {
-  record: user
-  message: String
-}
-
-type userInMobileResponse {
-  record: user
-  message: String
-}
-
-type UserLogoutResponse {
-  _id: ObjectId!
-}
-
-type LogoutMobileUserResponse {
-  _id: ObjectId!
-}
-
-type GetUserRecordResponse {
-  record: user
-  message: String
-}
-
-type GetUserRecordInMobileResponse {
-  record: user
-  message: String
 }
 
 scalar Date
@@ -3889,6 +3889,117 @@ type CmsRecordsResponse {
   message: String
 }
 
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input removeFromCartInput {
+  productId: String!
+}
+
+input removeFromCartInMobileInput {
+  productId: String!
+}
+
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
+  message: String
+}
+
+type BulkAddToCartResponse {
+  message: String
+}
+
+type BulkAddToCartInMobileResponse {
+  message: String
+}
+
+type addToCartInMObileResponse {
+  message: String
+}
+
+type removeFromCartResponse {
+  message: String
+}
+
+type removeFromCartInMobileResponse {
+  message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  appliedProducts: [ObjectId]
+  code: String
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  code: String
+}
+
 input CreateCategoryInput {
   categoryName: String!
   parentId: String
@@ -4037,117 +4148,6 @@ type CategoriesForCouponResponse {
 
 type GetLevelCategoriesResponse {
   records: [Category]
-}
-
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-input BulkAddToCartInMobileInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type BulkAddToCartInMobileResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
-  name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
-}
-
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  appliedProducts: [ObjectId]
-  code: String
-}
-
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  code: String
 }
 
 input AddBrandInput {

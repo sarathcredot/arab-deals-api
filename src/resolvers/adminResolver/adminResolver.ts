@@ -414,6 +414,8 @@ export const adminResolver: Resolvers = {
           await admin.setHash!(input.password);
         }
 
+
+
         if (adminPic) {
           admin.profilePic = adminPic;
         }
