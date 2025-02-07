@@ -2371,22 +2371,23 @@ export const orderResolver: Resolvers = {
     getVendorOrderProducts: async (parent, { input }, { req }, info) => {
       await verifyVendor(req);
       await validateInput(validators.getAdminOrderProductsValidator, req);
-      let vendorId = req.authAccount._id;
+      let vendorId = req?.authAccount?._id;
 
       const result =
-        await orderProductService.getOrderProductsWithFiltersIncludeVendor({
+        await orderProductService.getOrderProductsWithFiltersIncludeVendorNew({
           orderId: input.orderId,
-          vendorId,
+          vendorId: new Types.ObjectId(vendorId),
         });
 
       const response = {
-        products: result.map((item: any) => {
-          return {
-            ...item.toObject(),
-            vendorId: item.vendorId._id,
-            vendorName: item.vendorId.fullName,
-          };
-        }),
+        // products: result.map((item: any) => {
+        //   return {
+        //     ...item.toObject(),
+        //     vendorId: item.vendorId._id,
+        //     vendorName: item.vendorId.fullName,
+        //   };
+        // }),
+        products: result
       };
 
       return response;
@@ -2408,9 +2409,9 @@ export const orderResolver: Resolvers = {
 
         // find products delivery type and delivery agents
         const options={
-          proid:input.productId ,
-          villageID:input.villageID || "",
-          governorateID:input.governorateID || " "
+          proid: input.productId,
+          villageID: input.villageID || "",
+          governorateID: input.governorateID || " "
 
         }
 
