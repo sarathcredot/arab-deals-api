@@ -33,6 +33,8 @@ type getAllNotificationResponse{
           view:[
              viewType
           ]
+          createdAt:Date,
+          updatedAt:Date
 
 
 

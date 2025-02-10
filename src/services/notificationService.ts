@@ -71,6 +71,7 @@ export const getAllNotification = async (): Promise<any> => {
 
 
             const result = await notificationModel.find()
+            .sort({createdAt:-1})
 
             resolve(result)
 
