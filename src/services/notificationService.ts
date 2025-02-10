@@ -12,10 +12,8 @@ export interface INotification {
 
 
 export const createNotification = async (record: INotification): Promise<any> => {
-    return await notificationModel.create(record);
+    return await notificationModel.create(record);   
 }
-
-
 
 export const addNotificationViewPersonId=async({notificationId,id}:{notificationId:Types.ObjectId,id:Types.ObjectId})=>{
 
