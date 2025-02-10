@@ -1022,7 +1022,7 @@ export const orderResolver: Resolvers = {
     },
 
     //API for return request from user
-    returnUserOrderProduct: async (parent, { input, image }, { req }, info) => {
+    returnUserOrderProduct: async (parent, { input, image }, { req,io }, info) => {
       //add product image and return address
       console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
@@ -1170,16 +1170,16 @@ export const orderResolver: Resolvers = {
       };
 
 
-      await notificationService.createNotification({
+      const return_order_placed_notification=await notificationService.createNotification({
         title: "You have a new Return order!!!!",
         message:"You have a new Return order!!!!",
         type: "return_order",   
-        permissions:["orders","shipping-orders"],
+        permissions:["orders","return-orders"],
         orderId: _id
       })
 
+      io.emit("new_notification", return_order_placed_notification);
 
-      
       return response;
     },
 
