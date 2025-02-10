@@ -1,11 +1,11 @@
 
 
-import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, roleService ,notificationService} from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, roleService, notificationService } from "../../services";
 
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
-import { validateInput, verifyAdmin, verifyVendor, verifyDeliveryAgent, verifySuperAdmin ,verifyUser} from "../../middlewares";
+import { validateInput, verifyAdmin, verifyVendor, verifyDeliveryAgent, verifySuperAdmin, verifyUser } from "../../middlewares";
 import { filePaths } from "../../configs";
 import { Types } from "mongoose";
 import { error } from "console";
@@ -24,75 +24,218 @@ import { notificationModel } from "../../models/notificationModel"
 export const notificationResolver: Resolvers = {
 
 
-    Mutation: {
+  Mutation: {
 
-        addNotificationViewPersonId:async(parent,{input},{req},info)=>{
+    addNotificationViewPersonId: async (parent, { input }, { req }, info) => {
 
-            
-             await verifyAdmin(req)
 
-                   try {
+      await verifyAdmin(req)
 
-                    const options={
-                        id:input.id,
-                        notificationId:input.notificationId
+      try {
 
-                    }
+        const options = {
+          id: req.authAccount._id,
+          notificationId: input.notificationId
 
-                      notificationService.addNotificationViewPersonId(options)
+        }
 
-                      return{
-                        
-                           status:true,
-                           msg:""
+        notificationService.addNotificationViewPersonId(options)
 
-                      }
-                    
-                   } catch (error:any){
-                    
-                    throw new GraphQLError(error, {
-                        extensions: {
-                          code: "INTERNAL_SERVER_ERROR",
-                          errors: []
-                        },
-                      });
-                         
-                   }
-        } 
+        return {
+
+          status: true,
+          msg: ""
+
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: []
+          },
+        });
+
+      }
     },
 
-    
-    Query:{
 
-      getAllNotification:async(parent,{},{req},info)=>{
+    addRemoveMarkNotification: async (parent, { input }, { req }, info) => {
 
-          await verifyAdmin(req)
-          
-           try {
+      await verifyAdmin(req)
+
+      try {
+
+        const options = {
+
+          notificationId: input.notificationId,
+          userId: req.authAccount._id
+        }
 
 
-            const token=await jwtService.getAuthTokenFromHeaders(req)
-            const decodeToken= await jwtService.verifyAdminJWT(token)
+        await notificationService.addRemoveMarkNotification(options)
 
-            console.log("decode token",decodeToken)
- 
-               const result=await notificationService.getAllNotification()
+        return {
 
-               return result
-              
-            } catch (error:any) {
-            
-            throw new GraphQLError(error, {
-              extensions: {
-                code: "INTERNAL_SERVER_ERROR",
-                errors: []
-              },
-            });
-           }
+          status: true,
+          msg: ""
+        }
+
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+
+          extensions: {
+            code: "INTERNAL_SERVER_ERRORs",
+            errors: []
+          },
+        });
+
       }
-         
-          
     }
+
+
+
+
+
+
+  },
+
+
+  Query: {
+
+    getAllNotification: async (parent, { }, { req }, info) => {
+
+      await verifyAdmin(req)
+
+      try {
+
+        const userId = req.authAccount._id
+        const token = await jwtService.getAuthTokenFromHeaders(req)
+        const decodeToken = await jwtService.verifyAdminJWT(token)
+        const userPermissions: any[] = decodeToken?.role
+        const finalResult: any[] = []
+
+
+
+        const result = await notificationService.getAllNotification()
+
+        if (decodeToken.accType === "SUPER_ADMIN") {
+
+
+          for (let i = 0; i < result.length; i++) {
+
+            if (result[i].view.length === 0) {
+
+              finalResult.push(result[i])
+
+            } else {
+
+
+              if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
+
+                finalResult.push(result[i])
+
+              }
+
+
+              if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
+
+                console.log("not remove")
+                finalResult.push(result[i])
+
+              }
+
+            }
+
+          }
+
+          console.log(finalResult.length)
+
+          return finalResult
+
+
+        } else {
+
+
+          for (let i = 0; i < result.length; i++) {
+
+
+            if (result[i].view.length === 0) {
+
+              for (let elm of result[i].permissions) {
+
+                if (userPermissions.includes(elm)) {
+
+                  finalResult.push(result[i])
+                  break;
+
+                }
+              }
+
+            } else {
+
+              if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
+
+
+                for (let elm of result[i].permissions) {
+
+                  if (userPermissions.includes(elm)) {
+
+                    finalResult.push(result[i])
+                    break;
+
+                  }
+                }
+
+              }
+
+
+              if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
+
+
+                for (let elm of result[i].permissions) {
+
+                  if (userPermissions.includes(elm)) {
+
+                    finalResult.push(result[i])
+                    break;
+
+                  }
+                }
+
+
+              }
+
+            }
+
+
+          }
+
+          console.log(finalResult.length)
+          return finalResult
+
+        }
+
+
+      } catch (error: any) {
+
+        console.log("error", error)
+
+        throw new GraphQLError(error, {
+
+          extensions: {
+            code: "INTERNAL_SERVER_ERRORs",
+            errors: []
+          },
+        });
+      }
+    }
+
+
+  }
 
 }
 
