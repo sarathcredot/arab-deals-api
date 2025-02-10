@@ -29,8 +29,10 @@ import { cartModel } from "../../models/cartModel";
 export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
-    createUserOrder: async (parent, { input }, { req }, info) => {
+    createUserOrder: async (parent, { input }, { req,io}, info) => {
+
       console.log("create user order resolver called");
+      // console.log("io",io)
       await verifyUser(req);
       await validateInput(validators.createOrderValidator, req);
 
@@ -260,13 +262,19 @@ export const orderResolver: Resolvers = {
        //create order placed notification
 
 
-      await notificationService.createNotification({
+      const order_placed_notification=await notificationService.createNotification({
         title: "You have a new order!!!!",
         message:"You have a new order!!!!",
         type: "new_order",   
         permissions:["orders","shipping-orders"],
         orderId: orderId
       })
+
+
+      io.emit("new_order", order_placed_notification);
+      console.log("🔔 Notification sent to admin dashboard:", order_placed_notification);
+
+      console.log("emitted")
 
 
       // for (let product of cartItems) {

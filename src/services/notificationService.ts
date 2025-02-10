@@ -12,7 +12,7 @@ export interface INotification {
 
 
 export const createNotification = async (record: INotification): Promise<any> => {
-    return await notificationModel.create(record);
+    return await notificationModel.create(record);   
 }
 
 

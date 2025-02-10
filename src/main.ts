@@ -10,6 +10,7 @@ import { resolvers } from "./resolvers";
 import routes from "./routes";
 import { ErrorBody } from "./utils";
 import { graphqlUploadExpress } from 'graphql-upload-ts';
+import { Server } from 'socket.io';
 
 
 
@@ -43,7 +44,36 @@ app.use(express.static(path.join(path.dirname(__dirname), 'public')));
 const httpServer = http.createServer(app);
 
 
+// Initialize Socket.io
+const io = new Server(httpServer, {
+    cors: {
+        origin: [
+            process.env.USER_APP_URL || "",
+            process.env.ADMIN_APP_URL || "",
+            process.env.USER_APP_URL_WWW || ""
+        ]
+    }
+});
   
+
+// Handle Socket.io Connection
+io.on("connection", (socket) => {
+    console.log("A client connected:", socket.id);
+
+    // Example: Listening for a "message" event from the client
+    socket.on("message", (data) => {
+        console.log("Message received:", data);
+        
+        // Broadcast message to all connected clients
+        io.emit("message", data);
+    });
+
+    // Handle Client Disconnection
+    socket.on("disconnect", () => {
+        console.log("Client disconnected:", socket.id);
+    });
+});
+
 
 
 // Configure mongo connection
@@ -64,7 +94,8 @@ const startApolloServer = async () => {
 
         app.use("/graphql", graphqlUploadExpress(), expressMiddleware(server, {
             context: async ({ req }) => {
-                return { req };
+                console.log("⚡ GraphQL Context Initialized! Socket.io Available:", !!io);
+                return { req, io  };
             }
         }));
 
