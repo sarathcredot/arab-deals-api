@@ -2606,6 +2606,8 @@ type getAllNotificationResponse {
   productId: ObjectId
   type: String
   view: [viewType]
+  createdAt: Date
+  updatedAt: Date
 }
 
 type viewType {
