@@ -261,11 +261,62 @@ export const orderResolver: Resolvers = {
 
 
       await notificationService.createNotification({
-        message: "You have a new order!!!!",
+        title: "You have a new order!!!!",
+        message:"You have a new order!!!!",
         type: "new_order",   
         permissions:["orders","shipping-orders"],
         orderId: orderId
       })
+
+
+      // for (let product of cartItems) {
+      //   console.log(product.stock );
+      // }
+
+
+
+       //check product stock(if low stock send notification to admin)
+
+       for (let product of cartItems) {
+        if (
+          product.stock === 10
+        ) {
+          // console.log("called");
+          // console.log(product.stock );
+
+          await notificationService.createNotification({
+            title: "product is low in stock",
+            message:"product is low in stock",
+            type: "low_stock",   
+            permissions:["product"],
+            orderId: orderId,
+            productId: product.productId
+          })
+    
+          
+        }
+      }
+
+       //check if product is out of stock
+
+
+       for (let product of cartItems) {
+        if (
+          product.stock <=0
+        ) {
+
+          await notificationService.createNotification({
+            title: "product is out of stock",
+            message:"product is out of stock",
+            type: "out_of_stock",   
+            permissions:["product"],
+            orderId: orderId,
+            productId: product.productId
+          })
+    
+          
+        }
+      }
 
 
       
