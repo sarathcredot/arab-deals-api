@@ -1,0 +1,60 @@
+
+
+
+
+scalar ObjectId
+scalar Upload
+
+
+
+
+type Mutation{
+
+    addNotificationViewPersonId(input:addNotificationViewPersonIdInput!):addNotificationViewPersonIdResponse!
+}
+
+
+type Query {
+
+      getAllNotification:[ getAllNotificationResponse ]!
+}
+
+
+type getAllNotificationResponse{
+
+          message:String
+          permissions:[String]
+          orderId:String
+          title:String
+          productId:ObjectId
+          type:String
+          view:[String]
+
+
+
+
+      
+}
+
+
+input addNotificationViewPersonIdInput{
+
+         id:ObjectId
+         notificationId:ObjectId
+}
+
+
+type addNotificationViewPersonIdResponse{
+
+        status:Boolean,
+        msg:String
+}
+
+
+
+schema {
+  mutation: Mutation
+  query: Query
+}
+
+

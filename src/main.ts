@@ -12,6 +12,7 @@ import { ErrorBody } from "./utils";
 import { graphqlUploadExpress } from 'graphql-upload-ts';
 
 
+
 // app creation
 const app = express();
 
@@ -40,6 +41,9 @@ app.use(express.static(path.join(path.dirname(__dirname), 'public')));
 
 // bootstrapping http server
 const httpServer = http.createServer(app);
+
+
+  
 
 
 // Configure mongo connection
