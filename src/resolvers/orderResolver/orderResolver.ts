@@ -1169,6 +1169,17 @@ export const orderResolver: Resolvers = {
         _id: _id,
       };
 
+
+      await notificationService.createNotification({
+        title: "You have a new Return order!!!!",
+        message:"You have a new Return order!!!!",
+        type: "return_order",   
+        permissions:["orders","shipping-orders"],
+        orderId: _id
+      })
+
+
+      
       return response;
     },
 

@@ -11,24 +11,28 @@ scalar Upload
 type Mutation{
 
     addNotificationViewPersonId(input:addNotificationViewPersonIdInput!):addNotificationViewPersonIdResponse!
+    addRemoveMarkNotification(input:addNotificationViewPersonIdInput!):addNotificationViewPersonIdResponse!
 }
 
 
 type Query {
 
-      getAllNotification:[ getAllNotificationResponse ]!
+      getAllNotification:[getAllNotificationResponse]!
 }
 
 
 type getAllNotificationResponse{
-
+   
+          _id:ObjectId
           message:String
           permissions:[String]
           orderId:String
           title:String
           productId:ObjectId
           type:String
-          view:[String]
+          view:[
+             viewType
+          ]
 
 
 
@@ -36,10 +40,16 @@ type getAllNotificationResponse{
       
 }
 
+type viewType{
+
+    id:ObjectId
+    remove:Boolean
+}
+
 
 input addNotificationViewPersonIdInput{
 
-         id:ObjectId
+       
          notificationId:ObjectId
 }
 
