@@ -117,6 +117,7 @@ export const notificationResolver: Resolvers = {
         const decodeToken = await jwtService.verifyAdminJWT(token)
         const userPermissions: any[] = decodeToken?.role
         const finalResult: any[] = []
+        let unReadCount=0
 
 
 
@@ -130,6 +131,8 @@ export const notificationResolver: Resolvers = {
             if (result[i].view.length === 0) {
 
               finalResult.push(result[i])
+              unReadCount++
+             
 
             } else {
 
@@ -137,7 +140,8 @@ export const notificationResolver: Resolvers = {
               if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
 
                 finalResult.push(result[i])
-
+                unReadCount++
+                
               }
 
 
@@ -145,6 +149,8 @@ export const notificationResolver: Resolvers = {
 
                 console.log("not remove")
                 finalResult.push(result[i])
+                
+
 
               }
 
@@ -152,9 +158,16 @@ export const notificationResolver: Resolvers = {
 
           }
 
-          console.log(finalResult.length)
+          
 
-          return finalResult
+
+
+          return {
+
+            allNotification:finalResult,
+            unReadCount:unReadCount
+
+          }
 
 
         } else {
@@ -170,6 +183,7 @@ export const notificationResolver: Resolvers = {
                 if (userPermissions.includes(elm)) {
 
                   finalResult.push(result[i])
+                  unReadCount++
                   break;
 
                 }
@@ -185,6 +199,7 @@ export const notificationResolver: Resolvers = {
                   if (userPermissions.includes(elm)) {
 
                     finalResult.push(result[i])
+                    unReadCount++
                     break;
 
                   }
@@ -215,7 +230,12 @@ export const notificationResolver: Resolvers = {
           }
 
           console.log(finalResult.length)
-          return finalResult
+          return {
+
+            allNotification:finalResult,
+            unReadCount:unReadCount
+
+          }
 
         }
 
