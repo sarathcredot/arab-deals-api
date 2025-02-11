@@ -17,13 +17,13 @@ type Mutation{
 
 type Query {
 
-      getAllNotification:[getAllNotificationResponse]!
+      getAllNotification:getAllNotificationResponse!
 }
 
 
-type getAllNotificationResponse{
-   
-          _id:ObjectId
+type NotificationType{
+
+    _id:ObjectId
           message:String
           permissions:[String]
           orderId:String
@@ -36,8 +36,15 @@ type getAllNotificationResponse{
           createdAt:Date,
           updatedAt:Date
 
+}
 
 
+type getAllNotificationResponse{
+   
+         
+
+allNotification:[NotificationType]
+unReadCount:Int
 
       
 }
