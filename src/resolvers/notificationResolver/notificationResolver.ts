@@ -106,7 +106,7 @@ export const notificationResolver: Resolvers = {
 
   Query: {
 
-    getAllNotification: async (parent, {input}, { req }, info) => {
+    getAllNotification: async (parent, { input }, { req }, info) => {
 
       await verifyAdmin(req)
 
@@ -117,7 +117,7 @@ export const notificationResolver: Resolvers = {
         const decodeToken = await jwtService.verifyAdminJWT(token)
         const userPermissions: any[] = decodeToken?.role
         const finalResult: any[] = []
-        let unReadCount=0
+        let unReadCount = 0
 
 
 
@@ -126,74 +126,69 @@ export const notificationResolver: Resolvers = {
         if (decodeToken.accType === "SUPER_ADMIN") {
 
 
-          if(input?.filter==="All"){
+          if (input?.filter === "All") {
 
             for (let i = 0; i < result.length; i++) {
 
               if (result[i].view.length === 0) {
-  
+
                 finalResult.push(result[i])
                 unReadCount++
-               
-  
+
+
               } else {
-  
-  
-                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
-  
+
+
+                const elm = result[i]?.view?.find((item: any) => item.id?.toString() === userId?.toString())
+
+                if (elm === undefined) {
+
                   finalResult.push(result[i])
                   unReadCount++
-                  
                 }
-  
-  
-                if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
-  
-                  console.log("not remove")
+
+
+                const value = result[i]?.view?.find((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)
+
+                console.log("value", value)
+                if (value !== undefined) {
+
                   finalResult.push(result[i])
-                  
-  
-  
+
                 }
-  
+
               }
-  
+
             }
-  
-         
-          }else{
 
-              
+
+          } else {
+
+
             for (let i = 0; i < result.length; i++) {
 
               if (result[i].view.length === 0) {
-  
+
                 finalResult.push(result[i])
                 unReadCount++
-               
-  
+                console.log("repet")
+
               } else {
-  
-  
-                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
-  
+
+
+                const elm = result[i]?.view?.find((item: any) => item.id?.toString() === userId?.toString())
+
+                if (elm === undefined) {
+
                   finalResult.push(result[i])
                   unReadCount++
-                  
                 }
-  
-  
-                // if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
-  
-                //   console.log("not remove")
-                //   finalResult.push(result[i])
-                  
-  
-  
-                // }
-  
+
+
+
+
               }
-  
+
             }
 
 
@@ -203,15 +198,10 @@ export const notificationResolver: Resolvers = {
           }
 
 
-          
-          
-
-
-
           return {
 
-            allNotification:finalResult,
-            unReadCount:unReadCount
+            allNotification: finalResult,
+            unReadCount: unReadCount
 
           }
 
@@ -219,134 +209,123 @@ export const notificationResolver: Resolvers = {
         } else {
 
 
-          if(input?.filter==="All"){
+          if (input?.filter === "All") {
 
 
             for (let i = 0; i < result.length; i++) {
 
 
               if (result[i].view.length === 0) {
-  
+
                 for (let elm of result[i].permissions) {
-  
+
                   if (userPermissions.includes(elm)) {
-  
+
                     finalResult.push(result[i])
                     unReadCount++
                     break;
-  
+
                   }
                 }
-  
+
               } else {
-  
-                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
-  
-  
+
+
+
+                const elm = result[i]?.view?.find((item: any) => item.id?.toString() === userId?.toString())
+
+                if (elm === undefined) {
+
                   for (let elm of result[i].permissions) {
-  
+
                     if (userPermissions.includes(elm)) {
-  
+
                       finalResult.push(result[i])
                       unReadCount++
                       break;
-  
+
                     }
                   }
-  
                 }
-  
-  
-                if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
-  
-  
+
+
+                const value = result[i]?.view?.find((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)
+
+
+                if (value !== undefined) {
+
                   for (let elm of result[i].permissions) {
-  
+
                     if (userPermissions.includes(elm)) {
-  
+
                       finalResult.push(result[i])
                       break;
-  
+
                     }
                   }
-  
-  
                 }
-  
-              }
-  
-  
-            }
-             
-          }else{
-
               
+              }
+
+
+            }
+
+          } else {
+
+
             for (let i = 0; i < result.length; i++) {
 
 
               if (result[i].view.length === 0) {
-  
+
                 for (let elm of result[i].permissions) {
-  
+
                   if (userPermissions.includes(elm)) {
-  
+
                     finalResult.push(result[i])
                     unReadCount++
                     break;
-  
+
                   }
                 }
-  
+
               } else {
-  
-                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
-  
-  
+
+
+
+                const elm = result[i]?.view?.find((item: any) => item.id?.toString() === userId?.toString())
+
+                if (elm === undefined) {
+
                   for (let elm of result[i].permissions) {
-  
+
                     if (userPermissions.includes(elm)) {
-  
+
                       finalResult.push(result[i])
                       unReadCount++
                       break;
-  
+
                     }
                   }
-  
                 }
-  
-  
-                // if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
-  
-  
-                //   for (let elm of result[i].permissions) {
-  
-                //     if (userPermissions.includes(elm)) {
-  
-                //       finalResult.push(result[i])
-                //       break;
-  
-                //     }
-                //   }
-  
-  
-                // }
-  
+
+
+
               }
-  
-  
+
+
             }
-                
+
           }
 
 
-         
+
 
           console.log(finalResult.length)
           return {
 
-            allNotification:finalResult,
-            unReadCount:unReadCount
+            allNotification: finalResult,
+            unReadCount: unReadCount
 
           }
 
