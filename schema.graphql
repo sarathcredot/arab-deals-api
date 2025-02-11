@@ -53,6 +53,8 @@ type Mutation {
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
   updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
+  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
+  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
@@ -61,8 +63,6 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
-  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
-  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
@@ -91,6 +91,14 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
+  adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
+  createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
+  editCouponsByAdmin(input: EditCouponsByAdminInput!): CreateCouponsByAdminResponse
+  applyCouponByUser(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
+  applyCouponByUserInMobile(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
+  removeCoupon: removeCouponResponse!
+  removeCouponInMobile: removeCouponResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
@@ -99,9 +107,6 @@ type Mutation {
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
-  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
-  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
-  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -110,6 +115,9 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
+  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
+  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
+  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
@@ -126,14 +134,6 @@ type Mutation {
   suspendAdmin(input: suspendAdminInput!): suspendAdminResponse!
   deleteAdminAccount(input: deleteAdminAccountInput!): suspendAdminResponse!
   editAdminAccount(input: editAdminAccountInput!, image: Upload): editAdminAccountResponse!
-  adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
-  adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
-  createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
-  editCouponsByAdmin(input: EditCouponsByAdminInput!): CreateCouponsByAdminResponse
-  applyCouponByUser(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
-  applyCouponByUserInMobile(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
-  removeCoupon: removeCouponResponse!
-  removeCouponInMobile: removeCouponResponse!
 }
 
 type Query {
@@ -187,6 +187,7 @@ type Query {
   getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
   getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
   getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
+  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -209,7 +210,6 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
-  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
@@ -255,6 +255,10 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
+  getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
+  getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
+  getCouponsByUserMobile: [Coupon]!
+  getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
   getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
   getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
@@ -274,6 +278,8 @@ type Query {
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -283,8 +289,6 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
@@ -298,10 +302,6 @@ type Query {
   getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
   getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
-  getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
-  getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
-  getCouponsByUserMobile: [Coupon]!
-  getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
 }
 
 input AddToWishListInput {
@@ -1761,6 +1761,42 @@ type GetProductsMaxPriceInMobileResponse {
   message: String
 }
 
+input getAllNotificationInput {
+  filter: String
+}
+
+type NotificationType {
+  _id: ObjectId
+  message: String
+  permissions: [String]
+  orderId: String
+  title: String
+  productId: ObjectId
+  type: String
+  view: [viewType]
+  createdAt: Date
+  updatedAt: Date
+}
+
+type getAllNotificationResponse {
+  allNotification: [NotificationType]
+  unReadCount: Int
+}
+
+type viewType {
+  id: ObjectId
+  remove: Boolean
+}
+
+input addNotificationViewPersonIdInput {
+  notificationId: ObjectId
+}
+
+type addNotificationViewPersonIdResponse {
+  status: Boolean
+  msg: String
+}
+
 input CreateUserOrderInput {
   shippingAddressId: ObjectId!
   paymentMode: String!
@@ -2595,42 +2631,6 @@ type GetVendorReturnProductsResponse {
 type GetVendorRefundProductsResponse {
   maxRecords: Int!
   records: [VendorOrderProduct]!
-}
-
-input getAllNotificationInput {
-  filter: String
-}
-
-type NotificationType {
-  _id: ObjectId
-  message: String
-  permissions: [String]
-  orderId: String
-  title: String
-  productId: ObjectId
-  type: String
-  view: [viewType]
-  createdAt: Date
-  updatedAt: Date
-}
-
-type getAllNotificationResponse {
-  allNotification: [NotificationType]
-  unReadCount: Int
-}
-
-type viewType {
-  id: ObjectId
-  remove: Boolean
-}
-
-input addNotificationViewPersonIdInput {
-  notificationId: ObjectId
-}
-
-type addNotificationViewPersonIdResponse {
-  status: Boolean
-  msg: String
 }
 
 input ExportAdminOrdersInput {
@@ -3502,6 +3502,240 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
+type getCouponsByUserResponse {
+  records: [Coupon]!
+  maxRecords: Int
+}
+
+input getCouponsByUserInput {
+  page: Int
+  size: Int
+}
+
+input getOneCouponDetailsInput {
+  _id: ObjectId!
+}
+
+input removeCouponInput {
+  couponId: ObjectId
+  code: String
+}
+
+type removeCouponResponse {
+  success: Boolean
+  message: String
+}
+
+type getOneCouponDetailsRespons {
+  _id: ID
+  name: String
+  code: String
+  description: String
+  discountType: String
+  discountValue: Int
+  max_discount: Int
+  minOrderAmount: Int
+  usageLimit: Int
+  orderCount: Int
+  usagePerUserLimit: Int
+  startDate: String
+  expiryDate: String
+  isActive: Boolean
+  userDetailsArrya: [userDetailsArrayTypeNew]
+  productDetailsArrya: [productDetailsArryaType]
+  categoriesDetailsArrya: [categoriesDetailsArryaType]
+  brandDeatailsArrya: [brandDeatailsArryaType]
+  usedUsers: [usedUsersArryaType]
+}
+
+type userDetailsArrayTypeNew {
+  _id: ObjectId
+  firstName: String
+}
+
+type productDetailsArryaType {
+  _id: ObjectId
+  productName: String
+}
+
+type categoriesDetailsArryaType {
+  _id: ObjectId
+  categoryName: String
+}
+
+type brandDeatailsArryaType {
+  _id: ObjectId
+  brandName: String
+}
+
+type usedUsersArryaType {
+  _id: ObjectId
+  firstName: String
+  mobileNumber: String
+  displayName: String
+  usageCount: Int
+}
+
+input Categoryvalid {
+  category: ObjectId
+}
+
+type CategoryvalidType {
+  category: ObjectId
+}
+
+input Productvalid {
+  product: ObjectId
+}
+
+type ProductvalidType {
+  product: ObjectId
+}
+
+input Uservalid {
+  user: ObjectId
+}
+
+type UservalidType {
+  user: ObjectId
+}
+
+input Brandvalid {
+  brand: ObjectId
+}
+
+type BrandvalidType {
+  brand: ObjectId
+}
+
+input adminDeleteTheCouponInput {
+  _id: ObjectId
+}
+
+type adminDeleteTheCouponResponse {
+  status: Boolean
+  msg: String
+}
+
+input CreateCouponsByAdminInput {
+  name: String!
+  code: String!
+  description: String
+  orderCount: Int
+  discountType: String!
+  couponApplicableType: String
+  discountValue: Float
+  max_discount: Float
+  minOrderAmount: Float
+  validCategories: [Categoryvalid]
+  validProducts: [Productvalid]
+  validUsers: [Uservalid]
+  validBrands: [Brandvalid]
+  usageLimit: Int
+  usagePerUserLimit: Int
+  startDate: Date
+  expiryDate: Date
+}
+
+input EditCouponsByAdminInput {
+  _id: ObjectId!
+  name: String
+  code: String
+  description: String
+  orderCount: Int
+  discountType: String
+  couponApplicableType: String
+  discountValue: Float
+  max_discount: Float
+  minOrderAmount: Float
+  validCategories: [Categoryvalid]
+  validProducts: [Productvalid]
+  validUsers: [Uservalid]
+  validBrands: [Brandvalid]
+  usageLimit: Int
+  usagePerUserLimit: Int
+  startDate: Date
+  expiryDate: Date
+}
+
+input applyCouponByUserInput {
+  couponId: ObjectId
+  code: String
+}
+
+type CreateCouponsByAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type ApplyCouponsByAdminResponse {
+  success: Boolean
+  message: String
+}
+
+input adminSuspendTheCuponeInput {
+  _id: ObjectId
+  isActive: Boolean
+}
+
+type adminSuspendTheCuponeResponse {
+  status: Boolean
+  msg: String
+}
+
+type getAllCoupenToAdminResponse {
+  records: [Coupon]
+  maxRecords: Int
+}
+
+input getAllCoupenToAdminInput {
+  page: Int
+  size: Int
+  isActive: String
+  startDate: Date
+  expiryDate: Date
+  search: String
+}
+
+type Coupon {
+  _id: ObjectId
+  name: String
+  code: String
+  description: String
+  orderCount: Int
+  discountType: String
+  couponApplicableType: String
+  discountValue: Float
+  max_discount: Float
+  minOrderAmount: Float
+  validCategories: [CategoryvalidType]
+  validProducts: [ProductvalidType]
+  validUsers: [UservalidType]
+  validBrands: [BrandvalidType]
+  usageLimit: Int
+  usagePerUserLimit: Int
+  startDate: Date
+  expiryDate: Date
+  isActive: Boolean
+}
+
+type ValidCategory {
+  catogory: ObjectId
+}
+
+type ValidProduct {
+  products: ObjectId
+}
+
+type ValidUser {
+  user: ObjectId
+}
+
+type UserUsageLimit {
+  userId: ObjectId
+  usageCount: Int
+}
+
 input ImageDataInput {
   fileType: String
   fileURL: String
@@ -3844,6 +4078,117 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input removeFromCartInput {
+  productId: String!
+}
+
+input removeFromCartInMobileInput {
+  productId: String!
+}
+
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
+  message: String
+}
+
+type BulkAddToCartResponse {
+  message: String
+}
+
+type BulkAddToCartInMobileResponse {
+  message: String
+}
+
+type addToCartInMObileResponse {
+  message: String
+}
+
+type removeFromCartResponse {
+  message: String
+}
+
+type removeFromCartInMobileResponse {
+  message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  appliedProducts: [ObjectId]
+  code: String
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  code: String
+}
+
 input AddBrandInput {
   brandName: String!
   isBlocked: Boolean
@@ -3987,117 +4332,6 @@ type CategoryInBrands {
   fullCategoryName: String
   isLeaf: Boolean
   description: String
-}
-
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-input BulkAddToCartInMobileInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type BulkAddToCartInMobileResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
-  name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
-}
-
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  appliedProducts: [ObjectId]
-  code: String
-}
-
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  code: String
 }
 
 type AttributeValue {
@@ -4426,238 +4660,4 @@ type getAdminRecordResponse {
 type adminApprovalForVendorResponse {
   _id: String
   message: String
-}
-
-type getCouponsByUserResponse {
-  records: [Coupon]!
-  maxRecords: Int
-}
-
-input getCouponsByUserInput {
-  page: Int
-  size: Int
-}
-
-input getOneCouponDetailsInput {
-  _id: ObjectId!
-}
-
-input removeCouponInput {
-  couponId: ObjectId
-  code: String
-}
-
-type removeCouponResponse {
-  success: Boolean
-  message: String
-}
-
-type getOneCouponDetailsRespons {
-  _id: ID
-  name: String
-  code: String
-  description: String
-  discountType: String
-  discountValue: Int
-  max_discount: Int
-  minOrderAmount: Int
-  usageLimit: Int
-  orderCount: Int
-  usagePerUserLimit: Int
-  startDate: String
-  expiryDate: String
-  isActive: Boolean
-  userDetailsArrya: [userDetailsArrayTypeNew]
-  productDetailsArrya: [productDetailsArryaType]
-  categoriesDetailsArrya: [categoriesDetailsArryaType]
-  brandDeatailsArrya: [brandDeatailsArryaType]
-  usedUsers: [usedUsersArryaType]
-}
-
-type userDetailsArrayTypeNew {
-  _id: ObjectId
-  firstName: String
-}
-
-type productDetailsArryaType {
-  _id: ObjectId
-  productName: String
-}
-
-type categoriesDetailsArryaType {
-  _id: ObjectId
-  categoryName: String
-}
-
-type brandDeatailsArryaType {
-  _id: ObjectId
-  brandName: String
-}
-
-type usedUsersArryaType {
-  _id: ObjectId
-  firstName: String
-  mobileNumber: String
-  displayName: String
-  usageCount: Int
-}
-
-input Categoryvalid {
-  category: ObjectId
-}
-
-type CategoryvalidType {
-  category: ObjectId
-}
-
-input Productvalid {
-  product: ObjectId
-}
-
-type ProductvalidType {
-  product: ObjectId
-}
-
-input Uservalid {
-  user: ObjectId
-}
-
-type UservalidType {
-  user: ObjectId
-}
-
-input Brandvalid {
-  brand: ObjectId
-}
-
-type BrandvalidType {
-  brand: ObjectId
-}
-
-input adminDeleteTheCouponInput {
-  _id: ObjectId
-}
-
-type adminDeleteTheCouponResponse {
-  status: Boolean
-  msg: String
-}
-
-input CreateCouponsByAdminInput {
-  name: String!
-  code: String!
-  description: String
-  orderCount: Int
-  discountType: String!
-  couponApplicableType: String
-  discountValue: Float
-  max_discount: Float
-  minOrderAmount: Float
-  validCategories: [Categoryvalid]
-  validProducts: [Productvalid]
-  validUsers: [Uservalid]
-  validBrands: [Brandvalid]
-  usageLimit: Int
-  usagePerUserLimit: Int
-  startDate: Date
-  expiryDate: Date
-}
-
-input EditCouponsByAdminInput {
-  _id: ObjectId!
-  name: String
-  code: String
-  description: String
-  orderCount: Int
-  discountType: String
-  couponApplicableType: String
-  discountValue: Float
-  max_discount: Float
-  minOrderAmount: Float
-  validCategories: [Categoryvalid]
-  validProducts: [Productvalid]
-  validUsers: [Uservalid]
-  validBrands: [Brandvalid]
-  usageLimit: Int
-  usagePerUserLimit: Int
-  startDate: Date
-  expiryDate: Date
-}
-
-input applyCouponByUserInput {
-  couponId: ObjectId
-  code: String
-}
-
-type CreateCouponsByAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type ApplyCouponsByAdminResponse {
-  success: Boolean
-  message: String
-}
-
-input adminSuspendTheCuponeInput {
-  _id: ObjectId
-  isActive: Boolean
-}
-
-type adminSuspendTheCuponeResponse {
-  status: Boolean
-  msg: String
-}
-
-type getAllCoupenToAdminResponse {
-  records: [Coupon]
-  maxRecords: Int
-}
-
-input getAllCoupenToAdminInput {
-  page: Int
-  size: Int
-  isActive: String
-  startDate: Date
-  expiryDate: Date
-  search: String
-}
-
-type Coupon {
-  _id: ObjectId
-  name: String
-  code: String
-  description: String
-  orderCount: Int
-  discountType: String
-  couponApplicableType: String
-  discountValue: Float
-  max_discount: Float
-  minOrderAmount: Float
-  validCategories: [CategoryvalidType]
-  validProducts: [ProductvalidType]
-  validUsers: [UservalidType]
-  validBrands: [BrandvalidType]
-  usageLimit: Int
-  usagePerUserLimit: Int
-  startDate: Date
-  expiryDate: Date
-  isActive: Boolean
-}
-
-type ValidCategory {
-  catogory: ObjectId
-}
-
-type ValidProduct {
-  products: ObjectId
-}
-
-type ValidUser {
-  user: ObjectId
-}
-
-type UserUsageLimit {
-  userId: ObjectId
-  usageCount: Int
 }
