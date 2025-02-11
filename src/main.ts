@@ -51,7 +51,7 @@ const io = new Server(httpServer, {
             process.env.USER_APP_URL || "",
             process.env.ADMIN_APP_URL || "",
             process.env.USER_APP_URL_WWW || ""
-        ]
+        ], methods: ["GET", "POST"]
     }
 });
   
@@ -60,11 +60,15 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
     console.log("A client connected:", socket.id);
 
-    // Example: Listening for a "message" event from the client
+    // socket.on("new_order", (data) => {
+    //     console.log("New order received:", data);
+        
+        
+    //     io.emit("new_order", data); 
+    // });
+
     socket.on("message", (data) => {
         console.log("Message received:", data);
-        
-        // Broadcast message to all connected clients
         io.emit("message", data);
     });
 

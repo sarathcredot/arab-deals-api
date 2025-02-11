@@ -271,7 +271,7 @@ export const orderResolver: Resolvers = {
       })
 
 
-      io.emit("new_order", order_placed_notification);
+      io.emit("new_notification", order_placed_notification);
       console.log("🔔 Notification sent to admin dashboard:", order_placed_notification);
 
       console.log("emitted")
@@ -286,45 +286,34 @@ export const orderResolver: Resolvers = {
        //check product stock(if low stock send notification to admin)
 
        for (let product of cartItems) {
-        if (
-          product.stock === 10
-        ) {
-          // console.log("called");
-          // console.log(product.stock );
-
-          await notificationService.createNotification({
-            title: "product is low in stock",
-            message:"product is low in stock",
-            type: "low_stock",   
-            permissions:["product"],
+        if (product.stock -product.quantity === 10) {
+          console.log(product.stock)
+          // Low stock notification
+          const low_stock_notification = await notificationService.createNotification({
+            title: "Product is low in stock",
+            message: "Product is low in stock",
+            type: "low_stock",
+            permissions: ["product"],
             orderId: orderId,
-            productId: product.productId
-          })
-    
-          
+            productId: product.productId,
+          });
+          io.emit("new_notification", low_stock_notification);
+        }
+        
+        if (product.stock - product.quantity <= 0) {
+          // Out of stock notification
+          const out_of_stock_notification = await notificationService.createNotification({
+            title: "Product is out of stock",
+            message: "Product is out of stock",
+            type: "out_of_stock",
+            permissions: ["product"],
+            orderId: orderId,
+            productId: product.productId,
+          });
+          io.emit("new_notification", out_of_stock_notification);
         }
       }
-
-       //check if product is out of stock
-
-
-       for (let product of cartItems) {
-        if (
-          product.stock <=0
-        ) {
-
-          await notificationService.createNotification({
-            title: "product is out of stock",
-            message:"product is out of stock",
-            type: "out_of_stock",   
-            permissions:["product"],
-            orderId: orderId,
-            productId: product.productId
-          })
-    
-          
-        }
-      }
+      
 
 
       
@@ -1033,7 +1022,7 @@ export const orderResolver: Resolvers = {
     },
 
     //API for return request from user
-    returnUserOrderProduct: async (parent, { input, image }, { req }, info) => {
+    returnUserOrderProduct: async (parent, { input, image }, { req,io }, info) => {
       //add product image and return address
       console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
@@ -1181,16 +1170,16 @@ export const orderResolver: Resolvers = {
       };
 
 
-      await notificationService.createNotification({
+      const return_order_placed_notification=await notificationService.createNotification({
         title: "You have a new Return order!!!!",
         message:"You have a new Return order!!!!",
         type: "return_order",   
-        permissions:["orders","shipping-orders"],
+        permissions:["orders","return-orders"],
         orderId: _id
       })
 
+      io.emit("new_notification", return_order_placed_notification);
 
-      
       return response;
     },
 
