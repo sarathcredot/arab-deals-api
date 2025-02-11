@@ -264,7 +264,7 @@ export const orderResolver: Resolvers = {
 
       const order_placed_notification=await notificationService.createNotification({
         title: "You have a new order!!!!",
-        message:"You have a new order!!!!",
+        message:`Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
         type: "new_order",   
         permissions:["orders","shipping-orders"],
         orderId: orderId
@@ -272,26 +272,27 @@ export const orderResolver: Resolvers = {
 
 
       io.emit("new_notification", order_placed_notification);
-      console.log("🔔 Notification sent to admin dashboard:", order_placed_notification);
+      // console.log("🔔 Notification sent to admin dashboard:", order_placed_notification);
 
-      console.log("emitted")
+      // console.log("emitted")
 
 
       // for (let product of cartItems) {
-      //   console.log(product.stock );
+      //   console.log("this is products Product:", product);
       // }
-
-
 
        //check product stock(if low stock send notification to admin)
 
        for (let product of cartItems) {
-        if (product.stock -product.quantity === 10) {
+        const previousStock = product.stock; 
+        const newStock = product.stock - product.quantity; 
+        if (previousStock > 10 && newStock <= 10) {
+
           console.log(product.stock)
           // Low stock notification
           const low_stock_notification = await notificationService.createNotification({
-            title: "Product is low in stock",
-            message: "Product is low in stock",
+            title: "Low Stock Alert!!!",
+            message: `Product ${product.name} (ID: ${product.productId}) is running low on stock.`,
             type: "low_stock",
             permissions: ["product"],
             orderId: orderId,
@@ -300,11 +301,11 @@ export const orderResolver: Resolvers = {
           io.emit("new_notification", low_stock_notification);
         }
         
-        if (product.stock - product.quantity <= 0) {
+        if (previousStock > 0 && newStock <= 0) {
           // Out of stock notification
           const out_of_stock_notification = await notificationService.createNotification({
-            title: "Product is out of stock",
-            message: "Product is out of stock",
+            title: "Out of Stock Alert!!!",
+            message: `Product ${product.name} (ID: ${product.productId}) is out of stock and needs restocking.`,
             type: "out_of_stock",
             permissions: ["product"],
             orderId: orderId,
@@ -313,9 +314,6 @@ export const orderResolver: Resolvers = {
           io.emit("new_notification", out_of_stock_notification);
         }
       }
-      
-
-
       
       let response = {
         orderId: orderId,
@@ -1172,7 +1170,7 @@ export const orderResolver: Resolvers = {
 
       const return_order_placed_notification=await notificationService.createNotification({
         title: "You have a new Return order!!!!",
-        message:"You have a new Return order!!!!",
+        message: `A return order (ID: ${_id}) has been placed. Please review and process the request.`,
         type: "return_order",   
         permissions:["orders","return-orders"],
         orderId: _id
