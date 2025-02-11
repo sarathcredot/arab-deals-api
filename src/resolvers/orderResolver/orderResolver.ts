@@ -263,7 +263,7 @@ export const orderResolver: Resolvers = {
 
 
       const order_placed_notification=await notificationService.createNotification({
-        title: "You have a new order!!!!",
+        title: "New order placed!!!!",
         message:`Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
         type: "new_order",   
         permissions:["orders","shipping-orders"],
