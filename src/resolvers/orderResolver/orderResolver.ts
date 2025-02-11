@@ -1022,7 +1022,7 @@ export const orderResolver: Resolvers = {
     //API for return request from user
     returnUserOrderProduct: async (parent, { input, image }, { req,io }, info) => {
       //add product image and return address
-      console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
+      // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
       await verifyUser(req);
       await validateInput(validators.returnUserOrderValidator, req);
@@ -1037,7 +1037,7 @@ export const orderResolver: Resolvers = {
 
       const { _id, returnUserReason, bankDetails = {}, returnAddress } = input;
 
-      console.log(input, "INPUT FOR RETURN ORDER!!!!!!!!");
+      // console.log(input, "INPUT FOR RETURN ORDER!!!!!!!!");
 
       // Fetch order product
       const orderProduct = await orderProductService.getOrderProductWithFilters(
@@ -1052,7 +1052,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      console.log(orderProduct);
+      // console.log(orderProduct);
 
       if (orderProduct.shippingStatus !== "DELIVERED") {
         throw new GraphQLError("Order can't be returned", {
@@ -1073,9 +1073,10 @@ export const orderResolver: Resolvers = {
       );
       const isReturnable = moment().isSameOrBefore(returnDeadline);
 
-      console.log(isReturnable);
+      // console.log(isReturnable);
 
       if (!isReturnable) {
+        console.log("cant")
         throw new GraphQLError("Order can't be returned", {
           extensions: { code: "BAD_REQUEST", errors: [] },
         });
@@ -1170,20 +1171,24 @@ export const orderResolver: Resolvers = {
 
       const return_order_placed_notification=await notificationService.createNotification({
         title: "You have a new Return order!!!!",
-        message: `A return order (ID: ${_id}) has been placed. Please review and process the request.`,
+        message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
         type: "return_order",   
         permissions:["orders","return-orders"],
-        orderId: _id
+        orderId: orderProduct?.orderId,
+        productId:_id
+        
       })
 
       io.emit("new_notification", return_order_placed_notification);
+
+      console.log("return res",response)
 
       return response;
     },
 
     returnUserOrderProductInMob:async (parent, { input, image }, { req }, info) => {
       //add product image and return address
-      console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
+      // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
       await verifyUser(req);
       await validateInput(validators.returnUserOrderValidator, req);
@@ -1198,7 +1203,7 @@ export const orderResolver: Resolvers = {
 
       const { _id, returnUserReason, bankDetails = {}, returnAddress } = input;
 
-      console.log(input, "INPUT FOR RETURN ORDER!!!!!!!!");
+      // console.log(input, "INPUT FOR RETURN ORDER!!!!!!!!");
 
       // Fetch order product
       const orderProduct = await orderProductService.getOrderProductWithFilters(
@@ -1213,7 +1218,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      console.log(orderProduct);
+      // console.log(orderProduct);
 
       if (orderProduct.shippingStatus !== "DELIVERED") {
         throw new GraphQLError("Order can't be returned", {
@@ -1234,7 +1239,7 @@ export const orderResolver: Resolvers = {
       );
       const isReturnable = moment().isSameOrBefore(returnDeadline);
 
-      console.log(isReturnable);
+      // console.log(isReturnable);
 
       if (!isReturnable) {
         throw new GraphQLError("Order can't be returned", {
@@ -1326,6 +1331,8 @@ export const orderResolver: Resolvers = {
       const response = {
         _id: _id,
       };
+
+      console.log("retun res",response)
 
       return response;
     },
