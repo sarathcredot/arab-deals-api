@@ -106,7 +106,7 @@ export const notificationResolver: Resolvers = {
 
   Query: {
 
-    getAllNotification: async (parent, { }, { req }, info) => {
+    getAllNotification: async (parent, {input}, { req }, info) => {
 
       await verifyAdmin(req)
 
@@ -126,38 +126,84 @@ export const notificationResolver: Resolvers = {
         if (decodeToken.accType === "SUPER_ADMIN") {
 
 
-          for (let i = 0; i < result.length; i++) {
+          if(input?.filter==="All"){
 
-            if (result[i].view.length === 0) {
+            for (let i = 0; i < result.length; i++) {
 
-              finalResult.push(result[i])
-              unReadCount++
-             
-
-            } else {
-
-
-              if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
-
+              if (result[i].view.length === 0) {
+  
                 finalResult.push(result[i])
                 unReadCount++
-                
+               
+  
+              } else {
+  
+  
+                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
+  
+                  finalResult.push(result[i])
+                  unReadCount++
+                  
+                }
+  
+  
+                if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
+  
+                  console.log("not remove")
+                  finalResult.push(result[i])
+                  
+  
+  
+                }
+  
               }
-
-
-              if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
-
-                console.log("not remove")
-                finalResult.push(result[i])
-                
-
-
-              }
-
+  
             }
+  
+         
+          }else{
+
+              
+            for (let i = 0; i < result.length; i++) {
+
+              if (result[i].view.length === 0) {
+  
+                finalResult.push(result[i])
+                unReadCount++
+               
+  
+              } else {
+  
+  
+                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
+  
+                  finalResult.push(result[i])
+                  unReadCount++
+                  
+                }
+  
+  
+                // if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
+  
+                //   console.log("not remove")
+                //   finalResult.push(result[i])
+                  
+  
+  
+                // }
+  
+              }
+  
+            }
+
+
+
+
 
           }
 
+
+          
           
 
 
@@ -173,61 +219,128 @@ export const notificationResolver: Resolvers = {
         } else {
 
 
-          for (let i = 0; i < result.length; i++) {
+          if(input?.filter==="All"){
 
 
-            if (result[i].view.length === 0) {
-
-              for (let elm of result[i].permissions) {
-
-                if (userPermissions.includes(elm)) {
-
-                  finalResult.push(result[i])
-                  unReadCount++
-                  break;
-
-                }
-              }
-
-            } else {
-
-              if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
+            for (let i = 0; i < result.length; i++) {
 
 
+              if (result[i].view.length === 0) {
+  
                 for (let elm of result[i].permissions) {
-
+  
                   if (userPermissions.includes(elm)) {
-
+  
                     finalResult.push(result[i])
                     unReadCount++
                     break;
-
+  
                   }
                 }
-
-              }
-
-
-              if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
-
-
-                for (let elm of result[i].permissions) {
-
-                  if (userPermissions.includes(elm)) {
-
-                    finalResult.push(result[i])
-                    break;
-
+  
+              } else {
+  
+                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
+  
+  
+                  for (let elm of result[i].permissions) {
+  
+                    if (userPermissions.includes(elm)) {
+  
+                      finalResult.push(result[i])
+                      unReadCount++
+                      break;
+  
+                    }
                   }
+  
                 }
-
-
+  
+  
+                if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
+  
+  
+                  for (let elm of result[i].permissions) {
+  
+                    if (userPermissions.includes(elm)) {
+  
+                      finalResult.push(result[i])
+                      break;
+  
+                    }
+                  }
+  
+  
+                }
+  
               }
-
+  
+  
             }
+             
+          }else{
+
+              
+            for (let i = 0; i < result.length; i++) {
 
 
+              if (result[i].view.length === 0) {
+  
+                for (let elm of result[i].permissions) {
+  
+                  if (userPermissions.includes(elm)) {
+  
+                    finalResult.push(result[i])
+                    unReadCount++
+                    break;
+  
+                  }
+                }
+  
+              } else {
+  
+                if (result[i]?.view?.some((item: any) => item.id?.toString() !== userId?.toString())) {
+  
+  
+                  for (let elm of result[i].permissions) {
+  
+                    if (userPermissions.includes(elm)) {
+  
+                      finalResult.push(result[i])
+                      unReadCount++
+                      break;
+  
+                    }
+                  }
+  
+                }
+  
+  
+                // if (result[i]?.view?.some((item: any) => item.id?.toString() === userId?.toString() && item?.remove === false)) {
+  
+  
+                //   for (let elm of result[i].permissions) {
+  
+                //     if (userPermissions.includes(elm)) {
+  
+                //       finalResult.push(result[i])
+                //       break;
+  
+                //     }
+                //   }
+  
+  
+                // }
+  
+              }
+  
+  
+            }
+                
           }
+
+
+         
 
           console.log(finalResult.length)
           return {

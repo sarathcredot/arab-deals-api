@@ -17,8 +17,17 @@ type Mutation{
 
 type Query {
 
-      getAllNotification:getAllNotificationResponse!
+      getAllNotification(input:getAllNotificationInput):getAllNotificationResponse!
 }
+
+
+input getAllNotificationInput{
+
+      filter:String
+}
+
+
+
 
 
 type NotificationType{
