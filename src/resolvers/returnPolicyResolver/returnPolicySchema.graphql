@@ -6,6 +6,10 @@ type Mutation {
    createReturnPolicyBySuperAdmin(input:createReturnPolicyBySuperAdminInput!):createReturnPolicyBySuperAdminResponse
 }
 
+type Query {
+  getAllPoliciesBySuperAdmin(input:getAllPoliciesBySuperAdminInput):getAllPoliciesBySuperAdminResponse
+}
+
 
 input createReturnPolicyBySuperAdminInput {
      name:String!
@@ -14,10 +18,31 @@ input createReturnPolicyBySuperAdminInput {
      conditions:[String]
 }
 
+input getAllPoliciesBySuperAdminInput{
+     page:Int
+     size:Int
+     search:String
+     isEnable:Boolean
+}
+
 
 type createReturnPolicyBySuperAdminResponse{
       success: Boolean,
       message: String,
+}
+
+type ReturnPolicy{
+    _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    conditions:[String]
+}
+
+type getAllPoliciesBySuperAdminResponse {
+   success:Boolean
+    data:[ReturnPolicy]
+    maxRecords:Int
 }
 
 
@@ -25,4 +50,5 @@ type createReturnPolicyBySuperAdminResponse{
 
 schema {
   mutation: Mutation
+  query: Query
 }

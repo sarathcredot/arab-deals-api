@@ -19,70 +19,119 @@ export const returnPolicyResolver: Resolvers = {
 
     Upload: GraphQLUpload,
     Mutation:{
-        createReturnPolicyBySuperAdmin:async(parent,{input},{req},info)=>{
-            //   await verifySuperAdmin(req);
-              try {
 
-                console.log("🚀 createReturnPolicyBySuperAdmin called with input:", input);
-                const name:string=input.name;
-                const description:string |undefined|null=input?.description;
-                const conditions = (input?.conditions || []) as string[];
-                const duration = input.duration
+    //to create of return policies by admin
+    createReturnPolicyBySuperAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+            try {
 
-                if(!name){
-                    console.log("❌ Missing name");
-                    throw new GraphQLError("name is required", {
-                        extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
-                    });
-                }
+            console.log("🚀 createReturnPolicyBySuperAdmin called with input:", input);
+            const name:string=input.name;
+            const description:string |undefined|null=input?.description;
+            const conditions = (input?.conditions || []) as string[];
+            const duration = input.duration
 
-                if (!duration || duration <= 0) {
-                    console.log("❌ Invalid duration:", duration);
-                    throw new GraphQLError("Return period must be a positive number", {
-                        extensions: { code: "BAD_REQUEST", errors: ["Return period must be valid"] },
-                    });
-                }
+            if(!name){
+                console.log("❌ Missing name");
+                throw new GraphQLError("name is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
+                });
+            }
+
+            if (!duration || duration <= 0) {
+                console.log("❌ Invalid duration:", duration);
+                throw new GraphQLError("Return period must be a positive number", {
+                    extensions: { code: "BAD_REQUEST", errors: ["Return period must be valid"] },
+                });
+            }
+        
+            const existingReturnPolicy=await returnPolicyModel.findOne({name})
+
+            if(existingReturnPolicy){
+                console.log("❌ Policy with this name already exists:", name);
+                throw new GraphQLError("policy with this name already exists", {
+                    extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
+                });
+            }
+
+            let newReturnPolicyData:returnPolicyService.IReturnPolicy={
+                    name,
+                    description,
+                    conditions,
+                    duration 
+            }
+
+            console.log("✅ Creating return policy with data:", newReturnPolicyData);
+
+
+            const newReturnPolicy=await returnPolicyService.createReturnPolicyBySuperAdmin(newReturnPolicyData)
+
+            if(!newReturnPolicy){
+                console.log("❌ Failed to save return policy to DB");
+                throw new GraphQLError("unable to create return policy", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to create return policy"] },
+                });
+            }
+
+            return {
+                success: true,
+                message: "return policy created succesfully",
+            }
             
-                const existingReturnPolicy=await returnPolicyModel.findOne({name})
-
-                if(existingReturnPolicy){
-                    console.log("❌ Policy with this name already exists:", name);
-                    throw new GraphQLError("policy with this name already exists", {
-                        extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
-                    });
-                }
-
-                let newReturnPolicyData:returnPolicyService.IReturnPolicy={
-                     name,
-                     description,
-                     conditions,
-                     duration 
-                }
-
-                console.log("✅ Creating return policy with data:", newReturnPolicyData);
-
-
-                const newReturnPolicy=await returnPolicyService.createReturnPolicyBySuperAdmin(newReturnPolicyData)
-
-                if(!newReturnPolicy){
-                    console.log("❌ Failed to save return policy to DB");
-                    throw new GraphQLError("unable to create return policy", {
-                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to create return policy"] },
-                    });
-                }
-    
-                return {
-                    success: true,
-                    message: "return policy created succesfully",
-                }
-                
-              } catch (error:any) {
-                console.error("🔥 Error in createReturnPolicyBySuperAdmin resolver:", error);
-                throw new GraphQLError(error, {
-                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-            });
-              }
-        },
+            } catch (error:any) {
+            console.error("🔥 Error in createReturnPolicyBySuperAdmin resolver:", error);
+            throw new GraphQLError(error, {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        });
+            }
+    },
       
-    }
+    },
+    Query:{
+
+      getAllPoliciesBySuperAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+          try {
+            const page:number=input?.page || 0;
+            const size:number=input?.size || 100;
+
+            const options:any={
+                page:page,
+                size:size
+            }
+            
+            const matchQuery:any={};
+
+            if (input?.search) {
+                matchQuery.name = { $regex: input.search, $options: "i" };
+            }
+
+            if(input?.isEnable !== undefined){
+                matchQuery.isEnable=input?.isEnable
+            }
+
+
+            const response =await returnPolicyService.getAllPoliciesBySuperAdmin(options,matchQuery);
+            // console.log("response",response)
+
+            if(!response){
+               throw new GraphQLError("unable to fetch return policies", {
+                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policies"] },    
+               });
+            }
+
+            return {
+                success:true,
+                data:response.records,
+                maxRecords:response.maxRecords
+            }
+        
+         } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+         }
+
+      },
+   }
 }
