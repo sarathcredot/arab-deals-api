@@ -5,6 +5,8 @@ scalar Upload
 type Mutation {
    createReturnPolicyBySuperAdmin(input:createReturnPolicyBySuperAdminInput!):createReturnPolicyBySuperAdminResponse
    updateReturnPolicyByAdmin(input:updateReturnPolicyByAdminInput):updateReturnPolicyByAdminResponse
+   deleteReturnPolicyByAdmin(input:deleteReturnPolicyByAdminInput!):deleteReturnPolicyByAdminResponse
+   updateStatusReturnPolicyByAdmin(input:updateStatusReturnPolicyByAdminInput!):updateStatusReturnPolicyByAdminResponse
 }
 
 type Query {
@@ -39,6 +41,15 @@ input updateReturnPolicyByAdminInput{
   conditions:[String]
 }
 
+input deleteReturnPolicyByAdminInput{
+   returnPolicyId:ObjectId!
+}
+
+input updateStatusReturnPolicyByAdminInput{
+  returnPolicyId:ObjectId!
+   isEnable:Boolean!
+}
+
 
 type createReturnPolicyBySuperAdminResponse{
       success: Boolean,
@@ -70,6 +81,16 @@ type getReturnPolicyByAdminResponse{
 }
 
 type updateReturnPolicyByAdminResponse{
+   success: Boolean,
+   message: String,
+}
+
+type deleteReturnPolicyByAdminResponse{
+   success: Boolean,
+   message: String,
+}
+
+type updateStatusReturnPolicyByAdminResponse{
    success: Boolean,
    message: String,
 }

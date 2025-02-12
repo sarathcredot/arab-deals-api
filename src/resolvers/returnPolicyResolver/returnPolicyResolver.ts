@@ -1,5 +1,4 @@
 import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, roleService, returnPolicyService } from "../../services";
-
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { GraphQLError } from "graphql";
@@ -150,6 +149,93 @@ export const returnPolicyResolver: Resolvers = {
             })
         }
      },
+
+    
+     //delete return policy by admin
+
+    deleteReturnPolicyByAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+        try {
+            const returnPolicyId:Types.ObjectId=input.returnPolicyId;
+
+            if(!returnPolicyId){
+                throw new GraphQLError("Policy id is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
+                });
+            }
+
+            const existingPolicy = await returnPolicyModel.findById(returnPolicyId)
+
+            if(!existingPolicy){
+                throw new GraphQLError("Return Policy not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["Return Policy not found"] },
+                });
+             }
+
+
+             const result=await returnPolicyService.deleteReturnPolicyByAdmin(returnPolicyId)
+
+            if(!result){
+                throw new GraphQLError("unable to delete return policy", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to delete return policy"] },
+                });
+            }
+
+
+            return {
+                success: true,
+                message: "return policy deleted succesfully",
+            }
+
+        } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+        }
+    },
+
+    //to change status of return policy
+
+
+    updateStatusReturnPolicyByAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+        try {
+
+            const returnPolicyId:Types.ObjectId=input.returnPolicyId;
+            const isEnable:boolean=input.isEnable
+
+            if(!returnPolicyId){
+                throw new GraphQLError("Policy id is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
+                });
+            }
+
+            const existingPolicy = await returnPolicyModel.findById(returnPolicyId)
+
+            if(!existingPolicy){
+                throw new GraphQLError("Return Policy not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["Return Policy not found"] },
+                });
+             }
+             const result =await returnPolicyService.updateStatusReturnPolicyByAdmin(returnPolicyId,isEnable)
+             if(!result){
+                throw new GraphQLError("unable to update return policy status", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to update return policy status"] },
+                });
+             }
+
+             return {
+                success:true,
+                message:"Return policy status updated successfully"
+             }
+
+        } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+        }
+    }
+
       
     },
     Query:{

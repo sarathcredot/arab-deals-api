@@ -80,3 +80,15 @@ export const updateReturnPolicyByAdmin=async (returnPolicyId:Types.ObjectId,upda
     const updateRole=await returnPolicyModel.findByIdAndUpdate(returnPolicyId,updatePolicyData,{new:true});
     return updateRole;
 }
+
+
+export const deleteReturnPolicyByAdmin=async (returnPolicyId:Types.ObjectId): Promise<any> => {
+    const deletePolicy=await returnPolicyModel.findByIdAndDelete(returnPolicyId);
+    return deletePolicy;
+}
+
+
+export const updateStatusReturnPolicyByAdmin=async (returnPolicyId:Types.ObjectId,isEnable:boolean): Promise<any> => {
+    const updateRole=await returnPolicyModel.findByIdAndUpdate(returnPolicyId,{isEnable:isEnable},{new:true});
+    return updateRole;
+}
