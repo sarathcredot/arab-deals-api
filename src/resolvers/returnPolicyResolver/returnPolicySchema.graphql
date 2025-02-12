@@ -1,0 +1,28 @@
+scalar ObjectId
+scalar Upload
+
+
+type Mutation {
+   createReturnPolicyBySuperAdmin(input:createReturnPolicyBySuperAdminInput!):createReturnPolicyBySuperAdminResponse
+}
+
+
+input createReturnPolicyBySuperAdminInput {
+     name:String!
+     description:String
+     duration: Int!
+     conditions:[String]
+}
+
+
+type createReturnPolicyBySuperAdminResponse{
+      success: Boolean,
+      message: String,
+}
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+}
