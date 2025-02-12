@@ -18,7 +18,10 @@ const returnPolicySchema=new Schema({
         type: [String], 
         default: [] 
     }, 
-
+     isEnable:{
+      type:Boolean,
+      default:true
+     }
 },{
     timestamps:true
 })
