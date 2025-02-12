@@ -37,6 +37,7 @@ type ReturnPolicy{
     description:String
     duration: Int
     conditions:[String]
+     isEnable:Boolean
 }
 
 type getAllPoliciesBySuperAdminResponse {
