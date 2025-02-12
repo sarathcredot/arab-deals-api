@@ -99,7 +99,7 @@ export const returnPolicyResolver: Resolvers = {
 
             if(!returnPolicyId){
                 throw new GraphQLError("policy id is required", {
-                    extensions: { code: "BAD_REQUEST", errors: ["role id is required"] },
+                    extensions: { code: "BAD_REQUEST", errors: ["policy id is required"] },
                 });
             }
 
