@@ -24,7 +24,8 @@ import {settlementModel}  from './settlementModel'
 import {deliveryAgentConfigModel}from "./deliveryagentconfigmodel"
 import {couponsModel} from './couponsModel';
 import {roleModel} from './roleModel';
-import {notificationModel} from "./notificationModel"
+import {notificationModel} from "./notificationModel";
+import {returnPolicyModel} from "./returnPolicyModel";
 
 
 export {
@@ -54,5 +55,6 @@ export {
     deliveryAgentConfigModel,
     couponsModel,
     roleModel,
-    notificationModel
+    notificationModel,
+    returnPolicyModel
 }

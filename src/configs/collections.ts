@@ -25,5 +25,6 @@ export const collections = {
     DELIVERY_AGENT_CONFIGS: "delivery_agent_configs",
     COUPONS:"coupons",
     ROLES:"roles",
-    NOTIFICATION:"notification"
+    NOTIFICATION:"notification",
+    RETURN_POLICY:"return_policies",
 }
