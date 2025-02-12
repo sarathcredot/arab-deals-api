@@ -4,10 +4,12 @@ scalar Upload
 
 type Mutation {
    createReturnPolicyBySuperAdmin(input:createReturnPolicyBySuperAdminInput!):createReturnPolicyBySuperAdminResponse
+   updateReturnPolicyByAdmin(input:updateReturnPolicyByAdminInput):updateReturnPolicyByAdminResponse
 }
 
 type Query {
   getAllPoliciesBySuperAdmin(input:getAllPoliciesBySuperAdminInput):getAllPoliciesBySuperAdminResponse
+  getReturnPolicyByAdmin(input:getReturnPolicyByAdminInput!):getReturnPolicyByAdminResponse
 }
 
 
@@ -23,6 +25,18 @@ input getAllPoliciesBySuperAdminInput{
      size:Int
      search:String
      isEnable:Boolean
+}
+
+input getReturnPolicyByAdminInput{
+  returnPolicyId:ObjectId!
+}
+
+input updateReturnPolicyByAdminInput{
+  returnPolicyId:ObjectId!
+  name:String
+  description:String
+  duration: Int
+  conditions:[String]
 }
 
 
@@ -44,6 +58,20 @@ type getAllPoliciesBySuperAdminResponse {
    success:Boolean
     data:[ReturnPolicy]
     maxRecords:Int
+}
+
+type getReturnPolicyByAdminResponse{
+     _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    conditions:[String]
+    isEnable:Boolean
+}
+
+type updateReturnPolicyByAdminResponse{
+   success: Boolean,
+   message: String,
 }
 
 

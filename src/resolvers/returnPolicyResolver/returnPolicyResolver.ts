@@ -85,53 +85,149 @@ export const returnPolicyResolver: Resolvers = {
         });
             }
     },
+
+    // to update return policy
+
+    updateReturnPolicyByAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+        try {
+            const returnPolicyId:Types.ObjectId=input?.returnPolicyId;
+            const name:string |undefined |null=input?.name;
+            const description:string |undefined|null=input?.description;
+            const conditions = (input?.conditions) as string[];
+            const duration:number|undefined |null = input?.duration
+
+            if(!returnPolicyId){
+                throw new GraphQLError("policy id is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["role id is required"] },
+                });
+            }
+
+            const existingPolicy = await returnPolicyModel.findById(returnPolicyId)
+
+            if(!existingPolicy){
+                throw new GraphQLError("policy not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["policy not found"] },
+                });
+             }
+
+
+             let updatePolicyData :any={}
+             if(name){
+                updatePolicyData.name=name
+             }
+
+             if(description){
+                updatePolicyData.description=description
+             }
+
+             if(conditions){
+                updatePolicyData.conditions=conditions
+             }
+
+             if(duration){
+                updatePolicyData.duration=duration
+             }
+
+
+            const result=await returnPolicyService.updateReturnPolicyByAdmin(returnPolicyId,updatePolicyData)
+
+            if(!result){
+                throw new GraphQLError("Unable to update policy", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Unable to update policy"] },
+                });
+            }
+
+            return {
+                success: true,
+                message: "Return policy updated succesfully",
+            }
+        
+
+        } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+        }
+     },
       
     },
     Query:{
 
-      getAllPoliciesBySuperAdmin:async(parent,{input},{req},info)=>{
-        //   await verifySuperAdmin(req);
-          try {
-            const page:number=input?.page || 0;
-            const size:number=input?.size || 100;
+    //to get one specific policy
+    getReturnPolicyByAdmin:async(parent,{input},{req},info)=>{
+        // await verifySuperAdmin(req);
+        try {
 
-            const options:any={
-                page:page,
-                size:size
-            }
-            
-            const matchQuery:any={};
+            const returnPolicyId:Types.ObjectId=input.returnPolicyId;
 
-            if (input?.search) {
-                matchQuery.name = { $regex: input.search, $options: "i" };
+            if(!returnPolicyId){
+                throw new GraphQLError("policy id is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["policy id is required"] },
+                });
             }
 
-            if(input?.isEnable !== undefined){
-                matchQuery.isEnable=input?.isEnable
+            const existingPolicy = await returnPolicyModel.findById(returnPolicyId)
+
+            if(!existingPolicy){
+                throw new GraphQLError("policy not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["policy not found"] },
+                });
             }
 
-
-            const response =await returnPolicyService.getAllPoliciesBySuperAdmin(options,matchQuery);
-            // console.log("response",response)
-
-            if(!response){
-               throw new GraphQLError("unable to fetch return policies", {
-                   extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policies"] },    
-               });
-            }
-
-            return {
-                success:true,
-                data:response.records,
-                maxRecords:response.maxRecords
-            }
-        
-         } catch (error:any) {
+          return existingPolicy;
+        } catch (error:any) {
             throw new GraphQLError(error, {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
             })
-         }
+        }
+    },
 
-      },
+    //to get all return policies
+    getAllPoliciesBySuperAdmin:async(parent,{input},{req},info)=>{
+    //   await verifySuperAdmin(req);
+        try {
+        const page:number=input?.page || 0;
+        const size:number=input?.size || 100;
+
+        const options:any={
+            page:page,
+            size:size
+        }
+        
+        const matchQuery:any={};
+
+        if (input?.search) {
+            matchQuery.name = { $regex: input.search, $options: "i" };
+        }
+
+        if(input?.isEnable !== undefined){
+            matchQuery.isEnable=input?.isEnable
+        }
+
+
+        const response =await returnPolicyService.getAllPoliciesBySuperAdmin(options,matchQuery);
+        // console.log("response",response)
+
+        if(!response){
+            throw new GraphQLError("unable to fetch return policies", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policies"] },    
+            });
+        }
+
+        return {
+            success:true,
+            data:response.records,
+            maxRecords:response.maxRecords
+        }
+    
+        } catch (error:any) {
+        throw new GraphQLError(error, {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        })
+        }
+
+    },
+
    }
 }

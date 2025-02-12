@@ -1,4 +1,6 @@
 import { returnPolicyModel } from "../models/returnPolicyModel";
+import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
+
 
 export interface IReturnPolicy {
     name: string;
@@ -72,5 +74,9 @@ export const getAllPoliciesBySuperAdmin=async(options:any,matchQuery:any): Promi
      
     } catch (error) {
        throw error
-    }
- }
+    } }
+
+export const updateReturnPolicyByAdmin=async (returnPolicyId:Types.ObjectId,updatePolicyData: IReturnPolicy): Promise<any> => {
+    const updateRole=await returnPolicyModel.findByIdAndUpdate(returnPolicyId,updatePolicyData,{new:true});
+    return updateRole;
+}
