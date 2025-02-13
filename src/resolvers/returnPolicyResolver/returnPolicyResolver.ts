@@ -27,18 +27,17 @@ export const returnPolicyResolver: Resolvers = {
             console.log("🚀 createReturnPolicyBySuperAdmin called with input:", input);
             const name:string=input.name;
             const description:string |undefined|null=input?.description;
-            const conditions = (input?.conditions || []) as string[];
+            // const conditions = (input?.conditions || []) as string[];
             const duration = input.duration
+            const refundDeduction:number | undefined | null=input?.refundDeduction
 
             if(!name){
-                console.log("❌ Missing name");
                 throw new GraphQLError("name is required", {
                     extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
                 });
             }
 
             if (!duration || duration <= 0) {
-                console.log("❌ Invalid duration:", duration);
                 throw new GraphQLError("Return period must be a positive number", {
                     extensions: { code: "BAD_REQUEST", errors: ["Return period must be valid"] },
                 });
@@ -47,7 +46,6 @@ export const returnPolicyResolver: Resolvers = {
             const existingReturnPolicy=await returnPolicyModel.findOne({name})
 
             if(existingReturnPolicy){
-                console.log("❌ Policy with this name already exists:", name);
                 throw new GraphQLError("policy with this name already exists", {
                     extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
                 });
@@ -56,8 +54,9 @@ export const returnPolicyResolver: Resolvers = {
             let newReturnPolicyData:returnPolicyService.IReturnPolicy={
                     name,
                     description,
-                    conditions,
-                    duration 
+                    // conditions,
+                    duration,
+                    refundDeduction
             }
 
             console.log("✅ Creating return policy with data:", newReturnPolicyData);
@@ -93,8 +92,9 @@ export const returnPolicyResolver: Resolvers = {
             const returnPolicyId:Types.ObjectId=input?.returnPolicyId;
             const name:string |undefined |null=input?.name;
             const description:string |undefined|null=input?.description;
-            const conditions = (input?.conditions) as string[];
-            const duration:number|undefined |null = input?.duration
+            // const conditions = (input?.conditions) as string[];
+            const duration:number|undefined |null = input?.duration;
+            const refundDeduction:number | undefined | null=input?.refundDeduction;
 
             if(!returnPolicyId){
                 throw new GraphQLError("policy id is required", {
@@ -120,12 +120,16 @@ export const returnPolicyResolver: Resolvers = {
                 updatePolicyData.description=description
              }
 
-             if(conditions){
-                updatePolicyData.conditions=conditions
-             }
+            //  if(conditions){
+            //     updatePolicyData.conditions=conditions
+            //  }
 
              if(duration){
                 updatePolicyData.duration=duration
+             }
+
+             if(refundDeduction){
+                updatePolicyData.refundDeduction=refundDeduction
              }
 
 
@@ -290,6 +294,8 @@ export const returnPolicyResolver: Resolvers = {
         if(input?.isEnable !== undefined){
             matchQuery.isEnable=input?.isEnable
         }
+
+         matchQuery.isDeleted=false
 
 
         const response =await returnPolicyService.getAllPoliciesBySuperAdmin(options,matchQuery);

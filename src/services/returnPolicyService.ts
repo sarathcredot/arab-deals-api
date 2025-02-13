@@ -5,8 +5,9 @@ import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, T
 export interface IReturnPolicy {
     name: string;
     description?: string |undefined|null;
-    conditions?: string[];
+    // conditions?: string[];
     duration:number;
+    refundDeduction?:number |undefined|null
 }
 
 
@@ -83,7 +84,7 @@ export const updateReturnPolicyByAdmin=async (returnPolicyId:Types.ObjectId,upda
 
 
 export const deleteReturnPolicyByAdmin=async (returnPolicyId:Types.ObjectId): Promise<any> => {
-    const deletePolicy=await returnPolicyModel.findByIdAndDelete(returnPolicyId);
+    const deletePolicy=await returnPolicyModel.findByIdAndUpdate(returnPolicyId,{isDeleted:true},{new:true});
     return deletePolicy;
 }
 

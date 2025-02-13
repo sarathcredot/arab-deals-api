@@ -14,14 +14,23 @@ const returnPolicySchema=new Schema({
         type: Number, 
         required: true 
     }, 
-     conditions: { 
-        type: [String], 
-        default: [] 
-    }, 
+    //  conditions: { 
+    //     type: [String], 
+    //     default: [] 
+    // }, 
      isEnable:{
       type:Boolean,
       default:true
-     }
+     },
+     refundDeduction : { 
+        type: Number,
+        default: 0 
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false
+    }
+
 },{
     timestamps:true
 })

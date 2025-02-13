@@ -19,7 +19,7 @@ input createReturnPolicyBySuperAdminInput {
      name:String!
      description:String
      duration: Int!
-     conditions:[String]
+     refundDeduction:Int
 }
 
 input getAllPoliciesBySuperAdminInput{
@@ -38,7 +38,7 @@ input updateReturnPolicyByAdminInput{
   name:String
   description:String
   duration: Int
-  conditions:[String]
+  refundDeduction:Int
 }
 
 input deleteReturnPolicyByAdminInput{
@@ -61,8 +61,9 @@ type ReturnPolicy{
     name:String
     description:String
     duration: Int
-    conditions:[String]
-     isEnable:Boolean
+    isEnable:Boolean
+    refundDeduction:Int
+    isDeleted:Boolean
 }
 
 type getAllPoliciesBySuperAdminResponse {
@@ -76,8 +77,10 @@ type getReturnPolicyByAdminResponse{
     name:String
     description:String
     duration: Int
-    conditions:[String]
     isEnable:Boolean
+    refundDeduction:Int
+    isDeleted:Boolean
+
 }
 
 type updateReturnPolicyByAdminResponse{
