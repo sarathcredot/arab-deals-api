@@ -1170,7 +1170,7 @@ export const orderResolver: Resolvers = {
 
 
       const return_order_placed_notification=await notificationService.createNotification({
-        title: "You have a new Return order!!!!",
+        title: "New return order placed !!!!",
         message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
         type: "return_order",   
         permissions:["orders","return-orders"],
