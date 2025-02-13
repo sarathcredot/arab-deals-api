@@ -27,6 +27,7 @@ import * as transactionlogs from "./transactionlogs"
 import * as couponService  from "./couponService"
 import * as roleService from './roleService'
 import * as notificationService from './notificationService'
+import * as returnPolicyService from './returnPolicyService'
 
 
 
@@ -59,5 +60,6 @@ export {
     transactionlogs,
     couponService,
     roleService,
-    notificationService
+    notificationService,
+    returnPolicyService
 }

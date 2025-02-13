@@ -1,0 +1,104 @@
+scalar ObjectId
+scalar Upload
+
+
+type Mutation {
+   createReturnPolicyBySuperAdmin(input:createReturnPolicyBySuperAdminInput!):createReturnPolicyBySuperAdminResponse
+   updateReturnPolicyByAdmin(input:updateReturnPolicyByAdminInput):updateReturnPolicyByAdminResponse
+   deleteReturnPolicyByAdmin(input:deleteReturnPolicyByAdminInput!):deleteReturnPolicyByAdminResponse
+   updateStatusReturnPolicyByAdmin(input:updateStatusReturnPolicyByAdminInput!):updateStatusReturnPolicyByAdminResponse
+}
+
+type Query {
+  getAllPoliciesBySuperAdmin(input:getAllPoliciesBySuperAdminInput):getAllPoliciesBySuperAdminResponse
+  getReturnPolicyByAdmin(input:getReturnPolicyByAdminInput!):getReturnPolicyByAdminResponse
+}
+
+
+input createReturnPolicyBySuperAdminInput {
+     name:String!
+     description:String
+     duration: Int!
+     conditions:[String]
+}
+
+input getAllPoliciesBySuperAdminInput{
+     page:Int
+     size:Int
+     search:String
+     isEnable:Boolean
+}
+
+input getReturnPolicyByAdminInput{
+  returnPolicyId:ObjectId!
+}
+
+input updateReturnPolicyByAdminInput{
+  returnPolicyId:ObjectId!
+  name:String
+  description:String
+  duration: Int
+  conditions:[String]
+}
+
+input deleteReturnPolicyByAdminInput{
+   returnPolicyId:ObjectId!
+}
+
+input updateStatusReturnPolicyByAdminInput{
+  returnPolicyId:ObjectId!
+   isEnable:Boolean!
+}
+
+
+type createReturnPolicyBySuperAdminResponse{
+      success: Boolean,
+      message: String,
+}
+
+type ReturnPolicy{
+    _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    conditions:[String]
+     isEnable:Boolean
+}
+
+type getAllPoliciesBySuperAdminResponse {
+   success:Boolean
+    data:[ReturnPolicy]
+    maxRecords:Int
+}
+
+type getReturnPolicyByAdminResponse{
+     _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    conditions:[String]
+    isEnable:Boolean
+}
+
+type updateReturnPolicyByAdminResponse{
+   success: Boolean,
+   message: String,
+}
+
+type deleteReturnPolicyByAdminResponse{
+   success: Boolean,
+   message: String,
+}
+
+type updateStatusReturnPolicyByAdminResponse{
+   success: Boolean,
+   message: String,
+}
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}

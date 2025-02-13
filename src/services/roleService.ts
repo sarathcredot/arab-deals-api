@@ -10,8 +10,15 @@ export interface IRole {
 
 
 export const createRoleBySuperAdmin = async (newRoleData: IRole): Promise<any> => {
-    let Role= new roleModel(newRoleData);
-    return await Role.save();
+    try {
+        let Role= new roleModel(newRoleData);
+        return await Role.save();
+        
+    } catch (error) {
+        console.error("Error saving role:", error);
+        throw new Error("Failed to save role");
+    }
+    
 };
 
 export const updateRoleBySuperAdmin=async (roleId:Types.ObjectId,newRoleData: IRole): Promise<any> => {

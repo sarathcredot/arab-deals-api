@@ -48,6 +48,10 @@ type Mutation {
   updateRoleBySuperAdmin(input: updateRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   deleteRoleBySuperAdmin(input: deleteRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   updateStatusRoleBySuperAdmin(input: updateStatusRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  createReturnPolicyBySuperAdmin(input: createReturnPolicyBySuperAdminInput!): createReturnPolicyBySuperAdminResponse
+  updateReturnPolicyByAdmin(input: updateReturnPolicyByAdminInput): updateReturnPolicyByAdminResponse
+  deleteReturnPolicyByAdmin(input: deleteReturnPolicyByAdminInput!): deleteReturnPolicyByAdminResponse
+  updateStatusReturnPolicyByAdmin(input: updateStatusReturnPolicyByAdminInput!): updateStatusReturnPolicyByAdminResponse
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
@@ -167,6 +171,8 @@ type Query {
   getShippingSettings: GetShippingSettingsResponse!
   getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
   getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
+  getAllPoliciesBySuperAdmin(input: getAllPoliciesBySuperAdminInput): getAllPoliciesBySuperAdminResponse
+  getReturnPolicyByAdmin(input: getReturnPolicyByAdminInput!): getReturnPolicyByAdminResponse
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
   getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
   getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
@@ -1313,6 +1319,85 @@ type getAllRolesBySuperAdminResponse {
   success: Boolean
   data: [Roles]
   maxRecords: Int
+}
+
+input createReturnPolicyBySuperAdminInput {
+  name: String!
+  description: String
+  duration: Int!
+  conditions: [String]
+}
+
+input getAllPoliciesBySuperAdminInput {
+  page: Int
+  size: Int
+  search: String
+  isEnable: Boolean
+}
+
+input getReturnPolicyByAdminInput {
+  returnPolicyId: ObjectId!
+}
+
+input updateReturnPolicyByAdminInput {
+  returnPolicyId: ObjectId!
+  name: String
+  description: String
+  duration: Int
+  conditions: [String]
+}
+
+input deleteReturnPolicyByAdminInput {
+  returnPolicyId: ObjectId!
+}
+
+input updateStatusReturnPolicyByAdminInput {
+  returnPolicyId: ObjectId!
+  isEnable: Boolean!
+}
+
+type createReturnPolicyBySuperAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type ReturnPolicy {
+  _id: ObjectId
+  name: String
+  description: String
+  duration: Int
+  conditions: [String]
+  isEnable: Boolean
+}
+
+type getAllPoliciesBySuperAdminResponse {
+  success: Boolean
+  data: [ReturnPolicy]
+  maxRecords: Int
+}
+
+type getReturnPolicyByAdminResponse {
+  _id: ObjectId
+  name: String
+  description: String
+  duration: Int
+  conditions: [String]
+  isEnable: Boolean
+}
+
+type updateReturnPolicyByAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type deleteReturnPolicyByAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type updateStatusReturnPolicyByAdminResponse {
+  success: Boolean
+  message: String
 }
 
 type File {

@@ -52,6 +52,7 @@ const io = new Server(httpServer, {
             process.env.ADMIN_APP_URL || "",
             process.env.USER_APP_URL_WWW || ""
         ], methods: ["GET", "POST"]
+        // origin: "*"
     }
 });
   
@@ -98,7 +99,7 @@ const startApolloServer = async () => {
 
         app.use("/graphql", graphqlUploadExpress(), expressMiddleware(server, {
             context: async ({ req }) => {
-                console.log("⚡ GraphQL Context Initialized! Socket.io Available:", !!io);
+                // console.log("⚡ GraphQL Context Initialized! Socket.io Available:", !!io);
                 return { req, io  };
             }
         }));
