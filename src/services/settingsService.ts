@@ -65,20 +65,6 @@ export const getShippingConfig = async (
   ): Promise<IShippingConfigDocument | null> => {
     const result = await shippingConfigModel.aggregate([
       {
-        $lookup: {
-          from: collections.RETURN_POLICY,
-          localField: "defaultReturnPolicy",
-          foreignField: "_id",
-          as: "defaultReturnPolicy",
-        },
-      },
-      {
-        $unwind: {
-          path: "$defaultReturnPolicy",
-          preserveNullAndEmptyArrays: true, 
-        },
-      },
-      {
         $project: {
           shippingCharge: 1,
           freeShippingThreshold: 1,
