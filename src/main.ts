@@ -61,13 +61,7 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
     console.log("A client connected:", socket.id);
 
-    // socket.on("new_order", (data) => {
-    //     console.log("New order received:", data);
-        
-        
-    //     io.emit("new_order", data); 
-    // });
-
+  
     socket.on("message", (data) => {
         console.log("Message received:", data);
         io.emit("message", data);

@@ -5,9 +5,16 @@ import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, T
 
 export interface IReturnPolicy {
     name: string;
+<<<<<<< HEAD
     description?: string | undefined | null;
     conditions?: string[];
     duration: number;
+=======
+    description?: string |undefined|null;
+    // conditions?: string[];
+    duration:number;
+    returnCharge?:number |undefined|null
+>>>>>>> 7a4580d37cba3ea542f53f2c056ebab1f7b0b667
 }
 
 
@@ -84,8 +91,13 @@ export const updateReturnPolicyByAdmin = async (returnPolicyId: Types.ObjectId, 
 }
 
 
+<<<<<<< HEAD
 export const deleteReturnPolicyByAdmin = async (returnPolicyId: Types.ObjectId): Promise<any> => {
     const deletePolicy = await returnPolicyModel.findByIdAndDelete(returnPolicyId);
+=======
+export const deleteReturnPolicyByAdmin=async (returnPolicyId:Types.ObjectId): Promise<any> => {
+    const deletePolicy=await returnPolicyModel.findByIdAndUpdate(returnPolicyId,{isDeleted:true},{new:true});
+>>>>>>> 7a4580d37cba3ea542f53f2c056ebab1f7b0b667
     return deletePolicy;
 }
 

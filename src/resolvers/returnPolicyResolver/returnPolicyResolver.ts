@@ -12,6 +12,7 @@ import { startOfDay, endOfDay, max } from "date-fns"
 import path from "path";
 import fs from "fs";
 import { returnPolicyModel } from "../../models/returnPolicyModel";
+import { shippingConfigModel } from "../../models/shippingConfigModel";
 
 
 export const returnPolicyResolver: Resolvers = {
@@ -24,6 +25,7 @@ export const returnPolicyResolver: Resolvers = {
             //   await verifySuperAdmin(req);
             try {
 
+<<<<<<< HEAD
                 console.log("🚀 createReturnPolicyBySuperAdmin called with input:", input);
                 const name: string = input.name;
                 const description: string | undefined | null = input?.description;
@@ -45,6 +47,34 @@ export const returnPolicyResolver: Resolvers = {
                 }
 
                 const existingReturnPolicy = await returnPolicyModel.findOne({ name })
+=======
+            console.log("🚀 createReturnPolicyBySuperAdmin called with input:", input);
+            const name:string=input.name;
+            const description:string |undefined|null=input?.description;
+            // const conditions = (input?.conditions || []) as string[];
+            const duration = input.duration
+            const returnCharge:number | undefined | null=input?.returnCharge
+
+            if(!name){
+                throw new GraphQLError("name is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
+                });
+            }
+
+            if (!duration || duration <= 0) {
+                throw new GraphQLError("Return period must be a positive number", {
+                    extensions: { code: "BAD_REQUEST", errors: ["Return period must be valid"] },
+                });
+            }
+        
+            const existingReturnPolicy=await returnPolicyModel.findOne({name})
+
+            if(existingReturnPolicy){
+                throw new GraphQLError("policy with this name already exists", {
+                    extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
+                });
+            }
+>>>>>>> 7a4580d37cba3ea542f53f2c056ebab1f7b0b667
 
                 if (existingReturnPolicy) {
                     console.log("❌ Policy with this name already exists:", name);
@@ -56,9 +86,16 @@ export const returnPolicyResolver: Resolvers = {
                 let newReturnPolicyData: returnPolicyService.IReturnPolicy = {
                     name,
                     description,
+<<<<<<< HEAD
                     conditions,
                     duration
                 }
+=======
+                    // conditions,
+                    duration,
+                    returnCharge
+            }
+>>>>>>> 7a4580d37cba3ea542f53f2c056ebab1f7b0b667
 
                 console.log("✅ Creating return policy with data:", newReturnPolicyData);
 
@@ -246,7 +283,19 @@ export const returnPolicyResolver: Resolvers = {
             // await verifySuperAdmin(req);
             try {
 
+<<<<<<< HEAD
                 const returnPolicyId: Types.ObjectId = input.returnPolicyId;
+=======
+    updateReturnPolicyByAdmin:async(parent,{input},{req},info)=>{
+        //   await verifySuperAdmin(req);
+        try {
+            const returnPolicyId:Types.ObjectId=input?.returnPolicyId;
+            const name:string |undefined |null=input?.name;
+            const description:string |undefined|null=input?.description;
+            // const conditions = (input?.conditions) as string[];
+            const duration:number|undefined |null = input?.duration;
+            const returnCharge:number | undefined | null=input?.returnCharge;
+>>>>>>> 7a4580d37cba3ea542f53f2c056ebab1f7b0b667
 
                 if (!returnPolicyId) {
                     throw new GraphQLError("policy id is required", {
@@ -323,9 +372,23 @@ export const returnPolicyResolver: Resolvers = {
 
             //   await verifyAdmin(req)
 
+<<<<<<< HEAD
               await returnPolicyService.getDefaultReturnPolicyInCategory(input?.id)
               
               return true
+=======
+            //  if(conditions){
+            //     updatePolicyData.conditions=conditions
+            //  }
+
+             if(duration){
+                updatePolicyData.duration=duration
+             }
+>>>>>>> 7a4580d37cba3ea542f53f2c056ebab1f7b0b667
+
+             if(returnCharge){
+                updatePolicyData.returnCharge=returnCharge
+             }
 
 
             } catch (error: any) {
@@ -361,8 +424,102 @@ export const returnPolicyResolver: Resolvers = {
 
         }
 
+             const defaultReturnPolicy=await shippingConfigModel.find({defaultReturnPolicy:returnPolicyId})
+
+             if(defaultReturnPolicy.length>0){
+                throw new GraphQLError("unable to delete default return policy", {
+                    extensions: { code: "BAD_REQUEST", errors: ["unable to delete default return policy"] },
+                });
+             }
+
 
 
 
     }
+<<<<<<< HEAD
+=======
+
+      
+    },
+    Query:{
+
+    //to get one specific policy
+    getReturnPolicyByAdmin:async(parent,{input},{req},info)=>{
+        // await verifySuperAdmin(req);
+        try {
+
+            const returnPolicyId:Types.ObjectId=input.returnPolicyId;
+
+            if(!returnPolicyId){
+                throw new GraphQLError("policy id is required", {
+                    extensions: { code: "BAD_REQUEST", errors: ["policy id is required"] },
+                });
+            }
+
+            const existingPolicy = await returnPolicyModel.findById(returnPolicyId)
+
+            if(!existingPolicy){
+                throw new GraphQLError("policy not found", {
+                    extensions: { code: "BAD_REQUEST", errors: ["policy not found"] },
+                });
+            }
+
+          return existingPolicy;
+        } catch (error:any) {
+            throw new GraphQLError(error, {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+            })
+        }
+    },
+
+    //to get all return policies
+    getAllPoliciesBySuperAdmin:async(parent,{input},{req},info)=>{
+    //   await verifySuperAdmin(req);
+        try {
+        const page:number=input?.page || 0;
+        const size:number=input?.size || 100;
+
+        const options:any={
+            page:page,
+            size:size
+        }
+        
+        const matchQuery:any={};
+
+        if (input?.search) {
+            matchQuery.name = { $regex: input.search, $options: "i" };
+        }
+
+        if(input?.isEnable !== undefined){
+            matchQuery.isEnable=input?.isEnable
+        }
+
+         matchQuery.isDeleted=false
+
+
+        const response =await returnPolicyService.getAllPoliciesBySuperAdmin(options,matchQuery);
+        // console.log("response",response)
+
+        if(!response){
+            throw new GraphQLError("unable to fetch return policies", {
+                extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policies"] },    
+            });
+        }
+
+        return {
+            success:true,
+            data:response.records,
+            maxRecords:response.maxRecords
+        }
+    
+        } catch (error:any) {
+        throw new GraphQLError(error, {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        })
+        }
+
+    },
+
+   }
+>>>>>>> 7a4580d37cba3ea542f53f2c056ebab1f7b0b667
 }

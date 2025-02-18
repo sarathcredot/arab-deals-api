@@ -31,6 +31,7 @@ export interface IShippingConfigDocument extends Document {
     shippingCharge?: number;
     freeShippingThreshold?: number;
     returnPeriod?: number;
+    defaultReturnPolicy?:Types.ObjectId
 }
 
 

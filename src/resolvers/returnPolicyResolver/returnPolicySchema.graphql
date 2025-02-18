@@ -40,7 +40,7 @@ input createReturnPolicyBySuperAdminInput {
      name:String!
      description:String
      duration: Int!
-     conditions:[String]
+     returnCharge:Int
 }
 
 input getAllPoliciesBySuperAdminInput{
@@ -59,7 +59,7 @@ input updateReturnPolicyByAdminInput{
   name:String
   description:String
   duration: Int
-  conditions:[String]
+  returnCharge:Int
 }
 
 input deleteReturnPolicyByAdminInput{
@@ -82,8 +82,9 @@ type ReturnPolicy{
     name:String
     description:String
     duration: Int
-    conditions:[String]
-     isEnable:Boolean
+    isEnable:Boolean
+    returnCharge:Int
+    isDeleted:Boolean
 }
 
 type getAllPoliciesBySuperAdminResponse {
@@ -97,8 +98,10 @@ type getReturnPolicyByAdminResponse{
     name:String
     description:String
     duration: Int
-    conditions:[String]
     isEnable:Boolean
+    returnCharge:Int
+    isDeleted:Boolean
+
 }
 
 type updateReturnPolicyByAdminResponse{
