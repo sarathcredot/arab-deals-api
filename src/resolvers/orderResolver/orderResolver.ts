@@ -1173,6 +1173,11 @@ export const orderResolver: Resolvers = {
         }
         : null;
 
+      if(orderProduct.returnCharge && orderProduct.sellingPrice){
+        const returnAmount=(orderProduct.returnCharge/100)*orderProduct?.sellingPrice
+        orderProduct.refundAmount=returnAmount
+      }
+      
       orderProduct.returnUserReason = returnUserReason;
       orderProduct.returnRequestDate = moment().toDate();
       orderProduct.refundBankDetails = validatedBankDetails;
