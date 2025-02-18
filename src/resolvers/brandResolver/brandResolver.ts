@@ -117,10 +117,10 @@ export const brandResolver: Resolvers = {
                     brandRecord.isPopular = input.isPopular;
                 }
 
-                if(input?.returnPolicy){
+               
 
                      brandRecord.returnPolicy=input.returnPolicy;
-                }
+                
 
 
                 if (input.categories) {

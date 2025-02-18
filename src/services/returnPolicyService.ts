@@ -101,13 +101,6 @@ export const getReturnPolicyOfOrderProduct = async (orderProductId: Types.Object
 };
 
 
-
-
-
-
-
-
-
 export const getDefaultReturnPolicyInCategory = async (id: Types.ObjectId): Promise<any> => {
 
 

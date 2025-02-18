@@ -1,7 +1,7 @@
 import { Types, PipelineStage, QueryOptions, Document, FilterQuery, UpdateQuery, ObjectId, Model, ProjectionFields } from "mongoose";
 import mongoose from 'mongoose';
 import { collections } from "../configs";
-import { attributeValueModel, productModel } from "../models";
+import { attributeValueModel, productModel ,brandModel,categoryModel,shippingConfigModel,returnPolicyModel} from "../models";
 import { attributeService } from ".";
 
 
@@ -52,9 +52,9 @@ export interface IProduct {
     }[];
     offerPrice?: number,
     remarks?: string,
-    delivery_type?:string,
-    returnPolicy?:Types.ObjectId
-    
+    delivery_type?: string,
+    returnPolicy?: Types.ObjectId
+
 }
 
 
@@ -98,8 +98,8 @@ export interface IProductDocument extends Document {
     attributes?: [IProductAttribute];
     remarks?: string[];
     productDetailImages?: FileData[];
-    delivery_type?:string
-    returnPolicy?:Types.ObjectId
+    delivery_type?: string
+    returnPolicy?: Types.ObjectId
 }
 
 export interface IProductsProjection {
@@ -711,7 +711,7 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
             }
         }
     );
-    console.log("pipline",JSON.stringify(pipeline,null,2))
+    console.log("pipline", JSON.stringify(pipeline, null, 2))
     const result = await productModel.aggregate(pipeline);
     let response = {
         records: [],
@@ -725,23 +725,23 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
     return response;
 }
 
-export const getProductsByAdminForCoupon = async (data:any): Promise<any> => {
+export const getProductsByAdminForCoupon = async (data: any): Promise<any> => {
 
-    let matchObj:any={};
+    let matchObj: any = {};
 
-    if(data?.brands?.length){
-        matchObj.brandId ={$in:data?.brands.map((item:any)=> new Types.ObjectId(item))} 
+    if (data?.brands?.length) {
+        matchObj.brandId = { $in: data?.brands.map((item: any) => new Types.ObjectId(item)) }
     }
-    if(data?.categories?.length){
-        matchObj.categoryId ={$in:data?.categories.map((item:any)=> new Types.ObjectId(item))} 
+    if (data?.categories?.length) {
+        matchObj.categoryId = { $in: data?.categories.map((item: any) => new Types.ObjectId(item)) }
     }
 
     let pipeline: PipelineStage[] = [
-        {$match:matchObj},
+        { $match: matchObj },
         {
-            $project:{
-                _id:1,
-                productName:1,
+            $project: {
+                _id: 1,
+                productName: 1,
             }
         }
     ];
@@ -749,9 +749,9 @@ export const getProductsByAdminForCoupon = async (data:any): Promise<any> => {
     const result = await productModel.aggregate(pipeline);
 
     if (result.length) {
-      let response = {
-        records:result||[],
-      };
+        let response = {
+            records: result || [],
+        };
         return response;
     }
 }
@@ -1562,4 +1562,155 @@ export const increaseProductsStock = async (products: ProductStock[]): Promise<v
     }
 
     const result = await productModel.bulkWrite(writes);
+}
+
+
+
+export const getProductReturnPolicy = async (id:Types.ObjectId): Promise<any> => {
+
+    return new Promise(async(resolve,reject) => {
+
+        try {
+ 
+            const productDetails:any=await productModel.findOne({_id:id})
+
+
+
+            try {
+
+
+                const brandData = await brandModel.findOne({ _id:productDetails?.brandId})
+    
+                if (!brandData) {
+    
+                    reject()
+                    return
+                } else {
+    
+                    if (!brandData.returnPolicy) {
+    
+                        // check Category returnPolicy
+    
+                        // const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+                        // if (!categoryData.returnPolicy) {
+    
+                            const allCategories = productDetails?.categoryIdPath.split("#")
+    
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+    
+                                if (allCategories[i]) {
+    
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+    
+                                    if (categorie.returnPolicy) {
+    
+                                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+    
+                                        if (!returnPolicy.delete) {
+    
+                                            resolve(returnPolicy)
+                                            return
+                                        }
+                                    }
+                                }
+                            }
+    
+                            const defaultreturnPolicy = await shippingConfigModel.aggregate([
+    
+                                {
+                                    "$lookup": {
+                                        "from": "return_policies",
+                                        "localField": "defaultReturnPolicy",
+                                        "foreignField": "_id",
+                                        "as": "result"
+                                    }
+                                }
+                            ])
+    
+                            const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+    
+                            resolve(defaultreturnPolicyFinal)
+    
+                        // }
+    
+    
+                    } else {
+    
+                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: brandData.returnPolicy })
+    
+                        if (!returnPolicy.isDeleted) {
+    
+                            resolve(returnPolicy)
+                            return;
+    
+                        } else {
+    
+                            // check Category returnPolicy
+    
+                            // const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+                            // if (!categoryData.returnPolicy) {
+    
+                                const allCategories = productDetails?.categoryIdPath.path.split("#")
+    
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+    
+                                    if (allCategories[i]) {
+    
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+    
+                                        if (categorie.returnPolicy) {
+    
+                                            const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+    
+                                            if (!returnPolicy.delete) {
+    
+                                                resolve(returnPolicy)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+    
+                                const defaultreturnPolicy = await shippingConfigModel.aggregate([
+    
+                                    {
+                                        "$lookup": {
+                                            "from": "return_policies",
+                                            "localField": "defaultReturnPolicy",
+                                            "foreignField": "_id",
+                                            "as": "result"
+                                        }
+                                    }
+                                ])
+    
+                                const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+    
+                                resolve(defaultreturnPolicyFinal)
+                            // }
+    
+    
+                        }
+    
+    
+                    }
+    
+    
+                }
+    
+    
+    
+            } catch (error) {
+    
+    
+                  reject()
+            }
+
+
+
+
+        } catch (error) {
+
+             reject()
+        }
+    })
 }

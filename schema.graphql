@@ -1718,6 +1718,16 @@ type Attributes {
   attributeValue: String
 }
 
+type returnPolicyType {
+  _id: ObjectId
+  name: String
+  description: String
+  duration: Int
+  isEnable: Boolean
+  returnCharge: Int
+  isDeleted: Boolean
+}
+
 type ProductsResponse {
   maxRecords: Int!
   records: [Product!]
@@ -1734,6 +1744,7 @@ type ProductsInMobileResponse {
 
 type ProductResponse {
   product: Product!
+  returnPolicy: returnPolicyType
   message: String
 }
 
