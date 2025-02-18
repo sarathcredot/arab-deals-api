@@ -170,6 +170,8 @@ export const categoryResolver: Resolvers = {
                     categoryRecord.isLeaf = input.isLeaf;
                 }
 
+                categoryRecord.returnPolicy=input.returnPolicy
+
                 if (input.attributes) {
                     // Check if any input.attributes are already in the existing category array
                     const existingAttributesSet = new Set(categoryRecord.attributes.map(attribute => attribute?.toString()));
