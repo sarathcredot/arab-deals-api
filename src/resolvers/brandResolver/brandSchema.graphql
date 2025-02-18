@@ -18,6 +18,8 @@
         isBlocked: Boolean
         isPopular: Boolean
         priority: Int!
+        returnPolicy:ObjectId
+
     }   
 
     input updateBrandInput {
@@ -27,6 +29,8 @@
         isPopular: Boolean
         priority: Int
         categories: [String]
+        returnPolicy:ObjectId
+
     }
 
     input BrandRecordIdInput {
@@ -150,6 +154,8 @@
     logo: ImageData
     isPopular: Boolean
     priority: Int
+    returnPolicy:ObjectId
+
   }  
  
   

@@ -15,7 +15,9 @@ export interface IBrandRecord {
         fileURL?: string,
         mimeType?: string,
         originalName?: string
-    }
+    },
+    returnPolicy?:Types.ObjectId
+
 }
 
 export interface IBrandDocument extends Document {
@@ -30,7 +32,8 @@ export interface IBrandDocument extends Document {
         mimeType?: string,
         originalName?: string
     }
-    categories: Types.ObjectId[]
+    categories: Types.ObjectId[],
+    returnPolicy?:Types.ObjectId
 
 }
 

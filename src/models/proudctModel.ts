@@ -186,7 +186,12 @@ const productSchema = new Schema(
             type: String,
             require: true,
             enum: ['ArabDeals', 'Vendor', 'ThirdParty'],
-        }
+        },
+        returnPolicy:{
+
+            type:Schema.ObjectId
+
+        },
     },
     {
         timestamps: true

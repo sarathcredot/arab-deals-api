@@ -19,6 +19,8 @@
         description: String
         isLeaf: Boolean
         attributes: [String]
+        returnPolicy:ObjectId
+        
     }
 
     input UpdateCategoryInput {
@@ -29,6 +31,7 @@
         description: String
         isLeaf: Boolean
         attributes: [String]
+        returnPolicy:ObjectId
         # brands: [String]
     }
 
@@ -125,6 +128,8 @@
       isLeaf: Boolean
       description: String
       categoryImage: ImageData
+      returnPolicy:ObjectId
+
     }
 
     type CategoryAssignedToVendor{

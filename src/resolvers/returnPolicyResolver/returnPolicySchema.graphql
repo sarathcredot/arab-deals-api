@@ -12,7 +12,28 @@ type Mutation {
 type Query {
   getAllPoliciesBySuperAdmin(input:getAllPoliciesBySuperAdminInput):getAllPoliciesBySuperAdminResponse
   getReturnPolicyByAdmin(input:getReturnPolicyByAdminInput!):getReturnPolicyByAdminResponse
+  getDefaultReturnPolicyInCategory(input:getDefaultReturnPolicyInCategoryInput!):Boolean!
+  getDefaultReturnPolicyInProduct(input:getDefaultReturnPolicyInProductInput!):Boolean!
 }
+
+
+
+input getDefaultReturnPolicyInProductInput{
+
+       brandId:ObjectId
+       categoryId:ObjectId
+
+}
+
+
+input getDefaultReturnPolicyInCategoryInput{
+
+      id:ObjectId
+}
+
+
+
+
 
 
 input createReturnPolicyBySuperAdminInput {

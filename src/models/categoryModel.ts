@@ -53,6 +53,11 @@ const categorySchema = new Schema(
             type: Boolean,
             default: false
         },
+        returnPolicy:{
+
+            type:Schema.ObjectId
+
+        },
         attributes: {
             type: [
                 {

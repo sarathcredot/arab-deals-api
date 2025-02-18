@@ -165,7 +165,8 @@ export const productResolver: Resolvers = {
                     status: "UNDER_VERIFICATION",
                     attributes: attributeData,
                     offerPrice: input.offerPrice || 0,
-                    delivery_type:input.delivery_type || ""
+                    delivery_type:input.delivery_type || "",
+                    returnPolicy:input.returnPolicy 
                 };
 
                 // Create the product
@@ -394,6 +395,10 @@ export const productResolver: Resolvers = {
                 if (input.productName && existingProduct.productName !== input.productName) {
                     existingProduct.productName = input.productName;
                 }
+                if(input.returnPolicy){
+
+                     existingProduct.returnPolicy=input.returnPolicy
+                }
 
                 if (input.shortDescription && existingProduct.shortDescription !== input.shortDescription) {
                     existingProduct.shortDescription = input.shortDescription;
@@ -442,6 +447,7 @@ export const productResolver: Resolvers = {
                 if (input.mrp && input.mrp > 0 && existingProduct.mrp !== input.mrp) {
                     existingProduct.mrp = input.mrp;
                 }
+             
 
                 if (input.stock && input.stock >= 0) {
                     existingProduct.stock = input.stock;

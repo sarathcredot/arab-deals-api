@@ -68,6 +68,8 @@
     offerPrice: Float
     attributes: [String]
     delivery_type:String
+    returnPolicy:ObjectId
+
 }
 
 input VariantInput {
@@ -109,6 +111,7 @@ input ProductUpdateInput {
     attributes: [String]
     remarks: [String]
     delivery_type:String
+    returnPolicy:ObjectId
 
 }
 
@@ -137,6 +140,8 @@ input UpdateProductByAdminInput {
     isBlocked: Boolean
     warehouseSkuId: String
     delivery_type:String
+    returnPolicy:ObjectId
+    
     
 }
 

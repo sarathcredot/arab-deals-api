@@ -46,6 +46,7 @@ export const brandResolver: Resolvers = {
                     logo: brandLogo,
                     isPopular: input?.isPopular || false,
                     priority: input.priority,
+                    returnPolicy:input.returnPolicy || undefined
                 };
 
                 const result = await brandService.createBrandRecord(brandRecord);
@@ -114,6 +115,11 @@ export const brandResolver: Resolvers = {
 
                 if (input?.isPopular !== undefined && input?.isPopular !== null && [true, false].includes(input.isPopular)) {
                     brandRecord.isPopular = input.isPopular;
+                }
+
+                if(input?.returnPolicy){
+
+                     brandRecord.returnPolicy=input.returnPolicy;
                 }
 
 

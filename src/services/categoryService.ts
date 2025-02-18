@@ -28,7 +28,9 @@ export interface ICategory {
     isLeaf?: boolean;
     isDefault?: boolean;
     attributes?:Types.ObjectId[];
-    brands?: Types.ObjectId[]
+    brands?: Types.ObjectId[],
+    returnPolicy?:string
+
 }
 
 export interface CategoryDocument extends Document {
@@ -43,6 +45,7 @@ export interface CategoryDocument extends Document {
     isDefault: Boolean
     attributes: Types.ObjectId[]
     brands: Types.ObjectId[]
+    returnPolicy?:string
 }
 
 

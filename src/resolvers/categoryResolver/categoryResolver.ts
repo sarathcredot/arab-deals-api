@@ -42,7 +42,9 @@ export const categoryResolver: Resolvers = {
                 isBlocked: input.isBlocked || false,
                 description: input.description || "",
                 isLeaf: input.isLeaf || false,
-                attributes
+                attributes,
+                returnPolicy:input.returnPolicy || undefined
+                
             }
             if (categoryImage) {
                 category.categoryImage = categoryImage;

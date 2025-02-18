@@ -52,11 +52,16 @@ const brandSchema = new Schema(
             type: Boolean,
             default: false
         },
+        returnPolicy:{
+
+            type:Schema.ObjectId
+
+        },
         categories: {
             type: [
                 {
                     type: Schema.Types.ObjectId,
-                    ref: collections.BRANDS,
+                    ref: collections.CATEGORIES,
                 }
             ],
         },
