@@ -165,8 +165,8 @@ export const productResolver: Resolvers = {
                     status: "UNDER_VERIFICATION",
                     attributes: attributeData,
                     offerPrice: input.offerPrice || 0,
-                    delivery_type:input.delivery_type || "",
-                    returnPolicy:input.returnPolicy 
+                    delivery_type: input.delivery_type || "",
+                    returnPolicy: input.returnPolicy
                 };
 
                 // Create the product
@@ -395,10 +395,7 @@ export const productResolver: Resolvers = {
                 if (input.productName && existingProduct.productName !== input.productName) {
                     existingProduct.productName = input.productName;
                 }
-                if(input.returnPolicy){
 
-                     existingProduct.returnPolicy=input.returnPolicy
-                }
 
                 if (input.shortDescription && existingProduct.shortDescription !== input.shortDescription) {
                     existingProduct.shortDescription = input.shortDescription;
@@ -447,7 +444,7 @@ export const productResolver: Resolvers = {
                 if (input.mrp && input.mrp > 0 && existingProduct.mrp !== input.mrp) {
                     existingProduct.mrp = input.mrp;
                 }
-             
+
 
                 if (input.stock && input.stock >= 0) {
                     existingProduct.stock = input.stock;
@@ -461,12 +458,12 @@ export const productResolver: Resolvers = {
                     existingProduct.productDetailImages = detailImages;
                 }
 
-                if(input.delivery_type && existingProduct.delivery_type !== input.delivery_type){
+                if (input.delivery_type && existingProduct.delivery_type !== input.delivery_type) {
 
                     existingProduct.delivery_type = input.delivery_type;
                 }
 
-                existingProduct.returnPolicy=input.returnPolicy 
+                existingProduct.returnPolicy = input.returnPolicy
 
 
 
@@ -635,7 +632,7 @@ export const productResolver: Resolvers = {
                     existingProduct.productDetailImages = detailImages;
                 }
 
-                if(input.delivery_type && existingProduct.delivery_type !== input.delivery_type){
+                if (input.delivery_type && existingProduct.delivery_type !== input.delivery_type) {
 
                     existingProduct.delivery_type = input.delivery_type;
                 }
@@ -778,10 +775,10 @@ export const productResolver: Resolvers = {
                 }
 
                 const result = await productService.getProductWithId(productId, projection, options);
-                
+
                 // product return policy data 
 
-                const returnPolicyData=await productService.getProductReturnPolicy(result._id)
+                const returnPolicyData = await productService.getProductReturnPolicy(result._id)
 
 
                 if (!result) {
@@ -795,16 +792,16 @@ export const productResolver: Resolvers = {
 
                 const response = {
                     product: result,
-                    returnPolicy:{}
+                    returnPolicy: {}
                 }
 
 
-                if(returnPolicyData){
+                if (returnPolicyData) {
 
-                     response.returnPolicy=returnPolicyData
+                    response.returnPolicy = returnPolicyData
                 }
 
-              
+
                 return response;
 
             } catch (error) {
@@ -853,6 +850,9 @@ export const productResolver: Resolvers = {
 
                 const result = await productService.getProductWithId(productId, projection, options);
 
+                const returnPolicyData = await productService.getProductReturnPolicy(result._id)
+
+
                 if (!result) {
                     throw new GraphQLError("product not found", {
                         extensions: {
@@ -862,10 +862,19 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                const response = {
-                    product: result
 
+                const response = {
+                    product: result,
+                    returnPolicy: {}
                 }
+
+                if (returnPolicyData) {
+
+                    response.returnPolicy = returnPolicyData
+                }
+
+
+
 
                 return response;
 
@@ -946,7 +955,7 @@ export const productResolver: Resolvers = {
                     status,
                     vendorId
                 }
-                console.log("OPTION = ",options)
+                console.log("OPTION = ", options)
                 const result = await productService.getProductsByAdminWithFilters(options);
 
 
@@ -964,7 +973,7 @@ export const productResolver: Resolvers = {
         async getProductsByAdminForCoupon(parent, { input }, { req }, info) {
             try {
                 await verifyAdmin(req);
-                console.log("Product input = ",input)
+                console.log("Product input = ", input)
 
                 const brands: string[] = (input?.brands || []).map((item: string | null) => {
                     return item ? new Types.ObjectId(item).toString() : '';
@@ -983,7 +992,7 @@ export const productResolver: Resolvers = {
                     records: result.records
                 }
                 return response;
-                
+
             } catch (error) {
                 throw error
             }
@@ -1568,7 +1577,7 @@ export const productResolver: Resolvers = {
                 const query: string = (input.query.replace(/[^0-9a-zA-Z]/g, ' ')).trim().toLowerCase();
                 let suggestions: productService.IProductSuggestion[] = [];
 
-                console.log(query,'SEARCH QUERY');
+                console.log(query, 'SEARCH QUERY');
 
                 if (query) {
                     suggestions = await productService.getProductsAutoComplete(query);
@@ -1718,8 +1727,8 @@ export const productResolver: Resolvers = {
 
         },
 
-         // Fetch max price
-         async getProductsMaxPriceInMobile(parent, { input }, { req }, info) {
+        // Fetch max price
+        async getProductsMaxPriceInMobile(parent, { input }, { req }, info) {
             try {
 
                 //Validate Input
