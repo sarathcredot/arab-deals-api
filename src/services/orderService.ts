@@ -1,4 +1,4 @@
-import { orderModel, deliveryAgentModel } from "../models";
+import { orderModel, deliveryAgentModel, brandModel, categoryModel, returnPolicyModel } from "../models";
 import {
   Types,
   Document,
@@ -1387,6 +1387,47 @@ export const getProductDeliveryTypeDeliveryAgents = async (data: {
 };
 
 
-export const getReturnPolicyForProduct = async (productID: Types.ObjectId, defaultReturnPolicyId?: Types.ObjectId) => {
+export const getReturnPolicyForProduct = async (productID: Types.ObjectId, defaultReturnPolicyId?: Types.ObjectId):Promise<any> => {
+     const product=await productModel.findById(productID);
+     const brand=await brandModel.findById(product?.brandId);
+     const category=await categoryModel.findById(product?.categoryId);
+    //  console.log("product",product)
+      if(product?.returnPolicy)
+       {
+       return product.returnPolicy;
+       }
+      else if(brand?.returnPolicy)
+       {
+              return brand.returnPolicy;
+       }
+      else if(category?.returnPolicy){
+          if(category?.returnPolicy){
+            return category.returnPolicy;
+          }else{
+          const allCategories:any = category?.path?.split("#")
 
+          for (let i = allCategories.length - 1; i >= 0; i--) {
+
+            if (allCategories[i]) {
+
+            const Parentcategory: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+            if (Parentcategory.returnPolicy) {
+
+                const returnPolicy: any = await returnPolicyModel.findOne({ _id: Parentcategory.returnPolicy })
+                return returnPolicy
+
+            }
+            }
+          }
+          }  
+      }
+      else{
+         return defaultReturnPolicyId;
+       }
 }
+
+export const getReturnPolicy=async (returnPolicyId:Types.ObjectId)=>{
+  return await returnPolicyModel.findById(returnPolicyId); 
+}
+

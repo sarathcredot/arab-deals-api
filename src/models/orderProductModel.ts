@@ -156,9 +156,6 @@ const orderProductSchema = new Schema(
         image: {
             type: fileSchema,
         },
-        returnPeriod: {
-            type: Number,
-        },
         mrp: {
             type: Number,
             required: true,
@@ -266,6 +263,18 @@ const orderProductSchema = new Schema(
         },
         returnCollectedRemarks:{
             type:String
+        },
+        returnPolicyName:{
+            type:String,
+         },
+         returnPolicyDescription:{
+            type:String,
+         },
+         returnPeriod: {
+            type: Number,
+        },
+        returnCharge  : { 
+            type: Number
         },
         refundStatus: {
             type: String,
