@@ -12,6 +12,7 @@ import { startOfDay, endOfDay, max } from "date-fns"
 import path from "path";
 import fs from "fs";
 import { returnPolicyModel } from "../../models/returnPolicyModel";
+import { shippingConfigModel } from "../../models/shippingConfigModel";
 
 
 export const returnPolicyResolver: Resolvers = {
@@ -173,6 +174,14 @@ export const returnPolicyResolver: Resolvers = {
             if(!existingPolicy){
                 throw new GraphQLError("Return Policy not found", {
                     extensions: { code: "BAD_REQUEST", errors: ["Return Policy not found"] },
+                });
+             }
+
+             const defaultReturnPolicy=await shippingConfigModel.find({defaultReturnPolicy:returnPolicyId})
+
+             if(defaultReturnPolicy.length>0){
+                throw new GraphQLError("unable to delete default return policy", {
+                    extensions: { code: "BAD_REQUEST", errors: ["unable to delete default return policy"] },
                 });
              }
 
