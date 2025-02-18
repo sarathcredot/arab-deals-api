@@ -466,6 +466,10 @@ export const productResolver: Resolvers = {
                     existingProduct.delivery_type = input.delivery_type;
                 }
 
+                existingProduct.returnPolicy=input.returnPolicy 
+
+
+
                 // Update the product
                 const result = await existingProduct.save();
 
