@@ -188,9 +188,7 @@ const productSchema = new Schema(
             enum: ['ArabDeals', 'Vendor', 'ThirdParty'],
         },
         returnPolicy:{
-
             type:Schema.ObjectId
-
         },
     },
     {

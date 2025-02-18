@@ -57,6 +57,10 @@ export interface ICartProduct {
     warehouseSkuId: string;
     sellingPrice: number;
     mrp: number; 
+    returnPolicy:Types.ObjectId;
+    brandId:Types.ObjectId;
+    categoryId:Types.ObjectId;
+    categoryIdPath:string;
 }
 
 
@@ -300,7 +304,11 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                             warehouseSkuId: 1,
                             shortDescription: 1,
                             sellingPrice: 1,
-                            mrp: 1
+                            mrp: 1,
+                            returnPolicy:1,
+                            brandId:1,
+                            categoryId:1,
+                            categoryIdPath:1,
                         }
                     }
                 ],
@@ -331,6 +339,10 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                 shortDescription: "$productData.shortDescription",
                 sellingPrice: "$productData.sellingPrice",
                 mrp: "$productData.mrp",
+                returnPolicy:"$productData.returnPolicy",
+                brandId:"$productData.brandId",
+                categoryId:"$productData.categoryId",
+                categoryIdPath:"$productData.categoryIdPath",
             }
         }
 

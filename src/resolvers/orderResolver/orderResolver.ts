@@ -62,6 +62,8 @@ export const orderResolver: Resolvers = {
         settingsService.getShippingConfig({}, { sort: { _id: 1 } }),
       ]);
 
+
+
       if (!paymentConfig || !shippingConfig) {
         throw new GraphQLError("Settings not found", {
           extensions: {
@@ -70,6 +72,8 @@ export const orderResolver: Resolvers = {
           },
         });
       }
+
+      let defaultReturnPolicyId=shippingConfig.defaultReturnPolicy
 
       if (paymentMode == "COD") {
         if (!paymentConfig.cod) {
@@ -154,6 +158,7 @@ export const orderResolver: Resolvers = {
       cartItems.forEach((product, index) => {
         for (let i = 0; i < product.quantity; i++) {
           console.log("This is product",product)
+          let returnPolicyId = orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
           itemCount++;
           const productIdKey = product.productId.toString();
           const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;

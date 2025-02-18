@@ -1385,3 +1385,8 @@ export const getProductDeliveryTypeDeliveryAgents = async (data: {
     }
   });
 };
+
+
+export const getReturnPolicyForProduct = async (productID: Types.ObjectId, defaultReturnPolicyId?: Types.ObjectId) => {
+
+}
