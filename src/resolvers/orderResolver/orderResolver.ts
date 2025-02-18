@@ -153,6 +153,7 @@ export const orderResolver: Resolvers = {
 
       cartItems.forEach((product, index) => {
         for (let i = 0; i < product.quantity; i++) {
+          console.log("This is product",product)
           itemCount++;
           const productIdKey = product.productId.toString();
           const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;

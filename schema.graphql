@@ -1263,6 +1263,7 @@ type GetShippingSettingsResponse {
   shippingCharge: Float
   freeShippingThreshold: Int
   returnPeriod: Int
+  defaultReturnPolicy: ObjectId
 }
 
 input createRoleBySuperAdminInput {

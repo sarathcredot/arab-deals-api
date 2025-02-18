@@ -101,7 +101,7 @@ export const settingsResolver: Resolvers = {
         },
         getShippingSettings: async (parent, { }, { req }, info) => {
 
-            await verifyAdmin(req);
+            // await verifyAdmin(req);
             let shippingSettings = await settingsService.getShippingConfig({}, { sort: { _id: 1 } });
             if (!shippingSettings) {
                 shippingSettings = await settingsService.createShippingConfig({ shippingCharge: 0, freeShippingThreshold: 100, returnPeriod: 0 });
@@ -109,7 +109,8 @@ export const settingsResolver: Resolvers = {
             const response = {
                 shippingCharge: shippingSettings.shippingCharge,
                 freeShippingThreshold: shippingSettings.freeShippingThreshold,
-                returnPeriod: shippingSettings.returnPeriod
+                returnPeriod: shippingSettings.returnPeriod,
+                defaultReturnPolicy:shippingSettings.defaultReturnPolicy
             }
 
             return response;
