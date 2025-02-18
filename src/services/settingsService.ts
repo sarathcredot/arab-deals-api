@@ -1,3 +1,4 @@
+import { collections } from "../configs";
 import { paymentConfigModel, shippingConfigModel } from "../models";
 import { Types, Document, QueryOptions, PipelineStage, ProjectionFields, FilterQuery, UpdateQuery, AnyObject } from "mongoose";
 
@@ -58,9 +59,38 @@ export const createShippingConfig = async (record: IShippingConfig): Promise<ISh
     return await shippingConfigModel.create(record);
 }
 
-export const getShippingConfig = async (projection: ProjectionFields<IShippingConfig> = {}, options: QueryOptions = {}): Promise<IShippingConfigDocument | null> => {
-    return await shippingConfigModel.findOne({}, projection, options);
-}
+export const getShippingConfig = async (
+    projection: ProjectionFields<IShippingConfig> = {},
+    options: QueryOptions = {}
+  ): Promise<IShippingConfigDocument | null> => {
+    const result = await shippingConfigModel.aggregate([
+      {
+        $lookup: {
+          from: collections.RETURN_POLICY,
+          localField: "defaultReturnPolicy",
+          foreignField: "_id",
+          as: "defaultReturnPolicy",
+        },
+      },
+      {
+        $unwind: {
+          path: "$defaultReturnPolicy",
+          preserveNullAndEmptyArrays: true, 
+        },
+      },
+      {
+        $project: {
+          shippingCharge: 1,
+          freeShippingThreshold: 1,
+          returnPeriod: 1,
+          defaultReturnPolicy: 1,
+        },
+      },
+    ]);
+  
+    return result.length > 0 ? result[0] : null;
+  };
+  
 
 
 export const updateShipingConfig = async (updateQuery: UpdateQuery<IShippingConfig>, options: QueryOptions = {}): Promise<IShippingConfigDocument | null> => {
