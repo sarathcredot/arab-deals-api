@@ -65,6 +65,8 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
+  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
+  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
@@ -72,8 +74,6 @@ type Mutation {
   exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
   exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
-  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
@@ -95,9 +95,6 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
-  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
-  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
-  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
   adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
@@ -106,6 +103,9 @@ type Mutation {
   applyCouponByUserInMobile(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
   removeCoupon: removeCouponResponse!
   removeCouponInMobile: removeCouponResponse!
+  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
+  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
+  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
@@ -173,8 +173,8 @@ type Query {
   getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
   getAllPoliciesBySuperAdmin(input: getAllPoliciesBySuperAdminInput): getAllPoliciesBySuperAdminResponse
   getReturnPolicyByAdmin(input: getReturnPolicyByAdminInput!): getReturnPolicyByAdminResponse
-  getDefaultReturnPolicyInCategory(input: getDefaultReturnPolicyInCategoryInput!): Boolean!
-  getDefaultReturnPolicyInProduct(input: getDefaultReturnPolicyInProductInput!): Boolean!
+  getDefaultReturnPolicyInCategory(input: getDefaultReturnPolicyInCategoryInput!): ReturnPolicy!
+  getDefaultReturnPolicyInProduct(input: getDefaultReturnPolicyInProductInput!): ReturnPolicy!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
   getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
   getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
@@ -217,12 +217,12 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
+  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
@@ -263,12 +263,12 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
   getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
   getCouponsByUserMobile: [Coupon]!
   getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
@@ -2700,6 +2700,42 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
+input getAllNotificationInput {
+  filter: String
+}
+
+type NotificationType {
+  _id: ObjectId
+  message: String
+  permissions: [String]
+  orderId: String
+  title: String
+  productId: ObjectId
+  type: String
+  view: [viewType]
+  createdAt: Date
+  updatedAt: Date
+}
+
+type getAllNotificationResponse {
+  allNotification: [NotificationType]
+  unReadCount: Int
+}
+
+type viewType {
+  id: ObjectId
+  remove: Boolean
+}
+
+input addNotificationViewPersonIdInput {
+  notificationId: ObjectId
+}
+
+type addNotificationViewPersonIdResponse {
+  status: Boolean
+  msg: String
+}
+
 input ExportAdminOrdersInput {
   _id: ObjectId
   userId: ObjectId
@@ -2800,42 +2836,6 @@ type GetJobQueueResponse {
 
 type GetAdminDownloadTokenResponse {
   url: String!
-}
-
-input getAllNotificationInput {
-  filter: String
-}
-
-type NotificationType {
-  _id: ObjectId
-  message: String
-  permissions: [String]
-  orderId: String
-  title: String
-  productId: ObjectId
-  type: String
-  view: [viewType]
-  createdAt: Date
-  updatedAt: Date
-}
-
-type getAllNotificationResponse {
-  allNotification: [NotificationType]
-  unReadCount: Int
-}
-
-type viewType {
-  id: ObjectId
-  remove: Boolean
-}
-
-input addNotificationViewPersonIdInput {
-  notificationId: ObjectId
-}
-
-type addNotificationViewPersonIdResponse {
-  status: Boolean
-  msg: String
 }
 
 input GetAdminSignedFileUrlInput {
@@ -3605,76 +3605,6 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
-  message: String
-}
-
 type getCouponsByUserResponse {
   records: [Coupon]!
   maxRecords: Int
@@ -3907,6 +3837,76 @@ type ValidUser {
 type UserUsageLimit {
   userId: ObjectId
   usageCount: Int
+}
+
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
 }
 
 input AddCmsInput {

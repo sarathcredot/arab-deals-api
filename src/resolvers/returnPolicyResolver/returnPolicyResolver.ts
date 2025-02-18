@@ -495,9 +495,9 @@ export const returnPolicyResolver: Resolvers = {
 
                 //   await verifyAdmin(req)
 
-                await returnPolicyService.getDefaultReturnPolicyInCategory(input?.id)
+             const result= await returnPolicyService.getDefaultReturnPolicyInCategory(input?.id)
 
-                return true
+                return result
 
 
             } catch (error: any) {
@@ -516,9 +516,9 @@ export const returnPolicyResolver: Resolvers = {
 
             try {
 
+             const result= await  returnPolicyService.getDefaultReturnPolicyInProduct(input.brandId,input.categoryId)
 
-
-                return true
+                return result
 
             } catch (error: any) {
 
