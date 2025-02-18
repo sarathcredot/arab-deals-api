@@ -363,6 +363,18 @@ type Query {
         attributeValue: String
     }
 
+
+    type returnPolicyType{
+
+    _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    isEnable:Boolean
+    returnCharge:Int
+    isDeleted:Boolean
+    }
+
     
     type ProductsResponse {
         maxRecords: Int!
@@ -379,6 +391,7 @@ type Query {
 
     type ProductResponse {
         product: Product!
+        returnPolicy:returnPolicyType
         message: String
     }
 

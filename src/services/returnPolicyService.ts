@@ -83,13 +83,6 @@ export const updateStatusReturnPolicyByAdmin = async (returnPolicyId: Types.Obje
 
 
 
-
-
-
-
-
-
-
 export const getDefaultReturnPolicyInCategory = async (id: Types.ObjectId): Promise<any> => {
 
 

@@ -253,7 +253,7 @@ export const categoryResolver: Resolvers = {
 
                 const mPath = parentId ? new RegExp(`${parentId}#$`) : /^#$/;
 
-                const result = await categoryService.findCategoriesWithFilters({ path: mPath }, { _id: 1, categoryName: 1, isBlocked: 1, isLeaf: 1, description: 1, categoryImage: 1 }, { lean: true, sort: { categoryName: 1 } });
+                const result = await categoryService.findCategoriesWithFilters({ path: mPath }, { _id: 1, categoryName: 1, isBlocked: 1, isLeaf: 1, description: 1,returnPolicy:1, categoryImage: 1 }, { lean: true, sort: { categoryName: 1 } });
 
                 const response = {
                     records: result && result.length ? result.map((item) => { return { ...item, _id: item._id.toString() } }) : []

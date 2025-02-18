@@ -774,6 +774,11 @@ export const productResolver: Resolvers = {
                 }
 
                 const result = await productService.getProductWithId(productId, projection, options);
+                
+                // product return policy data 
+
+                const returnPolicyData=await productService.getProductReturnPolicy(result._id)
+
 
                 if (!result) {
                     throw new GraphQLError("product not found", {
@@ -785,10 +790,17 @@ export const productResolver: Resolvers = {
                 }
 
                 const response = {
-                    product: result
-
+                    product: result,
+                    returnPolicy:{}
                 }
 
+
+                if(returnPolicyData){
+
+                     response.returnPolicy=returnPolicyData
+                }
+
+              
                 return response;
 
             } catch (error) {
