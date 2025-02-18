@@ -7,7 +7,7 @@ export interface IReturnPolicy {
     description?: string |undefined|null;
     // conditions?: string[];
     duration:number;
-    refundDeduction?:number |undefined|null
+    returnCharge?:number |undefined|null
 }
 
 

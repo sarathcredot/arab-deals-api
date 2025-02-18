@@ -28,6 +28,7 @@ input UpdateShippingSettingsInput {
     shippingCharge: Float
     freeShippingThreshold: Int 
     returnPeriod: Int
+    defaultReturnPolicy:ObjectId
 }
 
 type UpdatePaymentSettingsResponse {
@@ -39,6 +40,7 @@ type UpdateShippingSettingsResponse{
     shippingCharge: Float
     freeShippingThreshold: Int 
     returnPeriod: Int
+    defaultReturnPolicy:ObjectId
 }
 
 type GetPaymentSettingsResponse{

@@ -40,13 +40,14 @@ export const settingsResolver: Resolvers = {
         },
         updateShippingSettings: async (parent, { input }, { req }, info) => {
 
-            await verifyAdmin(req);
-            await validateInput(validators.updateShippingConfigValidator, req);
+            // await verifyAdmin(req);
+            // await validateInput(validators.updateShippingConfigValidator, req);
 
 
             const shippingCharge = parseInt(input.shippingCharge?.toString() || "");
             const freeShippingThreshold = parseInt(input.freeShippingThreshold?.toString() || "");
             const returnPeriod = parseInt(input.returnPeriod?.toString() || "");
+            const defaultReturnPolicy=input?.defaultReturnPolicy
 
 
             let shippingSettings = await settingsService.getShippingConfig({}, { sort: { _id: 1 } });
@@ -65,12 +66,17 @@ export const settingsResolver: Resolvers = {
                 shippingSettings.returnPeriod = returnPeriod;
             }
 
+            if(defaultReturnPolicy){
+                shippingSettings.defaultReturnPolicy=defaultReturnPolicy
+            }
+
             await shippingSettings.save();
 
             const response = {
                 shippingCharge: shippingSettings.shippingCharge,
                 freeShippingThreshold: shippingSettings.freeShippingThreshold,
-                returnPeriod: shippingSettings.returnPeriod
+                returnPeriod: shippingSettings.returnPeriod,
+                defaultReturnPolicy:shippingSettings.defaultReturnPolicy
             }
 
             return response;

@@ -22,7 +22,7 @@ const returnPolicySchema=new Schema({
       type:Boolean,
       default:true
      },
-     refundDeduction : { 
+     returnCharge  : { 
         type: Number,
         default: 0 
     },

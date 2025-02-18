@@ -18,6 +18,10 @@ const shippingConfigSchema = new Schema(
             type: Number,
             required: true,
             default: 0
+        },
+        defaultReturnPolicy:{
+            type: Schema.Types.ObjectId,
+            ref: collections.RETURN_POLICY
         }
     },
     {

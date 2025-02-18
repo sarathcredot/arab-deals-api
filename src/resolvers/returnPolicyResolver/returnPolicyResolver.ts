@@ -29,7 +29,7 @@ export const returnPolicyResolver: Resolvers = {
             const description:string |undefined|null=input?.description;
             // const conditions = (input?.conditions || []) as string[];
             const duration = input.duration
-            const refundDeduction:number | undefined | null=input?.refundDeduction
+            const returnCharge:number | undefined | null=input?.returnCharge
 
             if(!name){
                 throw new GraphQLError("name is required", {
@@ -56,7 +56,7 @@ export const returnPolicyResolver: Resolvers = {
                     description,
                     // conditions,
                     duration,
-                    refundDeduction
+                    returnCharge
             }
 
             console.log("✅ Creating return policy with data:", newReturnPolicyData);
@@ -94,7 +94,7 @@ export const returnPolicyResolver: Resolvers = {
             const description:string |undefined|null=input?.description;
             // const conditions = (input?.conditions) as string[];
             const duration:number|undefined |null = input?.duration;
-            const refundDeduction:number | undefined | null=input?.refundDeduction;
+            const returnCharge:number | undefined | null=input?.returnCharge;
 
             if(!returnPolicyId){
                 throw new GraphQLError("policy id is required", {
@@ -128,8 +128,8 @@ export const returnPolicyResolver: Resolvers = {
                 updatePolicyData.duration=duration
              }
 
-             if(refundDeduction){
-                updatePolicyData.refundDeduction=refundDeduction
+             if(returnCharge){
+                updatePolicyData.returnCharge=returnCharge
              }
 
 
