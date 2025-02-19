@@ -203,6 +203,10 @@ export const updateUserUsage = async (userId: Types.ObjectId, couponId: Types.Ob
 
 }
 
+export const deleteCouponFromCart=async(userId:Types.ObjectId,couponId:Types.ObjectId):Promise<any>=>{
+  return await cartModel.findOneAndUpdate({userId:userId}, { isCouponApplied: false,discount:0 ,appliedCoupon:null,appliedProducts:null},{new:true})
+}
+
 
  export const findSubTotal = async (userId: Types.ObjectId): Promise<any> => {
   const result = await cartModel.aggregate([

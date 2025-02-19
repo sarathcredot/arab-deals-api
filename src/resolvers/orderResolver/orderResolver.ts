@@ -277,6 +277,7 @@ export const orderResolver: Resolvers = {
           });
         }
         await couponService.updateUserUsage(userId, couponId)
+        await couponService.deleteCouponFromCart(userId, couponId)
       }
 
        //create order placed notification
