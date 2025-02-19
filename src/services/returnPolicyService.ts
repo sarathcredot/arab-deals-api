@@ -85,7 +85,7 @@ export const updateStatusReturnPolicyByAdmin = async (returnPolicyId: Types.Obje
 export const getReturnPolicyOfOrderProduct = async (orderProductId: Types.ObjectId): Promise<any> => {
     const result = await orderProductModel.aggregate([
         {
-            $match: { _id: orderProductId } 
+            $match: { _id: orderProductId }
         },
         {
             $project: {
@@ -97,7 +97,7 @@ export const getReturnPolicyOfOrderProduct = async (orderProductId: Types.Object
         }
     ]);
 
-    return result.length > 0 ? result[0] : null; 
+    return result.length > 0 ? result[0] : null;
 };
 
 
@@ -239,6 +239,8 @@ export const getDefaultReturnPolicyInProduct = async (brandId: Types.ObjectId, c
 
     return new Promise(async (resolve, reject) => {
 
+        console.log("cat id", categoryId)
+
         try {
 
 
@@ -255,6 +257,7 @@ export const getDefaultReturnPolicyInProduct = async (brandId: Types.ObjectId, c
                     // check Category returnPolicy
 
                     const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+
                     if (!categoryData.returnPolicy) {
 
                         const allCategories = categoryData.path.split("#")
@@ -294,12 +297,70 @@ export const getDefaultReturnPolicyInProduct = async (brandId: Types.ObjectId, c
 
                         resolve(defaultreturnPolicyFinal)
 
+
+                    } else {
+
+                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: categoryData.returnPolicy })
+
+
+                        if (!returnPolicy.delete) {
+
+                            resolve(returnPolicy)
+                            return
+                        } else {
+
+
+                            const allCategories = categoryData.path.split("#")
+
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                if (allCategories[i]) {
+
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                    if (categorie.returnPolicy) {
+
+                                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                        if (!returnPolicy.delete) {
+
+                                            resolve(returnPolicy)
+                                            return
+                                        }
+                                    }
+                                }
+                            }
+
+                            const defaultreturnPolicy = await shippingConfigModel.aggregate([
+
+                                {
+                                    "$lookup": {
+                                        "from": "return_policies",
+                                        "localField": "defaultReturnPolicy",
+                                        "foreignField": "_id",
+                                        "as": "result"
+                                    }
+                                }
+                            ])
+
+                            const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+
+                            resolve(defaultreturnPolicyFinal)
+
+
+
+                        }
+
+
                     }
 
 
                 } else {
 
+
                     const returnPolicy: any = await returnPolicyModel.findOne({ _id: brandData.returnPolicy })
+
+                    console.log("cat plo", returnPolicy)
 
                     if (!returnPolicy.isDeleted) {
 
@@ -349,7 +410,62 @@ export const getDefaultReturnPolicyInProduct = async (brandId: Types.ObjectId, c
                             const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
 
                             resolve(defaultreturnPolicyFinal)
+                        } else {
+
+                            const returnPolicy: any = await returnPolicyModel.findOne({ _id: categoryData.returnPolicy })
+
+
+                            if (!returnPolicy.delete) {
+
+                                resolve(returnPolicy)
+                                return
+                            } else {
+
+
+                                const allCategories = categoryData.path.split("#")
+
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                    if (allCategories[i]) {
+
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                        if (categorie.returnPolicy) {
+
+                                            const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                            if (!returnPolicy.delete) {
+
+                                                resolve(returnPolicy)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
+                                const defaultreturnPolicy = await shippingConfigModel.aggregate([
+
+                                    {
+                                        "$lookup": {
+                                            "from": "return_policies",
+                                            "localField": "defaultReturnPolicy",
+                                            "foreignField": "_id",
+                                            "as": "result"
+                                        }
+                                    }
+                                ])
+
+                                const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+
+                                resolve(defaultreturnPolicyFinal)
+
+
+
+                            }
+
+
                         }
+
 
 
                     }
@@ -365,7 +481,7 @@ export const getDefaultReturnPolicyInProduct = async (brandId: Types.ObjectId, c
         } catch (error) {
 
 
-              reject()
+            reject()
         }
     })
 
