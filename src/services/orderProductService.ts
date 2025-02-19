@@ -281,6 +281,9 @@ export interface IOrderProductDocument extends Document {
   };
   returndeliveryAgentId?: Types.ObjectId;
   returndeliveryAgentName?: string;
+  returnPolicyName?: string;
+  returnPolicyDescription?: string;
+  returnCharge?: number;
 }
 
 export interface IOrderProductUpdateQuery {
