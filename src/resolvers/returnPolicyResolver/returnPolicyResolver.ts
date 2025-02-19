@@ -71,7 +71,7 @@ export const returnPolicyResolver: Resolvers = {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 });
             }
-        },
+        } ,
         // to update return policy
         updateReturnPolicyByAdmin: async (parent, { input }, { req }, info) => {
             //   await verifySuperAdmin(req);

@@ -1145,7 +1145,7 @@ export const productResolver: Resolvers = {
                 const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
                 const returnPolicyData = await productService.getProductReturnPolicy(result._id)
 
-                // console.log(result)
+               
 
 
                 if (!result) {
@@ -1169,7 +1169,7 @@ export const productResolver: Resolvers = {
 
                 }
 
-
+                console.log("pro get ",response)
 
                 return response;
 
