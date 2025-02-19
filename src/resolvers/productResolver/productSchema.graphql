@@ -348,7 +348,7 @@ type Query {
         productDetailImages: [ProductFileData]
         warehouseSkuId: String
         delivery_type:String
-        returnPolicy:returnPolicyType
+        returnPolicyData:returnPolicyType
         
     }
 
