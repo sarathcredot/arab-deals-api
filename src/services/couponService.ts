@@ -158,6 +158,9 @@ export const findOrderCount = async (userId: Types.ObjectId): Promise<any> => {
           $project: {
             brandId: "$productDetails.brandId",
             categoryId: "$productDetails.categoryId",
+            categoryIdPath: {
+              $split: ["$productDetails.categoryIdPath", "#"] // Splitting categoryIdPath into an array
+            },
              productId:"$productDetails._id",
              price:"$productDetails.sellingPrice",
              quantity:"$products.quantity",
