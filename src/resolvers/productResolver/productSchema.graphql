@@ -348,6 +348,8 @@ type Query {
         productDetailImages: [ProductFileData]
         warehouseSkuId: String
         delivery_type:String
+        returnPolicy:returnPolicyType
+        
     }
 
     type IProductAttribute {
@@ -391,7 +393,7 @@ type Query {
 
     type ProductResponse {
         product: Product!
-        returnPolicy:returnPolicyType
+        
         message: String
     }
 
