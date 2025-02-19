@@ -414,18 +414,35 @@ export const couponResolver: Resolvers = {
 
             //checking if there is any certain categories under brand
             if (existingCoupon.validCategories.length !== 0) {
+              console.log("called")
               const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+              console.log("result", result)
 
 
+              // const matchingBrands = result.filter((item: any) =>
+              //   existingCoupon.validBrands.some((validBrand: any) =>
+              //     validBrand.brand.equals(item.brandId) // Check if brandId matches
+              //   ) &&
+              //   existingCoupon.validCategories.some((validCategory: any) =>
+              //     validCategory.category.equals(item.categoryId) // Check if categoryId matches
+              //   )
+              // );
+
+
+              const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+                validCategory.category.toString() 
+              );
+              
               const matchingBrands = result.filter((item: any) =>
                 existingCoupon.validBrands.some((validBrand: any) =>
-                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                  validBrand.brand.equals(item.brandId) 
                 ) &&
-                existingCoupon.validCategories.some((validCategory: any) =>
-                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                item.categoryIdPath.some((categoryId: string) =>
+                  validCategories.includes(categoryId)  
                 )
               );
-
+              
+              
               console.log("matchingBrands", matchingBrands);
 
 
@@ -460,7 +477,6 @@ export const couponResolver: Resolvers = {
                   const item = sortedMatchingBrands[i];
                 
                   if(item.price > existingCoupon.discountValue ){
-                    console.log("break1 called")
                       appliedProducts.push(item.productId);
                       break;
                   }
@@ -593,14 +609,29 @@ export const couponResolver: Resolvers = {
             //to check if there is oly valid categories
           } else if (existingCoupon.validCategories.length !== 0) {
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+            console.log("result",result)
 
 
+            // const matchingCategories = result.filter((item: any) =>
+            //   existingCoupon.validCategories.some((validCategory: any) =>
+            //     validCategory.category.equals(item.categoryId)
+            //   )
+            // );
+
+            const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+              validCategory.category.toString() 
+            );
+
+            console.log("validCategories", validCategories)
+            
             const matchingCategories = result.filter((item: any) =>
-              existingCoupon.validCategories.some((validCategory: any) =>
-                validCategory.category.equals(item.categoryId)
+              item.categoryIdPath.some((categoryId: string) =>
+                validCategories.includes(categoryId)  
               )
             );
 
+           console.log("matchingCategories", matchingCategories)
+          
             if (matchingCategories.length === 0) {
               throw new GraphQLError("This coupon is not applicable for this product", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -841,12 +872,16 @@ export const couponResolver: Resolvers = {
               const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
               console.log("result", result)
 
+              const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+                validCategory.category.toString() 
+              );
+              
               const matchingBrands = result.filter((item: any) =>
                 existingCoupon.validBrands.some((validBrand: any) =>
-                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                  validBrand.brand.equals(item.brandId) 
                 ) &&
-                existingCoupon.validCategories.some((validCategory: any) =>
-                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                item.categoryIdPath.some((categoryId: string) =>
+                  validCategories.includes(categoryId)  
                 )
               );
 
@@ -1156,9 +1191,15 @@ export const couponResolver: Resolvers = {
             // .map((item:any) => item.brandId.toString()) 
             // .filter((brandId:any) => existingCoupon.validBrands.includes(brandId));
 
+            const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+              validCategory.category.toString() 
+            );
+
+            console.log("validCategories", validCategories)
+            
             const matchingCategories = result.filter((item: any) =>
-              existingCoupon.validCategories.some((validCategory: any) =>
-                validCategory.category.equals(item.categoryId)
+              item.categoryIdPath.some((categoryId: string) =>
+                validCategories.includes(categoryId)  
               )
             );
 
@@ -1567,12 +1608,16 @@ export const couponResolver: Resolvers = {
               const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
 
 
+              const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+                validCategory.category.toString() 
+              );
+              
               const matchingBrands = result.filter((item: any) =>
                 existingCoupon.validBrands.some((validBrand: any) =>
-                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                  validBrand.brand.equals(item.brandId) 
                 ) &&
-                existingCoupon.validCategories.some((validCategory: any) =>
-                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                item.categoryIdPath.some((categoryId: string) =>
+                  validCategories.includes(categoryId)  
                 )
               );
 
@@ -1673,9 +1718,15 @@ export const couponResolver: Resolvers = {
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
 
 
+            const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+              validCategory.category.toString() 
+            );
+
+            console.log("validCategories", validCategories)
+            
             const matchingCategories = result.filter((item: any) =>
-              existingCoupon.validCategories.some((validCategory: any) =>
-                validCategory.category.equals(item.categoryId)
+              item.categoryIdPath.some((categoryId: string) =>
+                validCategories.includes(categoryId)  
               )
             );
 
@@ -1969,18 +2020,35 @@ export const couponResolver: Resolvers = {
 
             //checking if there is any certain categories under brand
             if (existingCoupon.validCategories.length !== 0) {
+              console.log("called")
               const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+              console.log("result", result)
 
 
+              // const matchingBrands = result.filter((item: any) =>
+              //   existingCoupon.validBrands.some((validBrand: any) =>
+              //     validBrand.brand.equals(item.brandId) // Check if brandId matches
+              //   ) &&
+              //   existingCoupon.validCategories.some((validCategory: any) =>
+              //     validCategory.category.equals(item.categoryId) // Check if categoryId matches
+              //   )
+              // );
+
+
+              const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+                validCategory.category.toString() 
+              );
+              
               const matchingBrands = result.filter((item: any) =>
                 existingCoupon.validBrands.some((validBrand: any) =>
-                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                  validBrand.brand.equals(item.brandId) 
                 ) &&
-                existingCoupon.validCategories.some((validCategory: any) =>
-                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                item.categoryIdPath.some((categoryId: string) =>
+                  validCategories.includes(categoryId)  
                 )
               );
-
+              
+              
               console.log("matchingBrands", matchingBrands);
 
 
@@ -2015,7 +2083,6 @@ export const couponResolver: Resolvers = {
                   const item = sortedMatchingBrands[i];
                 
                   if(item.price > existingCoupon.discountValue ){
-                    console.log("break1 called")
                       appliedProducts.push(item.productId);
                       break;
                   }
@@ -2148,14 +2215,29 @@ export const couponResolver: Resolvers = {
             //to check if there is oly valid categories
           } else if (existingCoupon.validCategories.length !== 0) {
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+            console.log("result",result)
 
 
+            // const matchingCategories = result.filter((item: any) =>
+            //   existingCoupon.validCategories.some((validCategory: any) =>
+            //     validCategory.category.equals(item.categoryId)
+            //   )
+            // );
+
+            const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+              validCategory.category.toString() 
+            );
+
+            console.log("validCategories", validCategories)
+            
             const matchingCategories = result.filter((item: any) =>
-              existingCoupon.validCategories.some((validCategory: any) =>
-                validCategory.category.equals(item.categoryId)
+              item.categoryIdPath.some((categoryId: string) =>
+                validCategories.includes(categoryId)  
               )
             );
 
+           console.log("matchingCategories", matchingCategories)
+          
             if (matchingCategories.length === 0) {
               throw new GraphQLError("This coupon is not applicable for this product", {
                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["you can't apply this code"] },
@@ -2396,12 +2478,16 @@ export const couponResolver: Resolvers = {
               const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
               console.log("result", result)
 
+              const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+                validCategory.category.toString() 
+              );
+              
               const matchingBrands = result.filter((item: any) =>
                 existingCoupon.validBrands.some((validBrand: any) =>
-                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                  validBrand.brand.equals(item.brandId) 
                 ) &&
-                existingCoupon.validCategories.some((validCategory: any) =>
-                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                item.categoryIdPath.some((categoryId: string) =>
+                  validCategories.includes(categoryId)  
                 )
               );
 
@@ -2711,9 +2797,15 @@ export const couponResolver: Resolvers = {
             // .map((item:any) => item.brandId.toString()) 
             // .filter((brandId:any) => existingCoupon.validBrands.includes(brandId));
 
+            const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+              validCategory.category.toString() 
+            );
+
+            console.log("validCategories", validCategories)
+            
             const matchingCategories = result.filter((item: any) =>
-              existingCoupon.validCategories.some((validCategory: any) =>
-                validCategory.category.equals(item.categoryId)
+              item.categoryIdPath.some((categoryId: string) =>
+                validCategories.includes(categoryId)  
               )
             );
 
@@ -2848,14 +2940,20 @@ export const couponResolver: Resolvers = {
 
           } else if (existingCoupon.validProducts.length !== 0) {
             //write logic here
+            console.log("called")
 
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
+
+            console.log("result", result)
 
             const matchingProducts = result.filter((item: any) =>
               existingCoupon.validProducts.some((validProducts: any) =>
                 validProducts.product.equals(item.productId)
               )
             );
+
+
+            console.log("matchingProducts",matchingProducts)
 
             if (matchingProducts.length === 0) {
               throw new GraphQLError("This coupon is not applicable for this product", {
@@ -2868,13 +2966,11 @@ export const couponResolver: Resolvers = {
             let discount_amount = 0;
 
 
-
-
             for (const item of matchingProducts) {
               product_sum += item.sellingprice;
             }
 
-
+            console.log("product_sum",product_sum)
 
             if (existingCoupon.minOrderAmount && product_sum < existingCoupon.minOrderAmount) {
               throw new GraphQLError("Order amount is below the required minimum", {
@@ -3118,12 +3214,16 @@ export const couponResolver: Resolvers = {
               const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
 
 
+              const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+                validCategory.category.toString() 
+              );
+              
               const matchingBrands = result.filter((item: any) =>
                 existingCoupon.validBrands.some((validBrand: any) =>
-                  validBrand.brand.equals(item.brandId) // Check if brandId matches
+                  validBrand.brand.equals(item.brandId) 
                 ) &&
-                existingCoupon.validCategories.some((validCategory: any) =>
-                  validCategory.category.equals(item.categoryId) // Check if categoryId matches
+                item.categoryIdPath.some((categoryId: string) =>
+                  validCategories.includes(categoryId)  
                 )
               );
 
@@ -3224,9 +3324,15 @@ export const couponResolver: Resolvers = {
             const result = await couponService.findValidBrands(userId, couponId, grandTotal, subTotal, shippingCharge)
 
 
+            const validCategories = existingCoupon.validCategories.map((validCategory: any) =>
+              validCategory.category.toString() 
+            );
+
+            console.log("validCategories", validCategories)
+            
             const matchingCategories = result.filter((item: any) =>
-              existingCoupon.validCategories.some((validCategory: any) =>
-                validCategory.category.equals(item.categoryId)
+              item.categoryIdPath.some((categoryId: string) =>
+                validCategories.includes(categoryId)  
               )
             );
 
