@@ -44,6 +44,9 @@ export interface IOrderProduct {
   warehouseSkuId?: string;
   image?: FileData;
   returnPeriod?: number;
+  returnPolicyName?: string;
+  returnPolicyDescription?: string;
+  returnCharge?: number;
   mrp?: number;
   sellingPrice?: number;
   shippingCharge?: number;

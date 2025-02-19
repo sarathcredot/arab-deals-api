@@ -792,13 +792,13 @@ export const productResolver: Resolvers = {
 
                 const response = {
                     product: result,
-                    returnPolicy: {}
+
                 }
 
 
                 if (returnPolicyData) {
 
-                    response.returnPolicy = returnPolicyData
+                    response.product = { ...response.product, returnPolicyData }
                 }
 
 
@@ -865,12 +865,12 @@ export const productResolver: Resolvers = {
 
                 const response = {
                     product: result,
-                    returnPolicy: {}
+
                 }
 
                 if (returnPolicyData) {
 
-                    response.returnPolicy = returnPolicyData
+                    response.product = { ...response.product, returnPolicyData }
                 }
 
 
@@ -1143,6 +1143,7 @@ export const productResolver: Resolvers = {
 
 
                 const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
+                const returnPolicyData = await productService.getProductReturnPolicy(result._id)
 
                 // console.log(result)
 
@@ -1158,7 +1159,17 @@ export const productResolver: Resolvers = {
 
                 const response = {
                     product: { ...result, _id: result._id ? result._id.toString() : "" },
+
                 }
+
+                if (returnPolicyData) {
+
+                    response.product = { ...response.product, returnPolicyData };
+
+
+                }
+
+
 
                 return response;
 
@@ -1181,6 +1192,7 @@ export const productResolver: Resolvers = {
 
 
                 const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
+                const returnPolicyData = await productService.getProductReturnPolicy(result._id)
 
                 // console.log(result)
 
@@ -1197,6 +1209,14 @@ export const productResolver: Resolvers = {
                 const response = {
                     product: { ...result, _id: result._id ? result._id.toString() : "" },
                 }
+
+                if (returnPolicyData) {
+
+                    response.product = { ...response.product, returnPolicyData };
+
+
+                }
+
 
                 return response;
 

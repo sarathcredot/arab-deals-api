@@ -14,6 +14,7 @@ type Query {
   getReturnPolicyByAdmin(input:getReturnPolicyByAdminInput!):getReturnPolicyByAdminResponse
   getDefaultReturnPolicyInCategory(input:getDefaultReturnPolicyInCategoryInput!):ReturnPolicy!
   getDefaultReturnPolicyInProduct(input:getDefaultReturnPolicyInProductInput!):ReturnPolicy!
+  getReturnPolicyOfOrderProduct(input:getReturnPolicyOfOrderProductInput!):getReturnPolicyOfOrderProductResponse
 }
 
 
@@ -32,7 +33,9 @@ input getDefaultReturnPolicyInCategoryInput{
       id:ObjectId
 }
 
-
+input getReturnPolicyOfOrderProductInput{
+   orderProductId:ObjectId
+}
 
 
 
@@ -118,6 +121,13 @@ type deleteReturnPolicyByAdminResponse{
 type updateStatusReturnPolicyByAdminResponse{
    success: Boolean,
    message: String,
+}
+
+type getReturnPolicyOfOrderProductResponse{
+   returnPolicyName:String
+   returnCharge:Int
+   returnPolicyDescription:String
+   returnPeriod:Int
 }
 
 

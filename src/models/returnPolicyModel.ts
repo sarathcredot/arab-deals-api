@@ -13,11 +13,7 @@ const returnPolicySchema=new Schema({
      duration: { 
         type: Number, 
         required: true 
-    }, 
-    //  conditions: { 
-    //     type: [String], 
-    //     default: [] 
-    // }, 
+    },  
      isEnable:{
       type:Boolean,
       default:true
@@ -29,7 +25,11 @@ const returnPolicySchema=new Schema({
     isDeleted:{
         type:Boolean,
         default:false
-    }
+    },
+      //  conditions: { 
+    //     type: [String], 
+    //     default: [] 
+    // },
 
 },{
     timestamps:true

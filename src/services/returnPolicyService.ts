@@ -4,6 +4,7 @@ import { brandModel } from "../models/brandModel"
 import { shippingConfigModel } from "../models/shippingConfigModel"
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
+import { orderProductModel } from "../models/orderProductModel";
 
 
 export interface IReturnPolicy {
@@ -81,6 +82,23 @@ export const updateStatusReturnPolicyByAdmin = async (returnPolicyId: Types.Obje
     return updateRole;
 }
 
+export const getReturnPolicyOfOrderProduct = async (orderProductId: Types.ObjectId): Promise<any> => {
+    const result = await orderProductModel.aggregate([
+        {
+            $match: { _id: orderProductId } 
+        },
+        {
+            $project: {
+                returnPolicyName: 1,
+                returnCharge: 1,
+                returnPolicyDescription: 1,
+                returnPeriod: 1,
+            }
+        }
+    ]);
+
+    return result.length > 0 ? result[0] : null; 
+};
 
 
 export const getDefaultReturnPolicyInCategory = async (id: Types.ObjectId): Promise<any> => {

@@ -303,9 +303,32 @@ export const returnPolicyResolver: Resolvers = {
                 });
             }
 
+        },
+
+        getReturnPolicyOfOrderProduct: async (parent, { input }, { req }, info) => {
+            try {
+                const orderProductId=input.orderProductId
+                if(!orderProductId){
+                    throw new GraphQLError("orderProductId is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["orderProductId is required"] },
+                    });
+                }
+               
+               const result=await returnPolicyService.getReturnPolicyOfOrderProduct(orderProductId)
+               if(!result){
+                throw new GraphQLError("unable to fetch return policy", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policy"] },
+                });
+               }
+
+               return result
+                
+            }catch (error: any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
         }
-
-
 
 
     }

@@ -25,6 +25,7 @@ import moment from "moment";
 import { filePaths } from "../../configs";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { cartModel } from "../../models/cartModel";
+import { returnPolicyModel } from "src/models";
 
 export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
@@ -62,6 +63,8 @@ export const orderResolver: Resolvers = {
         settingsService.getShippingConfig({}, { sort: { _id: 1 } }),
       ]);
 
+
+
       if (!paymentConfig || !shippingConfig) {
         throw new GraphQLError("Settings not found", {
           extensions: {
@@ -70,6 +73,11 @@ export const orderResolver: Resolvers = {
           },
         });
       }
+
+      // console.log(shippingConfig)
+      // console.log("shippingConfig.defaultReturnPolicy",shippingConfig.defaultReturnPolicy)
+      let defaultReturnPolicyId=shippingConfig.defaultReturnPolicy
+
 
       if (paymentMode == "COD") {
         if (!paymentConfig.cod) {
@@ -151,9 +159,14 @@ export const orderResolver: Resolvers = {
 
       let itemCount = 0;
 
-      cartItems.forEach((product, index) => {
+      for (const product of cartItems)  {
         for (let i = 0; i < product.quantity; i++) {
-          console.log("This is product",product)
+          // console.log("This is product",product)
+          let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
+          // console.log(returnPolicyId,"returnPolicyId")
+          const returnPolicy= await orderService.getReturnPolicy(returnPolicyId)
+          // console.log(returnPolicy,"returnPolicy")
+          
           itemCount++;
           const productIdKey = product.productId.toString();
           const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
@@ -180,7 +193,10 @@ export const orderResolver: Resolvers = {
               originalName: product.image?.originalName,
               mimeType: product.image?.mimeType,
             },
-            returnPeriod: shippingConfig.returnPeriod || 0,
+            returnPeriod: returnPolicy?.duration || 0,
+            returnPolicyName:returnPolicy?.name,
+            returnPolicyDescription: returnPolicy?.description,
+            returnCharge: returnPolicy?.returnCharge || 0,
             mrp: product.mrp,
             sellingPrice: isDiscounted ? product.sellingPrice - (discountSellingPrice ?? 0) : product.sellingPrice,
             shippingCharge: 0,
@@ -191,7 +207,10 @@ export const orderResolver: Resolvers = {
             vendorId: product.vendorId,
           });
         }
-      });
+      };
+
+
+      console.log(products, "products");
 
       if (calculatedSellingPrice < shippingConfig.freeShippingThreshold!) {
         products[0].shippingCharge = calculatedShippingCharge;
