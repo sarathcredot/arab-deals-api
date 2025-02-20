@@ -1137,6 +1137,7 @@ export const productResolver: Resolvers = {
         async getProduct(parent, { input }, { req }, info) {
 
             try {
+                console.log("called")
 
                 //Validate Input
                 await validateInput(validators.productQueryValidator, req);
