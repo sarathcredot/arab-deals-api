@@ -580,6 +580,8 @@ export const productResolver: Resolvers = {
                     existingProduct.remarks = input.remarks as string[];
                 }
 
+                existingProduct.returnPolicy=input.returnPolicy
+
                 if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
                     existingProduct.productShortInfo = input.productShortInfo;
                 }
