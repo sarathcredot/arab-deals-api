@@ -780,7 +780,7 @@ export const productResolver: Resolvers = {
 
                 // product return policy data 
 
-                const returnPolicyData = await productService.getProductReturnPolicy(result._id)
+                const returnPolicyData = await productService.getProductReturnPolicyAdminAndVender(result._id)
 
 
                 if (!result) {
@@ -852,7 +852,7 @@ export const productResolver: Resolvers = {
 
                 const result = await productService.getProductWithId(productId, projection, options);
 
-                const returnPolicyData = await productService.getProductReturnPolicy(result._id)
+                const returnPolicyData = await productService.getProductReturnPolicyAdminAndVender(result._id)
 
 
                 if (!result) {

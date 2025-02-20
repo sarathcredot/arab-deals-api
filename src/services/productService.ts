@@ -1566,6 +1566,171 @@ export const increaseProductsStock = async (products: ProductStock[]): Promise<v
 
 
 
+export const getProductReturnPolicyAdminAndVender = async (id:Types.ObjectId): Promise<any> => {
+
+    return new Promise(async(resolve,reject) => {
+
+        try {
+ 
+            const productDetails:any=await productModel.findOne({_id:id})
+
+
+
+            try {
+
+                if(productDetails.returnPolicy){
+
+                    const returnPolicy: any = await returnPolicyModel.findOne({ _id: productDetails.returnPolicy })
+
+                    if(!returnPolicy.isDeleted){
+
+                         resolve(returnPolicy)
+                         return;
+                    }
+                }
+
+
+                const brandData = await brandModel.findOne({ _id:productDetails?.brandId})
+    
+                if (!brandData) {
+    
+                    reject()
+                    return
+                } else {
+    
+                    if (!brandData.returnPolicy) {
+    
+                        // check Category returnPolicy
+    
+                        // const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+                        // if (!categoryData.returnPolicy) {
+    
+                            const allCategories = productDetails?.categoryIdPath.split("#")
+    
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+    
+                                if (allCategories[i]) {
+    
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+    
+                                    if (categorie.returnPolicy) {
+    
+                                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+    
+                                        if (!returnPolicy.delete) {
+    
+                                            resolve(returnPolicy)
+                                            return
+                                        }
+                                    }
+                                }
+                            }
+    
+                            // const defaultreturnPolicy = await shippingConfigModel.aggregate([
+    
+                            //     {
+                            //         "$lookup": {
+                            //             "from": "return_policies",
+                            //             "localField": "defaultReturnPolicy",
+                            //             "foreignField": "_id",
+                            //             "as": "result"
+                            //         }
+                            //     }
+                            // ])
+    
+                            // const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+    
+                            resolve(null)
+    
+                        // }
+    
+    
+                    } else {
+    
+                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: brandData.returnPolicy })
+    
+                        if (!returnPolicy.isDeleted) {
+    
+                            resolve(returnPolicy)
+                            return;
+    
+                        } else {
+    
+                            // check Category returnPolicy
+    
+                            // const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+                            // if (!categoryData.returnPolicy) {
+    
+                                const allCategories = productDetails?.categoryIdPath.path.split("#")
+    
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+    
+                                    if (allCategories[i]) {
+    
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+    
+                                        if (categorie.returnPolicy) {
+    
+                                            const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+    
+                                            if (!returnPolicy.delete) {
+    
+                                                resolve(returnPolicy)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+    
+                                // const defaultreturnPolicy = await shippingConfigModel.aggregate([
+    
+                                //     {
+                                //         "$lookup": {
+                                //             "from": "return_policies",
+                                //             "localField": "defaultReturnPolicy",
+                                //             "foreignField": "_id",
+                                //             "as": "result"
+                                //         }
+                                //     }
+                                // ])
+    
+                                // const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+    
+                                resolve(null)
+                            // }
+    
+    
+                        }
+    
+    
+                    }
+    
+    
+                }
+    
+    
+    
+            } catch (error) {
+    
+    
+                  reject()
+            }
+
+
+
+
+        } catch (error) {
+
+             reject()
+        }
+    })
+}
+
+
+
+
+
+
 export const getProductReturnPolicy = async (id:Types.ObjectId): Promise<any> => {
 
     return new Promise(async(resolve,reject) => {
@@ -1577,6 +1742,17 @@ export const getProductReturnPolicy = async (id:Types.ObjectId): Promise<any> =>
 
 
             try {
+
+                if(productDetails.returnPolicy){
+
+                    const returnPolicy: any = await returnPolicyModel.findOne({ _id: productDetails.returnPolicy })
+
+                    if(!returnPolicy.isDeleted){
+
+                         resolve(returnPolicy)
+                         return;
+                    }
+                }
 
 
                 const brandData = await brandModel.findOne({ _id:productDetails?.brandId})

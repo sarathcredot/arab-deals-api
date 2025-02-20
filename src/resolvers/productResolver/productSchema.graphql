@@ -413,6 +413,7 @@ type Query {
     }
     
     type UpdateProductByAdminResponse {
+        
         _id: String!
         message: String
     }
