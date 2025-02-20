@@ -52,6 +52,13 @@ type Mutation {
   updateReturnPolicyByAdmin(input: updateReturnPolicyByAdminInput): updateReturnPolicyByAdminResponse
   deleteReturnPolicyByAdmin(input: deleteReturnPolicyByAdminInput!): deleteReturnPolicyByAdminResponse
   updateStatusReturnPolicyByAdmin(input: updateStatusReturnPolicyByAdminInput!): updateStatusReturnPolicyByAdminResponse
+  createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
+  createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
+  updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
+  updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
+  submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
+  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
+  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
@@ -60,13 +67,6 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
-  createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
-  createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
-  updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
-  updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
-  submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
-  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
-  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
@@ -108,9 +108,6 @@ type Mutation {
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
-  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
-  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
-  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -119,6 +116,9 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
+  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
+  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
+  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
@@ -176,6 +176,27 @@ type Query {
   getDefaultReturnPolicyInCategory(input: getDefaultReturnPolicyInCategoryInput!): ReturnPolicy!
   getDefaultReturnPolicyInProduct(input: getDefaultReturnPolicyInProductInput!): ReturnPolicy!
   getReturnPolicyOfOrderProduct(input: getReturnPolicyOfOrderProductInput!): getReturnPolicyOfOrderProductResponse
+  getProductsByAdmin(input: ProductFilters): ProductsResponse!
+  getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
+  getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
+  getProductByAdmin(input: ProductId!): ProductResponse!
+  getProductByVendor(input: ProductId!): ProductResponse!
+  getVariantsByAdmin(input: VariantsByAdminInput!): VariantsByAdminResponse!
+  getProducts(input: ProductFilters): ProductsResponse!
+  getProduct(input: ProductId!): ProductResponse!
+  getVariants(input: VariantsInput!): VariantsResponse!
+  getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
+  getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
+  getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
+  getVariantsTableByVendor(input: ProductVariantsByVendorFilter!): VariantsTableByVendorResponse!
+  getProductsMaxPrice(input: categoriesInput): getProductsMaxPriceResponse!
+  getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
+  getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
+  getVariantsInMobile(input: VariantsInMobileInput!): VariantsInMobileResponse!
+  getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
+  getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
+  getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
+  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -198,27 +219,6 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
-  getProductsByAdmin(input: ProductFilters): ProductsResponse!
-  getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
-  getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
-  getProductByAdmin(input: ProductId!): ProductResponse!
-  getProductByVendor(input: ProductId!): ProductResponse!
-  getVariantsByAdmin(input: VariantsByAdminInput!): VariantsByAdminResponse!
-  getProducts(input: ProductFilters): ProductsResponse!
-  getProduct(input: ProductId!): ProductResponse!
-  getVariants(input: VariantsInput!): VariantsResponse!
-  getProductsAutoComplete(input: GetProductsAutoCompleteInput!): GetProductsAutoCompleteResponse
-  getRelatedProducts(input: RelatedProductsFilters!): RelatedProductsResponse!
-  getVariantsTableByAdmin(input: ProductVariantsByAdminFilter!): VariantsTableByAdminResponse!
-  getVariantsTableByVendor(input: ProductVariantsByVendorFilter!): VariantsTableByVendorResponse!
-  getProductsMaxPrice(input: categoriesInput): getProductsMaxPriceResponse!
-  getProductsInMobile(input: ProductsInMobileFilters): ProductsInMobileResponse!
-  getProductInMobile(input: ProductIdInMobile!): ProductInMobileResponse!
-  getVariantsInMobile(input: VariantsInMobileInput!): VariantsInMobileResponse!
-  getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
-  getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
-  getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
-  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
@@ -276,6 +276,8 @@ type Query {
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -287,8 +289,6 @@ type Query {
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -1428,6 +1428,502 @@ type getReturnPolicyOfOrderProductResponse {
   returnPeriod: Int
 }
 
+type File {
+  filename: String!
+  mimetype: String!
+  encoding: String!
+}
+
+input ProductFileDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input ProductStatusInput {
+  _id: String!
+  status: String
+  remarks: [String]
+}
+
+input ProductPreviewInput {
+  _id: String!
+}
+
+input ProductInput {
+  brandId: ObjectId!
+  brandName: String!
+  productName: String!
+  shortDescription: String!
+  skuId: String!
+  description: String!
+  productInfo: [String]
+  productShortInfo: String
+  rating: Float!
+  tags: String!
+  sellingPrice: Float!
+  price: Float!
+  mrp: Float!
+  stock: Int!
+  categoryId: ObjectId!
+  offerPrice: Float
+  attributes: [String]
+  delivery_type: String
+  returnPolicy: ObjectId
+}
+
+input VariantInput {
+  productName: String!
+  shortDescription: String!
+  skuId: String!
+  description: String!
+  productInfo: [String!]!
+  productShortInfo: String
+  rating: Float!
+  tags: String
+  sellingPrice: Float!
+  price: Float!
+  mrp: Float!
+  productCode: Int!
+  stock: Int!
+  attributes: [String!]!
+}
+
+input ProductUpdateInput {
+  _id: ObjectId!
+  brandId: ObjectId
+  brandName: String
+  productName: String
+  shortDescription: String
+  skuId: String
+  description: String
+  productInfo: [String]
+  productShortInfo: String
+  rating: Float
+  tags: String
+  sellingPrice: Float
+  price: Float
+  mrp: Float
+  productCode: Int
+  stock: Int
+  categoryId: String
+  offerPrice: Float
+  attributes: [String]
+  remarks: [String]
+  delivery_type: String
+  returnPolicy: ObjectId
+}
+
+input UpdateProductByAdminInput {
+  _id: ObjectId!
+  brandId: ObjectId
+  brandName: String
+  productName: String
+  shortDescription: String
+  skuId: String
+  description: String
+  productInfo: [String]
+  productShortInfo: String
+  rating: Float
+  tags: String
+  sellingPrice: Float
+  price: Float
+  mrp: Float
+  productCode: Int
+  stock: Int
+  categoryId: String
+  status: String
+  offerPrice: Float
+  attributes: [String]
+  remarks: [String]
+  isBlocked: Boolean
+  warehouseSkuId: String
+  delivery_type: String
+  returnPolicy: ObjectId
+}
+
+input ProductId {
+  _id: String!
+}
+
+input ProductFilters {
+  page: Int
+  size: Int
+  tags: [String]
+  minPrice: Float
+  maxPrice: Float
+  newest: Boolean
+  priceLowToHigh: Boolean
+  priceHighToLow: Boolean
+  query: String
+  categories: [String]
+  parentCategory: String
+  brands: [String]
+  attributes: [AttributeInput]
+  discount: Int
+  bestSeller: Boolean
+  status: String
+  vendorId: ObjectId
+}
+
+input ProductFiltersforCoupon {
+  brands: [String]
+  categories: [String]
+}
+
+input AttributeInput {
+  id: String
+  values: [String]
+}
+
+input ProductsInMobileFilters {
+  page: Int
+  size: Int
+  tags: [String]
+  minPrice: Float
+  maxPrice: Float
+  newest: Boolean
+  priceLowToHigh: Boolean
+  priceHighToLow: Boolean
+  query: String
+  categories: [String]
+  parentCategory: String
+  brands: [String]
+  attributes: [AttributeInput]
+  discount: Int
+  bestSeller: Boolean
+  status: String
+  vendorId: ObjectId
+}
+
+input ProductByVendorFilters {
+  page: Int
+  size: Int
+  minPrice: Float
+  maxPrice: Float
+  newest: Boolean
+  priceLowToHigh: Boolean
+  priceHighToLow: Boolean
+  query: String
+  categories: [String]
+  parentCategory: String
+  status: String
+}
+
+input ProductIdInMobile {
+  _id: String!
+}
+
+input VariantsInput {
+  _id: String!
+}
+
+input VariantsInMobileInput {
+  _id: String!
+}
+
+input VariantsByAdminInput {
+  _id: String!
+  page: Int
+  size: Int
+}
+
+input GetProductsAutoCompleteInput {
+  query: String!
+}
+
+input GetProductsAutoCompleteInMobileInput {
+  query: String!
+}
+
+type DeleteProductResponse {
+  _id: String!
+  message: String
+}
+
+input RelatedProductsFilters {
+  _id: String!
+  limit: Int
+}
+
+input RelatedProductsInMobileFilters {
+  _id: String!
+  limit: Int
+}
+
+input ProductVariantsByAdminFilter {
+  productCode: Int!
+}
+
+input ProductVariantsByVendorFilter {
+  productCode: Int!
+}
+
+input categoriesInput {
+  categories: [String]
+}
+
+input GettProductsMaxPriceInMobileInput {
+  categories: [String]
+}
+
+type ProductFileData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type Product {
+  _id: String
+  vendorId: String
+  brandId: String
+  brandName: String
+  productName: String
+  shortDescription: String
+  skuId: String
+  description: String
+  productInfo: [String]
+  productShortInfo: String
+  images: [ProductFileData]
+  rating: Float
+  sellingPrice: Float
+  price: Float
+  mrp: Float
+  tags: [String]
+  productCode: Int
+  categoryId: String
+  categoryNamePath: String
+  categoryIdPath: String
+  isBlocked: Boolean
+  stock: Int
+  status: String
+  offerPrice: Float
+  attributes: [IProductAttribute]
+  productDetailImages: [ProductFileData]
+  warehouseSkuId: String
+  delivery_type: String
+  returnPolicyData: returnPolicyType
+}
+
+type IProductAttribute {
+  attributeId: String
+  attributeName: String
+  attributeValueId: String
+  attributeValue: String
+  attributeDescription: String
+}
+
+type Attributes {
+  attributeValue: String
+}
+
+type returnPolicyType {
+  _id: ObjectId
+  name: String
+  description: String
+  duration: Int
+  isEnable: Boolean
+  returnCharge: Int
+  isDeleted: Boolean
+}
+
+type ProductsResponse {
+  maxRecords: Int!
+  records: [Product!]
+}
+
+type ProductsForCouponResponse {
+  records: [Product!]
+}
+
+type ProductsInMobileResponse {
+  maxRecords: Int!
+  records: [Product!]
+}
+
+type ProductResponse {
+  product: Product!
+  message: String
+}
+
+type ProductInMobileResponse {
+  product: Product!
+  message: String
+}
+
+type VariantResponse {
+  product: Product!
+  message: String
+}
+
+type ProductUpdateResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateProductByAdminResponse {
+  _id: String!
+  message: String
+}
+
+type Variant {
+  _id: String!
+  productId: String
+  attributeId: String
+  attributeName: String
+  attributeType: String
+  attributeValueId: String
+  attributeValue: String
+  attributeDescription: String
+  colorCode: String
+}
+
+type VariantsResponse {
+  variants: [Variant]
+}
+
+type VariantsInMobileResponse {
+  variants: [Variant]
+}
+
+type VariantTableByAdmin {
+  _id: String
+  productName: String
+  images: [ProductFileData]
+  attributes: [IProductAttribute]
+  stock: Int
+  status: String
+  isBlocked: Boolean
+  categoryNamePath: String
+  categoryId: ObjectId
+  warehouseSkuId: String
+  skuId: String
+  productCode: String
+  brandName: String
+  brandId: ObjectId
+}
+
+type VariantsByAdmin {
+  _id: String
+  productName: String
+  images: [ProductFileData]
+  attributes: [IProductAttribute]
+  stock: Int
+  status: String
+  isBlocked: Boolean
+}
+
+type VariantTableByVendor {
+  _id: String
+  productName: String
+  images: [ProductFileData]
+  attributes: [IProductAttribute]
+  stock: Int
+  status: String
+  isBlocked: Boolean
+  productCode: Int
+  categoryNamePath: String
+  brandId: ObjectId
+  brandName: String
+  skuId: String
+  warehouseSkuId: String
+  categoryId: ObjectId
+}
+
+type VariantsTableByAdminResponse {
+  maxRecords: Int!
+  records: [VariantTableByAdmin]
+  message: String
+}
+
+type VariantsTableByVendorResponse {
+  maxRecords: Int!
+  records: [VariantTableByVendor]
+  message: String
+}
+
+type ProductSuggestion {
+  suggestion: String!
+  image: String
+  categoryId: ObjectId
+  categoryIdPath: String
+}
+
+type GetProductsAutoCompleteResponse {
+  suggestions: [ProductSuggestion]
+}
+
+type GetProductsAutoCompleteInMobileResponse {
+  suggestions: [ProductSuggestion]
+}
+
+type RelatedProductsResponse {
+  records: [Product!]
+}
+
+type RelatedProductsInMobileResponse {
+  records: [Product!]
+}
+
+type ProductStatusResponse {
+  _id: String
+  message: String
+}
+
+type VariantsByAdminResponse {
+  maxRecords: Int!
+  records: [VariantsByAdmin]
+  message: String
+}
+
+type getProductsMaxPriceResponse {
+  maxPrice: Int
+  message: String
+}
+
+type GetProductsMaxPriceInMobileResponse {
+  maxPrice: Int
+  message: String
+}
+
+input getAllNotificationInput {
+  filter: String
+}
+
+type NotificationType {
+  _id: ObjectId
+  message: String
+  permissions: [String]
+  orderId: String
+  title: String
+  productId: ObjectId
+  type: String
+  view: [viewType]
+  createdAt: Date
+  updatedAt: Date
+}
+
+type getAllNotificationResponse {
+  allNotification: [NotificationType]
+  unReadCount: Int
+}
+
+type viewType {
+  id: ObjectId
+  remove: Boolean
+}
+
+input addNotificationViewPersonIdInput {
+  notificationId: ObjectId
+}
+
+type addNotificationViewPersonIdResponse {
+  status: Boolean
+  msg: String
+}
+
 input CreateUserOrderInput {
   shippingAddressId: ObjectId!
   paymentMode: String!
@@ -2262,502 +2758,6 @@ type GetVendorReturnProductsResponse {
 type GetVendorRefundProductsResponse {
   maxRecords: Int!
   records: [VendorOrderProduct]!
-}
-
-type File {
-  filename: String!
-  mimetype: String!
-  encoding: String!
-}
-
-input ProductFileDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input ProductStatusInput {
-  _id: String!
-  status: String
-  remarks: [String]
-}
-
-input ProductPreviewInput {
-  _id: String!
-}
-
-input ProductInput {
-  brandId: ObjectId!
-  brandName: String!
-  productName: String!
-  shortDescription: String!
-  skuId: String!
-  description: String!
-  productInfo: [String]
-  productShortInfo: String
-  rating: Float!
-  tags: String!
-  sellingPrice: Float!
-  price: Float!
-  mrp: Float!
-  stock: Int!
-  categoryId: ObjectId!
-  offerPrice: Float
-  attributes: [String]
-  delivery_type: String
-  returnPolicy: ObjectId
-}
-
-input VariantInput {
-  productName: String!
-  shortDescription: String!
-  skuId: String!
-  description: String!
-  productInfo: [String!]!
-  productShortInfo: String
-  rating: Float!
-  tags: String
-  sellingPrice: Float!
-  price: Float!
-  mrp: Float!
-  productCode: Int!
-  stock: Int!
-  attributes: [String!]!
-}
-
-input ProductUpdateInput {
-  _id: ObjectId!
-  brandId: ObjectId
-  brandName: String
-  productName: String
-  shortDescription: String
-  skuId: String
-  description: String
-  productInfo: [String]
-  productShortInfo: String
-  rating: Float
-  tags: String
-  sellingPrice: Float
-  price: Float
-  mrp: Float
-  productCode: Int
-  stock: Int
-  categoryId: String
-  offerPrice: Float
-  attributes: [String]
-  remarks: [String]
-  delivery_type: String
-  returnPolicy: ObjectId
-}
-
-input UpdateProductByAdminInput {
-  _id: ObjectId!
-  brandId: ObjectId
-  brandName: String
-  productName: String
-  shortDescription: String
-  skuId: String
-  description: String
-  productInfo: [String]
-  productShortInfo: String
-  rating: Float
-  tags: String
-  sellingPrice: Float
-  price: Float
-  mrp: Float
-  productCode: Int
-  stock: Int
-  categoryId: String
-  status: String
-  offerPrice: Float
-  attributes: [String]
-  remarks: [String]
-  isBlocked: Boolean
-  warehouseSkuId: String
-  delivery_type: String
-  returnPolicy: ObjectId
-}
-
-input ProductId {
-  _id: String!
-}
-
-input ProductFilters {
-  page: Int
-  size: Int
-  tags: [String]
-  minPrice: Float
-  maxPrice: Float
-  newest: Boolean
-  priceLowToHigh: Boolean
-  priceHighToLow: Boolean
-  query: String
-  categories: [String]
-  parentCategory: String
-  brands: [String]
-  attributes: [AttributeInput]
-  discount: Int
-  bestSeller: Boolean
-  status: String
-  vendorId: ObjectId
-}
-
-input ProductFiltersforCoupon {
-  brands: [String]
-  categories: [String]
-}
-
-input AttributeInput {
-  id: String
-  values: [String]
-}
-
-input ProductsInMobileFilters {
-  page: Int
-  size: Int
-  tags: [String]
-  minPrice: Float
-  maxPrice: Float
-  newest: Boolean
-  priceLowToHigh: Boolean
-  priceHighToLow: Boolean
-  query: String
-  categories: [String]
-  parentCategory: String
-  brands: [String]
-  attributes: [AttributeInput]
-  discount: Int
-  bestSeller: Boolean
-  status: String
-  vendorId: ObjectId
-}
-
-input ProductByVendorFilters {
-  page: Int
-  size: Int
-  minPrice: Float
-  maxPrice: Float
-  newest: Boolean
-  priceLowToHigh: Boolean
-  priceHighToLow: Boolean
-  query: String
-  categories: [String]
-  parentCategory: String
-  status: String
-}
-
-input ProductIdInMobile {
-  _id: String!
-}
-
-input VariantsInput {
-  _id: String!
-}
-
-input VariantsInMobileInput {
-  _id: String!
-}
-
-input VariantsByAdminInput {
-  _id: String!
-  page: Int
-  size: Int
-}
-
-input GetProductsAutoCompleteInput {
-  query: String!
-}
-
-input GetProductsAutoCompleteInMobileInput {
-  query: String!
-}
-
-type DeleteProductResponse {
-  _id: String!
-  message: String
-}
-
-input RelatedProductsFilters {
-  _id: String!
-  limit: Int
-}
-
-input RelatedProductsInMobileFilters {
-  _id: String!
-  limit: Int
-}
-
-input ProductVariantsByAdminFilter {
-  productCode: Int!
-}
-
-input ProductVariantsByVendorFilter {
-  productCode: Int!
-}
-
-input categoriesInput {
-  categories: [String]
-}
-
-input GettProductsMaxPriceInMobileInput {
-  categories: [String]
-}
-
-type ProductFileData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-type Product {
-  _id: String
-  vendorId: String
-  brandId: String
-  brandName: String
-  productName: String
-  shortDescription: String
-  skuId: String
-  description: String
-  productInfo: [String]
-  productShortInfo: String
-  images: [ProductFileData]
-  rating: Float
-  sellingPrice: Float
-  price: Float
-  mrp: Float
-  tags: [String]
-  productCode: Int
-  categoryId: String
-  categoryNamePath: String
-  categoryIdPath: String
-  isBlocked: Boolean
-  stock: Int
-  status: String
-  offerPrice: Float
-  attributes: [IProductAttribute]
-  productDetailImages: [ProductFileData]
-  warehouseSkuId: String
-  delivery_type: String
-  returnPolicyData: returnPolicyType
-}
-
-type IProductAttribute {
-  attributeId: String
-  attributeName: String
-  attributeValueId: String
-  attributeValue: String
-  attributeDescription: String
-}
-
-type Attributes {
-  attributeValue: String
-}
-
-type returnPolicyType {
-  _id: ObjectId
-  name: String
-  description: String
-  duration: Int
-  isEnable: Boolean
-  returnCharge: Int
-  isDeleted: Boolean
-}
-
-type ProductsResponse {
-  maxRecords: Int!
-  records: [Product!]
-}
-
-type ProductsForCouponResponse {
-  records: [Product!]
-}
-
-type ProductsInMobileResponse {
-  maxRecords: Int!
-  records: [Product!]
-}
-
-type ProductResponse {
-  product: Product!
-  message: String
-}
-
-type ProductInMobileResponse {
-  product: Product!
-  message: String
-}
-
-type VariantResponse {
-  product: Product!
-  message: String
-}
-
-type ProductUpdateResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateProductByAdminResponse {
-  _id: String!
-  message: String
-}
-
-type Variant {
-  _id: String!
-  productId: String
-  attributeId: String
-  attributeName: String
-  attributeType: String
-  attributeValueId: String
-  attributeValue: String
-  attributeDescription: String
-  colorCode: String
-}
-
-type VariantsResponse {
-  variants: [Variant]
-}
-
-type VariantsInMobileResponse {
-  variants: [Variant]
-}
-
-type VariantTableByAdmin {
-  _id: String
-  productName: String
-  images: [ProductFileData]
-  attributes: [IProductAttribute]
-  stock: Int
-  status: String
-  isBlocked: Boolean
-  categoryNamePath: String
-  categoryId: ObjectId
-  warehouseSkuId: String
-  skuId: String
-  productCode: String
-  brandName: String
-  brandId: ObjectId
-}
-
-type VariantsByAdmin {
-  _id: String
-  productName: String
-  images: [ProductFileData]
-  attributes: [IProductAttribute]
-  stock: Int
-  status: String
-  isBlocked: Boolean
-}
-
-type VariantTableByVendor {
-  _id: String
-  productName: String
-  images: [ProductFileData]
-  attributes: [IProductAttribute]
-  stock: Int
-  status: String
-  isBlocked: Boolean
-  productCode: Int
-  categoryNamePath: String
-  brandId: ObjectId
-  brandName: String
-  skuId: String
-  warehouseSkuId: String
-  categoryId: ObjectId
-}
-
-type VariantsTableByAdminResponse {
-  maxRecords: Int!
-  records: [VariantTableByAdmin]
-  message: String
-}
-
-type VariantsTableByVendorResponse {
-  maxRecords: Int!
-  records: [VariantTableByVendor]
-  message: String
-}
-
-type ProductSuggestion {
-  suggestion: String!
-  image: String
-  categoryId: ObjectId
-  categoryIdPath: String
-}
-
-type GetProductsAutoCompleteResponse {
-  suggestions: [ProductSuggestion]
-}
-
-type GetProductsAutoCompleteInMobileResponse {
-  suggestions: [ProductSuggestion]
-}
-
-type RelatedProductsResponse {
-  records: [Product!]
-}
-
-type RelatedProductsInMobileResponse {
-  records: [Product!]
-}
-
-type ProductStatusResponse {
-  _id: String
-  message: String
-}
-
-type VariantsByAdminResponse {
-  maxRecords: Int!
-  records: [VariantsByAdmin]
-  message: String
-}
-
-type getProductsMaxPriceResponse {
-  maxPrice: Int
-  message: String
-}
-
-type GetProductsMaxPriceInMobileResponse {
-  maxPrice: Int
-  message: String
-}
-
-input getAllNotificationInput {
-  filter: String
-}
-
-type NotificationType {
-  _id: ObjectId
-  message: String
-  permissions: [String]
-  orderId: String
-  title: String
-  productId: ObjectId
-  type: String
-  view: [viewType]
-  createdAt: Date
-  updatedAt: Date
-}
-
-type getAllNotificationResponse {
-  allNotification: [NotificationType]
-  unReadCount: Int
-}
-
-type viewType {
-  id: ObjectId
-  remove: Boolean
-}
-
-input addNotificationViewPersonIdInput {
-  notificationId: ObjectId
-}
-
-type addNotificationViewPersonIdResponse {
-  status: Boolean
-  msg: String
 }
 
 input ExportAdminOrdersInput {
@@ -4055,6 +4055,117 @@ type CmsRecordsResponse {
   message: String
 }
 
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input removeFromCartInput {
+  productId: String!
+}
+
+input removeFromCartInMobileInput {
+  productId: String!
+}
+
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
+  message: String
+}
+
+type BulkAddToCartResponse {
+  message: String
+}
+
+type BulkAddToCartInMobileResponse {
+  message: String
+}
+
+type addToCartInMObileResponse {
+  message: String
+}
+
+type removeFromCartResponse {
+  message: String
+}
+
+type removeFromCartInMobileResponse {
+  message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  appliedProducts: [ObjectId]
+  code: String
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  code: String
+}
+
 input CreateCategoryInput {
   categoryName: String!
   parentId: String
@@ -4206,117 +4317,6 @@ type CategoriesForCouponResponse {
 
 type GetLevelCategoriesResponse {
   records: [Category]
-}
-
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-input BulkAddToCartInMobileInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type BulkAddToCartInMobileResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
-  name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
-}
-
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  appliedProducts: [ObjectId]
-  code: String
-}
-
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  code: String
 }
 
 input AddBrandInput {
