@@ -26,6 +26,8 @@ const warrantyPolicySchema = new Schema(
       warrantyType: [
         {
           type: String,
+          required: true,
+          enum: ["replacement","repair"]
         },
       ],
     },

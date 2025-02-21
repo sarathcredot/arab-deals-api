@@ -28,6 +28,7 @@ import * as couponService  from "./couponService"
 import * as roleService from './roleService'
 import * as notificationService from './notificationService'
 import * as returnPolicyService from './returnPolicyService'
+import * as warrantyPolicyService from './warrantyPolicyService'
 
 
 
@@ -61,5 +62,6 @@ export {
     couponService,
     roleService,
     notificationService,
-    returnPolicyService
+    returnPolicyService,
+    warrantyPolicyService
 }
