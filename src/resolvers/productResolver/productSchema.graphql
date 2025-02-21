@@ -352,7 +352,20 @@ type Query {
         warehouseSkuId: String
         delivery_type:String
         returnPolicyData:returnPolicyType
+        warrantyPolicyData:warrantyPolicyType
         
+    }
+
+
+   type warrantyPolicyType{
+ 
+    _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    isEnable:Boolean
+    isDeleted:Boolean
+    warrantyType:[String]
     }
 
     type IProductAttribute {

@@ -13,10 +13,20 @@ type Mutation {
 type Query {
 
 
-  getDefaultWarrantyPolicyInCategory(input:getDefaultWarrantyPolicyInCategoryInput!):Boolean!
+  getDefaultWarrantyPolicyInCategory(input:getDefaultWarrantyPolicyInCategoryInput):WarrantyPolicy!
   getAllWarrantyPoliciesBySuperAdmin(input:getAllWarrantyPoliciesBySuperAdminInput):getAllWarrantyPoliciesBySuperAdminResponse
   getWarrantyPolicyByAdmin(input:getWarrantyPolicyByAdminInput!):getWarrantyPolicyByAdminResponse
+  getDefaultWarrantyPolicyInProduct(input:getDefaultWarrantyPolicyInProductInput):WarrantyPolicy!
  
+}
+
+
+input getDefaultWarrantyPolicyInProductInput{
+
+       brandId:ObjectId
+       categoryId:ObjectId
+
+
 }
 
 input getDefaultWarrantyPolicyInCategoryInput{
