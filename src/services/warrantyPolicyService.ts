@@ -1,4 +1,5 @@
 import { warrantyPolicyModel } from "../models/warrantyPolicyModel";
+import { categoryModel, brandModel } from "../models"
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
 
 export interface IWarrantyPolicy {
@@ -78,8 +79,310 @@ export const getAllWarrantyPoliciesBySuperAdmin = async (options: any, matchQuer
 
 
 
-export const getDefaultWarrantyPolicyInCategory = async () => {
-    try {
-    } catch (error) {
-    }
+export const getDefaultWarrantyPolicyInCategory = async (id: Types.ObjectId): Promise<any> => {
+
+
+
+    return new Promise(async (resolver, reject) => {
+
+        try {
+
+
+            if (id) {
+
+
+
+                const result: any = await categoryModel.findOne({ _id: id })
+
+                if (!result.warrantyPolicy) {
+
+
+                    const allCategories = result.path.split("#")
+
+                    for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                        if (allCategories[i]) {
+
+                            const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                            if (categorie.warrantyPolicy) {
+
+                                const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                    resolver(warrantyPolicyData)
+                                    return;
+
+                                }
+                            }
+                        }
+                    }
+
+                    resolver(null)
+
+                    return;
+
+
+
+                } else {
+
+                    const warrantyPolicyData: any = await warrantyPolicyModel.find({ _id: result.warrantyPolicy })
+
+                    if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                        resolver(warrantyPolicyData)
+                        return;
+
+                    } else {
+
+
+                        const allCategories = result.path.split("#")
+
+                        for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                            if (allCategories[i]) {
+
+                                const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                if (categorie.warrantyPolicy) {
+
+                                    const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                    if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                        resolver(warrantyPolicyData)
+                                        return;
+
+                                    }
+                                }
+                            }
+                        }
+
+                        resolver(null)
+                        return;
+
+
+                    }
+
+
+                }
+
+
+            }
+
+
+
+
+        } catch (error) {
+
+            reject()
+        }
+
+    })
+}
+
+
+
+
+export const getDefaultWarrantyPolicyInProduct = async (brandId: Types.ObjectId, categoryId: Types.ObjectId): Promise<any> => {
+
+
+    return new Promise(async (resolve, reject) => {
+
+        console.log("cat id", categoryId)
+
+        try {
+
+
+            const brandData = await brandModel.findOne({ _id: brandId })
+
+            if (!brandData) {
+
+                reject()
+                return
+            } else {
+
+                if (!brandData.warrantyPolicy) {
+
+                    // check Category returnPolicy
+
+                    const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+
+                    if (!categoryData.warrantyPolicy) {
+
+                        const allCategories = categoryData.path.split("#")
+
+                        for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                            if (allCategories[i]) {
+
+                                const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                if (categorie.warrantyPolicy) {
+
+                                    const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                    if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                        resolve(warrantyPolicyData)
+                                        return
+                                    }
+                                }
+                            }
+                        }
+
+                        resolve(null)
+                        return;
+
+
+                    } else {
+
+                        const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categoryData.warrantyPolicy })
+
+
+                        if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                            resolve(warrantyPolicyData)
+                            return;
+                        } else {
+
+
+                            const allCategories = categoryData.path.split("#")
+
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                if (allCategories[i]) {
+
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                    if (categorie.returnPolicy) {
+
+                                        const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                        if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                            resolve(warrantyPolicyData)
+                                            return
+                                        }
+                                    }
+                                }
+                            }
+
+                            reject(null)
+                            return;
+
+
+
+                        }
+
+
+                    }
+
+
+                } else {
+
+
+                    const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: brandData.warrantyPolicy })
+
+                    console.log("cat plo", warrantyPolicyData)
+
+                    if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                        resolve(warrantyPolicyData)
+                        return;
+
+                    } else {
+
+                        // check Category returnPolicy
+
+                        const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+                        if (!categoryData.warrantyPolicy) {
+
+                            const allCategories = categoryData.path.split("#")
+
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                if (allCategories[i]) {
+
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                    if (categorie.warrantyPolicy) {
+
+                                        const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                        if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                            resolve(warrantyPolicyData)
+                                            return
+                                        }
+                                    }
+                                }
+                            }
+
+                            resolve(null)
+                            return;
+
+                        } else {
+
+
+                            const returnPolicy: any = await warrantyPolicyModel.findOne({ _id: categoryData.warrantyPolicy })
+
+
+                            if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                resolve(warrantyPolicyData)
+                                return;
+                            } else {
+
+
+                                const allCategories = categoryData.path.split("#")
+
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                    if (allCategories[i]) {
+
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                        if (categorie.returnPolicy) {
+
+                                            const returnPolicy: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                            if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                                resolve(warrantyPolicyData)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
+                                resolve(null)
+                                return;
+
+
+                            }
+
+
+                        }
+
+
+
+                    }
+
+
+                }
+
+
+            }
+
+
+
+        } catch (error) {
+
+
+            reject()
+        }
+    })
+
 }

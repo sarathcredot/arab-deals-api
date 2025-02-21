@@ -182,14 +182,43 @@ export const warrantyPolicyResolver: Resolvers = {
 
         getDefaultWarrantyPolicyInCategory: async (parent, { input }, { req }, info) => {
             try {
-                  return true
-            } catch (error:any) {
+
+                const result = await warrantyPolicyService.getDefaultWarrantyPolicyInCategory(input?.id)
+
+                return result
+
+
+            } catch (error: any) {
+
                 throw new GraphQLError(error, {
                     extensions: {
                         code: "INTERNAL_SERVER_ERROR",
                         errors: []
                     },
                 });
+            }
+        },
+
+
+        getDefaultWarrantyPolicyInProduct: async (parent, { input }, { req }, info) => {
+
+
+            try {
+
+                const result = await warrantyPolicyService.getDefaultWarrantyPolicyInProduct(input?.brandId, input?.categoryId)
+
+                return result;
+
+            } catch (error: any) {
+
+
+                throw new GraphQLError(error, {
+                    extensions: {
+                        code: "INTERNAL_SERVER_ERROR",
+                        errors: []
+                    },
+                });
+
             }
         }
 
