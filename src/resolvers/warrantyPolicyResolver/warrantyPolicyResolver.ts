@@ -194,48 +194,49 @@ export const warrantyPolicyResolver: Resolvers = {
         },
 
 
-        Query: {
 
-         //to get all warranty policies by admin 
-          getAllWarrantyPoliciesBySuperAdmin: async (parent, { input }, { req }, info) => {
-                     //   await verifySuperAdmin(req);
-                     try {
-                         const page: number = input?.page || 0;
-                         const size: number = input?.size || 100;
-                         const options: any = {
-                             page: page,
-                             size: size
-                         }
-                         const matchQuery: any = {};
-                         if (input?.search) {
-                             matchQuery.name = { $regex: input.search, $options: "i" };
-                         }
-                         if (input?.isEnable !== undefined) {
-                             matchQuery.isEnable = input?.isEnable
-                         }
-                         matchQuery.isDeleted = false
-                         const response = await warrantyPolicyService.getAllWarrantyPoliciesBySuperAdmin(options, matchQuery);
-                         // console.log("response",response)
-                         if (!response) {
-                             throw new GraphQLError("unable to fetch warranty policies", {
-                                 extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty policies"] },
-                             });
-                         }
-                         return {
-                             success: true,
-                             data: response.records,
-                             maxRecords: response.maxRecords
-                         }
-                     } catch (error: any) {
-                         throw new GraphQLError(error, {
-                             extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-                         })
-                     }
-          },
+    Query: {
 
-          //to get one specific warranty policy 
 
-          getWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
+        //to get all warranty policies by admin
+        getAllWarrantyPoliciesBySuperAdmin: async (parent, { input }, { req }, info) => {
+            //   await verifySuperAdmin(req);
+            try {
+                const page: number = input?.page || 0;
+                const size: number = input?.size || 100;
+                const options: any = {
+                    page: page,
+                    size: size
+                }
+                const matchQuery: any = {};
+                if (input?.search) {
+                    matchQuery.name = { $regex: input.search, $options: "i" };
+                }
+                if (input?.isEnable !== undefined) {
+                    matchQuery.isEnable = input?.isEnable
+                }
+                matchQuery.isDeleted = false
+                const response = await warrantyPolicyService.getAllWarrantyPoliciesBySuperAdmin(options, matchQuery);
+                // console.log("response",response)
+                if (!response) {
+                    throw new GraphQLError("unable to fetch warranty policies", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty policies"] },
+                    });
+                }
+                return {
+                    success: true,
+                    data: response.records,
+                    maxRecords: response.maxRecords
+                }
+            } catch (error: any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        },
+        //to get one specific warranty policy
+
+        getWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
             // await verifySuperAdmin(req);
             try {
                 const warrantyPolicyId: Types.ObjectId = input.warrantyPolicyId;
@@ -256,9 +257,24 @@ export const warrantyPolicyResolver: Resolvers = {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
             }
-          },
-        
+        },
+
+        getDefaultWarrantyPolicyInCategory: async (parent, { input }, { req }, info) => {
+            try {
+                  return true
+            } catch (error:any) {
+                throw new GraphQLError(error, {
+                    extensions: {
+                        code: "INTERNAL_SERVER_ERROR",
+                        errors: []
+                    },
+                });
+            }
         }
 
-    
+
+       }
+
+
+
 }

@@ -11,8 +11,18 @@ type Mutation {
 }
 
 type Query {
-    getAllWarrantyPoliciesBySuperAdmin(input:getAllWarrantyPoliciesBySuperAdminInput):getAllWarrantyPoliciesBySuperAdminResponse
-    getWarrantyPolicyByAdmin(input:getWarrantyPolicyByAdminInput!):getWarrantyPolicyByAdminResponse
+
+
+  getDefaultWarrantyPolicyInCategory(input:getDefaultWarrantyPolicyInCategoryInput!):Boolean!
+  getAllWarrantyPoliciesBySuperAdmin(input:getAllWarrantyPoliciesBySuperAdminInput):getAllWarrantyPoliciesBySuperAdminResponse
+  getWarrantyPolicyByAdmin(input:getWarrantyPolicyByAdminInput!):getWarrantyPolicyByAdminResponse
+ 
+}
+
+input getDefaultWarrantyPolicyInCategoryInput{
+
+     id:ObjectId
+   
 }
 
 input createWarrantyPolicyBySuperAdminInput{

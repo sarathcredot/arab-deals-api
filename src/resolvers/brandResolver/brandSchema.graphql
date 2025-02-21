@@ -19,6 +19,8 @@
         isPopular: Boolean
         priority: Int!
         returnPolicy:ObjectId
+        warrantyPolicy:ObjectId
+
 
     }   
 
@@ -30,6 +32,7 @@
         priority: Int
         categories: [String]
         returnPolicy:ObjectId
+        warrantyPolicy:ObjectId
 
     }
 

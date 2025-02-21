@@ -33,7 +33,9 @@ export interface IBrandDocument extends Document {
         originalName?: string
     }
     categories: Types.ObjectId[],
-    returnPolicy?:Types.ObjectId
+    returnPolicy?:Types.ObjectId,
+    warrantyPolicy?:Types.ObjectId
+
 
 }
 

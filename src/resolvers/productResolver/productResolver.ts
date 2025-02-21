@@ -166,7 +166,8 @@ export const productResolver: Resolvers = {
                     attributes: attributeData,
                     offerPrice: input.offerPrice || 0,
                     delivery_type: input.delivery_type || "",
-                    returnPolicy: input.returnPolicy
+                    returnPolicy: input.returnPolicy,
+                    warrantyPolicy:input.warrantyPolicy
                 };
 
                 // Create the product
@@ -464,6 +465,7 @@ export const productResolver: Resolvers = {
                 }
 
                 existingProduct.returnPolicy = input.returnPolicy
+                existingProduct.warrantyPolicy=input.warrantyPolicy
 
 
 
@@ -581,6 +583,7 @@ export const productResolver: Resolvers = {
                 }
 
                 existingProduct.returnPolicy=input.returnPolicy
+                existingProduct.warrantyPolicy=input.warrantyPolicy
 
                 if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
                     existingProduct.productShortInfo = input.productShortInfo;

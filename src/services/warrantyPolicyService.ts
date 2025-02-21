@@ -13,7 +13,7 @@ export const createWarrantyPolicyBySuperAdmin = async (newWarrantyPolicyData: IW
     try {
         console.log(":mag: Saving policy to DB:", newWarrantyPolicyData);
         let warrantyPolicy = new warrantyPolicyModel(newWarrantyPolicyData);
-        const savedPolicy = await warrantyPolicy.save();  
+        const savedPolicy = await warrantyPolicy.save();
         console.log(":white_check_mark: Saved policy:", savedPolicy);
         return savedPolicy;
     } catch (error) {
@@ -21,6 +21,12 @@ export const createWarrantyPolicyBySuperAdmin = async (newWarrantyPolicyData: IW
         throw new Error("Failed to save return policy");
     }
 }
+
+
+
+
+
+
 
 export const updateWarrantyPolicyByAdmin = async (warrantyPolicyId: Types.ObjectId, updatePolicyData: IWarrantyPolicy): Promise<any> => {
     const updatePolicy = await warrantyPolicyModel.findByIdAndUpdate(warrantyPolicyId, updatePolicyData, { new: true });
@@ -78,5 +84,13 @@ export const getAllWarrantyPoliciesBySuperAdmin = async (options: any, matchQuer
         return response
     } catch (error) {
         throw error
+    }
+}
+
+
+
+export const getDefaultWarrantyPolicyInCategory = async () => {
+    try {
+    } catch (error) {
     }
 }

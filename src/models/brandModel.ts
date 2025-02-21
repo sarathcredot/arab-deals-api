@@ -57,6 +57,11 @@ const brandSchema = new Schema(
             type:Schema.ObjectId
 
         },
+        warrantyPolicy:{
+
+            type:Schema.ObjectId
+
+        },
         categories: {
             type: [
                 {

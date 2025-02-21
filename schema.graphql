@@ -2,15 +2,17 @@
 
 scalar ObjectId
 
+scalar Upload
+
 type Mutation {
-  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
-  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
-  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
-  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   createWarrantyPolicyBySuperAdmin(input: createWarrantyPolicyBySuperAdminInput!): createWarrantyPolicyBySuperAdminResponse
   updateWarrantyPolicyByAdmin(input: updateWarrantyPolicyByAdminInput): updateWarrantyPolicyByAdminResponse
   deleteWarrantyPolicyByAdmin(input: deleteWarrantyPolicyByAdminInput!): deleteWarrantyPolicyByAdminResponse
   updateStatusWarrantyPolicyByAdmin(input: updateStatusWarrantyPolicyByAdminInput!): updateStatusWarrantyPolicyByAdminResponse
+  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
+  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
+  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
+  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -145,12 +147,13 @@ type Mutation {
 }
 
 type Query {
+  getDefaultWarrantyPolicyInCategory(input: getDefaultWarrantyPolicyInCategoryInput!): Boolean!
+  getAllWarrantyPoliciesBySuperAdmin(input: getAllWarrantyPoliciesBySuperAdminInput): getAllWarrantyPoliciesBySuperAdminResponse
+  getWarrantyPolicyByAdmin(input: getWarrantyPolicyByAdminInput!): getWarrantyPolicyByAdminResponse
   getWishListProducts: GetWishListProductsResponse!
   getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
   getMobileWishListProducts: GetMobileWishListProductsResponse!
   getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
-  getAllWarrantyPoliciesBySuperAdmin(input: getAllWarrantyPoliciesBySuperAdminInput): getAllWarrantyPoliciesBySuperAdminResponse
-  getWarrantyPolicyByAdmin(input: getWarrantyPolicyByAdminInput!): getWarrantyPolicyByAdminResponse
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
@@ -320,76 +323,9 @@ type Query {
   getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
 }
 
-input AddToWishListInput {
-  productId: ObjectId!
+input getDefaultWarrantyPolicyInCategoryInput {
+  id: ObjectId
 }
-
-input RemoveFromWishListInput {
-  productId: ObjectId!
-}
-
-input GetWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-input AddToMobileWishListInput {
-  productId: ObjectId!
-}
-
-input RemoveFromMobileWishListInput {
-  productId: ObjectId!
-}
-
-input GetMobileWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-type AddToWishListResponse {
-  message: String
-}
-
-type RemoveFromWishListResponse {
-  message: String
-}
-
-type AddToMobileWishListResponse {
-  message: String
-}
-
-type RemoveFromMobileWishListResponse {
-  message: String
-}
-
-type WishListProduct {
-  productId: ObjectId!
-  productName: String!
-  shortDescription: String
-  sellingPrice: Float!
-  image: String
-}
-
-type GetWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-type GetMobileWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetMobileWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-}
-
-scalar Upload
 
 input createWarrantyPolicyBySuperAdminInput {
   name: String!
@@ -470,6 +406,75 @@ type deleteWarrantyPolicyByAdminResponse {
 type updateStatusWarrantyPolicyByAdminResponse {
   success: Boolean
   message: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+input AddToWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromWishListInput {
+  productId: ObjectId!
+}
+
+input GetWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+input AddToMobileWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromMobileWishListInput {
+  productId: ObjectId!
+}
+
+input GetMobileWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+type AddToWishListResponse {
+  message: String
+}
+
+type RemoveFromWishListResponse {
+  message: String
+}
+
+type AddToMobileWishListResponse {
+  message: String
+}
+
+type RemoveFromMobileWishListResponse {
+  message: String
+}
+
+type WishListProduct {
+  productId: ObjectId!
+  productName: String!
+  shortDescription: String
+  sellingPrice: Float!
+  image: String
+}
+
+type GetWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetWishListProductStatusResponse {
+  isExist: Boolean!
+}
+
+type GetMobileWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetMobileWishListProductStatusResponse {
+  isExist: Boolean!
 }
 
 scalar JSONObject
@@ -1559,6 +1564,7 @@ input ProductInput {
   attributes: [String]
   delivery_type: String
   returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
 }
 
 input VariantInput {
@@ -1601,6 +1607,7 @@ input ProductUpdateInput {
   remarks: [String]
   delivery_type: String
   returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
 }
 
 input UpdateProductByAdminInput {
@@ -1629,6 +1636,7 @@ input UpdateProductByAdminInput {
   warehouseSkuId: String
   delivery_type: String
   returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
 }
 
 input ProductId {
@@ -4151,6 +4159,7 @@ input CreateCategoryInput {
   isLeaf: Boolean
   attributes: [String]
   returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
 }
 
 input UpdateCategoryInput {
@@ -4162,6 +4171,7 @@ input UpdateCategoryInput {
   isLeaf: Boolean
   attributes: [String]
   returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
 }
 
 input CategoryId {
@@ -4413,6 +4423,7 @@ input AddBrandInput {
   isPopular: Boolean
   priority: Int!
   returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
 }
 
 input updateBrandInput {
@@ -4423,6 +4434,7 @@ input updateBrandInput {
   priority: Int
   categories: [String]
   returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
 }
 
 input BrandRecordIdInput {

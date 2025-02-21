@@ -46,7 +46,8 @@ export const brandResolver: Resolvers = {
                     logo: brandLogo,
                     isPopular: input?.isPopular || false,
                     priority: input.priority,
-                    returnPolicy:input.returnPolicy || undefined
+                    returnPolicy:input.returnPolicy || undefined,
+                    warrantyPolicy:input.warrantyPolicy || undefined
                 };
 
                 const result = await brandService.createBrandRecord(brandRecord);
@@ -120,6 +121,7 @@ export const brandResolver: Resolvers = {
                
 
                      brandRecord.returnPolicy=input.returnPolicy;
+                     brandRecord.warrantyPolicy=input.warrantyPolicy
                 
 
 

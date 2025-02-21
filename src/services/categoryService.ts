@@ -29,7 +29,8 @@ export interface ICategory {
     isDefault?: boolean;
     attributes?:Types.ObjectId[];
     brands?: Types.ObjectId[],
-    returnPolicy?:string
+    returnPolicy?:string,
+    warrantyPolicy?:Types.ObjectId
 
 }
 
@@ -46,6 +47,7 @@ export interface CategoryDocument extends Document {
     attributes: Types.ObjectId[]
     brands: Types.ObjectId[]
     returnPolicy?:string
+    warrantyPolicy?:Types.ObjectId
 }
 
 

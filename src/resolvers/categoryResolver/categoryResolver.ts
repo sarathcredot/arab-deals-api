@@ -43,7 +43,8 @@ export const categoryResolver: Resolvers = {
                 description: input.description || "",
                 isLeaf: input.isLeaf || false,
                 attributes,
-                returnPolicy:input.returnPolicy || undefined
+                returnPolicy:input.returnPolicy || undefined,
+                warrantyPolicy:input.warrantyPolicy || undefined
                 
             }
             if (categoryImage) {
@@ -171,6 +172,7 @@ export const categoryResolver: Resolvers = {
                 }
 
                 categoryRecord.returnPolicy=input.returnPolicy
+                categoryRecord.warrantyPolicy=input.warrantyPolicy
 
                 if (input.attributes) {
                     // Check if any input.attributes are already in the existing category array
