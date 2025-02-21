@@ -4,12 +4,14 @@ scalar Upload
 
 type Mutation {
     createWarrantyPolicyBySuperAdmin(input:createWarrantyPolicyBySuperAdminInput!):createWarrantyPolicyBySuperAdminResponse
+    updateWarrantyPolicyByAdmin(input:updateWarrantyPolicyByAdminInput):updateWarrantyPolicyByAdminResponse
   
 }
 
-# type Query {
- 
-# }
+type Query {
+    getAllWarrantyPoliciesBySuperAdmin(input:getAllWarrantyPoliciesBySuperAdminInput):getAllWarrantyPoliciesBySuperAdminResponse
+    getWarrantyPolicyByAdmin(input:getWarrantyPolicyByAdminInput!):getWarrantyPolicyByAdminResponse
+}
 
 input createWarrantyPolicyBySuperAdminInput{
     name: String!,
@@ -18,7 +20,57 @@ input createWarrantyPolicyBySuperAdminInput{
     duration: Int!,
 }
 
+input getAllWarrantyPoliciesBySuperAdminInput{
+     page:Int
+     size:Int
+     search:String
+     isEnable:Boolean
+}
+
+input getWarrantyPolicyByAdminInput{
+    warrantyPolicyId:ObjectId!
+}
+
+input updateWarrantyPolicyByAdminInput{
+  warrantyPolicyId:ObjectId!
+  name:String
+  description:String
+  duration: Int
+   warrantyType: [String],
+}
+
 type createWarrantyPolicyBySuperAdminResponse{
+   success: Boolean,
+   message: String,
+}
+
+type WarrantyPolicy{
+     _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    isEnable:Boolean
+    isDeleted:Boolean
+    warrantyType:[String]
+}
+
+type getAllWarrantyPoliciesBySuperAdminResponse{
+    success:Boolean
+    data:[WarrantyPolicy]
+    maxRecords:Int
+}
+
+type getWarrantyPolicyByAdminResponse{
+     _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    isEnable:Boolean
+    isDeleted:Boolean
+    warrantyType:[String]
+}
+
+type updateWarrantyPolicyByAdminResponse{
    success: Boolean,
    message: String,
 }
