@@ -27,4 +27,5 @@ export const collections = {
     ROLES:"roles",
     NOTIFICATION:"notification",
     RETURN_POLICY:"return_policies",
+    WARRANTY_POLICY:"warranty_policies"
 }
