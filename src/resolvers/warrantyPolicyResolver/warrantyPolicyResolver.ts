@@ -20,58 +20,76 @@ export const warrantyPolicyResolver: Resolvers = {
 
     Upload: GraphQLUpload,
 
-        Mutation: {
-            //to create of warranty policies by admin
-            createWarrantyPolicyBySuperAdmin: async (parent, { input }, { req }, info) => {
-                //   await verifySuperAdmin(req);
-                try {
-                    const name: string = input.name;
-                    const description: string | undefined | null = input?.description;
-                    const warrantyType: string[] = input.warrantyType ?? [];
-                    const duration = input.duration
-                    if (!name) {
-                        throw new GraphQLError("name is required", {
-                            extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
-                        });
-                    }
-                    
-                    const existingwarrantyPolicy = await warrantyPolicyModel.findOne({ name })
-                    if (existingwarrantyPolicy) {
-                        throw new GraphQLError("policy with this name already exists", {
-                            extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
-                        });
-                    }
-                    let newWarrantyPolicyData: warrantyPolicyService.IWarrantyPolicy = {
-                        name,
-                        description,
-                        warrantyType,
-                        duration,
-                       
-                    }
-                    console.log(" Creating  policy with data:", newWarrantyPolicyData);
-                    const newWarrantyPolicy = await warrantyPolicyService.createWarrantyPolicyBySuperAdmin(newWarrantyPolicyData)
-                    if (!newWarrantyPolicy) {
-                        console.log(" Failed to save warranty policy to DB");
-                        throw new GraphQLError("unable to create warranty policy", {
-                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to create warranty policy"] },
-                        });
-                    }
-                    return {
-                        success: true,
-                        message: "Warranty policy created succesfully",
-                    }
-                } catch (error: any) {
-                    console.error(" Error in createWarrantyPolicyBySuperAdmin resolver:", error);
-                    throw new GraphQLError(error, {
-                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+    Mutation: {
+        //to create of warranty policies by admin
+        createWarrantyPolicyBySuperAdmin: async (parent, { input }, { req }, info) => {
+            //   await verifySuperAdmin(req);
+            try {
+                const name: string = input.name;
+                const description: string | undefined | null = input?.description;
+                const warrantyType: string[] = input.warrantyType ?? [];
+                const duration = input.duration
+                if (!name) {
+                    throw new GraphQLError("name is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
                     });
                 }
-            } ,
-        },
-        // Query: {
-        
-        
-        //     }
 
-    
+                const existingwarrantyPolicy = await warrantyPolicyModel.findOne({ name })
+                if (existingwarrantyPolicy) {
+                    throw new GraphQLError("policy with this name already exists", {
+                        extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
+                    });
+                }
+                let newWarrantyPolicyData: warrantyPolicyService.IWarrantyPolicy = {
+                    name,
+                    description,
+                    warrantyType,
+                    duration,
+
+                }
+                console.log(" Creating  policy with data:", newWarrantyPolicyData);
+                const newWarrantyPolicy = await warrantyPolicyService.createWarrantyPolicyBySuperAdmin(newWarrantyPolicyData)
+                if (!newWarrantyPolicy) {
+                    console.log(" Failed to save warranty policy to DB");
+                    throw new GraphQLError("unable to create warranty policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to create warranty policy"] },
+                    });
+                }
+                return {
+                    success: true,
+                    message: "Warranty policy created succesfully",
+                }
+            } catch (error: any) {
+                console.error(" Error in createWarrantyPolicyBySuperAdmin resolver:", error);
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                });
+            }
+        },
+    },
+    Query: {
+
+        getDefaultWarrantyPolicyInCategory: async (parent, { input }, { req }, info) => {
+
+            try {
+
+                  return true
+
+            } catch (error:any) {
+
+                throw new GraphQLError(error, {
+                    extensions: {
+                        code: "INTERNAL_SERVER_ERROR",
+                        errors: []
+                    },
+                });
+                  
+            }
+        }
+
+
+    }
+
+
 }

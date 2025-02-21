@@ -7,9 +7,17 @@ type Mutation {
   
 }
 
-# type Query {
+type Query {
+
+
+  getDefaultWarrantyPolicyInCategory(input:getDefaultWarrantyPolicyInCategoryInput!):Boolean!
  
-# }
+}
+
+type getDefaultWarrantyPolicyInCategoryInput{
+
+     id:ObjectId
+}
 
 input createWarrantyPolicyBySuperAdminInput{
     name: String!,
