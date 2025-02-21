@@ -1,7 +1,7 @@
 import { Types, PipelineStage, QueryOptions, Document, FilterQuery, UpdateQuery, ObjectId, Model, ProjectionFields } from "mongoose";
 import mongoose from 'mongoose';
 import { collections } from "../configs";
-import { attributeValueModel, productModel, brandModel, categoryModel, shippingConfigModel, returnPolicyModel } from "../models";
+import { attributeValueModel, productModel, brandModel, categoryModel, shippingConfigModel, returnPolicyModel, warrantyPolicyModel } from "../models";
 import { attributeService } from ".";
 
 
@@ -54,7 +54,7 @@ export interface IProduct {
     remarks?: string,
     delivery_type?: string,
     returnPolicy?: Types.ObjectId,
-    warrantyPolicy?:Types.ObjectId
+    warrantyPolicy?: Types.ObjectId
 
 
 }
@@ -102,7 +102,7 @@ export interface IProductDocument extends Document {
     productDetailImages?: FileData[];
     delivery_type?: string
     returnPolicy?: Types.ObjectId
-    warrantyPolicy?:Types.ObjectId
+    warrantyPolicy?: Types.ObjectId
 }
 
 export interface IProductsProjection {
@@ -1590,7 +1590,7 @@ export const getProductReturnPolicyAdminAndVender = async (id: Types.ObjectId): 
             }
 
             resolve(null)
-            
+
 
             // try {
 
@@ -1735,6 +1735,38 @@ export const getProductReturnPolicyAdminAndVender = async (id: Types.ObjectId): 
         } catch (error) {
 
             reject()
+        }
+    })
+}
+
+
+export const getProductWarramtyPolicyAdminAndVender = (id: Types.ObjectId): Promise<any> => {
+
+
+    return new Promise(async (resolve, reject) => {
+
+        try {
+
+            const productData: any = await productModel.findOne({ _id: id })
+
+            if (productData.warrantyPolicy) {
+
+                const warrantyPolicyData = await warrantyPolicyModel.findOne({ _id: productData.warrantyPolicy })
+
+                if (warrantyPolicyData?.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                    resolve(warrantyPolicyData)
+                    return;
+                }
+            }
+
+            resolve(null)
+
+
+        } catch (error) {
+
+            reject()
+
         }
     })
 }

@@ -784,6 +784,7 @@ export const productResolver: Resolvers = {
                 // product return policy data 
 
                 const returnPolicyData = await productService.getProductReturnPolicyAdminAndVender(result._id)
+                const warrantyPolicyData=await productService.getProductWarramtyPolicyAdminAndVender(result._id)
 
 
                 if (!result) {
@@ -803,7 +804,12 @@ export const productResolver: Resolvers = {
 
                 if (returnPolicyData) {
 
-                    response.product = { ...response.product, returnPolicyData }
+                    response.product = { ...response.product, returnPolicyData  }
+                }
+
+                if(warrantyPolicyData){
+
+                    response.product = { ...response.product, warrantyPolicyData  }
                 }
 
 
@@ -856,6 +862,7 @@ export const productResolver: Resolvers = {
                 const result = await productService.getProductWithId(productId, projection, options);
 
                 const returnPolicyData = await productService.getProductReturnPolicyAdminAndVender(result._id)
+                const warrantyPolicyData=await productService.getProductWarramtyPolicyAdminAndVender(result._id)
 
 
                 if (!result) {
@@ -876,6 +883,11 @@ export const productResolver: Resolvers = {
                 if (returnPolicyData) {
 
                     response.product = { ...response.product, returnPolicyData }
+                }
+
+                if(warrantyPolicyData){
+
+                    response.product = { ...response.product, warrantyPolicyData }
                 }
 
 
