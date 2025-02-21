@@ -93,7 +93,7 @@ type ReturnPolicy{
 }
 
 type getAllPoliciesBySuperAdminResponse {
-   success:Boolean
+    success:Boolean
     data:[ReturnPolicy]
     maxRecords:Int
 }
