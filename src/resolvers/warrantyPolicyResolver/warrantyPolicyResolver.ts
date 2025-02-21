@@ -21,7 +21,7 @@ export const warrantyPolicyResolver: Resolvers = {
     Upload: GraphQLUpload,
 
         Mutation: {
-            //to create of warranty policies by admin
+            //to create  warranty policies by admin
             createWarrantyPolicyBySuperAdmin: async (parent, { input }, { req }, info) => {
                 //   await verifySuperAdmin(req);
                 try {
@@ -67,6 +67,8 @@ export const warrantyPolicyResolver: Resolvers = {
                     });
                 }
             } ,
+
+            //to edit warranty policies by admin
 
             updateWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
                 //   await verifySuperAdmin(req);
@@ -117,7 +119,81 @@ export const warrantyPolicyResolver: Resolvers = {
                     })
                 }
             },
+            
+            //to delete warranty policies by admin
+
+            deleteWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
+                //   await verifySuperAdmin(req);
+                try {
+                    const warrantyPolicyId: Types.ObjectId = input.warrantyPolicyId;
+                    if (!warrantyPolicyId) {
+                        throw new GraphQLError("Policy id is required", {
+                            extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
+                        });
+                    }
+                    const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
+                    if (!existingPolicy) {
+                        throw new GraphQLError("Warranty Policy not found", {
+                            extensions: { code: "BAD_REQUEST", errors: ["Warranty Policy not found"] },
+                        });
+                    }
+                    
+                    const result = await warrantyPolicyService.deleteWarrantyPolicyByAdmin(warrantyPolicyId)
+                    if (!result) {
+                        throw new GraphQLError("unable to delete warranty policy", {
+                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to delete warranty policy"] },
+                        });
+                    }
+                    return {
+                        success: true,
+                        message: "warranty policy deleted succesfully",
+                    }
+                } catch (error: any) {
+                    throw new GraphQLError(error, {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                    })
+                }
+            },
+
+
+            //to change status of warranty policy
+
+            updateStatusWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
+                //   await verifySuperAdmin(req);
+                try {
+                    const warrantyPolicyId: Types.ObjectId = input.warrantyPolicyId;
+                    const isEnable: boolean = input.isEnable
+                    if (!warrantyPolicyId) {
+                        throw new GraphQLError("Policy id is required", {
+                            extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
+                        });
+                    }
+                    const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
+                    if (!existingPolicy) {
+                        throw new GraphQLError("Warranty Policy not found", {
+                            extensions: { code: "BAD_REQUEST", errors: ["Warranty Policy not found"] },
+                        });
+                    }
+                    const result = await warrantyPolicyService.updateStatusWarrantyPolicyByAdmin(warrantyPolicyId, isEnable)
+                    if (!result) {
+                        throw new GraphQLError("unable to update warranty policy status", {
+                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to update warranty policy status"] },
+                        });
+                    }
+                    return {
+                        success: true,
+                        message: "Warranty policy status updated successfully"
+                    }
+                } catch (error: any) {
+                    throw new GraphQLError(error, {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                    })
+                }
+            }
+           
         },
+
+
         Query: {
 
          //to get all warranty policies by admin 

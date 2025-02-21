@@ -27,6 +27,17 @@ export const updateWarrantyPolicyByAdmin = async (warrantyPolicyId: Types.Object
     return updatePolicy;
 }
 
+export const deleteWarrantyPolicyByAdmin = async (warrantyPolicyId: Types.ObjectId): Promise<any> => {
+    const deletePolicy = await warrantyPolicyModel.findByIdAndUpdate(warrantyPolicyId, { isDeleted: true }, { new: true });
+    return deletePolicy;
+}
+
+export const updateStatusWarrantyPolicyByAdmin = async (warrantyPolicyId: Types.ObjectId, isEnable: boolean): Promise<any> => {
+    const updateStatus = await warrantyPolicyModel.findByIdAndUpdate(warrantyPolicyId, { isEnable: isEnable }, { new: true });
+    return updateStatus;
+}
+
+
 export const getAllWarrantyPoliciesBySuperAdmin = async (options: any, matchQuery: any): Promise<any> => {
     try {
         //  console.log(matchQuery,options)

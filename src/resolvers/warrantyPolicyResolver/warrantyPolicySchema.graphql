@@ -5,6 +5,8 @@ scalar Upload
 type Mutation {
     createWarrantyPolicyBySuperAdmin(input:createWarrantyPolicyBySuperAdminInput!):createWarrantyPolicyBySuperAdminResponse
     updateWarrantyPolicyByAdmin(input:updateWarrantyPolicyByAdminInput):updateWarrantyPolicyByAdminResponse
+    deleteWarrantyPolicyByAdmin(input:deleteWarrantyPolicyByAdminInput!):deleteWarrantyPolicyByAdminResponse
+    updateStatusWarrantyPolicyByAdmin(input:updateStatusWarrantyPolicyByAdminInput!):updateStatusWarrantyPolicyByAdminResponse
   
 }
 
@@ -37,6 +39,15 @@ input updateWarrantyPolicyByAdminInput{
   description:String
   duration: Int
    warrantyType: [String],
+}
+
+input deleteWarrantyPolicyByAdminInput{
+     warrantyPolicyId:ObjectId!
+}
+
+input updateStatusWarrantyPolicyByAdminInput{
+   warrantyPolicyId:ObjectId!
+   isEnable:Boolean!
 }
 
 type createWarrantyPolicyBySuperAdminResponse{
@@ -72,6 +83,16 @@ type getWarrantyPolicyByAdminResponse{
 
 type updateWarrantyPolicyByAdminResponse{
    success: Boolean,
+   message: String,
+}
+
+type deleteWarrantyPolicyByAdminResponse{
+   success: Boolean,
+   message: String,
+}
+
+type updateStatusWarrantyPolicyByAdminResponse{
+    success: Boolean,
    message: String,
 }
 # Schema
