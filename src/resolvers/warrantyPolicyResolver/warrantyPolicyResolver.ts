@@ -109,7 +109,7 @@ export const warrantyPolicyResolver: Resolvers = {
                     }
                     return {
                         success: true,
-                        message: "Return policy updated succesfully",
+                        message: "Warranty policy updated succesfully",
                     }
                 } catch (error: any) {
                     throw new GraphQLError(error, {
