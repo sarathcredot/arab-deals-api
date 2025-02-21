@@ -53,7 +53,9 @@ export interface IProduct {
     offerPrice?: number,
     remarks?: string,
     delivery_type?: string,
-    returnPolicy?: Types.ObjectId
+    returnPolicy?: Types.ObjectId,
+    warrantyPolicy?:Types.ObjectId
+
 
 }
 
@@ -100,6 +102,7 @@ export interface IProductDocument extends Document {
     productDetailImages?: FileData[];
     delivery_type?: string
     returnPolicy?: Types.ObjectId
+    warrantyPolicy?:Types.ObjectId
 }
 
 export interface IProductsProjection {

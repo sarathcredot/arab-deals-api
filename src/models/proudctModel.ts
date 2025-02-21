@@ -190,6 +190,11 @@ const productSchema = new Schema(
         returnPolicy:{
             type:Schema.ObjectId
         },
+        warrantyPolicy:{
+
+            type:Schema.ObjectId
+
+        },
     },
     {
         timestamps: true

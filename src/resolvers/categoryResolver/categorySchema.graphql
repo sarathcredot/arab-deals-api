@@ -20,6 +20,7 @@
         isLeaf: Boolean
         attributes: [String]
         returnPolicy:ObjectId
+        warrantyPolicy:ObjectId
         
     }
 
@@ -32,6 +33,7 @@
         isLeaf: Boolean
         attributes: [String]
         returnPolicy:ObjectId
+        warrantyPolicy:ObjectId
         # brands: [String]
     }
 
@@ -51,7 +53,7 @@
 
     type UpdateCategoryResponse {
         _id: String!
-        message: String
+        message: String           
     }
 
     type DeleteCategoryResponse {

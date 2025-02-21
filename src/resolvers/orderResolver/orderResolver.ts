@@ -1048,6 +1048,42 @@ export const orderResolver: Resolvers = {
       await verifyUser(req);
       await validateInput(validators.returnUserOrderValidator, req);
 
+      console.log("ret ",input)
+      let returnProductImage: orderProductService.FileData[] = [];
+
+      if (image) {
+        try {
+          for (let images of image) {
+            const { createReadStream, filename, mimetype, encoding } =
+              await images;
+            const key = spaceService.getFileKey(
+              filePaths.returnProduct,
+              filename,
+              []
+            );
+            const stream = createReadStream();
+            const file = await spaceService.publicFileUpload(
+              key,
+              mimetype,
+              { mimetype: mimetype },
+              stream
+            );
+
+            returnProductImage.push({
+              fileType: "PUBLIC",
+              fileURL: file.location,
+              mimeType: mimetype,
+              originalName: filename,
+            });
+          }
+        } catch (error) {
+          throw new GraphQLError("image upload failed", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+          });
+        }
+      }
+
+
       // Extract user ID and input
       const userId = req.authAccount?._id;
       if (!userId) {
@@ -1103,39 +1139,39 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      let returnProductImage: orderProductService.FileData[] = [];
+      // let returnProductImage: orderProductService.FileData[] = [];
 
-      if (image) {
-        try {
-          for (let images of image) {
-            const { createReadStream, filename, mimetype, encoding } =
-              await images;
-            const key = spaceService.getFileKey(
-              filePaths.returnProduct,
-              filename,
-              []
-            );
-            const stream = createReadStream();
-            const file = await spaceService.publicFileUpload(
-              key,
-              mimetype,
-              { mimetype: mimetype },
-              stream
-            );
+      // if (image) {
+      //   try {
+      //     for (let images of image) {
+      //       const { createReadStream, filename, mimetype, encoding } =
+      //         await images;
+      //       const key = spaceService.getFileKey(
+      //         filePaths.returnProduct,
+      //         filename,
+      //         []
+      //       );
+      //       const stream = createReadStream();
+      //       const file = await spaceService.publicFileUpload(
+      //         key,
+      //         mimetype,
+      //         { mimetype: mimetype },
+      //         stream
+      //       );
 
-            returnProductImage.push({
-              fileType: "PUBLIC",
-              fileURL: file.location,
-              mimeType: mimetype,
-              originalName: filename,
-            });
-          }
-        } catch (error) {
-          throw new GraphQLError("image upload failed", {
-            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-          });
-        }
-      }
+      //       returnProductImage.push({
+      //         fileType: "PUBLIC",
+      //         fileURL: file.location,
+      //         mimeType: mimetype,
+      //         originalName: filename,
+      //       });
+      //     }
+      //   } catch (error) {
+      //     throw new GraphQLError("image upload failed", {
+      //       extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+      //     });
+      //   }
+      // }
 
       if (!returnProductImage) {
         throw new GraphQLError("image upload failed", {

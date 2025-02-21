@@ -58,6 +58,11 @@ const categorySchema = new Schema(
             type:Schema.ObjectId
 
         },
+        warrantyPolicy:{
+
+            type:Schema.ObjectId
+
+        },
         attributes: {
             type: [
                 {
