@@ -15,6 +15,7 @@ type Query {
   getDefaultReturnPolicyInCategory(input:getDefaultReturnPolicyInCategoryInput!):ReturnPolicy!
   getDefaultReturnPolicyInProduct(input:getDefaultReturnPolicyInProductInput!):ReturnPolicy!
   getReturnPolicyOfOrderProduct(input:getReturnPolicyOfOrderProductInput!):getReturnPolicyOfOrderProductResponse
+  getReturnPolicyOfOrderProductInMob(input:getReturnPolicyOfOrderProductInput!):getReturnPolicyOfOrderProductResponse
 }
 
 

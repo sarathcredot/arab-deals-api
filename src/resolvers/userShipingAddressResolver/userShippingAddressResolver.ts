@@ -60,6 +60,7 @@ export const userShippingAddressResolver: Resolvers = {
 
         },
         createMobileUserShippingAddress: async (parent, { input }, { req }, info) => {
+            console.log(input, " = INPUT")
 
             await verifyMobileUser(req);
             await validateInput(validators.userShippingAddressCreateValidator, req);
@@ -261,7 +262,7 @@ export const userShippingAddressResolver: Resolvers = {
         removeUserShippingAddress: async (parent, { input }, { req }, info) => {
 
             await verifyUser(req);
-            // await validateInput(validators.userShippingAddressUpdateValidator, req);
+            await validateInput(validators.userShippingAddressUpdateValidator, req);
 
             const filters = {
                 _id: new Types.ObjectId(input._id),
@@ -296,6 +297,8 @@ export const userShippingAddressResolver: Resolvers = {
             await verifyMobileUser(req);
             await validateInput(validators.userShippingAddressUpdateValidator, req);
 
+            console.log(input)
+
             const filters = {
                 _id: new Types.ObjectId(input._id),
                 userId: req.authAccount._id
@@ -316,7 +319,7 @@ export const userShippingAddressResolver: Resolvers = {
 
 
             let response = {
-                _id: result?._id?.toString(),
+                _id: result?._id,
                 message: "Shipping address deleted"
             }
 
@@ -369,6 +372,7 @@ export const userShippingAddressResolver: Resolvers = {
 
                 const userId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
                 const addressId: Types.ObjectId = new Types.ObjectId(input.addressId);
+                console.log("input",input)
 
                 // Update all addresses to non-default
                 await userShippingAddressService.updateManyShippingAddresses({ userId }, { isDefault: false });
@@ -385,7 +389,7 @@ export const userShippingAddressResolver: Resolvers = {
                 }
 
                 let response = {
-                    _id: updatedAddress?._id?.toString(),
+                    _id: updatedAddress?._id,
                     message: "Default shipping address updated"
                 }
 

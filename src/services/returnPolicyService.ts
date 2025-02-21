@@ -19,7 +19,7 @@ export const createReturnPolicyBySuperAdmin = async (newReturnPolicyData: IRetur
     try {
         console.log(":mag: Saving policy to DB:", newReturnPolicyData);
         let returnPolicy = new returnPolicyModel(newReturnPolicyData);
-        const savedPolicy = await returnPolicy.save();  // Ensure 'await' is used
+        const savedPolicy = await returnPolicy.save();  
         console.log(":white_check_mark: Saved policy:", savedPolicy);
         return savedPolicy;
     } catch (error) {

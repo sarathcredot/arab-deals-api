@@ -26,7 +26,8 @@ import {deliveryAgentResolver} from './deliveryAgentResolver/deliveryAgentResolv
 import {couponResolver}  from './couponResolver/couponResolver';
 import {roleResolver} from './roleResolver/roleResolver'
 import {notificationResolver} from "./notificationResolver/notificationResolver";
-import {returnPolicyResolver} from './returnPolicyResolver/returnPolicyResolver'
+import {returnPolicyResolver} from './returnPolicyResolver/returnPolicyResolver';
+import { warrantyPolicyResolver } from './warrantyPolicyResolver/warrantyPolicyResolver';
 
 
 
@@ -58,6 +59,7 @@ export const resolvers: Resolvers = mergeResolvers(
         couponResolver,
         roleResolver,
         notificationResolver,
-        returnPolicyResolver
+        returnPolicyResolver,
+        warrantyPolicyResolver
     ]
 );

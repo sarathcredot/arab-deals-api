@@ -1248,7 +1248,7 @@ export const orderResolver: Resolvers = {
       return response;
     },
 
-    returnUserOrderProductInMob:async (parent, { input, image }, { req }, info) => {
+    returnUserOrderProductInMob:async (parent, { input, image }, { req ,io}, info) => {
       //add product image and return address
       // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
@@ -1304,6 +1304,7 @@ export const orderResolver: Resolvers = {
       // console.log(isReturnable);
 
       if (!isReturnable) {
+        console.log("cant")
         throw new GraphQLError("Order can't be returned", {
           extensions: { code: "BAD_REQUEST", errors: [] },
         });
@@ -1375,10 +1376,16 @@ export const orderResolver: Resolvers = {
           governorate: returnAddress.governorate,
           village: returnAddress.village,
           governorateID: returnAddress.governorateID,
-          villageID: returnAddress.villageID
+          villageID: returnAddress.villageID,
+          address:returnAddress.address || ""
         }
         : null;
 
+      if(orderProduct.returnCharge && orderProduct.sellingPrice){
+        const returnAmount=(orderProduct.returnCharge/100)*orderProduct?.sellingPrice
+        orderProduct.refundAmount=returnAmount
+      }
+      
       orderProduct.returnUserReason = returnUserReason;
       orderProduct.returnRequestDate = moment().toDate();
       orderProduct.refundBankDetails = validatedBankDetails;
@@ -1394,7 +1401,20 @@ export const orderResolver: Resolvers = {
         _id: _id,
       };
 
-      console.log("retun res",response)
+
+      const return_order_placed_notification=await notificationService.createNotification({
+        title: "New return order placed !!!!",
+        message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
+        type: "return_order",   
+        permissions:["orders","return-orders"],
+        orderId: orderProduct?.orderId,
+        productId:_id
+        
+      })
+
+      io.emit("new_notification", return_order_placed_notification);
+
+      console.log("return res",response)
 
       return response;
     },

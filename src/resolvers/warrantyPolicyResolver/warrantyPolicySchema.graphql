@@ -1,0 +1,30 @@
+scalar ObjectId
+scalar Upload
+
+
+type Mutation {
+    createWarrantyPolicyBySuperAdmin(input:createWarrantyPolicyBySuperAdminInput!):createWarrantyPolicyBySuperAdminResponse
+  
+}
+
+# type Query {
+ 
+# }
+
+input createWarrantyPolicyBySuperAdminInput{
+    name: String!,
+    description:String,
+    warrantyType: [String!],
+    duration: Int!,
+}
+
+type createWarrantyPolicyBySuperAdminResponse{
+   success: Boolean,
+   message: String,
+}
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}
