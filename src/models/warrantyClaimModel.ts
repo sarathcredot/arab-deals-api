@@ -139,12 +139,17 @@ const warrantyClaimSchema = new Schema(
              },
         claimDate: { 
             type: Date, 
-            default: Date.now 
         },
         claimType: { 
             type: String, 
             enum: ["Replacement"], 
             required: true 
+        },
+        rejectedReason: {
+            type: String,
+        },
+        rejectedDate: {
+            type: Date,
         },
         productImage: {
             type: [fileSchema],
