@@ -299,7 +299,42 @@ export const warrantyPolicyResolver: Resolvers = {
                 });
 
             }
-        }
+        },
+
+
+        getWarrantyPolicyOfOrderProduct: async (parent, { input }, { req }, info) => {
+            try {
+                const orderProductId=input.orderProductId
+                if(!orderProductId){
+                    throw new GraphQLError("orderProductId is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["orderProductId is required"] },
+                    });
+                }
+               
+               const result=await warrantyPolicyService.getWarrantyPolicyOfOrderProduct(orderProductId)
+               if(!result){
+                throw new GraphQLError("unable to fetch warranty policy", {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty policy"] },
+                });
+               }
+
+               console.log("result",result)
+
+               return {
+                _id:result._id,
+                name:result.warranty.name,
+                description:result.warranty.description,
+                duration:result.warranty.duration,
+                warrantyType:result.warranty.warrantyType,
+                warrantyRegister:result.warranty.warrantyRegister
+               }
+                
+            }catch (error: any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        },
 
 
        }

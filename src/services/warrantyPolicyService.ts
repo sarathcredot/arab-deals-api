@@ -1,5 +1,5 @@
 import { warrantyPolicyModel } from "../models/warrantyPolicyModel";
-import { categoryModel, brandModel } from "../models"
+import { categoryModel, brandModel, orderProductModel } from "../models"
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
 
 export interface IWarrantyPolicy {
@@ -397,3 +397,25 @@ export const getDefaultWarrantyPolicyInProduct = async (brandId: Types.ObjectId,
     })
 
 }
+
+
+
+export const getWarrantyPolicyOfOrderProduct = async (orderProductId: Types.ObjectId): Promise<any> => {
+    const result = await orderProductModel.aggregate([
+        {
+            $match: { _id: orderProductId }
+        },
+        {
+            $project: {
+                "warranty.name": 1 ,
+                "warranty.duration": 1,
+                "warranty.warrantyType": 1,
+                "warranty.description": 1,
+                "warranty.warrantyRegister": 1
+            }
+        }
+    ]);
+    console.log("result", result)
+    return result.length > 0 ? result[0] : null;
+};
+

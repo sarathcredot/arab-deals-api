@@ -17,6 +17,7 @@ type Query {
   getAllWarrantyPoliciesBySuperAdmin(input:getAllWarrantyPoliciesBySuperAdminInput):getAllWarrantyPoliciesBySuperAdminResponse
   getWarrantyPolicyByAdmin(input:getWarrantyPolicyByAdminInput!):getWarrantyPolicyByAdminResponse
   getDefaultWarrantyPolicyInProduct(input:getDefaultWarrantyPolicyInProductInput):WarrantyPolicy!
+  getWarrantyPolicyOfOrderProduct(input:getWarrantyPolicyOfOrderProductInput!):getWarrantyPolicyOfOrderProductResponse
  
 }
 
@@ -70,6 +71,10 @@ input updateStatusWarrantyPolicyByAdminInput{
    isEnable:Boolean!
 }
 
+input getWarrantyPolicyOfOrderProductInput{
+    orderProductId:ObjectId!
+}
+
 type createWarrantyPolicyBySuperAdminResponse{
    success: Boolean,
    message: String,
@@ -114,6 +119,15 @@ type deleteWarrantyPolicyByAdminResponse{
 type updateStatusWarrantyPolicyByAdminResponse{
     success: Boolean,
    message: String,
+}
+
+type getWarrantyPolicyOfOrderProductResponse{
+    _id:ObjectId
+    name:String
+    description:String
+    duration: Int
+    warrantyType:[String]
+    warrantyRegister:Boolean
 }
 # Schema
 
