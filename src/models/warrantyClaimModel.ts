@@ -142,7 +142,7 @@ const warrantyClaimSchema = new Schema(
         },
         claimType: { 
             type: String, 
-            enum: ["Replacement"], 
+            enum: ["replacement","repair"],
             required: true 
         },
         rejectedReason: {
