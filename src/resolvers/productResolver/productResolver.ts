@@ -167,7 +167,7 @@ export const productResolver: Resolvers = {
                     offerPrice: input.offerPrice || 0,
                     delivery_type: input.delivery_type || "",
                     returnPolicy: input.returnPolicy,
-                    warrantyPolicy:input.warrantyPolicy
+                    warrantyPolicy: input.warrantyPolicy
                 };
 
                 // Create the product
@@ -465,7 +465,7 @@ export const productResolver: Resolvers = {
                 }
 
                 existingProduct.returnPolicy = input.returnPolicy
-                existingProduct.warrantyPolicy=input.warrantyPolicy
+                existingProduct.warrantyPolicy = input.warrantyPolicy
 
 
 
@@ -582,8 +582,8 @@ export const productResolver: Resolvers = {
                     existingProduct.remarks = input.remarks as string[];
                 }
 
-                existingProduct.returnPolicy=input.returnPolicy
-                existingProduct.warrantyPolicy=input.warrantyPolicy
+                existingProduct.returnPolicy = input.returnPolicy
+                existingProduct.warrantyPolicy = input.warrantyPolicy
 
                 if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
                     existingProduct.productShortInfo = input.productShortInfo;
@@ -784,7 +784,7 @@ export const productResolver: Resolvers = {
                 // product return policy data 
 
                 const returnPolicyData = await productService.getProductReturnPolicyAdminAndVender(result._id)
-                const warrantyPolicyData=await productService.getProductWarramtyPolicyAdminAndVender(result._id)
+                const warrantyPolicyData = await productService.getProductWarramtyPolicyAdminAndVender(result._id)
 
 
                 if (!result) {
@@ -804,12 +804,12 @@ export const productResolver: Resolvers = {
 
                 if (returnPolicyData) {
 
-                    response.product = { ...response.product, returnPolicyData  }
+                    response.product = { ...response.product, returnPolicyData }
                 }
 
-                if(warrantyPolicyData){
+                if (warrantyPolicyData) {
 
-                    response.product = { ...response.product, warrantyPolicyData  }
+                    response.product = { ...response.product, warrantyPolicyData }
                 }
 
 
@@ -862,7 +862,7 @@ export const productResolver: Resolvers = {
                 const result = await productService.getProductWithId(productId, projection, options);
 
                 const returnPolicyData = await productService.getProductReturnPolicyAdminAndVender(result._id)
-                const warrantyPolicyData=await productService.getProductWarramtyPolicyAdminAndVender(result._id)
+                const warrantyPolicyData = await productService.getProductWarramtyPolicyAdminAndVender(result._id)
 
 
                 if (!result) {
@@ -885,7 +885,7 @@ export const productResolver: Resolvers = {
                     response.product = { ...response.product, returnPolicyData }
                 }
 
-                if(warrantyPolicyData){
+                if (warrantyPolicyData) {
 
                     response.product = { ...response.product, warrantyPolicyData }
                 }
@@ -1162,8 +1162,9 @@ export const productResolver: Resolvers = {
 
                 const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
                 const returnPolicyData = await productService.getProductReturnPolicy(result._id)
+                const warrantyPolicyData = await productService.getProductWarrantyPolicy(result._id)
 
-               
+
 
 
                 if (!result) {
@@ -1187,7 +1188,12 @@ export const productResolver: Resolvers = {
 
                 }
 
-                console.log("pro get ",response)
+                if (warrantyPolicyData) {
+
+                    response.product = { ...response.product, warrantyPolicyData }
+                }
+
+                console.log("pro get ", response)
 
                 return response;
 
@@ -1211,7 +1217,7 @@ export const productResolver: Resolvers = {
 
                 const result = await productService.getProductWithFilters({ _id: productId, isBlocked: false, status: "APPROVED" }, {}, { lean: true });
                 const returnPolicyData = await productService.getProductReturnPolicy(result._id)
-
+                const warrantyPolicyData = await productService.getProductWarrantyPolicy(result._id)
                 // console.log(result)
 
 
@@ -1233,6 +1239,11 @@ export const productResolver: Resolvers = {
                     response.product = { ...response.product, returnPolicyData };
 
 
+                }
+
+                if (warrantyPolicyData) {
+
+                    response.product = { ...response.product, warrantyPolicyData }
                 }
 
 
