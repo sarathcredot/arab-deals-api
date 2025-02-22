@@ -131,6 +131,8 @@
       description: String
       categoryImage: ImageData
       returnPolicy:ObjectId
+      warrantyPolicy:ObjectId
+
 
     }
 

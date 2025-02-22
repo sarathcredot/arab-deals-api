@@ -1773,6 +1773,141 @@ export const getProductWarramtyPolicyAdminAndVender = (id: Types.ObjectId): Prom
 
 
 
+export const getProductWarrantyPolicy = (id: Types.ObjectId): Promise<any> => {
+
+    return new Promise(async (resolve, reject) => {
+
+        try {
+
+            const productDetails: any = await productModel.findOne({ _id: id })
+
+
+
+            try {
+
+                if (productDetails.warrantyPolicy) {
+
+                    const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: productDetails.warrantyPolicy })
+
+                    if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                        resolve(warrantyPolicyData)
+                        return;
+                    }
+                }
+
+
+                const brandData = await brandModel.findOne({ _id: productDetails?.brandId })
+
+                if (!brandData) {
+
+                    reject()
+                    return
+                } else {
+
+                    if (!brandData.warrantyPolicy) {
+
+                        // check Category returnPolicy
+
+                        // const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+                        // if (!categoryData.returnPolicy) {
+
+                        const allCategories = productDetails?.categoryIdPath.split("#")
+
+                        for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                            if (allCategories[i]) {
+
+                                const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                if (categorie.warrantyPolicy) {
+
+                                    const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                    if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                        resolve(warrantyPolicyModel)
+                                        return
+                                    }
+                                }
+                            }
+                        }
+
+
+                        resolve(null)
+                        return;
+                        // }
+
+
+                    } else {
+
+                        const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: brandData.warrantyPolicy })
+
+                        if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                            resolve(warrantyPolicyData)
+                            return;
+
+                        } else {
+
+                            // check Category returnPolicy
+
+                            // const categoryData: any = await categoryModel.findOne({ _id: categoryId })
+                            // if (!categoryData.returnPolicy) {
+
+                            const allCategories = productDetails?.categoryIdPath.path.split("#")
+
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                if (allCategories[i]) {
+
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                    if (categorie.warrantyPolicy) {
+
+                                        const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                        if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                            resolve(warrantyPolicyData)
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+
+                            resolve(null)
+                            return;
+                            // }
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+
+
+            } catch (error) {
+
+
+                reject()
+            }
+
+
+
+
+        } catch (error) {
+
+            reject()
+        }
+    })
+}
+
+
 
 
 

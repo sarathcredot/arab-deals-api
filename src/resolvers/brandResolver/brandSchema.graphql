@@ -158,6 +158,7 @@
     isPopular: Boolean
     priority: Int
     returnPolicy:ObjectId
+    warrantyPolicy:ObjectId
 
   }  
  
