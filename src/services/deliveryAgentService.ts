@@ -1332,6 +1332,13 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
       // check this order status DELIVERED
 
       if (data.deliveryStatus === "DELIVERED") {
+            
+        //to auto register warranty
+          const result=await orderProductModel.findById({ _id: data.orderItemId} )
+          if(result?.warranty?.duration){
+             await orderProductModel.findByIdAndUpdate( {_id: data.orderItemId} , { "warranty.warrantyRegister": true}, { new: true });
+          }
+       
 
         // uppdate this order product pymentmode
 

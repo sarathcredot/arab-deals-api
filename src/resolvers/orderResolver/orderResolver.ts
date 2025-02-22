@@ -25,7 +25,7 @@ import moment from "moment";
 import { filePaths } from "../../configs";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { cartModel } from "../../models/cartModel";
-import { returnPolicyModel } from "src/models";
+import { orderProductModel } from "../../models/orderProductModel";
 
 export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
@@ -164,9 +164,11 @@ export const orderResolver: Resolvers = {
           // console.log("This is product",product)
           let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
           let warrantyPolicyId=await orderService.getWarrantyPolicyForProduct(product.productId);
+          console.log(warrantyPolicyId,"warrantyPolicyId")
           // console.log(returnPolicyId,"returnPolicyId")
           const returnPolicy= await orderService.getReturnPolicy(returnPolicyId)
           const warrantyPolicy=await orderService.getWarrantyPolicy(warrantyPolicyId)
+          console.log(warrantyPolicy,"warrantyPolicy")
           // console.log(returnPolicy,"returnPolicy")
           
           itemCount++;
@@ -861,6 +863,14 @@ export const orderResolver: Resolvers = {
         product.cancelAdminComment = "";
         product.cancelledDate = undefined;
       }
+
+      if(product.shippingStatus == "DELIVERED"){
+        const result=await orderProductModel.findById(_id)
+        if(result?.warranty?.duration){
+           await orderProductModel.findByIdAndUpdate(_id, { "warranty.warrantyRegister": true}, { new: true });
+        }
+      }
+
 
       if (product.shippingStatus == "DELIVERED") {
         if (input.deliveryDate) {

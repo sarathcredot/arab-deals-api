@@ -291,6 +291,8 @@ export interface IOrderProductDocument extends Document {
   returnPolicyName?: string;
   returnPolicyDescription?: string;
   returnCharge?: number;
+  
+  
 }
 
 export interface IOrderProductUpdateQuery {
