@@ -97,6 +97,13 @@ export interface IOrderProduct {
     suite?: string;
     unit?: string;
   };
+  warranty:{
+    name?:string;
+    description?:string;
+    duration?: number;
+    warrantyType?:string[];
+    warrantyRegister:boolean;
+  }
 }
 
 export interface IVendorOrderProduct {

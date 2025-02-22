@@ -163,8 +163,10 @@ export const orderResolver: Resolvers = {
         for (let i = 0; i < product.quantity; i++) {
           // console.log("This is product",product)
           let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
+          let warrantyPolicyId=await orderService.getWarrantyPolicyForProduct(product.productId);
           // console.log(returnPolicyId,"returnPolicyId")
           const returnPolicy= await orderService.getReturnPolicy(returnPolicyId)
+          const warrantyPolicy=await orderService.getWarrantyPolicy(warrantyPolicyId)
           // console.log(returnPolicy,"returnPolicy")
           
           itemCount++;
@@ -205,6 +207,13 @@ export const orderResolver: Resolvers = {
             orderDate: orderDate.toDate(),
             shippingStatus: "PENDING",
             vendorId: product.vendorId,
+            warranty:{
+              name:warrantyPolicy?.name,
+              description:warrantyPolicy?.description,
+              duration: warrantyPolicy?.duration,
+              warrantyType:warrantyPolicy?.warrantyType,
+              warrantyRegister:true
+            }
           });
         }
       };
@@ -383,6 +392,9 @@ export const orderResolver: Resolvers = {
         });
       }
 
+      let defaultReturnPolicyId=shippingConfig.defaultReturnPolicy
+
+
       if (paymentMode == "COD") {
         if (!paymentConfig.cod) {
           throw new GraphQLError("COD is disabled", {
@@ -463,8 +475,16 @@ export const orderResolver: Resolvers = {
 
       let itemCount = 0;
 
-      cartItems.forEach((product, index) => {
+      for (const product of cartItems)  {
         for (let i = 0; i < product.quantity; i++) {
+          // console.log("This is product",product)
+          let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
+          let warrantyPolicyId=await orderService.getWarrantyPolicyForProduct(product.productId);
+          // console.log(returnPolicyId,"returnPolicyId")
+          const returnPolicy= await orderService.getReturnPolicy(returnPolicyId)
+          const warrantyPolicy=await orderService.getWarrantyPolicy(warrantyPolicyId)
+          // console.log(returnPolicy,"returnPolicy")
+          
           itemCount++;
           const productIdKey = product.productId.toString();
           const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
@@ -491,7 +511,10 @@ export const orderResolver: Resolvers = {
               originalName: product.image?.originalName,
               mimeType: product.image?.mimeType,
             },
-            returnPeriod: shippingConfig.returnPeriod || 0,
+            returnPeriod: returnPolicy?.duration || 0,
+            returnPolicyName:returnPolicy?.name,
+            returnPolicyDescription: returnPolicy?.description,
+            returnCharge: returnPolicy?.returnCharge || 0,
             mrp: product.mrp,
             sellingPrice: isDiscounted ? product.sellingPrice - (discountSellingPrice ?? 0) : product.sellingPrice,
             shippingCharge: 0,
@@ -500,9 +523,17 @@ export const orderResolver: Resolvers = {
             orderDate: orderDate.toDate(),
             shippingStatus: "PENDING",
             vendorId: product.vendorId,
+            warranty:{
+              name:warrantyPolicy?.name,
+              description:warrantyPolicy?.description,
+              duration: warrantyPolicy?.duration,
+              warrantyType:warrantyPolicy?.warrantyType,
+              warrantyRegister:true
+            }
           });
         }
-      });
+      };
+
 
       if (calculatedSellingPrice < shippingConfig.freeShippingThreshold!) {
         products[0].shippingCharge = calculatedShippingCharge;

@@ -195,7 +195,7 @@ export const warrantyPolicyResolver: Resolvers = {
 
 
 
-    Query: {
+        Query: {
 
 
         //to get all warranty policies by admin
@@ -303,7 +303,5 @@ export const warrantyPolicyResolver: Resolvers = {
 
 
        }
-
-
 
 }

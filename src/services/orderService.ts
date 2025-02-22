@@ -1,4 +1,4 @@
-import { orderModel, deliveryAgentModel, brandModel, categoryModel, returnPolicyModel } from "../models";
+import { orderModel, deliveryAgentModel, brandModel, categoryModel, returnPolicyModel, warrantyPolicyModel } from "../models";
 import {
   Types,
   Document,
@@ -1413,10 +1413,7 @@ export const getReturnPolicyForProduct = async (productID: Types.ObjectId, defau
             const Parentcategory: any = await categoryModel.findOne({ _id: allCategories[i] })
 
             if (Parentcategory.returnPolicy) {
-
-                const returnPolicy: any = await returnPolicyModel.findOne({ _id: Parentcategory.returnPolicy })
-                return returnPolicy
-
+                return Parentcategory.returnPolicy
             }
             }
           }
@@ -1427,7 +1424,48 @@ export const getReturnPolicyForProduct = async (productID: Types.ObjectId, defau
        }
 }
 
+
+export const getWarrantyPolicyForProduct=async(productID: Types.ObjectId):Promise<any> =>{
+  const product=await productModel.findById(productID);
+  const brand=await brandModel.findById(product?.brandId);
+  const category=await categoryModel.findById(product?.categoryId);
+
+  if(product?.warrantyPolicy)
+    {
+    return product.warrantyPolicy;
+    }
+   else if(brand?.warrantyPolicy)
+    {
+           return brand.warrantyPolicy;
+    }
+   else if(category?.warrantyPolicy){
+       if(category?.warrantyPolicy){
+         return category.warrantyPolicy;
+       }else{
+       const allCategories:any = category?.path?.split("#")
+
+       for (let i = allCategories.length - 1; i >= 0; i--) {
+
+         if (allCategories[i]) {
+
+         const Parentcategory: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+         if (Parentcategory.warrantyPolicy) {
+
+            //  const returnPolicy: any = await returnPolicyModel.findOne({ _id: Parentcategory.returnPolicy })
+             return Parentcategory.warrantyPolicy
+
+         }
+         }
+       }
+       }  
+   }
+}
+
 export const getReturnPolicy=async (returnPolicyId:Types.ObjectId)=>{
   return await returnPolicyModel.findById(returnPolicyId); 
 }
 
+export const getWarrantyPolicy=async(warrantyPolicyId:Types.ObjectId) =>{
+  return await warrantyPolicyModel.findById(warrantyPolicyId)
+}

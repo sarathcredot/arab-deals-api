@@ -374,6 +374,25 @@ const orderProductSchema = new Schema(
                 type: String,
             },
         },
+        warranty:{
+            name: {
+                type: String,
+              },
+              description: {
+                type: String,
+              },
+              duration: {
+                type: Number, 
+              },
+              warrantyType: [
+                {
+                  type: String,
+                },
+              ],
+              warrantyRegister:{
+                type:Boolean
+              }
+        },
         deliveredMapLocation:{
             type: String
         }
