@@ -11,6 +11,7 @@ type Mutation {
   updateWarrantyPolicyByAdmin(input: updateWarrantyPolicyByAdminInput): updateWarrantyPolicyByAdminResponse
   deleteWarrantyPolicyByAdmin(input: deleteWarrantyPolicyByAdminInput!): deleteWarrantyPolicyByAdminResponse
   updateStatusWarrantyPolicyByAdmin(input: updateStatusWarrantyPolicyByAdminInput!): updateStatusWarrantyPolicyByAdminResponse
+  createWarrantyClaimRequestByUSer(input: createWarrantyClaimRequestByUSerInput!, image: [Upload]): createWarrantyClaimRequestByUSerResponse
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -495,6 +496,33 @@ type getWarrantyPolicyOfOrderProductResponse {
   duration: Int
   warrantyType: [String]
   warrantyRegister: Boolean
+}
+
+scalar Date
+
+input warrantyAddressInput {
+  firstname: String
+  email: String
+  mobile: String
+  country: String
+  postCode: String
+  governorate: String!
+  village: String!
+  governorateID: String!
+  villageID: String!
+  address: String
+}
+
+input createWarrantyClaimRequestByUSerInput {
+  productId: ObjectId!
+  claimType: String!
+  issueDescription: String
+  warrantyAddress: warrantyAddressInput!
+}
+
+type createWarrantyClaimRequestByUSerResponse {
+  success: Boolean
+  message: String
 }
 
 scalar JSONObject
@@ -1341,8 +1369,6 @@ type GetUserRecordInMobileResponse {
   record: user
   message: String
 }
-
-scalar Date
 
 input UpdatePaymentSettingsInput {
   onlinePayment: Boolean
