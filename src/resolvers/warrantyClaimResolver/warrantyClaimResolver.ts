@@ -91,6 +91,9 @@ export const warrantyClaimResolver: Resolvers = {
                         });
                     }
 
+                     const claimDate = moment();
+                     const warrantyId = `WAR-${claimDate.valueOf()}`;
+
                     let newClaimData: any = {
                         claimType,
                         issueDescription,
@@ -98,7 +101,8 @@ export const warrantyClaimResolver: Resolvers = {
                         user: userId,
                         product: productId,
                         warrantyAddress,
-                        order: existingOrderProduct.orderId
+                        order: existingOrderProduct.orderId,
+                        warrantyId
                     };
 
                     const result=await warrantyClaimService.createWarrantyClaimRequest(newClaimData);
