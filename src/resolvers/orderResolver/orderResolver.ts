@@ -212,7 +212,7 @@ export const orderResolver: Resolvers = {
               description:warrantyPolicy?.description,
               duration: warrantyPolicy?.duration,
               warrantyType:warrantyPolicy?.warrantyType,
-              warrantyRegister:true
+              // warrantyRegister:true
             }
           });
         }
@@ -528,7 +528,7 @@ export const orderResolver: Resolvers = {
               description:warrantyPolicy?.description,
               duration: warrantyPolicy?.duration,
               warrantyType:warrantyPolicy?.warrantyType,
-              warrantyRegister:true
+              // warrantyRegister:true
             }
           });
         }

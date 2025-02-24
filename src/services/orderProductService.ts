@@ -102,7 +102,7 @@ export interface IOrderProduct {
     description?:string;
     duration?: number;
     warrantyType?:string[];
-    warrantyRegister:boolean;
+    // warrantyRegister:boolean;
   }
 }
 
