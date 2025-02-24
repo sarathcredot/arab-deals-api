@@ -27,6 +27,7 @@ import {roleModel} from './roleModel';
 import {notificationModel} from "./notificationModel";
 import {returnPolicyModel} from "./returnPolicyModel";
 import { warrantyPolicyModel } from "./warrantyPolicyModel";
+import { warrantyClaimModel } from "./warrantyClaimModel";
 
 
 export {
@@ -58,5 +59,6 @@ export {
     roleModel,
     notificationModel,
     returnPolicyModel,
-    warrantyPolicyModel
+    warrantyPolicyModel,
+    warrantyClaimModel
 }

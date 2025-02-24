@@ -29,6 +29,7 @@ import * as roleService from './roleService'
 import * as notificationService from './notificationService'
 import * as returnPolicyService from './returnPolicyService'
 import * as warrantyPolicyService from './warrantyPolicyService'
+import * as warrantyClaimService from './warrantyClaimService'
 
 
 
@@ -63,5 +64,6 @@ export {
     roleService,
     notificationService,
     returnPolicyService,
-    warrantyPolicyService
+    warrantyPolicyService,
+    warrantyClaimService
 }

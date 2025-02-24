@@ -1,0 +1,49 @@
+scalar Upload
+scalar ObjectId
+scalar Date
+
+
+type Mutation {
+   createWarrantyClaimRequestByUSer(input:createWarrantyClaimRequestByUSerInput! 
+   image: [Upload]):createWarrantyClaimRequestByUSerResponse
+}
+
+input warrantyAddressInput{
+  firstname: String
+  email: String
+  mobile: String
+#   streetName: String
+#   city: String
+#   houseNumber: String
+  country: String
+  postCode: String
+#   apartment: String
+#   suite: String
+#   unit: String
+  governorate: String!
+  village: String!
+  governorateID: String!
+  villageID: String!
+  address:String
+}
+
+input createWarrantyClaimRequestByUSerInput{
+    productId:ObjectId!
+    claimType:String!
+    issueDescription:String
+    warrantyAddress:warrantyAddressInput!
+}
+
+
+type createWarrantyClaimRequestByUSerResponse{
+   success: Boolean,
+   message: String,
+}
+
+
+# Schema
+
+schema {
+  mutation: Mutation
+  query: Query
+}
