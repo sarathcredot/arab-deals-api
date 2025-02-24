@@ -121,9 +121,8 @@ const warrantyClaimSchema = new Schema(
             required: true 
         },
         order: { 
-            type: Schema.Types.ObjectId, 
-            ref: collections.ORDERS, 
-            required: true 
+           type:String,
+           required: true
         },
         warrantyId:{
              type:String

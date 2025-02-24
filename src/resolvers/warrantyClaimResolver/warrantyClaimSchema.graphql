@@ -8,6 +8,10 @@ type Mutation {
    image: [Upload]):createWarrantyClaimRequestByUSerResponse
 }
 
+type Query {
+    getAllClaimRequestsByAdmin(input:getAllClaimRequestsByAdminInput):getAllClaimRequestsByAdminResponse
+}
+
 input warrantyAddressInput{
   firstname: String
   email: String
@@ -34,10 +38,41 @@ input createWarrantyClaimRequestByUSerInput{
     warrantyAddress:warrantyAddressInput!
 }
 
+input getAllClaimRequestsByAdminInput{
+    page:Int
+    size:Int
+    search:String
+}
+
 
 type createWarrantyClaimRequestByUSerResponse{
    success: Boolean,
    message: String,
+}
+
+type claimUser{
+    displayName:String
+}
+
+type claimProduct{
+    productName:String
+}
+
+type claimData{
+    user:claimUser , 
+    product: claimProduct, 
+    createdAt: Date,   
+    issueDescription: String,
+    order:String,
+    warrantyId:String,
+    claimStatus:String,
+    claimType:String
+}
+
+type getAllClaimRequestsByAdminResponse{
+    success: Boolean,
+    data: [claimData],
+    maxRecords: Int
 }
 
 

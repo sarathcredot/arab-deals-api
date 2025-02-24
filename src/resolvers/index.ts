@@ -28,6 +28,7 @@ import {roleResolver} from './roleResolver/roleResolver'
 import {notificationResolver} from "./notificationResolver/notificationResolver";
 import {returnPolicyResolver} from './returnPolicyResolver/returnPolicyResolver';
 import { warrantyPolicyResolver } from './warrantyPolicyResolver/warrantyPolicyResolver';
+import { warrantyClaimResolver } from './warrantyClaimResolver/warrantyClaimResolver';
 
 
 
@@ -60,6 +61,7 @@ export const resolvers: Resolvers = mergeResolvers(
         roleResolver,
         notificationResolver,
         returnPolicyResolver,
-        warrantyPolicyResolver
+        warrantyPolicyResolver,
+        warrantyClaimResolver
     ]
 );
