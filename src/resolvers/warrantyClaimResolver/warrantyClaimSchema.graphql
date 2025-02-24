@@ -10,6 +10,7 @@ type Mutation {
 
 type Query {
     getAllClaimRequestsByAdmin(input:getAllClaimRequestsByAdminInput):getAllClaimRequestsByAdminResponse
+    getClaimRequestDetailsByAdmin(input:getClaimRequestDetailsByAdminInput!):getClaimRequestDetailsByAdminResponse
 }
 
 input warrantyAddressInput{
@@ -42,6 +43,70 @@ input getAllClaimRequestsByAdminInput{
     page:Int
     size:Int
     search:String
+}
+
+input getClaimRequestDetailsByAdminInput{
+    claimRequestId:ObjectId!
+}
+
+type claimUserDetail{
+    _id:ObjectId
+    displayName:String
+}
+
+type warranty{
+    name:String
+    description:String
+    duration:Int
+    warrantyType:[String]
+}
+
+type claimProductDetail{
+    warranty:warranty
+    productName:String
+    deliveryDate:Date
+    shippingStatus:String
+    orderDate:Date
+    paymentStatus:String
+    shippingCharge:Float
+    sellingPrice:Float
+    shortDescription:String
+}
+
+type warrantyAddress{
+  firstname: String
+  email: String
+  mobile: String
+#   streetName: String
+#   city: String
+#   houseNumber: String
+  country: String
+  postCode: String
+#   apartment: String
+#   suite: String
+#   unit: String
+  governorate: String!
+  village: String!
+  governorateID: String!
+  villageID: String!
+  address:String
+}
+
+
+type getClaimRequestDetailsByAdminResponse{
+    user:claimUserDetail
+    product:claimProductDetail
+    createdAt: Date
+    issueDescription: String
+    order:String
+    warrantyId:String
+    claimStatus:String
+    claimType:String
+    claimDate:Date
+    rejectedReason:String
+    rejectedDate:Date
+    productImage:[FileData]
+    warrantyAddress:warrantyAddress
 }
 
 

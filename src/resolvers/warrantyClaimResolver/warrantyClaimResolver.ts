@@ -21,6 +21,7 @@ export const warrantyClaimResolver: Resolvers = {
     Upload: GraphQLUpload,
 
         Mutation: {
+        //to send claim request to admin by user
         createWarrantyClaimRequestByUSer: async (parent, { input,image}, { req }, info) => {
             console.log("createWarrantyClaimRequestByUSer");
             await verifyUser(req);
@@ -136,7 +137,7 @@ export const warrantyClaimResolver: Resolvers = {
 
 
         Query: {
-
+       //to list all claim requests by user on admin side
         getAllClaimRequestsByAdmin: async (parent, { input }, { req }, info) => {
             // await verifyAdmin(req);
                 try {
@@ -169,8 +170,33 @@ export const warrantyClaimResolver: Resolvers = {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
             }
-        }
+        },
+       
+        //to get the details of one specific claim request
 
+        getClaimRequestDetailsByAdmin: async (parent, { input }, { req }, info) => {
+              // await verifyAdmin(req);
+              try {
+                const claimRequestId:Types.ObjectId=input.claimRequestId
+
+                if(!claimRequestId){
+                    throw new GraphQLError("claimRequestId is required", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                const response=await warrantyClaimService.getClaimRequestDetailsByAdmin(claimRequestId)
+                console.log("response",response)
+                return response.records[0]
+              } catch (error:any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+              }
+        }
 
         }
 }

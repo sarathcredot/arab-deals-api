@@ -106,3 +106,85 @@ export const getAllWarrantyClaimsBySuperAdmin = async (options: any, matchQuery:
         throw error
     }
 }
+
+
+export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectId): Promise<any> => {
+    try {
+      
+        const result = await warrantyClaimModel.aggregate([
+            {
+                $match: {
+                    _id:claimRequestId
+                }
+            },
+            {
+                $lookup: {
+                    from: collections.USERS,
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: collections.ORDER_PRODUCTS,
+                    localField: "product",
+                    foreignField: "_id",
+                    as: "product"
+                },
+            },
+            {
+                $unwind: {
+                    path: "$product",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            { 
+                $project: { 
+                    "user.displayName": 1, 
+                    "user._id": 1, 
+                    "product.productName": 1, 
+                    "product.warranty.name": 1, 
+                    "product.warranty.description": 1, 
+                    "product.warranty.duration": 1, 
+                    "product.warranty.warrantyType": 1, 
+                    "product.deliveryDate": 1, 
+                    "product.shippingStatus": 1, 
+                    "product.orderDate": 1, 
+                    "product.paymentStatus": 1, 
+                    "product.shippingCharge": 1, 
+                    "product.sellingPrice": 1, 
+                    "product.shortDescription": 1, 
+                    createdAt: 1,   
+                    issueDescription: 1,
+                    order:1,
+                    warrantyId:1,
+                    claimStatus:1,
+                    claimType:1,
+                    claimDate:1,
+                    rejectedReason:1,
+                    rejectedDate:1,
+                    productImage:1,
+                    warrantyAddress:1
+                } 
+            },
+           
+        ])
+         console.log("result",result)
+        let response: any = {
+            records: [],
+        };
+        if (result.length) {
+            response.records = result || [];
+        }
+        return response
+    } catch (error) {
+        throw error
+    }
+}
