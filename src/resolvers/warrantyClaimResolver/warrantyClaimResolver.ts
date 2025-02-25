@@ -142,6 +142,8 @@ export const warrantyClaimResolver: Resolvers = {
                 const claimRequestId:Types.ObjectId=input.claimRequestId
                 const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "REJECTED";
                 const rejectedReason: string | null = input?.rejectedReason || null;
+                // const rejectedDate: Date | null = input?.rejectedDate || null;
+                // const claimDate: Date | null  = input?.claimDate || null;
 
                 if(!claimRequestId){
                     throw new GraphQLError("claimRequestId is required", {
@@ -166,7 +168,9 @@ export const warrantyClaimResolver: Resolvers = {
                 existingClaimRequest.claimStatus=claimStatus
 
                 if(claimStatus==="APPROVED"){
-                     existingClaimRequest.claimDate=new Date();
+                    if (input?.claimDate) {
+                        existingClaimRequest.claimDate = input.claimDate;
+                    }
                 }
 
                 if (claimStatus === "REJECTED") {
@@ -179,7 +183,9 @@ export const warrantyClaimResolver: Resolvers = {
                         });
                     }
                     existingClaimRequest.rejectedReason = rejectedReason;
-                    existingClaimRequest.rejectedDate = new Date();
+                    if (input?.rejectedDate) {
+                        existingClaimRequest.rejectedDate = input.rejectedDate;
+                    }
                 }
 
                 await existingClaimRequest.save();
