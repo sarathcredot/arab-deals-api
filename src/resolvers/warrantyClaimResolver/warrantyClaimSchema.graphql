@@ -55,6 +55,8 @@ input updateClaimStatusByAdminInput{
      claimRequestId:ObjectId!
      claimStatus:String!
      rejectedReason:String
+     rejectedDate:Date
+     claimDate:Date
 }
 
 type claimUserDetail{
