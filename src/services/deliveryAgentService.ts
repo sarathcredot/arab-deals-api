@@ -1,6 +1,6 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
-import { deliveryAgentModel, settlementModel , warrantyClaimModel} from '../models'
+import { deliveryAgentModel, settlementModel, warrantyClaimModel } from '../models'
 import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
@@ -568,6 +568,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               reject("Assign order limit reached.no more order can be assigned")
               return;
             }
+
+
 
             // add order products model assign agent id and name
             await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
@@ -1302,49 +1304,168 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 export const warrantyCallAsssignDeliveryAgent = async (data: { warrantyCallID: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
 
 
-  return new Promise(async(resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
 
     try {
- 
-       // find assign warranty call details
 
-       const warrantyCallDetails= await warrantyClaimModel.findOne({_id:data.warrantyCallID})
+      // find assign warranty call details
 
-        if(warrantyCallDetails){
+      const warrantyCallDetails = await warrantyClaimModel.findOne({ _id: data.warrantyCallID })
 
-               // check  is this first assign
+      if (warrantyCallDetails) {
 
-               if(!warrantyCallDetails.deliveryAgentId){
+        if (warrantyCallDetails.claimStatus === "APPROVED") {
 
-                const limit: any = await deliveryAgentConfigModel.findOne()
-                const finalLimit = limit.warrantyCallAssignLimit * data.bundleCount
-                const todayDate = new Date()
+          // check  is this first assign
 
-                
-                const matchObj = {
+          if (!warrantyCallDetails.deliveryAgentId) {
 
-                  returndeliveryAgentId: data.deliveryAgentId,
-    
-                  $and: [
-                    {
-                      returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
-                    },
-                    {
-                      returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
-                    },
-    
-                  ]
-                }
+            const limit: any = await deliveryAgentConfigModel.findOne()
+            const finalLimit = limit.warrantyCallAssignLimit * data.bundleCount
+            const todayDate = new Date()
 
 
+            const matchObj = {
+
+              deliveryAgentId: data.deliveryAgentId,
+
+              $and: [
+                {
+                  deliveryAgentAssignedOn: { $gte: startOfDay(todayDate) }
+                },
+                {
+                  deliveryAgentAssignedOn: { $lte: endOfDay(todayDate) }
+                },
+
+              ]
+            }
 
 
-               }
+            const result = await warrantyClaimModel.aggregate([
+
+              {
+                $match: matchObj
+              }
+            ])
+
+            if (result.length >= finalLimit) {
+              reject("Assign warranty call limit reached.no more warranty calls can be assigned")
+              return;
+            }
+
+            await warrantyClaimModel.findByIdAndUpdate({ _id: data.warrantyCallID }, {
+
+              $set: {
+
+                deliveryAgentId: data.deliveryAgentId,
+                deliveryAgentName: data.deliveryAgentName,
+                deliveryAgentAssignedOn: new Date
+
+              }
+            })
+
+            // update delivery agent wallet counts
+
+            await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+              $inc: {
+
+                'wallet.numberOfWarrantyCallAssigned': 1,
+                'wallet.numberOfPendingWarrantyCall': 1
+
+              }
+            })
+
+            resolve(true)
+
+
+
+          } else {
+
+            // reassign this warranty call to new delivery agent
+            // find old delivery agent and update this agent wallet counts
+
+            await deliveryAgentModel.findByIdAndUpdate({ _id: warrantyCallDetails.deliveryAgentId }, {
+
+              $inc: {
+
+                'wallet.numberOfWarrantyCallAssigned': -1,
+                'wallet.numberOfPendingWarrantyCall': -1
+
+              }
+            })
+
+
+            const limit: any = await deliveryAgentConfigModel.findOne()
+            const finalLimit = limit.warrantyCallAssignLimit * data.bundleCount
+            const todayDate = new Date()
+
+
+            const matchObj = {
+
+              deliveryAgentId: data.deliveryAgentId,
+
+              $and: [
+                {
+                  deliveryAgentAssignedOn: { $gte: startOfDay(todayDate) }
+                },
+                {
+                  deliveryAgentAssignedOn: { $lte: endOfDay(todayDate) }
+                },
+
+              ]
+            }
+
+
+            const result = await warrantyClaimModel.aggregate([
+
+              {
+                $match: matchObj
+              }
+            ])
+
+            if (result.length >= finalLimit) {
+              reject("Assign warranty call limit reached.no more warranty calls can be assigned")
+              return;
+            }
+
+
+
+            await warrantyClaimModel.findByIdAndUpdate({ _id: data.warrantyCallID }, {
+
+              $set: {
+
+                deliveryAgentId: data.deliveryAgentId,
+                deliveryAgentName: data.deliveryAgentName,
+                deliveryAgentAssignedOn: new Date
+
+              }
+            })
+
+            // update delivery agent wallet counts
+
+            await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+
+              $inc: {
+
+                'wallet.numberOfWarrantyCallAssigned': 1,
+                'wallet.numberOfPendingWarrantyCall': 1
+
+              }
+            })
+
+            resolve(true)
+
+
+          }
+        } else {
+
+          reject("this warranty call can't assigned")
+          return
         }
 
 
-        
-              
+      }
 
     } catch (error) {
 

@@ -46,6 +46,17 @@ type OrderAssignDeliveryAgentInput = {
 
 }
 
+type WarrantyCallAssignDeliveryAgentInput = {
+
+  warrantyCallID: Types.ObjectId
+  deliveryAgentId: Types.ObjectId
+  deliveryAgentName: string
+  bundleCount: number
+
+}
+
+
+
 
 
 export const deliveryAgentResolver: Resolvers = {
@@ -729,17 +740,19 @@ export const deliveryAgentResolver: Resolvers = {
 
       try {
 
+        await deliveryAgentService.warrantyCallAsssignDeliveryAgent(input as WarrantyCallAssignDeliveryAgentInput)
+
         return {
 
             status:true,
-            msg:""
+            msg:"Warranty call assigned to delivery agent"
         }
 
 
 
-      } catch (error) {
+      } catch (error:any) {
 
-        throw new GraphQLError("Unable to assigen delivery agent", {
+        throw new GraphQLError(error, {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
