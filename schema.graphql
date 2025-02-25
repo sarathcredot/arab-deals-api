@@ -562,6 +562,16 @@ type claimProductDetail {
   shippingCharge: Float
   sellingPrice: Float
   shortDescription: String
+  paymentMode: String
+  vendorId: ObjectId
+  itemId: String
+  courierId: String
+  invoiceNumber: String
+  warehouseSkuId: String
+}
+
+type claimVendorDetail {
+  fullName: String
 }
 
 type warrantyAddress {
@@ -580,6 +590,7 @@ type warrantyAddress {
 type getClaimRequestDetailsByAdminResponse {
   user: claimUserDetail
   product: claimProductDetail
+  vendor: claimVendorDetail
   createdAt: Date
   issueDescription: String
   order: String

@@ -3505,11 +3505,13 @@ export const couponResolver: Resolvers = {
     //remove coupon by user in mobile
 
     removeCouponInMobile: async (parent, { }, { req }, info) => {
+      console.log("called")
       await verifyUser(req) 
       const userId = req.authAccount?._id; 
      
 
        const existingCart = await cartModel.findOne({ userId: userId })
+       console.log("existingCart",existingCart)
 
         if (!existingCart) {
           throw new GraphQLError("cart not found!!Try again", {
@@ -3518,6 +3520,7 @@ export const couponResolver: Resolvers = {
         }
 
         const result =await cartService.updateCartTotals(userId)
+        console.log("result",result)
 
         if(!result){
           throw new GraphQLError("Error in removing coupon", {
@@ -3527,6 +3530,7 @@ export const couponResolver: Resolvers = {
 
 
         const updateresult= await cartModel.findByIdAndUpdate(existingCart._id, { isCouponApplied: false,discount:0,appliedCoupon:null,appliedProducts:null }, { new: true });
+        console.log("updateresult",updateresult)
 
 
         if(!updateresult){
