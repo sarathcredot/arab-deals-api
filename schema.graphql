@@ -50,14 +50,14 @@ type Mutation {
   logoutMobileUser: LogoutMobileUserResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
-  createReturnPolicyBySuperAdmin(input: createReturnPolicyBySuperAdminInput!): createReturnPolicyBySuperAdminResponse
-  updateReturnPolicyByAdmin(input: updateReturnPolicyByAdminInput): updateReturnPolicyByAdminResponse
-  deleteReturnPolicyByAdmin(input: deleteReturnPolicyByAdminInput!): deleteReturnPolicyByAdminResponse
-  updateStatusReturnPolicyByAdmin(input: updateStatusReturnPolicyByAdminInput!): updateStatusReturnPolicyByAdminResponse
   createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   updateRoleBySuperAdmin(input: updateRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   deleteRoleBySuperAdmin(input: deleteRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   updateStatusRoleBySuperAdmin(input: updateStatusRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  createReturnPolicyBySuperAdmin(input: createReturnPolicyBySuperAdminInput!): createReturnPolicyBySuperAdminResponse
+  updateReturnPolicyByAdmin(input: updateReturnPolicyByAdminInput): updateReturnPolicyByAdminResponse
+  deleteReturnPolicyByAdmin(input: deleteReturnPolicyByAdminInput!): deleteReturnPolicyByAdminResponse
+  updateStatusReturnPolicyByAdmin(input: updateStatusReturnPolicyByAdminInput!): updateStatusReturnPolicyByAdminResponse
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
@@ -183,14 +183,14 @@ type Query {
   getUserRecordInMobile: GetUserRecordInMobileResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
+  getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
+  getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
   getAllPoliciesBySuperAdmin(input: getAllPoliciesBySuperAdminInput): getAllPoliciesBySuperAdminResponse
   getReturnPolicyByAdmin(input: getReturnPolicyByAdminInput!): getReturnPolicyByAdminResponse
   getDefaultReturnPolicyInCategory(input: getDefaultReturnPolicyInCategoryInput!): ReturnPolicy!
   getDefaultReturnPolicyInProduct(input: getDefaultReturnPolicyInProductInput!): ReturnPolicy!
   getReturnPolicyOfOrderProduct(input: getReturnPolicyOfOrderProductInput!): getReturnPolicyOfOrderProductResponse
   getReturnPolicyOfOrderProductInMob(input: getReturnPolicyOfOrderProductInput!): getReturnPolicyOfOrderProductResponse
-  getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
-  getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
   getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
   getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
@@ -1531,6 +1531,66 @@ type GetShippingSettingsResponse {
   defaultReturnPolicy: ObjectId
 }
 
+input createRoleBySuperAdminInput {
+  name: String!
+  description: String
+  permissions: [String]
+}
+
+input updateRoleBySuperAdminInput {
+  roleId: ObjectId!
+  name: String
+  description: String
+  permissions: [String]
+}
+
+input deleteRoleBySuperAdminInput {
+  roleId: ObjectId!
+}
+
+input getRoleBySuperAdminInput {
+  roleId: ObjectId!
+}
+
+input updateStatusRoleBySuperAdminInput {
+  roleId: ObjectId!
+  isEnable: Boolean!
+}
+
+input getAllRolesBySuperAdminInput {
+  page: Int
+  size: Int
+  search: String
+  isEnable: Boolean
+}
+
+type createRoleBySuperAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type getRoleBySuperAdminResponse {
+  _id: ObjectId
+  name: String
+  description: String
+  permissions: [String]
+  isEnable: Boolean
+}
+
+type Roles {
+  _id: ObjectId
+  name: String
+  description: String
+  permissions: [String]
+  isEnable: Boolean
+}
+
+type getAllRolesBySuperAdminResponse {
+  success: Boolean
+  data: [Roles]
+  maxRecords: Int
+}
+
 input getDefaultReturnPolicyInProductInput {
   brandId: ObjectId
   categoryId: ObjectId
@@ -1630,66 +1690,6 @@ type getReturnPolicyOfOrderProductResponse {
   returnCharge: Int
   returnPolicyDescription: String
   returnPeriod: Int
-}
-
-input createRoleBySuperAdminInput {
-  name: String!
-  description: String
-  permissions: [String]
-}
-
-input updateRoleBySuperAdminInput {
-  roleId: ObjectId!
-  name: String
-  description: String
-  permissions: [String]
-}
-
-input deleteRoleBySuperAdminInput {
-  roleId: ObjectId!
-}
-
-input getRoleBySuperAdminInput {
-  roleId: ObjectId!
-}
-
-input updateStatusRoleBySuperAdminInput {
-  roleId: ObjectId!
-  isEnable: Boolean!
-}
-
-input getAllRolesBySuperAdminInput {
-  page: Int
-  size: Int
-  search: String
-  isEnable: Boolean
-}
-
-type createRoleBySuperAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type getRoleBySuperAdminResponse {
-  _id: ObjectId
-  name: String
-  description: String
-  permissions: [String]
-  isEnable: Boolean
-}
-
-type Roles {
-  _id: ObjectId
-  name: String
-  description: String
-  permissions: [String]
-  isEnable: Boolean
-}
-
-type getAllRolesBySuperAdminResponse {
-  success: Boolean
-  data: [Roles]
-  maxRecords: Int
 }
 
 type File {
