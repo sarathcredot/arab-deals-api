@@ -1,6 +1,6 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
-import { deliveryAgentModel, settlementModel } from '../models'
+import { deliveryAgentModel, settlementModel , warrantyClaimModel} from '../models'
 import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
@@ -28,10 +28,10 @@ export interface IDeliveryAgent {
   vendorID?: Types.ObjectId;
   licence: FileData;
   ID: string;
-  governorate:string;
-  village:string;
-  governorateID:string;
-  villageID:string;
+  governorate: string;
+  village: string;
+  governorateID: string;
+  villageID: string;
 }
 
 
@@ -82,10 +82,10 @@ export interface IDeliveryAgentFilter {
   isActive: boolean;
   isAvailable: boolean;
   lastSettlementID: Types.ObjectId;
-  governorate:string;
-  village:string;
-  governorateID:string;
-  villageID:string;
+  governorate: string;
+  village: string;
+  governorateID: string;
+  villageID: string;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -112,10 +112,10 @@ export interface IDeliveryAgentDocument extends Document {
   licence: FileData;
   isActive: boolean;
   isAvailable: boolean;
-  governorate:string;
-  village:string;
-  governorateID:string;
-  villageID:string;
+  governorate: string;
+  village: string;
+  governorateID: string;
+  villageID: string;
   wallet: {
     cashInHand: number;
     lastSettlementDate: Date;
@@ -524,138 +524,138 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 };
 
 
-export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string,bundleCount: number }) => {
+export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
 
   return new Promise(async (resolve, reject) => {
 
-  try {
-    const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+    try {
+      const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
 
 
-    if (assignOrder) {
-      // check is this first assigning or reassigning
-      if (assignOrder.returnStatus === "APPROVED") {
-        if (!assignOrder.returndeliveryAgentId) {
+      if (assignOrder) {
+        // check is this first assigning or reassigning
+        if (assignOrder.returnStatus === "APPROVED") {
+          if (!assignOrder.returndeliveryAgentId) {
 
-          const limit: any = await deliveryAgentConfigModel.findOne()
-          const finalLimit=limit.returnOrderAssignLimit*data.bundleCount
+            const limit: any = await deliveryAgentConfigModel.findOne()
+            const finalLimit = limit.returnOrderAssignLimit * data.bundleCount
 
 
-          const todayDate = new Date()
+            const todayDate = new Date()
 
-          const matchObj = {
+            const matchObj = {
 
-            returndeliveryAgentId: data.deliveryAgentId,
-
-            $and: [
-              {
-                returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
-              },
-              {
-                returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
-              },
-             
-            ]
-          }
-
-          const result: any = await orderProductModel.aggregate([
-            {
-              $match: matchObj
-            },
-          ])
-
-          if (result.length >= finalLimit) {
-            reject("Assign order limit reached.no more order can be assigned")
-            return;
-          }
-
-          // add order products model assign agent id and name
-          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-            $set: {
-              returnOrderAssignedOn: new Date(),
               returndeliveryAgentId: data.deliveryAgentId,
-              returndeliveryAgentName: data.deliveryAgentName
+
+              $and: [
+                {
+                  returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
+                },
+                {
+                  returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
+                },
+
+              ]
             }
-          })
-          // update delivery agent total order count
-          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
-            $inc: {
-              'wallet.numberOfReturnOrderAssigned': 1,
-              'wallet.numberOfPendingReturns': 1
+
+            const result: any = await orderProductModel.aggregate([
+              {
+                $match: matchObj
+              },
+            ])
+
+            if (result.length >= finalLimit) {
+              reject("Assign order limit reached.no more order can be assigned")
+              return;
             }
-          })
-          resolve({ flag: true })
+
+            // add order products model assign agent id and name
+            await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+              $set: {
+                returnOrderAssignedOn: new Date(),
+                returndeliveryAgentId: data.deliveryAgentId,
+                returndeliveryAgentName: data.deliveryAgentName
+              }
+            })
+            // update delivery agent total order count
+            await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+              $inc: {
+                'wallet.numberOfReturnOrderAssigned': 1,
+                'wallet.numberOfPendingReturns': 1
+              }
+            })
+            resolve({ flag: true })
+          } else {
+            // reassign this oder to new delivery agent
+            // find old delivery agent and update this agent numberOfOrderAssigned count
+
+            await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
+              $inc: {
+                'wallet.numberOfReturnOrderAssigned': -1,
+                'wallet.numberOfPendingReturns': -1
+              }
+            })
+            //  this order reassign to new delivery agent
+
+            const limit: any = await deliveryAgentConfigModel.findOne()
+            const finalLimit = limit.returnOrderAssignLimit * data.bundleCount
+            const todayDate = new Date()
+
+            const matchObj = {
+
+              returndeliveryAgentId: data.deliveryAgentId,
+
+              $and: [
+                {
+                  returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
+                },
+                {
+                  returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
+                },
+
+              ]
+            }
+
+            const result: any = await orderProductModel.aggregate([
+              {
+                $match: matchObj
+              },
+            ])
+
+            if (result.length >= finalLimit) {
+              reject("Assign order limit reached.no more order can be assigned")
+              return;
+            }
+
+
+            await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+              $set: {
+                returnOrderAssignedOn: new Date(),
+                returndeliveryAgentId: data.deliveryAgentId,
+                returndeliveryAgentName: data.deliveryAgentName
+              }
+            })
+            // update this new new agent numberOfOrderAssigned count
+
+            await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
+              $inc: {
+                'wallet.numberOfReturnOrderAssigned': 1,
+                'wallet.numberOfPendingReturns': 1
+              }
+            })
+
+            resolve({ flag: true })
+          }
+
         } else {
-          // reassign this oder to new delivery agent
-          // find old delivery agent and update this agent numberOfOrderAssigned count
-
-          await deliveryAgentModel.findByIdAndUpdate({ _id: assignOrder.returndeliveryAgentId }, {
-            $inc: {
-              'wallet.numberOfReturnOrderAssigned': -1,
-              'wallet.numberOfPendingReturns': -1
-            }
-          })
-          //  this order reassign to new delivery agent
-
-          const limit: any = await deliveryAgentConfigModel.findOne()
-          const finalLimit=limit.returnOrderAssignLimit*data.bundleCount
-          const todayDate = new Date()
-
-          const matchObj = {
-
-            returndeliveryAgentId: data.deliveryAgentId,
-
-            $and: [
-              {
-                returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
-              },
-              {
-                returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
-              },
-             
-            ]
-          }
-
-          const result: any = await orderProductModel.aggregate([
-            {
-              $match: matchObj
-            },
-          ])
-
-          if (result.length >= finalLimit) {
-            reject("Assign order limit reached.no more order can be assigned")
-            return;
-          }
-
-
-          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
-            $set: {
-              returnOrderAssignedOn: new Date(),
-              returndeliveryAgentId: data.deliveryAgentId,
-              returndeliveryAgentName: data.deliveryAgentName
-            }
-          })
-          // update this new new agent numberOfOrderAssigned count
-
-          await deliveryAgentModel.findByIdAndUpdate({ _id: data.deliveryAgentId }, {
-            $inc: {
-              'wallet.numberOfReturnOrderAssigned': 1,
-              'wallet.numberOfPendingReturns': 1
-            }
-          })
-
-          resolve({ flag: true })
+          reject({ flag: false })
         }
-       
       } else {
         reject({ flag: false })
       }
-    } else {
+    } catch (error) {
       reject({ flag: false })
     }
-  } catch (error) {
-    reject({ flag: false })
-  }
 
   })
 
@@ -855,7 +855,7 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
     try {
       let pipeline: any[] = [];
       const active = options.isActive ? JSON.parse(options.isActive) : undefined;
-      const search = options.search?.trim() || ''; 
+      const search = options.search?.trim() || '';
       const settlement = options.settlement
       console.log("try catch =", { active, search, settlement })
 
@@ -864,9 +864,9 @@ export const viewAllDeliveryAgents = async (options: { page: number; size: numbe
       if (active !== undefined) matchQuery.isActive = active;
       if (options.agentType) matchQuery.agentType = options.agentType;
       if (search) matchQuery.fullName = { $regex: search, $options: 'i' };
-      if(settlement)matchQuery["wallet.totalSettlement"] = { $gt: 0 };
+      if (settlement) matchQuery["wallet.totalSettlement"] = { $gt: 0 };
       console.log("match query = ", matchQuery);
-      
+
 
       // Count the total number of documents matching the criteria
       dataSize = await deliveryAgentModel.find(matchQuery);
@@ -984,12 +984,12 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
             vendorID: data.vendorID,
             agentType: data.agentType,
             licence: data.licence,
-            isActive:data.isActive,
-            isAvailable:data.isAvailable,
-            governorate:data.governorate,
-            village:data.village,
-            governorateID:data.governorateID,
-            villageID:data.villageID,
+            isActive: data.isActive,
+            isAvailable: data.isAvailable,
+            governorate: data.governorate,
+            village: data.village,
+            governorateID: data.governorateID,
+            villageID: data.villageID,
 
           }
         })
@@ -1004,12 +1004,12 @@ export const editAgentData = async (data: any): Promise<Editrespo> => {
             userID: data.userID,
             vendorID: data.vendorID,
             agentType: data.agentType,
-            isActive:data.isActive,
-            isAvailable:data.isAvailable,
-            governorate:data.governorate,
-            village:data.village,
-            governorateID:data.governorateID,
-            villageID:data.villageID,
+            isActive: data.isActive,
+            isAvailable: data.isAvailable,
+            governorate: data.governorate,
+            village: data.village,
+            governorateID: data.governorateID,
+            villageID: data.villageID,
 
           }
         })
@@ -1114,7 +1114,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
 // order assign to delivery agent
 
-export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string ,bundleCount:number }) => {
+export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -1138,7 +1138,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
           // get the admin added limit
 
           const limit: any = await deliveryAgentConfigModel.findOne()
-          const finalLimit=limit.orderAssignLimit*data.bundleCount
+          const finalLimit = limit.orderAssignLimit * data.bundleCount
           const todayDate = new Date()
 
           const matchObj = {
@@ -1152,7 +1152,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
               {
                 deliveryAssignedOn: { $lte: endOfDay(todayDate) }
               },
-             
+
             ]
 
 
@@ -1166,7 +1166,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
           ])
 
-          if (result.length >=finalLimit) {
+          if (result.length >= finalLimit) {
 
             reject("Assign order limit reached")
             return;
@@ -1222,7 +1222,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
           // get the admin added limit
 
           const limit: any = await deliveryAgentConfigModel.findOne()
-          const finalLimit=limit.orderAssignLimit*data.bundleCount
+          const finalLimit = limit.orderAssignLimit * data.bundleCount
           const todayDate = new Date()
 
           const matchObj = {
@@ -1236,7 +1236,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
               {
                 deliveryAssignedOn: { $lte: endOfDay(todayDate) }
               },
-              
+
 
             ]
 
@@ -1299,6 +1299,60 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 }
 
 
+export const warrantyCallAsssignDeliveryAgent = async (data: { warrantyCallID: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
+
+
+  return new Promise(async(resolve, reject) => {
+
+    try {
+ 
+       // find assign warranty call details
+
+       const warrantyCallDetails= await warrantyClaimModel.findOne({_id:data.warrantyCallID})
+
+        if(warrantyCallDetails){
+
+               // check  is this first assign
+
+               if(!warrantyCallDetails.deliveryAgentId){
+
+                const limit: any = await deliveryAgentConfigModel.findOne()
+                const finalLimit = limit.warrantyCallAssignLimit * data.bundleCount
+                const todayDate = new Date()
+
+                
+                const matchObj = {
+
+                  returndeliveryAgentId: data.deliveryAgentId,
+    
+                  $and: [
+                    {
+                      returnOrderAssignedOn: { $gte: startOfDay(todayDate) }
+                    },
+                    {
+                      returnOrderAssignedOn: { $lte: endOfDay(todayDate) }
+                    },
+    
+                  ]
+                }
+
+
+
+
+               }
+        }
+
+
+        
+              
+
+    } catch (error) {
+
+      reject()
+    }
+  })
+}
+
 
 
 export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectId, orderItemId: Types.ObjectId, pymentType?: string, deliveryStatus: string, remarks?: string }) => {
@@ -1322,7 +1376,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
       // check this order status POSTPONED
 
-      if (data.deliveryStatus === "POSTPONED"||data.deliveryStatus === "OUT_FOR_DELIVERY") {
+      if (data.deliveryStatus === "POSTPONED" || data.deliveryStatus === "OUT_FOR_DELIVERY") {
 
         resolve({ flag: true })
         return;
@@ -1332,13 +1386,13 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
       // check this order status DELIVERED
 
       if (data.deliveryStatus === "DELIVERED") {
-            
+
         //to auto register warranty
-          const result=await orderProductModel.findById({ _id: data.orderItemId} )
-          if(result?.warranty?.duration){
-             await orderProductModel.findByIdAndUpdate( {_id: data.orderItemId} , { "warranty.warrantyRegister": true}, { new: true });
-          }
-       
+        const result = await orderProductModel.findById({ _id: data.orderItemId })
+        if (result?.warranty?.duration) {
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, { "warranty.warrantyRegister": true }, { new: true });
+        }
+
 
         // uppdate this order product pymentmode
 
@@ -1694,8 +1748,8 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
               suite: "$orderDetails.shippingAddress.suite",
               unit: "$orderDetails.shippingAddress.unit",
               city: "$orderDetails.shippingAddress.city",
-              label:"$orderDetails.shippingAddress.label",
-              address:"$orderDetails.shippingAddress.address",
+              label: "$orderDetails.shippingAddress.label",
+              address: "$orderDetails.shippingAddress.address",
               postCode: "$orderDetails.shippingAddress.postCode"
             },
           },
@@ -1728,7 +1782,7 @@ export const getAssignedOrderByDeliveryAgent = async (data: { _id: Types.ObjectI
 }
 
 
-export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, startDate:Date,endDate:Date }): Promise<any> => {
+export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, startDate: Date, endDate: Date }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
 
@@ -1842,7 +1896,7 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: T
 }
 
 
-export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number,startDate:Date,endDate:Date }): Promise<any> => {
+export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, startDate: Date, endDate: Date }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
 
@@ -2053,10 +2107,10 @@ export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.Ob
               suite: "$orderDetails.shippingAddress.suite",
               unit: "$orderDetails.shippingAddress.unit",
               city: "$orderDetails.shippingAddress.city",
-              label:"$orderDetails.shippingAddress.label",
-              address:"$orderDetails.shippingAddress.address",
+              label: "$orderDetails.shippingAddress.label",
+              address: "$orderDetails.shippingAddress.address",
               postCode: "$orderDetails.shippingAddress.postCode",
-             
+
 
             },
           },
@@ -2207,7 +2261,7 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             returnPostponedDate: 1,
             returnPostponedRemarks: 1,
             returnCollectedDate: 1,
-            address:1,
+            address: 1,
 
 
             // User information from the aggregated userDetails
@@ -2221,8 +2275,8 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             suite: "$userDetails.shippingAddress.suite",
             unit: "$userDetails.shippingAddress.unit",
             city: "$userDetails.shippingAddress.city",
-            label:"$userDetails.shippingAddress.label",
-            deliveryAddress:"$userDetails.shippingAddress.address",
+            label: "$userDetails.shippingAddress.label",
+            deliveryAddress: "$userDetails.shippingAddress.address",
             postCode: "$userDetails.shippingAddress.postCode"
 
           },
@@ -2441,41 +2495,41 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 };
 
 
-export const getDeliveryAgentlistCustomizOrderAssigen = async (data:{deliveryAgentType:string,vendorID?:Types.ObjectId,villageID:string,governorateID:string}): Promise<any> => {
+export const getDeliveryAgentlistCustomizOrderAssigen = async (data: { deliveryAgentType: string, vendorID?: Types.ObjectId, villageID: string, governorateID: string }): Promise<any> => {
 
 
   return new Promise(async (resolve, reject) => {
 
-        try {
+    try {
 
-           const matchingObj:any={
+      const matchingObj: any = {
 
-            agentType:data.deliveryAgentType,
-            isActive:true,
-            isAvailable:true,
-            villageID:data.villageID,
-            governorateID:data.governorateID
+        agentType: data.deliveryAgentType,
+        isActive: true,
+        isAvailable: true,
+        villageID: data.villageID,
+        governorateID: data.governorateID
 
 
 
-           }
+      }
 
-           if(data.deliveryAgentType==="Vendor"){
+      if (data.deliveryAgentType === "Vendor") {
 
-               matchingObj.vendorID=data.vendorID
-           }
+        matchingObj.vendorID = data.vendorID
+      }
 
-           // get delivery agent data
+      // get delivery agent data
 
-           const result=await deliveryAgentModel.find(matchingObj).select("_id fullName contactNumber ")
+      const result = await deliveryAgentModel.find(matchingObj).select("_id fullName contactNumber ")
 
-           resolve(result)
-            
-          
-        } catch (error) {
+      resolve(result)
 
-             reject(error)
-        }
+
+    } catch (error) {
+
+      reject(error)
+    }
 
 
   })

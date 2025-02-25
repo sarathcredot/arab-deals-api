@@ -733,6 +733,8 @@ export const cartResolver: Resolvers = {
                     appliedProducts,
                     code
                 }
+
+                console.log("response",response)
                 return response
             } catch (error) {
                 console.log(error);

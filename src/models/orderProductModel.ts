@@ -135,7 +135,7 @@ const orderProductSchema = new Schema(
             required: true,
             ref: collections.PRODUCTS
         },
-        itemId: {  // uniquely identify a product in an order
+        itemId: {                                 // uniquely identify a product in an order
             type: String,
             index: true,
             uppercase: true,

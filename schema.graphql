@@ -12,6 +12,7 @@ type Mutation {
   deleteWarrantyPolicyByAdmin(input: deleteWarrantyPolicyByAdminInput!): deleteWarrantyPolicyByAdminResponse
   updateStatusWarrantyPolicyByAdmin(input: updateStatusWarrantyPolicyByAdminInput!): updateStatusWarrantyPolicyByAdminResponse
   createWarrantyClaimRequestByUSer(input: createWarrantyClaimRequestByUSerInput!, image: [Upload]): createWarrantyClaimRequestByUSerResponse
+  updateClaimStatusByAdmin(input: updateClaimStatusByAdminInput!): updateClaimStatusByAdminResponse
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -49,21 +50,19 @@ type Mutation {
   logoutMobileUser: LogoutMobileUserResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
-  createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
-  updateRoleBySuperAdmin(input: updateRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
-  deleteRoleBySuperAdmin(input: deleteRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
-  updateStatusRoleBySuperAdmin(input: updateStatusRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   createReturnPolicyBySuperAdmin(input: createReturnPolicyBySuperAdminInput!): createReturnPolicyBySuperAdminResponse
   updateReturnPolicyByAdmin(input: updateReturnPolicyByAdminInput): updateReturnPolicyByAdminResponse
   deleteReturnPolicyByAdmin(input: deleteReturnPolicyByAdminInput!): deleteReturnPolicyByAdminResponse
   updateStatusReturnPolicyByAdmin(input: updateStatusReturnPolicyByAdminInput!): updateStatusReturnPolicyByAdminResponse
+  createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  updateRoleBySuperAdmin(input: updateRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  deleteRoleBySuperAdmin(input: deleteRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  updateStatusRoleBySuperAdmin(input: updateStatusRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
   updateProductByAdmin(input: UpdateProductByAdminInput!, images: [Upload], productDetailImages: [Upload]): UpdateProductByAdminResponse!
   submitProductForPreviewByVendor(input: ProductPreviewInput!): ProductStatusResponse
-  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
-  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   createUserOrder(input: CreateUserOrderInput!): CreateUserOrderResponse!
   createUserOrderInMobile(input: CreateUserOrderInMobileInput!): CreateUserOrderInMobileResponse!
   updateAdminOrderProduct(input: UpdateAdminOrderProductInput!, invoice: Upload): UpdateAdminOrderProductResponse!
@@ -72,6 +71,8 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
+  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
+  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
@@ -100,6 +101,7 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  warrantyCallAssignDeliveryAgent(input: warrantyCallAssignDeliveryAgent!): warrantyCallAssignDeliveryAgentResponse!
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
   adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
@@ -156,6 +158,7 @@ type Query {
   getDefaultWarrantyPolicyInProduct(input: getDefaultWarrantyPolicyInProductInput): WarrantyPolicy!
   getWarrantyPolicyOfOrderProduct(input: getWarrantyPolicyOfOrderProductInput!): getWarrantyPolicyOfOrderProductResponse
   getAllClaimRequestsByAdmin(input: getAllClaimRequestsByAdminInput): getAllClaimRequestsByAdminResponse
+  getClaimRequestDetailsByAdmin(input: getClaimRequestDetailsByAdminInput!): getClaimRequestDetailsByAdminResponse
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
@@ -180,14 +183,14 @@ type Query {
   getUserRecordInMobile: GetUserRecordInMobileResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
-  getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
-  getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
   getAllPoliciesBySuperAdmin(input: getAllPoliciesBySuperAdminInput): getAllPoliciesBySuperAdminResponse
   getReturnPolicyByAdmin(input: getReturnPolicyByAdminInput!): getReturnPolicyByAdminResponse
   getDefaultReturnPolicyInCategory(input: getDefaultReturnPolicyInCategoryInput!): ReturnPolicy!
   getDefaultReturnPolicyInProduct(input: getDefaultReturnPolicyInProductInput!): ReturnPolicy!
   getReturnPolicyOfOrderProduct(input: getReturnPolicyOfOrderProductInput!): getReturnPolicyOfOrderProductResponse
   getReturnPolicyOfOrderProductInMob(input: getReturnPolicyOfOrderProductInput!): getReturnPolicyOfOrderProductResponse
+  getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
+  getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
   getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
   getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
@@ -208,7 +211,6 @@ type Query {
   getProductsAutoCompleteInMobile(input: GetProductsAutoCompleteInMobileInput!): GetProductsAutoCompleteInMobileResponse
   getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!): RelatedProductsInMobileResponse!
   getProductsMaxPriceInMobile(input: GettProductsMaxPriceInMobileInput): GetProductsMaxPriceInMobileResponse!
-  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getAdminOrders(input: GetAdminOrdersInput!): GetAdminOrdersResponse!
   getAdminOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getAdminShippingProducts(input: GetAdminShippingProductsInput!): GetAdminShippingProductsResponse!
@@ -231,6 +233,7 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
+  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
@@ -525,9 +528,89 @@ input getAllClaimRequestsByAdminInput {
   page: Int
   size: Int
   search: String
+  claimStatus: String
+}
+
+input getClaimRequestDetailsByAdminInput {
+  claimRequestId: ObjectId!
+}
+
+input updateClaimStatusByAdminInput {
+  claimRequestId: ObjectId!
+  claimStatus: String!
+  rejectedReason: String
+}
+
+type claimUserDetail {
+  _id: ObjectId
+  displayName: String
+}
+
+type warranty {
+  name: String
+  description: String
+  duration: Int
+  warrantyType: [String]
+}
+
+type claimProductDetail {
+  warranty: warranty
+  productName: String
+  deliveryDate: Date
+  shippingStatus: String
+  orderDate: Date
+  paymentStatus: String
+  shippingCharge: Float
+  sellingPrice: Float
+  shortDescription: String
+  paymentMode: String
+  vendorId: ObjectId
+  itemId: String
+  courierId: String
+  invoiceNumber: String
+  warehouseSkuId: String
+}
+
+type claimVendorDetail {
+  fullName: String
+}
+
+type warrantyAddress {
+  firstname: String
+  email: String
+  mobile: String
+  country: String
+  postCode: String
+  governorate: String!
+  village: String!
+  governorateID: String!
+  villageID: String!
+  address: String
+}
+
+type getClaimRequestDetailsByAdminResponse {
+  user: claimUserDetail
+  product: claimProductDetail
+  vendor: claimVendorDetail
+  createdAt: Date
+  issueDescription: String
+  order: String
+  warrantyId: String
+  claimStatus: String
+  claimType: String
+  claimDate: Date
+  rejectedReason: String
+  rejectedDate: Date
+  productImage: [FileData]
+  warrantyAddress: warrantyAddress
 }
 
 type createWarrantyClaimRequestByUSerResponse {
+  success: Boolean
+  message: String
+}
+
+type updateClaimStatusByAdminResponse {
   success: Boolean
   message: String
 }
@@ -538,11 +621,15 @@ type claimUser {
 
 type claimProduct {
   productName: String
+  _id: ObjectId
+  itemId: String
 }
 
 type claimData {
   user: claimUser
   product: claimProduct
+  _id: ObjectId
+  productImage: [FileData]
   createdAt: Date
   issueDescription: String
   order: String
@@ -1438,66 +1525,6 @@ type GetShippingSettingsResponse {
   defaultReturnPolicy: ObjectId
 }
 
-input createRoleBySuperAdminInput {
-  name: String!
-  description: String
-  permissions: [String]
-}
-
-input updateRoleBySuperAdminInput {
-  roleId: ObjectId!
-  name: String
-  description: String
-  permissions: [String]
-}
-
-input deleteRoleBySuperAdminInput {
-  roleId: ObjectId!
-}
-
-input getRoleBySuperAdminInput {
-  roleId: ObjectId!
-}
-
-input updateStatusRoleBySuperAdminInput {
-  roleId: ObjectId!
-  isEnable: Boolean!
-}
-
-input getAllRolesBySuperAdminInput {
-  page: Int
-  size: Int
-  search: String
-  isEnable: Boolean
-}
-
-type createRoleBySuperAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type getRoleBySuperAdminResponse {
-  _id: ObjectId
-  name: String
-  description: String
-  permissions: [String]
-  isEnable: Boolean
-}
-
-type Roles {
-  _id: ObjectId
-  name: String
-  description: String
-  permissions: [String]
-  isEnable: Boolean
-}
-
-type getAllRolesBySuperAdminResponse {
-  success: Boolean
-  data: [Roles]
-  maxRecords: Int
-}
-
 input getDefaultReturnPolicyInProductInput {
   brandId: ObjectId
   categoryId: ObjectId
@@ -1597,6 +1624,66 @@ type getReturnPolicyOfOrderProductResponse {
   returnCharge: Int
   returnPolicyDescription: String
   returnPeriod: Int
+}
+
+input createRoleBySuperAdminInput {
+  name: String!
+  description: String
+  permissions: [String]
+}
+
+input updateRoleBySuperAdminInput {
+  roleId: ObjectId!
+  name: String
+  description: String
+  permissions: [String]
+}
+
+input deleteRoleBySuperAdminInput {
+  roleId: ObjectId!
+}
+
+input getRoleBySuperAdminInput {
+  roleId: ObjectId!
+}
+
+input updateStatusRoleBySuperAdminInput {
+  roleId: ObjectId!
+  isEnable: Boolean!
+}
+
+input getAllRolesBySuperAdminInput {
+  page: Int
+  size: Int
+  search: String
+  isEnable: Boolean
+}
+
+type createRoleBySuperAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type getRoleBySuperAdminResponse {
+  _id: ObjectId
+  name: String
+  description: String
+  permissions: [String]
+  isEnable: Boolean
+}
+
+type Roles {
+  _id: ObjectId
+  name: String
+  description: String
+  permissions: [String]
+  isEnable: Boolean
+}
+
+type getAllRolesBySuperAdminResponse {
+  success: Boolean
+  data: [Roles]
+  maxRecords: Int
 }
 
 type File {
@@ -2071,42 +2158,6 @@ type getProductsMaxPriceResponse {
 type GetProductsMaxPriceInMobileResponse {
   maxPrice: Int
   message: String
-}
-
-input getAllNotificationInput {
-  filter: String
-}
-
-type NotificationType {
-  _id: ObjectId
-  message: String
-  permissions: [String]
-  orderId: String
-  title: String
-  productId: ObjectId
-  type: String
-  view: [viewType]
-  createdAt: Date
-  updatedAt: Date
-}
-
-type getAllNotificationResponse {
-  allNotification: [NotificationType]
-  unReadCount: Int
-}
-
-type viewType {
-  id: ObjectId
-  remove: Boolean
-}
-
-input addNotificationViewPersonIdInput {
-  notificationId: ObjectId
-}
-
-type addNotificationViewPersonIdResponse {
-  status: Boolean
-  msg: String
 }
 
 input CreateUserOrderInput {
@@ -2945,6 +2996,42 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
+input getAllNotificationInput {
+  filter: String
+}
+
+type NotificationType {
+  _id: ObjectId
+  message: String
+  permissions: [String]
+  orderId: String
+  title: String
+  productId: ObjectId
+  type: String
+  view: [viewType]
+  createdAt: Date
+  updatedAt: Date
+}
+
+type getAllNotificationResponse {
+  allNotification: [NotificationType]
+  unReadCount: Int
+}
+
+type viewType {
+  id: ObjectId
+  remove: Boolean
+}
+
+input addNotificationViewPersonIdInput {
+  notificationId: ObjectId
+}
+
+type addNotificationViewPersonIdResponse {
+  status: Boolean
+  msg: String
+}
+
 input ExportAdminOrdersInput {
   _id: ObjectId
   userId: ObjectId
@@ -3075,6 +3162,18 @@ type getDeliveryAgentlistCustomizOrderAssigenResponse {
   _id: ObjectId
   fullName: String
   contactNumber: String
+}
+
+input warrantyCallAssignDeliveryAgent {
+  warrantyCallID: ObjectId
+  deliveryAgentId: ObjectId!
+  deliveryAgentName: String
+  bundleCount: Int
+}
+
+type warrantyCallAssignDeliveryAgentResponse {
+  status: Boolean!
+  msg: String!
 }
 
 type Village {
