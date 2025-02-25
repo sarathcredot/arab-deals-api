@@ -140,7 +140,7 @@ export const warrantyClaimResolver: Resolvers = {
           
             try {
                 const claimRequestId:Types.ObjectId=input.claimRequestId
-                const claimStatus = input.claimStatus as "Pending" | "Approved" | "Rejected";
+                const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "REJECTED";
                 const rejectedReason: string | null = input?.rejectedReason || null;
 
                 if(!claimRequestId){
@@ -165,11 +165,11 @@ export const warrantyClaimResolver: Resolvers = {
 
                 existingClaimRequest.claimStatus=claimStatus
 
-                if(claimStatus==="Approved"){
+                if(claimStatus==="APPROVED"){
                      existingClaimRequest.claimDate=new Date();
                 }
 
-                if (claimStatus === "Rejected") {
+                if (claimStatus === "REJECTED") {
                     if (!rejectedReason) {
                         throw new GraphQLError("Rejection reason is required for rejected claims", {
                             extensions: {

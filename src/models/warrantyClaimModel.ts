@@ -129,8 +129,8 @@ const warrantyClaimSchema = new Schema(
         },
         claimStatus: { 
             type: String, 
-            enum: ["Pending", "Approved", "Rejected"], 
-            default: "Pending" 
+            enum: ["PENDING", "APPROVED", "REJECTED"], 
+            default: "PENDING" 
         },
          issueDescription: { 
             type: String,

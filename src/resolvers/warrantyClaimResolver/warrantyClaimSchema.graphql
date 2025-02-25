@@ -70,6 +70,7 @@ type warranty{
 }
 
 type claimProductDetail{
+    productId:String
     warranty:warranty
     productName:String
     deliveryDate:Date
@@ -89,6 +90,10 @@ type claimProductDetail{
 
 type claimVendorDetail{
   fullName:String
+}
+
+type claimProductsDetail{
+  images:[FileData]
 }
 
 type warrantyAddress{
@@ -115,6 +120,7 @@ type getClaimRequestDetailsByAdminResponse{
     user:claimUserDetail
     product:claimProductDetail
     vendor:claimVendorDetail
+    products:claimProductsDetail
     createdAt: Date
     issueDescription: String
     order:String
