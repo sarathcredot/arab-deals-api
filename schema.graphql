@@ -12,6 +12,7 @@ type Mutation {
   deleteWarrantyPolicyByAdmin(input: deleteWarrantyPolicyByAdminInput!): deleteWarrantyPolicyByAdminResponse
   updateStatusWarrantyPolicyByAdmin(input: updateStatusWarrantyPolicyByAdminInput!): updateStatusWarrantyPolicyByAdminResponse
   createWarrantyClaimRequestByUSer(input: createWarrantyClaimRequestByUSerInput!, image: [Upload]): createWarrantyClaimRequestByUSerResponse
+  updateClaimStatusByAdmin(input: updateClaimStatusByAdminInput!): updateClaimStatusByAdminResponse
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -526,10 +527,17 @@ input getAllClaimRequestsByAdminInput {
   page: Int
   size: Int
   search: String
+  claimStatus: String
 }
 
 input getClaimRequestDetailsByAdminInput {
   claimRequestId: ObjectId!
+}
+
+input updateClaimStatusByAdminInput {
+  claimRequestId: ObjectId!
+  claimStatus: String!
+  rejectedReason: String
 }
 
 type claimUserDetail {
@@ -590,17 +598,26 @@ type createWarrantyClaimRequestByUSerResponse {
   message: String
 }
 
+type updateClaimStatusByAdminResponse {
+  success: Boolean
+  message: String
+}
+
 type claimUser {
   displayName: String
 }
 
 type claimProduct {
   productName: String
+  _id: ObjectId
+  itemId: String
 }
 
 type claimData {
   user: claimUser
   product: claimProduct
+  _id: ObjectId
+  productImage: [FileData]
   createdAt: Date
   issueDescription: String
   order: String

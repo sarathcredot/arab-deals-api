@@ -14,6 +14,7 @@ import fs from "fs";
 import { returnPolicyModel } from "../../models/returnPolicyModel";
 import { shippingConfigModel } from "../../models/shippingConfigModel";
 import { warrantyPolicyModel } from "../../models/warrantyPolicyModel";
+import { warrantyClaimModel } from "../../models/warrantyClaimModel";
 
 
 export const warrantyClaimResolver: Resolvers = {
@@ -131,6 +132,69 @@ export const warrantyClaimResolver: Resolvers = {
                 });
             }
         } ,
+
+        //to update claim status by admin
+
+        updateClaimStatusByAdmin:async(parent, { input}, { req }, info) =>{
+        //    await verifyAdmin(req)
+          
+            try {
+                const claimRequestId:Types.ObjectId=input.claimRequestId
+                const claimStatus = input.claimStatus as "Pending" | "Approved" | "Rejected";
+                const rejectedReason: string | null = input?.rejectedReason || null;
+
+                if(!claimRequestId){
+                    throw new GraphQLError("claimRequestId is required", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                const existingClaimRequest=await warrantyClaimModel.findById(claimRequestId)
+
+                if(!existingClaimRequest){
+                    throw new GraphQLError("claim Request with this id is not exist", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                existingClaimRequest.claimStatus=claimStatus
+
+                if(claimStatus==="Approved"){
+                     existingClaimRequest.claimDate=new Date();
+                }
+
+                if (claimStatus === "Rejected") {
+                    if (!rejectedReason) {
+                        throw new GraphQLError("Rejection reason is required for rejected claims", {
+                            extensions: {
+                                code: "BAD_REQUEST",
+                                errors: [],
+                            },
+                        });
+                    }
+                    existingClaimRequest.rejectedReason = rejectedReason;
+                    existingClaimRequest.rejectedDate = new Date();
+                }
+
+                await existingClaimRequest.save();
+
+                return {
+                    success: true,
+                    message: "Warranty Claim status updated succesfully",
+                }
+                
+            } catch (error:any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        },
            
         },
 
@@ -150,6 +214,10 @@ export const warrantyClaimResolver: Resolvers = {
                 const matchQuery: any = {};
                 if (input?.search) {
                     matchQuery.warrantyId = { $regex: input.search, $options: "i" };
+                }
+
+                if(input?.claimStatus){
+                    matchQuery.claimStatus=input.claimStatus
                 }
                 
                 

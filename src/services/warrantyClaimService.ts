@@ -77,6 +77,10 @@ export const getAllWarrantyClaimsBySuperAdmin = async (options: any, matchQuery:
                 $project: { 
                     "user.displayName": 1, 
                     "product.productName": 1, 
+                    "product._id":1,
+                    "product.itemId":1,
+                    _id:1,
+                    productImage:1,
                     createdAt: 1,   
                     issueDescription: 1,
                     order:1,
