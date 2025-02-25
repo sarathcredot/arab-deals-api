@@ -614,9 +614,9 @@ export const adminResolver: Resolvers = {
       await verifyAdmin(req)
 
       try {
-        const { deliveryLimit, returnLimit, _id } = input
+        const { deliveryLimit, returnLimit, _id ,warrantyCalllimit} = input
 
-        await adminService.updateDeliveryAgentConfig({ deliveryLimit, returnLimit, _id })
+        await adminService.updateDeliveryAgentConfig({ deliveryLimit, returnLimit, _id , warrantyCalllimit})
 
         return {
 
