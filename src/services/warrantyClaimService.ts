@@ -196,6 +196,7 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
                     "product.productId":1,
                     "vendor.fullName":1,
                     "products.images":1,
+                    _id:1,
                     createdAt: 1,   
                     issueDescription: 1,
                     order:1,
@@ -223,3 +224,5 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
         throw error
     }
 }
+
+

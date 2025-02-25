@@ -1,4 +1,4 @@
-import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService } from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, warrantyClaimService } from "../../services";
 
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
@@ -1290,6 +1290,70 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
+
+    //to get assigned pending warranty pickups by agent
+
+    // getPendingWarrantyPickupsByAgent: async (parent, { input }, { req }, info) => {
+    //   console.log("called")
+    //   await verifyDeliveryAgent(req);
+    //   const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+
+    //   const page: number = input?.page || 0;
+    //   const limit: number = input?.limit || Infinity;
+
+    //   if (!agentId) {
+    //     throw new GraphQLError("All Fields are required", {
+    //       extensions: { code: "BAD_USER_INPUT" },
+    //     });
+    //   }
+
+    //   if (!Types.ObjectId.isValid(agentId)) {
+    //     throw new GraphQLError("Invalid Agent ID format", {
+    //       extensions: { code: "BAD_USER_INPUT" },
+    //     });
+    //   }
+
+    //   const claimFilter: Record<string, any> = {
+    //     deliveryAgentId: agentId
+    //   };
+
+    //   if (input.claimStatus) {
+    //     claimFilter.claimStatus = input.claimStatus;
+    //   }
+
+    //   const today = new Date();
+    //   claimFilter.deliveryAgentAssignedOn = {
+    //     $gte: startOfDay(today),
+    //     $lte: endOfDay(today),
+    //   };
+
+    //   console.log("returnFilter", claimFilter)
+
+    //   try {
+
+    //     const { records, totalCount } = await warrantyClaimService.getPendingWarrantyPickupsByAgent(
+    //       claimFilter,
+    //       {},
+    //       { lean: true, page, limit },
+    //     );
+
+
+    //     console.log(records)
+    //     console.log(totalCount)
+
+    //     return {
+    //       records,
+    //       totalCount
+    //     };
+
+    //   } catch (error: any) {
+    //     throw new GraphQLError(error.message || "Error fetching Delivery Agent return orders", {
+    //       extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+    //     });
+    //   }
+
+    // },
 
     //to get all governorates and villages
 
