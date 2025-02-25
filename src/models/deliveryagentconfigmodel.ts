@@ -13,7 +13,12 @@ const deliveryAgentConfigSchema = new Schema(
         returnOrderAssignLimit:{
             type:Number,
             default:0
+        },
+        warrantyCallAssignLimit:{
+            type:Number,
+            default:0
         }
+
     },
     {
         _id: true,

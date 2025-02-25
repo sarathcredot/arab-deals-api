@@ -101,6 +101,7 @@ type Mutation {
   updateAvailableStatus(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input: UpdateAvailableStatusInput!): AllDeliveryAgentResponse!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  warrantyCallAssignDeliveryAgent(input: warrantyCallAssignDeliveryAgent!): warrantyCallAssignDeliveryAgentResponse!
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
   adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
@@ -3169,6 +3170,18 @@ type getDeliveryAgentlistCustomizOrderAssigenResponse {
   contactNumber: String
 }
 
+input warrantyCallAssignDeliveryAgent {
+  warrantyCallID: ObjectId
+  deliveryAgentId: ObjectId!
+  deliveryAgentName: String
+  bundleCount: Int
+}
+
+type warrantyCallAssignDeliveryAgentResponse {
+  status: Boolean!
+  msg: String!
+}
+
 type Village {
   _id: String!
   name: String!
@@ -4952,12 +4965,14 @@ type getAllDeliveryAgentConfigResponse {
   _id: ObjectId
   orderAssignLimit: Int
   returnOrderAssignLimit: Int
+  warrantyCallAssignLimit: Int
 }
 
 input updateDeliveryAgentConfigInput {
   _id: ObjectId!
   deliveryLimit: Int!
   returnLimit: Int!
+  warrantyCalllimit: Int!
 }
 
 input cretaeDeliveryAgentConfigInput {

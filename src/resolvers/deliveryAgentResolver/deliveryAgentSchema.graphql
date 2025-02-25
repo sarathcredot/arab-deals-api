@@ -23,6 +23,7 @@ type Mutation {
   updateAvailableStatus(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
   updateAvailableStatusByAdmin(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
   resetPassword(input:ResetPasswordInput!):ResetPasswordResponse!
+  warrantyCallAssignDeliveryAgent(input:warrantyCallAssignDeliveryAgent!):warrantyCallAssignDeliveryAgentResponse!
   }
 
 
@@ -68,6 +69,25 @@ type Query{
        fullName:String
        contactNumber:String
  }
+
+
+
+input warrantyCallAssignDeliveryAgent{
+
+
+       warrantyCallID:ObjectId,
+       deliveryAgentId:ObjectId!
+       deliveryAgentName:String
+       bundleCount:Int
+
+}
+
+type warrantyCallAssignDeliveryAgentResponse{
+
+      status:Boolean!
+      msg:String!
+}
+
 
 
 

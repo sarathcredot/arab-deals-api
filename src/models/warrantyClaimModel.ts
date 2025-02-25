@@ -155,7 +155,18 @@ const warrantyClaimSchema = new Schema(
         },
         warrantyAddress:{
             type:warrantyAddressSchema
-        }
+        },
+        deliveryAgentId: {
+
+            type: Schema.Types.ObjectId,
+            ref: collections.DELIVERYAGENT
+        },
+
+        deliveryAgentName: {
+
+            type:String
+        },
+        deliveryAgentAssignedOn:Date
     },
     { timestamps: true }
   );

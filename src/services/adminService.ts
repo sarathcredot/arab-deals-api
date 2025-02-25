@@ -113,14 +113,13 @@ export const cretaeDeliveryAgentConfig = async (limit: number): Promise<any> => 
 
     try {
 
-      const options = {
+         await deliveryAgentConfigModel.findByIdAndUpdate({_id:"67763154514c3543eeaa26be"},{
 
-        orderAssignLimit: limit
-      }
-
-      const final = new deliveryAgentConfigModel(options)
-      await final.save()
-      resolve({})
+             $set:{
+              warrantyCallAssignLimit:limit
+             }
+         })
+         resolve(true)
 
     } catch (error) {
 
@@ -129,7 +128,7 @@ export const cretaeDeliveryAgentConfig = async (limit: number): Promise<any> => 
   })
 }
 
-export const updateDeliveryAgentConfig = async (data: { deliveryLimit: number, _id: Types.ObjectId, returnLimit: number }): Promise<any> => {
+export const updateDeliveryAgentConfig = async (data: { deliveryLimit: number, _id: Types.ObjectId, returnLimit: number ,warrantyCalllimit:number}): Promise<any> => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -140,7 +139,8 @@ export const updateDeliveryAgentConfig = async (data: { deliveryLimit: number, _
 
         $set: {
           orderAssignLimit: data.deliveryLimit,
-          returnOrderAssignLimit: data.returnLimit
+          returnOrderAssignLimit: data.returnLimit,
+          warrantyCallAssignLimit:data.warrantyCalllimit
         }
 
       }, { upsert: true })

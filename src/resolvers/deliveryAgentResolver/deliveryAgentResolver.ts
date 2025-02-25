@@ -42,7 +42,7 @@ type OrderAssignDeliveryAgentInput = {
   orderItemId: Types.ObjectId
   deliveryAgentId: Types.ObjectId
   deliveryAgentName: string
-  bundleCount:number
+  bundleCount: number
 
 }
 
@@ -58,7 +58,7 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(input)
       // await verifyAdmin(req);
       await validateInput(validators.deliveryAgentCreateByAdminValidator, req);
-    
+
       let fullName: string = input.fullName;
       let contactNumber: string = input.contactNumber;
       let userID: string = input.userID;
@@ -72,7 +72,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       try {
         // Check if the contact number already exists
-       
+
         let licence: deliveryAgentService.FileData | undefined;
 
         if (image) {
@@ -109,10 +109,10 @@ export const deliveryAgentResolver: Resolvers = {
           { lean: true }
         );
 
-      
+
 
         if (existingContact) {
-       
+
           throw new GraphQLError("Contact number already exists", {
             extensions: { code: "BAD_REQUEST" },
           });
@@ -156,7 +156,7 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
-    
+
 
     // delivery agent suspension from admin side
     suspendDeliveryAgent: async (parent, { input }, { req }, info) => {
@@ -260,11 +260,11 @@ export const deliveryAgentResolver: Resolvers = {
 
 
     //update available status by admin
-    
+
     updateAvailableStatusByAdmin: async (parent, { input }, { req }, info) => {
       console.log("ethyyy")
       await verifyAdmin(req);
-      const { isAvailable,agentId } = input;
+      const { isAvailable, agentId } = input;
 
       // Validate the input
       if (!agentId) {
@@ -507,12 +507,12 @@ export const deliveryAgentResolver: Resolvers = {
               userID: input.userID,
               agentType: input.agentType,
               vendorID: input.vendorID,
-              isActive:input.isActive,
-              isAvailable:input.isAvailable,
-              governorate:input.governorate,
-              village:input.village,
-              governorateID:input.governorateID,
-              villageID:input.villageID,
+              isActive: input.isActive,
+              isAvailable: input.isAvailable,
+              governorate: input.governorate,
+              village: input.village,
+              governorateID: input.governorateID,
+              villageID: input.villageID,
               licence: uploaddlicence
             }
 
@@ -525,12 +525,12 @@ export const deliveryAgentResolver: Resolvers = {
               userID: input.userID,
               agentType: input.agentType,
               vendorID: input.vendorID,
-              isActive:input.isActive,
-              isAvailable:input.isAvailable,
-              governorate:input.governorate,
-              village:input.village,
-              governorateID:input.governorateID,
-              villageID:input.villageID,
+              isActive: input.isActive,
+              isAvailable: input.isAvailable,
+              governorate: input.governorate,
+              village: input.village,
+              governorateID: input.governorateID,
+              villageID: input.villageID,
 
             }
           }
@@ -693,9 +693,9 @@ export const deliveryAgentResolver: Resolvers = {
         // input validation
         // await validateInput(validators.orderAssignDeliveryAgentValidator, req)
 
-        const { orderItemId, deliveryAgentId, deliveryAgentName,bundleCount } = input
+        const { orderItemId, deliveryAgentId, deliveryAgentName, bundleCount } = input
 
-        const result:any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+        const result: any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
 
         if (result.flag) {
           return {
@@ -723,6 +723,37 @@ export const deliveryAgentResolver: Resolvers = {
 
       }
     },
+
+
+    warrantyCallAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
+
+      try {
+
+        return {
+
+            status:true,
+            msg:""
+        }
+
+
+
+      } catch (error) {
+
+        throw new GraphQLError("Unable to assigen delivery agent", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+      }
+
+    },
+
+
+
+
+
 
     //change return status from agent side
     returnStatusChangeDeliveryAgent: async (parent, { input }, { req }, info) => {
@@ -879,7 +910,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         // check this delivery status POSTPONED
 
-        if (input.deliveryStatus === "POSTPONED"||input.deliveryStatus === "OUT_FOR_DELIVERY") {
+        if (input.deliveryStatus === "POSTPONED" || input.deliveryStatus === "OUT_FOR_DELIVERY") {
 
           console.log(input.deliveryStatus)
           const obj = {
@@ -1149,7 +1180,7 @@ export const deliveryAgentResolver: Resolvers = {
           });
         }
 
-        console.log("existingAgent",existingAgent)
+        console.log("existingAgent", existingAgent)
 
         // Hash and set the new password
         await existingAgent.setHash!(newPassword);
@@ -1167,6 +1198,16 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
+
+
+
+
+
+
+
+
+
+
 
 
   },
@@ -1239,9 +1280,9 @@ export const deliveryAgentResolver: Resolvers = {
 
     //to get all governorates and villages
 
-    getLocationsData: async (parent, {  }, { req }, info) => {
+    getLocationsData: async (parent, { }, { req }, info) => {
       console.log("called")
-      console.log("locations",locations)
+      console.log("locations", locations)
       return locations.governorates;
     },
 
@@ -1310,10 +1351,10 @@ export const deliveryAgentResolver: Resolvers = {
             lastSettlementID: 1,
             wallet: 1,
             ID: 1,
-            governorate:1,
-            village:1,
-            governorateID:1,
-            villageID:1
+            governorate: 1,
+            village: 1,
+            governorateID: 1,
+            villageID: 1
           },
           { lean: true, page, limit },
           settlementHistoryFilter
@@ -2047,10 +2088,10 @@ export const deliveryAgentResolver: Resolvers = {
 
           deliveryAgentType: input?.deliveryAgentType || " ",
           vendorID: input?.vendorID || undefined,
-          villageID:input?.villageID || "",
-          governorateID:input?.governorateID || ""
+          villageID: input?.villageID || "",
+          governorateID: input?.governorateID || ""
         }
-console.log(options, 'INPUT OPTIONS')
+        console.log(options, 'INPUT OPTIONS')
         const result = await deliveryAgentService.getDeliveryAgentlistCustomizOrderAssigen(options)
 
         return result
@@ -2065,6 +2106,8 @@ console.log(options, 'INPUT OPTIONS')
         });
       }
     }
+
+
 
 
   }

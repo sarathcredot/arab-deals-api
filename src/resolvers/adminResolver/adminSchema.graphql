@@ -83,6 +83,8 @@ type getAllDeliveryAgentConfigResponse{
        _id:ObjectId,
        orderAssignLimit:Int
        returnOrderAssignLimit:Int
+       warrantyCallAssignLimit:Int
+
 }
 
 
@@ -90,6 +92,8 @@ input updateDeliveryAgentConfigInput{
         _id:ObjectId!
         deliveryLimit:Int!
         returnLimit:Int!
+        warrantyCalllimit:Int!
+        
 }
 
 
