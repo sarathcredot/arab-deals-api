@@ -160,6 +160,17 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
             {
                 $unwind: { path: "$vendor", preserveNullAndEmptyArrays: true }
             },
+            {
+                $lookup: {
+                    from: collections.PRODUCTS, 
+                    localField: "product.productId", 
+                    foreignField: "_id",
+                    as: "products"
+                }
+            },
+            {
+                $unwind: { path: "$products", preserveNullAndEmptyArrays: true }
+            },
             { 
                 $project: { 
                     "user.displayName": 1, 
@@ -182,7 +193,9 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
                     "product.courierId": 1, 
                     "product.invoiceNumber": 1, 
                     "product.warehouseSkuId": 1, 
+                    "product.productId":1,
                     "vendor.fullName":1,
+                    "products.images":1,
                     createdAt: 1,   
                     issueDescription: 1,
                     order:1,
