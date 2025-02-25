@@ -76,7 +76,7 @@ export const warrantyClaimResolver: Resolvers = {
                     });
                 }
 
-                if(existingOrderProduct.warranty.warrantyRegister === false){
+                if(!existingOrderProduct.warranty.warrantyRegister){
                     throw new GraphQLError("Warranty is not registered for this product", {
                         extensions: {
                             code: "BAD_REQUEST",
