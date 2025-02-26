@@ -112,61 +112,90 @@ const warrantyClaimSchema = new Schema(
     {
         user: {
             type: Schema.Types.ObjectId,
-            ref: collections.USERS,
+            ref:collections.USERS ,
             required: true
-        },
+            },
         product: {
             type: Schema.Types.ObjectId,
             ref: collections.ORDER_PRODUCTS,
             required: true
         },
         order: {
-            type: String,
-            required: true
+           type:String,
+           required: true
         },
-        claimType: { 
-            type: String, 
+        warrantyId:{
+             type:String
+        },
+        claimStatus: {
+            type: String,
+            enum: ["PENDING", "APPROVED", "REJECTED","PACKAGE_IN_PROGRESS","REPLACEMENT_SHIPPED","OUT_FOR_DELIVERY","REPLACEMENT_COMPLETED ","RETURNED_TO_WAREHOUSE","POSTPONED"],
+            default: "PENDING"
+        },
+         issueDescription: {
+            type: String,
+             required: true
+             },
+        claimDate: {
+            type: Date,
+        },
+        claimType: {
+            type: String,
             enum: ["REPLACEMENT","REPAIR"],
-            required: true 
+            required: true
         },
         rejectedReason: {
             type: String,
         },
-        replacementShippedDate: {
-            type: Date
-        },
-        replacementCompletedDate: {
-
-            type: Date
-        },
-        returnedWarehouseDate: {
-
-            type: Date
-        },
-
         rejectedDate: {
+            type: Date,
+        },
+        replacementDate: {
+            type: Date,
+        },
+        replacementReason: {
+            type: String,
+        },
+        postponedDate: {
+            type: Date,
+        },
+        postponedReason: {
+            type: String,
+        },
+        returnDate: {
             type: Date,
         },
         productImage: {
             type: [fileSchema],
         },
-        warrantyAddress: {
-            type: warrantyAddressSchema
+        warrantyAddress:{
+            type:warrantyAddressSchema
         },
         deliveryAgentId: {
-
             type: Schema.Types.ObjectId,
             ref: collections.DELIVERYAGENT
         },
-
         deliveryAgentName: {
-
+            type:String
+        },
+        productImageUploadByAgent:{
+            type: [fileSchema],
+        },
+        replacementDeliveredLocation:{
             type: String
         },
-        deliveryAgentAssignedOn: Date
+        otp:{
+            code:{
+               type:String
+            },
+            expiresAt:{
+               type:String
+            }
+        },
+        deliveryAgentAssignedOn:Date
     },
     { timestamps: true }
-);
+  );
 
 
 const warrantyClaimModel = model(collections.WARRANTY_CLAIM, warrantyClaimSchema);

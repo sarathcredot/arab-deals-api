@@ -49,10 +49,63 @@ type Query{
    getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getDeliveryAgentlistCustomizOrderAssigen(input:getDeliveryAgentlistCustomizOrderAssigenInput):[getDeliveryAgentlistCustomizOrderAssigenResponse]!
    getLocationsData:[Locations]!
+   getDeliveryAgentWarrantyCall(input:getDeliveryAgentWarrantyCallInput!):getDeliveryAgentWarrantyCallResponse!
    getPendingWarrantyPickupsByAgent(input:getPendingWarrantyPickupsByAgentInput):getPendingWarrantyPickupsByAgentResponse
    getHistoryOfWarrantyPickupsByAgent(input:getPendingWarrantyPickupsByAgentInput):getPendingWarrantyPickupsByAgentResponse
    getDetailsOfWarrantyPickupsByAgent(input:getDetailsOfWarrantyPickupsByAgentInput!):getDetailsOfWarrantyPickupsByAgentResponse
+
 }
+
+
+input getDeliveryAgentWarrantyCallInput{
+
+      agentId:ObjectId!
+      claimStatus:String
+      page:Int
+      limit:Int
+      date:Date
+}
+
+type getDeliveryAgentWarrantyCallResponse{
+
+  records: [AdminWarrantyCallDetails]
+  totalCount:Float
+  
+  page: Float
+  totalPages: Float 
+}
+
+
+type AdminWarrantyCallDetails{
+  
+  _id:ObjectId
+  warrantyId:String
+  userName:String
+  productName:String
+  deliveryAgentAssignedOn:Date
+  claimStatus:String
+       
+}
+
+
+input getAssignedWarrantyCallDeliveryAgentInput{
+
+          _id:ObjectId!
+        page:Int
+        size:Int
+        startDate:Date
+        endDate:Date
+}
+
+
+type getAssignedWarrantyCallDeliveryAgentResponse{
+
+     
+     records: [GetAssignedOrderBundleByDeliveryAgentResponseArry ],
+     maxRecords: Int
+}
+
+   
 
 
 input getDetailsOfWarrantyPickupsByAgentInput{

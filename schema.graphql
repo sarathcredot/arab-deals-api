@@ -23,12 +23,12 @@ type Mutation {
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   logoutVendor: LogoutVendorResponse!
-  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
-  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
+  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
+  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
   editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
   removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
@@ -165,12 +165,12 @@ type Query {
   getVendorRecordByVendor: VendorsRecordByVendorResponse!
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
-  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
-  getVendorOutletRecord: VendorOutletRecordResponse!
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
@@ -258,6 +258,7 @@ type Query {
   getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!): GetDeliveryAgentReturnOrderResponse!
   getDeliveryAgentlistCustomizOrderAssigen(input: getDeliveryAgentlistCustomizOrderAssigenInput): [getDeliveryAgentlistCustomizOrderAssigenResponse]!
   getLocationsData: [Locations]!
+  getDeliveryAgentWarrantyCall(input: getDeliveryAgentWarrantyCallInput!): getDeliveryAgentWarrantyCallResponse!
   getPendingWarrantyPickupsByAgent(input: getPendingWarrantyPickupsByAgentInput): getPendingWarrantyPickupsByAgentResponse
   getHistoryOfWarrantyPickupsByAgent(input: getPendingWarrantyPickupsByAgentInput): getPendingWarrantyPickupsByAgentResponse
   getDetailsOfWarrantyPickupsByAgent(input: getDetailsOfWarrantyPickupsByAgentInput!): getDetailsOfWarrantyPickupsByAgentResponse
@@ -902,6 +903,103 @@ type VendorsRecordsByAdminResponse {
   message: String
 }
 
+input UpdateVendorCompanyByAdminInput {
+  _id: ObjectId!
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  remarks: [String!]
+}
+
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
+}
+
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
+  _id: String
+  fullName: String
+  isKycCompleted: String
+  companyName: String
+  companyType: String
+  status: String
+  crNumber: String
+}
+
+input AddVendorCompanyInput {
+  companyName: String!
+  companyType: String!
+  crNumber: String!
+}
+
+input UpdateVendorCompanyInput {
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+type AddVendorCompanyResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyResponse {
+  message: String
+}
+
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyByAdminResponse {
+  message: String
+}
+
+input VendorCompanyIdInput {
+  _id: String!
+}
+
+input VendorCompanyRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+  fullName: String
+  companyName: String
+  vendorId: ObjectId
+  crNumber: String
+}
+
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorCompanyRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorCompanyRecordsWithKycData!]
+  message: String
+}
+
+type VendorCompanyStatusUpdationResponse {
+  _id: String
+  message: String
+}
+
+type GetVendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
 type VendorOutlet {
   _id: String
   vendorId: String
@@ -1033,103 +1131,6 @@ type VendorOutletRecordsByAdminResponse {
 type VendorOutletStatusUpdationResponse {
   _id: String
   status: String
-  message: String
-}
-
-input UpdateVendorCompanyByAdminInput {
-  _id: ObjectId!
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  remarks: [String!]
-}
-
-type VendorCompany {
-  _id: String
-  vendorId: String
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  crLicense: ImageData
-  cooCertificate: ImageData
-  remarks: [String]
-}
-
-type vendorCompanyRecordsWithKycData {
-  vendorId: String
-  _id: String
-  fullName: String
-  isKycCompleted: String
-  companyName: String
-  companyType: String
-  status: String
-  crNumber: String
-}
-
-input AddVendorCompanyInput {
-  companyName: String!
-  companyType: String!
-  crNumber: String!
-}
-
-input UpdateVendorCompanyInput {
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-type AddVendorCompanyResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyResponse {
-  message: String
-}
-
-type VendorCompanyDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyByAdminResponse {
-  message: String
-}
-
-input VendorCompanyIdInput {
-  _id: String!
-}
-
-input VendorCompanyRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-  fullName: String
-  companyName: String
-  vendorId: ObjectId
-  crNumber: String
-}
-
-type VendorCompanyRecordResponse {
-  record: VendorCompany!
-  message: String
-}
-
-type VendorCompanyRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorCompanyRecordsWithKycData!]
-  message: String
-}
-
-type VendorCompanyStatusUpdationResponse {
-  _id: String
-  message: String
-}
-
-type GetVendorCompanyRecordResponse {
-  record: VendorCompany!
   message: String
 }
 
@@ -3161,6 +3162,43 @@ type GetAdminSignedFileUrlResponse {
 
 type GetUserIvoiceUrlResponse {
   url: String
+}
+
+input getDeliveryAgentWarrantyCallInput {
+  agentId: ObjectId!
+  claimStatus: String
+  page: Int
+  limit: Int
+  date: Date
+}
+
+type getDeliveryAgentWarrantyCallResponse {
+  records: [AdminWarrantyCallDetails]
+  totalCount: Float
+  page: Float
+  totalPages: Float
+}
+
+type AdminWarrantyCallDetails {
+  _id: ObjectId
+  warrantyId: String
+  userName: String
+  productName: String
+  deliveryAgentAssignedOn: Date
+  claimStatus: String
+}
+
+input getAssignedWarrantyCallDeliveryAgentInput {
+  _id: ObjectId!
+  page: Int
+  size: Int
+  startDate: Date
+  endDate: Date
+}
+
+type getAssignedWarrantyCallDeliveryAgentResponse {
+  records: [GetAssignedOrderBundleByDeliveryAgentResponseArry]
+  maxRecords: Int
 }
 
 input getDetailsOfWarrantyPickupsByAgentInput {
