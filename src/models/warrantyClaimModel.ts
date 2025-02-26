@@ -184,6 +184,9 @@ const warrantyClaimSchema = new Schema(
         productImageUploadByAgent:{
             type: [fileSchema],
         },
+        replacementDeliveredLocation:{
+            type: String
+        },
         otp:{
             code:{
                type:String

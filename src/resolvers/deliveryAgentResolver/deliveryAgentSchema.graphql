@@ -27,6 +27,7 @@ type Mutation {
   uploadWarrantyProductImageByAgent(input:uploadWarrantyProductImageByAgentInput!,image:[Upload]):uploadWarrantyProductImageByAgentResponse
   updateClaimStatusByAgent(input:updateClaimStatusByAgentInput!):updateClaimStatusByAgentResponse
   claimOtpVerification(input:claimOtpVerificationInput!):claimOtpVerificationResponse
+  updateReplacementDeliveredLocation(input:updateReplacementDeliveredLocationInput!):updateReplacementDeliveredLocationResponse
   }
 
 
@@ -58,6 +59,18 @@ type Query{
 }
 
 
+
+
+
+input updateReplacementDeliveredLocationInput{
+    claimRequestId:ObjectId!
+    mapLocation:String!
+}
+
+
+type updateReplacementDeliveredLocationResponse{
+    message:String
+}
 
 input updateClaimStatusByAgentInput{
    claimRequestId:ObjectId!

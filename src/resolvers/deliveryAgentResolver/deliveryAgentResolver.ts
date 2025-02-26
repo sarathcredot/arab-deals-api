@@ -1364,6 +1364,36 @@ export const deliveryAgentResolver: Resolvers = {
 
     },
 
+    updateReplacementDeliveredLocation: async (parent, { input }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      let claimRequestId: Types.ObjectId = input?.claimRequestId;
+      let mapLocation: string = input?.mapLocation;
+
+      const existingClaimRequest = await warrantyClaimModel.findById(claimRequestId);
+      if (!existingClaimRequest) {
+        throw new GraphQLError(" claim request not found", {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
+
+      const result = await warrantyClaimModel.findByIdAndUpdate(claimRequestId, { replacementDeliveredLocation: mapLocation }, { new: true })
+
+      if (!result) {
+        throw new GraphQLError("Unable to update deliverd Map location", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          }
+        })
+      }
+
+      return {
+        message: " product deliverd location updated successfully",
+      }
+
+    },
+
 
     resetPassword: async (parent, { input }, { req }, info) => {
       try {
