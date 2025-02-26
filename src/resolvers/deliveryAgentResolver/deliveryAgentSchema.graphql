@@ -49,9 +49,69 @@ type Query{
    getPendingReturnsByAgent(input: GetAssignedReturnOrderInput!):GetDeliveryAgentReturnOrderResponse!
    getDeliveryAgentlistCustomizOrderAssigen(input:getDeliveryAgentlistCustomizOrderAssigenInput):[getDeliveryAgentlistCustomizOrderAssigenResponse]!
    getLocationsData:[Locations]!
+   getPendingWarrantyPickupsByAgent(input:getPendingWarrantyPickupsByAgentInput):getPendingWarrantyPickupsByAgentResponse
+   getHistoryOfWarrantyPickupsByAgent(input:getPendingWarrantyPickupsByAgentInput):getPendingWarrantyPickupsByAgentResponse
+   getDetailsOfWarrantyPickupsByAgent(input:getDetailsOfWarrantyPickupsByAgentInput!):getDetailsOfWarrantyPickupsByAgentResponse
 }
 
 
+input getDetailsOfWarrantyPickupsByAgentInput{
+   claimRequestId:ObjectId!
+}
+
+ input getPendingWarrantyPickupsByAgentInput{
+    page:Int
+    size:Int
+    claimStatus:String
+ }
+
+ type PendingClaims{
+    user:ObjectId 
+    product: ObjectId
+    order:String
+    _id:ObjectId
+    productImage:[FileData]
+    createdAt: Date
+    issueDescription: String
+    warrantyId:String
+    claimStatus:String
+    claimType:String
+    claimDate:Date
+    warrantyAddress:warrantyAddress
+}
+
+type claimProductDetailAgent{
+    productId:String
+    warranty:warranty
+    productName:String
+    deliveryDate:Date
+    shippingStatus:String
+    orderDate:Date
+    paymentStatus:String
+    shippingCharge:Float
+    sellingPrice:Float
+    paymentMode:String
+    itemId:String
+}
+
+type getDetailsOfWarrantyPickupsByAgentResponse{
+       product:claimProductDetailAgent
+      _id:ObjectId
+      productImage:[FileData]
+      createdAt: Date
+      issueDescription: String
+      warrantyId:String
+      claimStatus:String
+      claimType:String
+      claimDate:Date
+      warrantyAddress:warrantyAddress
+}
+
+ type getPendingWarrantyPickupsByAgentResponse{
+    success: Boolean
+    data: [PendingClaims]
+    maxRecords: Int
+ }
 
  input getDeliveryAgentlistCustomizOrderAssigenInput{
 
