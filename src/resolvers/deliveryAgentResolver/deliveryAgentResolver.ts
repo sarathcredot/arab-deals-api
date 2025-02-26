@@ -31,15 +31,12 @@ interface EditAgentResult {
 }
 
 type DeliveryLoginData = {
-
-
   userInput: string;
   password: string;
 
 }
 
 type OrderAssignDeliveryAgentInput = {
-
   orderItemId: Types.ObjectId
   deliveryAgentId: Types.ObjectId
   deliveryAgentName: string
@@ -48,7 +45,6 @@ type OrderAssignDeliveryAgentInput = {
 }
 
 type WarrantyCallAssignDeliveryAgentInput = {
-
   warrantyCallID: Types.ObjectId
   deliveryAgentId: Types.ObjectId
   deliveryAgentName: string
