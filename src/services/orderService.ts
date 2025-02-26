@@ -1357,7 +1357,6 @@ export const getProductDeliveryTypeDeliveryAgents = async (data: {
       } else {
         // find all ThirdParty  under deliveryagents
         let matchObj: any = {
-            vendorID: productData?.vendorId,
             agentType: "ThirdParty",
             isActive: true,
             isAvailable: true,
@@ -1372,6 +1371,7 @@ export const getProductDeliveryTypeDeliveryAgents = async (data: {
 
           
         const deliveryAgents = await deliveryAgentModel.find(matchObj);
+        console.log("matchObj = ",matchObj, " deliveryAgents = ",deliveryAgents)
 
         const obj = {
           deliveryType: "ThirdParty",
