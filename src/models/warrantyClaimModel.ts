@@ -83,26 +83,26 @@ const warrantyAddressSchema = new Schema(
             required: true,
         },
         governorate: {
-            type: String, 
-            required: true
-            },
-         village: {
             type: String,
             required: true
-           }, 
-           governorateID: {
-            type: String, 
-            required: true
-            },
-         villageID: {
-            type: String,
-            required: true
-           },
-           address:{
-            type:String,
-            required:true
         },
-        
+        village: {
+            type: String,
+            required: true
+        },
+        governorateID: {
+            type: String,
+            required: true
+        },
+        villageID: {
+            type: String,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
+        },
+
     },
     { _id: false, timestamps: true }
 );
@@ -110,17 +110,17 @@ const warrantyAddressSchema = new Schema(
 
 const warrantyClaimSchema = new Schema(
     {
-        user: { 
-            type: Schema.Types.ObjectId, 
+        user: {
+            type: Schema.Types.ObjectId,
             ref:collections.USERS ,
-            required: true 
+            required: true
             },
-        product: { 
-            type: Schema.Types.ObjectId, 
-            ref: collections.ORDER_PRODUCTS, 
-            required: true 
+        product: {
+            type: Schema.Types.ObjectId,
+            ref: collections.ORDER_PRODUCTS,
+            required: true
         },
-        order: { 
+        order: {
            type:String,
            required: true
         },
@@ -132,17 +132,17 @@ const warrantyClaimSchema = new Schema(
             enum: ["PENDING", "APPROVED", "REJECTED","PACKAGE_IN_PROGRESS","REPLACEMENT_SHIPPED","OUT_FOR_DELIVERY","REPLACEMENT_COMPLETED ","RETURNED_TO_WAREHOUSE","POSTPONED"], 
             default: "PENDING" 
         },
-         issueDescription: { 
+         issueDescription: {
             type: String,
              required: true
              },
-        claimDate: { 
-            type: Date, 
+        claimDate: {
+            type: Date,
         },
-        claimType: { 
-            type: String, 
+        claimType: {
+            type: String,
             enum: ["REPLACEMENT","REPAIR"],
-            required: true 
+            required: true
         },
         rejectedReason: {
             type: String,
@@ -172,13 +172,10 @@ const warrantyClaimSchema = new Schema(
             type:warrantyAddressSchema
         },
         deliveryAgentId: {
-
             type: Schema.Types.ObjectId,
             ref: collections.DELIVERYAGENT
         },
-
         deliveryAgentName: {
-
             type:String
         },
         productImageUploadByAgent:{
@@ -199,8 +196,8 @@ const warrantyClaimSchema = new Schema(
     },
     { timestamps: true }
   );
-  
-  
-const warrantyClaimModel=model(collections.WARRANTY_CLAIM,warrantyClaimSchema);
 
-export {warrantyClaimModel}
+
+const warrantyClaimModel = model(collections.WARRANTY_CLAIM, warrantyClaimSchema);
+
+export { warrantyClaimModel }

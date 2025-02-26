@@ -732,7 +732,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
-
+    // warranty call assign to delivery agent 
     warrantyCallAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
 
       try {
@@ -741,13 +741,13 @@ export const deliveryAgentResolver: Resolvers = {
 
         return {
 
-            status:true,
-            msg:"Warranty call assigned to delivery agent"
+          status: true,
+          msg: "Warranty call assigned to delivery agent"
         }
 
 
 
-      } catch (error:any) {
+      } catch (error: any) {
 
         throw new GraphQLError(error, {
           extensions: {
@@ -1849,6 +1849,63 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
+
+    //get delivery agent warranty call list from admin side
+
+    getDeliveryAgentWarrantyCall: async (parent, { input }, { req }, info) => {
+
+      try {
+
+        const { agentId } = input;
+
+        const page: number = input?.page || 0;
+        const limit: number = input?.limit || Infinity;
+        const date = input?.date
+
+        if (!agentId) {
+          throw new GraphQLError("All Fields are required", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+
+        const returnFilter: Record<string, any> = {
+          deliveryAgentId: agentId
+        };
+
+        if (input.claimStatus) {
+          returnFilter.claimStatus = input.claimStatus;
+        }
+
+        if (input.date) {
+          returnFilter.deliveryAgentAssignedOn = {
+            $gte: startOfDay(date),
+            $lte: endOfDay(date),
+          };
+        }
+
+
+        const { records, totalCount } = await deliveryAgentService.getDeliveryAgentWarrantyCall(returnFilter, {}, { lean: true, page, limit })
+        return {
+          records,
+          totalCount,
+          page,
+          totalPages: Math.ceil(totalCount / limit),
+        };
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+      }
+    },
+
+
+
     //get delivery agent return order list from agent side
 
     getAssignedReturnOrderByAgent: async (parent, { input }, { req }, info) => {
@@ -2373,6 +2430,50 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
+
+    // get warranty calls  bundles of agent in admin side
+
+
+    getAssignedWarrantyCallDeliveryAgent: async (parent, { input }, { req }, info) => {
+
+      try {
+
+        if (!input?._id) {
+          throw new GraphQLError("invalied delivery boy id", {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              errors: [],
+            },
+          });
+        }
+
+        const options = {
+          _id: input._id,
+          page: input?.page || 0,
+          size: input?.size || 10,
+          startDate: input?.startDate || "",
+          endDate: input?.endDate || ""
+        }
+
+        const result = await deliveryAgentService.getAssignedWarrantyCallDeliveryAgent(options)
+
+        return result
+
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+
+    },
+
+
+
 
     //to get order bundles of agent in admin side
 

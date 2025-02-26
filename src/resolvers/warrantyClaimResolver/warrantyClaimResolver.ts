@@ -140,8 +140,8 @@ export const warrantyClaimResolver: Resolvers = {
           
             try {
                 const claimRequestId:Types.ObjectId=input.claimRequestId
-                const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "REJECTED";
-                const rejectedReason: string | null = input?.rejectedReason || null;
+                const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "REJECTED" | "REPLACEMENT_SHIPPED" | "REPLACEMENT_COMPLETED" | "RETURNED_TO_WAREHOUSE" ;
+                const Reason: string | null = input?.Reason || null;
                 // const rejectedDate: Date | null = input?.rejectedDate || null;
                 // const claimDate: Date | null  = input?.claimDate || null;
 
@@ -154,7 +154,7 @@ export const warrantyClaimResolver: Resolvers = {
                     });
                 }
 
-                const existingClaimRequest=await warrantyClaimModel.findById(claimRequestId)
+                const existingClaimRequest:any=await warrantyClaimModel.findById(claimRequestId)
 
                 if(!existingClaimRequest){
                     throw new GraphQLError("claim Request with this id is not exist", {
@@ -168,13 +168,13 @@ export const warrantyClaimResolver: Resolvers = {
                 existingClaimRequest.claimStatus=claimStatus
 
                 if(claimStatus==="APPROVED"){
-                    if (input?.claimDate) {
-                        existingClaimRequest.claimDate = input.claimDate;
+                    if (input?.Date) {
+                        existingClaimRequest.claimDate = input.Date;
                     }
                 }
 
                 if (claimStatus === "REJECTED") {
-                    if (!rejectedReason) {
+                    if (!Reason) {
                         throw new GraphQLError("Rejection reason is required for rejected claims", {
                             extensions: {
                                 code: "BAD_REQUEST",
@@ -182,11 +182,36 @@ export const warrantyClaimResolver: Resolvers = {
                             },
                         });
                     }
-                    existingClaimRequest.rejectedReason = rejectedReason;
-                    if (input?.rejectedDate) {
-                        existingClaimRequest.rejectedDate = input.rejectedDate;
+                    existingClaimRequest.rejectedReason = Reason;
+                    if (input?.Date) {
+                        existingClaimRequest.rejectedDate = input.Date;
                     }
                 }
+
+
+                if(claimStatus === "REPLACEMENT_SHIPPED"){
+
+                    if (input?.Date) {
+                        existingClaimRequest.replacementShippedDate = input.Date;
+                    }
+                } 
+
+                if(claimStatus === "REPLACEMENT_COMPLETED"){
+
+                    if (input?.Date) {
+                        existingClaimRequest.replacementCompletedDate = input.Date;
+                    }
+                }
+
+                if(claimStatus === "RETURNED_TO_WAREHOUSE"){
+
+                    if (input?.Date) {
+                        existingClaimRequest.returnedWarehouseDate = input.Date;
+                    }
+                }
+
+
+
 
                 await existingClaimRequest.save();
 
