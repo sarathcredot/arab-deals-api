@@ -7,6 +7,7 @@ export const filePaths = {
     deliveryagentLicence:"public/deliveryagent/licence",
     returnProduct:"public/returnProduct",
     warrantyProduct:"public/warrantyProduct",
+    warrantyProductImage:"public/warranty/image",
     retrunProductImage:"public/return/image",
     brand: "public/brand",
     vendorCompany: "public/kyc/vendorCompany",

@@ -24,6 +24,7 @@ type Mutation {
   updateAvailableStatusByAdmin(input:UpdateAvailableStatusInput!):AllDeliveryAgentResponse!
   resetPassword(input:ResetPasswordInput!):ResetPasswordResponse!
   warrantyCallAssignDeliveryAgent(input:warrantyCallAssignDeliveryAgent!):warrantyCallAssignDeliveryAgentResponse!
+  uploadWarrantyProductImageByAgent(input:uploadWarrantyProductImageByAgentInput!,image:[Upload]):uploadWarrantyProductImageByAgentResponse
   }
 
 
@@ -54,6 +55,15 @@ type Query{
    getDetailsOfWarrantyPickupsByAgent(input:getDetailsOfWarrantyPickupsByAgentInput!):getDetailsOfWarrantyPickupsByAgentResponse
 }
 
+
+
+input uploadWarrantyProductImageByAgentInput{
+  claimRequestId:ObjectId!
+}
+
+type uploadWarrantyProductImageByAgentResponse{
+    message:String
+}
 
 input getDetailsOfWarrantyPickupsByAgentInput{
    claimRequestId:ObjectId!

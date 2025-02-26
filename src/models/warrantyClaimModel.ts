@@ -166,6 +166,9 @@ const warrantyClaimSchema = new Schema(
 
             type:String
         },
+        productImageUploadByAgent:{
+            type: [fileSchema],
+        },
         deliveryAgentAssignedOn:Date
     },
     { timestamps: true }

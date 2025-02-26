@@ -20,6 +20,7 @@ import { startOfDay, endOfDay } from "date-fns"
 
 import path from "path";
 import fs from "fs";
+import { warrantyClaimModel } from "../../models/warrantyClaimModel";
 
 // Load the static JSON file
 const locationsPath = path.resolve(__dirname, "../../../public/locations.json");
@@ -1131,6 +1132,64 @@ export const deliveryAgentResolver: Resolvers = {
 
       return {
         message: "return product image uploaded successfully",
+      }
+
+    },
+
+    uploadWarrantyProductImageByAgent: async (parent, { input, image }, { req }, info) => {
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+
+      console.log(input);
+
+      let warrantyProduct = [];
+
+      let claimRequestId: Types.ObjectId = input?.claimRequestId;
+
+      const existingClaimRequest = await warrantyClaimModel.findById(claimRequestId);
+
+      if (!existingClaimRequest) {
+        throw new GraphQLError("Warranty Claim not found!!Try Again!!!", {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
+
+      if (image) {
+        try {
+          for (let images of image) {
+
+            const { createReadStream, filename, mimetype, encoding } = await images;
+            const key = spaceService.getFileKey(filePaths.warrantyProductImage, filename, []);
+            const stream = createReadStream();
+            const file = await spaceService.publicFileUpload(key, mimetype, { mimetype: mimetype }, stream);
+
+            warrantyProduct.push({
+              fileType: "PUBLIC",
+              fileURL: file.location,
+              mimeType: mimetype,
+              originalName: filename
+            });
+          }
+        } catch (error) {
+          throw new GraphQLError("image upload failed", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+          });
+        }
+      }
+
+      const result = await warrantyClaimModel.findByIdAndUpdate(claimRequestId, { productImageUploadByAgent: warrantyProduct }, { new: true })
+
+      if (!result) {
+        throw new GraphQLError("Unable to upload waranty product image", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          }
+        })
+      }
+
+      return {
+        message: "product image uploaded successfully",
       }
 
     },
