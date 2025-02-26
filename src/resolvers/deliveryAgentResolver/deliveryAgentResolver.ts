@@ -842,10 +842,91 @@ export const deliveryAgentResolver: Resolvers = {
       return {
         status: false,
         otp: false,
-        msg: "Erro in Updating Status",
+        msg: "Error in Updating Status",
       };
 
 
+    },
+
+
+    //change claim status from agent side 
+
+    updateClaimStatusByAgent:async (parent, { input }, { req }, info) =>{
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      let claimRequestId: Types.ObjectId = input?.claimRequestId;
+      let claimStatus: string = input?.claimStatus;
+      let remarks: string |undefined | null = input?.remarks;
+
+      console.log(claimStatus)
+
+      const result = await warrantyClaimModel.findOne({ _id:claimRequestId });
+
+
+      if (!result) {
+        throw new GraphQLError("claim request not found", {
+          extensions: { code: "NOT_FOUND" },
+        })
+      }
+
+
+
+
+      if (claimStatus === "RETURNED_TO_WAREHOUSE") {
+        console.log("called")
+        result.claimStatus = claimStatus
+        result.returnDate = new Date();
+        await result.save()
+        return {
+          status: true,
+          otp: false,
+          msg: " Claim status updated"
+        }
+      }
+
+      if (claimStatus === "POSTPONED") {
+        result.claimStatus = claimStatus
+        result.postponedDate = new Date();
+        if(input?.remarks){
+          result.postponedReason = input?.remarks
+        }
+        await result.save()
+        return {
+          status: true,
+          otp: false,
+          msg: "Claim status updated"
+        }
+
+      }
+
+      if (claimStatus === "REPLACEMENT_COMPLETED" || claimStatus === "REJECTED") {
+        console.log("called")
+        // agent.wallet.numberOfReturnOrderDelivered+=1;
+
+        //generate otp and save and send to user
+        const result = await deliveryAgentService.replacementTimeOtpGenerate(claimRequestId)
+        console.log(result)
+
+        if (!result) {
+          throw new GraphQLError("Unable to generate otp", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
+          })
+        }
+
+        return {
+          status: true,
+          otp: true,
+          msg: "Claim status updated"
+        }
+      }
+
+
+      return {
+        status: false,
+        otp: false,
+        msg: "Error in Updating Status",
+      };
     },
 
     //chage return status after otp verify from agent side
@@ -1270,15 +1351,6 @@ export const deliveryAgentResolver: Resolvers = {
         });
       }
     },
-
-
-
-
-
-
-
-
-
 
 
 

@@ -25,6 +25,7 @@ type Mutation {
   resetPassword(input:ResetPasswordInput!):ResetPasswordResponse!
   warrantyCallAssignDeliveryAgent(input:warrantyCallAssignDeliveryAgent!):warrantyCallAssignDeliveryAgentResponse!
   uploadWarrantyProductImageByAgent(input:uploadWarrantyProductImageByAgentInput!,image:[Upload]):uploadWarrantyProductImageByAgentResponse
+  updateClaimStatusByAgent(input:updateClaimStatusByAgentInput!):updateClaimStatusByAgentResponse
   }
 
 
@@ -56,6 +57,18 @@ type Query{
 }
 
 
+
+input updateClaimStatusByAgentInput{
+   claimRequestId:ObjectId!
+   claimStatus:String!
+   remarks:String
+}
+
+type updateClaimStatusByAgentResponse{
+    status: Boolean
+    otp: Boolean
+    msg: String
+}
 
 input uploadWarrantyProductImageByAgentInput{
   claimRequestId:ObjectId!

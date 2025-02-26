@@ -2459,6 +2459,27 @@ export const deliveryTimeOtpGenerate = async (orderItemId: Types.ObjectId): Prom
 }
 
 
+export const replacementTimeOtpGenerate = async (claimRequestId: Types.ObjectId): Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // generate otp
+      const otpResponse = await otpService.generateOtp()
+      console.log("otp", otpResponse)
+      await warrantyClaimModel.findByIdAndUpdate({ _id: claimRequestId }, {
+        $set: {
+
+          'otp.code': otpResponse.code,
+          'otp.expiresAt': otpResponse.expiresAt
+        }
+      })
+      resolve({ flag: true })
+    } catch (error) {
+      reject("OTP generation failed")
+    }
+  })
+}
+
+
 
 
 

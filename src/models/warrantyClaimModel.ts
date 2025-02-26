@@ -129,7 +129,7 @@ const warrantyClaimSchema = new Schema(
         },
         claimStatus: { 
             type: String, 
-            enum: ["PENDING", "APPROVED", "REJECTED"], 
+            enum: ["PENDING", "APPROVED", "REJECTED","PACKAGE_IN_PROGRESS","REPLACEMENT_SHIPPED","OUT_FOR_DELIVERY","REPLACEMENT_COMPLETED ","RETURNED_TO_WAREHOUSE","POSTPONED"], 
             default: "PENDING" 
         },
          issueDescription: { 
@@ -150,6 +150,21 @@ const warrantyClaimSchema = new Schema(
         rejectedDate: {
             type: Date,
         },
+        replacementDate: {
+            type: Date,
+        },
+        replacementReason: {
+            type: String,
+        },
+        postponedDate: {
+            type: Date,
+        },
+        postponedReason: {
+            type: String,
+        }, 
+        returnDate: {
+            type: Date,
+        },
         productImage: {
             type: [fileSchema],
         },
@@ -168,6 +183,14 @@ const warrantyClaimSchema = new Schema(
         },
         productImageUploadByAgent:{
             type: [fileSchema],
+        },
+        otp:{
+            code:{
+               type:String
+            },
+            expiresAt:{
+               type:String
+            }
         },
         deliveryAgentAssignedOn:Date
     },
