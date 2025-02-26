@@ -26,6 +26,7 @@ type Mutation {
   warrantyCallAssignDeliveryAgent(input:warrantyCallAssignDeliveryAgent!):warrantyCallAssignDeliveryAgentResponse!
   uploadWarrantyProductImageByAgent(input:uploadWarrantyProductImageByAgentInput!,image:[Upload]):uploadWarrantyProductImageByAgentResponse
   updateClaimStatusByAgent(input:updateClaimStatusByAgentInput!):updateClaimStatusByAgentResponse
+  claimOtpVerification(input:claimOtpVerificationInput!):claimOtpVerificationResponse
   }
 
 
@@ -68,6 +69,18 @@ type updateClaimStatusByAgentResponse{
     status: Boolean
     otp: Boolean
     msg: String
+}
+
+input claimOtpVerificationInput{
+    claimRequestId: ObjectId!
+    code: String!
+    claimStatus: String
+    remarks: String
+}
+
+type claimOtpVerificationResponse{
+   status: Boolean
+   msg: String
 }
 
 input uploadWarrantyProductImageByAgentInput{

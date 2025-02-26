@@ -126,6 +126,9 @@ export interface IDeliveryAgentDocument extends Document {
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
     numberOfPendingReturns: number;
+    numberOfWarrantyCallAssigned: number;
+    numberOfWarrantyCallDelivered: number;
+    numberOfPendingWarrantyCall: number;
   };
   lastSettlementID: Types.ObjectId;
   settlementHistory: Types.ObjectId[];
@@ -2679,6 +2682,78 @@ export const getDeliveryAgentlistCustomizOrderAssigen = async (data: { deliveryA
 
 }
 
+
+export const claimOtpVerification = async (data: { 
+  claimRequestId: Types.ObjectId, 
+  code: string, 
+  claimStatus?: string, 
+  remarks?: string, 
+  agentId: Types.ObjectId 
+}): Promise<any> => {
+  try {
+    // Find OTP data for claim verification
+    const otpData = await warrantyClaimModel.findOne({ 
+      _id: data.claimRequestId, 
+      'otp.code': data.code 
+    });
+
+    if (!otpData) {
+      throw new Error('Invalid OTP');
+    }
+
+    // Validate OTP expiration
+    const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
+    if (isExpired) {
+      throw new Error('Expired OTP');
+    }
+
+    // Verify the delivery agent
+    const agent = await deliveryAgentModel.findOne({ _id: data.agentId });
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+
+    const updateFields: any = {
+      'otp.code': '',
+      'otp.expiresAt': '',
+    };
+
+    if (data.claimStatus) {
+      if (data.claimStatus === 'REJECTED') {
+        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        updateFields.claimStatus = 'REJECTED';
+        updateFields.rejectedDate = new Date();
+        if (data.remarks) {
+          updateFields.rejectedReason = data.remarks;
+        }
+      } 
+      else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
+        agent.wallet.numberOfWarrantyCallDelivered += 1;
+        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
+        updateFields.replacementDate = new Date();
+        if (data.remarks) {
+          updateFields.replacementReason = data.remarks;
+        }
+      } 
+      else {
+        throw new Error('Invalid claim status');
+      }
+
+      // Update warranty claim status in DB
+      await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
+      
+      // Save agent updates
+      await agent.save();
+
+      return { flag: true, message: 'Claim status updated successfully' };
+    }
+
+    return { flag: false, message: 'No claim status provided' };
+  } catch (error: any) {
+    throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+  }
+};
 
 
 

@@ -871,10 +871,17 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
-
+      if (claimStatus === "OUT_FOR_DELIVERY") { 
+        result.claimStatus = claimStatus
+        await result.save()
+        return {
+          status: true,
+          otp: false,
+          msg: " Claim status updated"
+        }
+      }
 
       if (claimStatus === "RETURNED_TO_WAREHOUSE") {
-        console.log("called")
         result.claimStatus = claimStatus
         result.returnDate = new Date();
         await result.save()
@@ -927,6 +934,58 @@ export const deliveryAgentResolver: Resolvers = {
         otp: false,
         msg: "Error in Updating Status",
       };
+    },
+
+
+    //to verify otp while repalce product with user by agent
+
+    claimOtpVerification: async (parent, { input }, { req }, info) =>{
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      try {
+        // verify otp
+        const options: {
+          agentId: Types.ObjectId;
+          claimRequestId: Types.ObjectId;
+          code: string;
+          claimStatus: string | undefined;
+          remarks: string | undefined;
+        } = {
+          agentId: agentId,
+          claimRequestId: input.claimRequestId,
+          code: input.code || " ",
+          claimStatus: input?.claimStatus || undefined,
+          remarks: input?.remarks || undefined,
+        };
+
+
+        const result = await deliveryAgentService.claimOtpVerification(options);
+
+        // Handle different responses based on the service result
+        if (!result.flag) {
+          throw new GraphQLError("Failed to update claim status", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
+        }
+
+        return {
+          status: true,
+          msg: result.message || "OTP verified and status updated",
+        };
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
     },
 
     //chage return status after otp verify from agent side
