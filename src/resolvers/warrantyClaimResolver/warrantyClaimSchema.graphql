@@ -122,6 +122,7 @@ type getClaimRequestDetailsByAdminResponse{
     product:claimProductDetail
     vendor:claimVendorDetail
     products:claimProductsDetail
+    _id:ObjectId
     createdAt: Date
     issueDescription: String
     order:String

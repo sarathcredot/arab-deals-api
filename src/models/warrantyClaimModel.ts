@@ -124,25 +124,10 @@ const warrantyClaimSchema = new Schema(
             type: String,
             required: true
         },
-        warrantyId: {
-            type: String
-        },
-        claimStatus: {
-            type: String,
-            enum: ["PENDING", "APPROVED", "REJECTED"],
-            default: "PENDING"
-        },
-        issueDescription: {
-            type: String,
-            required: true
-        },
-        claimDate: {
-            type: Date,
-        },
-        claimType: {
-            type: String,
-            enum: ["replacement", "repair"],
-            required: true
+        claimType: { 
+            type: String, 
+            enum: ["REPLACEMENT","REPAIR"],
+            required: true 
         },
         rejectedReason: {
             type: String,

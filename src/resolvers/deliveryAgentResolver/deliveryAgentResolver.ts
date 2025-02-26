@@ -1,4 +1,4 @@
-import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService } from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, warrantyClaimService } from "../../services";
 
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
@@ -1289,6 +1289,172 @@ export const deliveryAgentResolver: Resolvers = {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
         });
       }
+    },
+
+    //to get assigned pending warranty pickups by agent
+
+    getPendingWarrantyPickupsByAgent: async (parent, { input }, { req }, info) => {
+      console.log("called")
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+
+      const page: number = input?.page || 0;
+      const size: number = input?.size || 100;
+      const options: any = {
+          page: page,
+          size: size
+      }
+
+      if (!agentId) {
+        throw new GraphQLError("All Fields are required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      const claimFilter: Record<string, any> = {
+        deliveryAgentId: agentId
+      };
+
+      if (input?.claimStatus) {
+        claimFilter.claimStatus = input.claimStatus;
+      }
+
+      const today = new Date();
+      claimFilter.deliveryAgentAssignedOn = {
+        $gte: startOfDay(today),
+        $lte: endOfDay(today),
+      };
+
+      console.log("claimFilter", claimFilter)
+
+      try {
+
+        const response = await warrantyClaimService.getPendingWarrantyPickupsByAgent(
+          options,
+          claimFilter
+        );
+
+        if (!response) {
+          throw new GraphQLError("unable to fetch warranty claims", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty claims"] },
+          });
+      }
+
+      return {
+        success: true,
+        data: response.records,
+        maxRecords: response.maxRecords
+    }
+
+      } catch (error: any) {
+        throw new GraphQLError(error, {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+      });
+      }
+
+    },
+
+
+    //to get all history of warranty pickups by agent 
+
+    getHistoryOfWarrantyPickupsByAgent: async (parent, { input }, { req }, info) => {
+      console.log("called")
+      await verifyDeliveryAgent(req);
+      const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+
+      const page: number = input?.page || 0;
+      const size: number = input?.size || 100;
+      const options: any = {
+          page: page,
+          size: size
+      }
+
+      if (!agentId) {
+        throw new GraphQLError("All Fields are required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      if (!Types.ObjectId.isValid(agentId)) {
+        throw new GraphQLError("Invalid Agent ID format", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      const claimFilter: Record<string, any> = {
+        deliveryAgentId: agentId
+      };
+
+      if (input?.claimStatus) {
+        claimFilter.claimStatus = input.claimStatus;
+      }
+
+      // const today = new Date();
+      // claimFilter.deliveryAgentAssignedOn = {
+      //   $gte: startOfDay(today),
+      //   $lte: endOfDay(today),
+      // };
+
+      console.log("claimFilter", claimFilter)
+
+      try {
+
+        const response = await warrantyClaimService.getPendingWarrantyPickupsByAgent(
+          options,
+          claimFilter
+        );
+
+        if (!response) {
+          throw new GraphQLError("unable to fetch warranty claims", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty claims"] },
+          });
+      }
+
+      return {
+        success: true,
+        data: response.records,
+        maxRecords: response.maxRecords
+    }
+
+      } catch (error: any) {
+        throw new GraphQLError(error, {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+      });
+      }
+    },
+
+
+    //to get deatils of warranty pickups in agent portal
+
+    getDetailsOfWarrantyPickupsByAgent: async (parent, { input }, { req }, info) => {
+      // await verifyDeliveryAgent(req);
+        try {
+          const claimRequestId:Types.ObjectId=input.claimRequestId
+
+          if(!claimRequestId){
+              throw new GraphQLError("claimRequestId is required", {
+                  extensions: {
+                      code: "BAD_REQUEST",
+                      errors: [],
+                  },
+              });
+          }
+          const response=await warrantyClaimService.getDetailsOfWarrantyPickupsByAgent(claimRequestId)
+          console.log("response",response)
+          return response.records[0]
+        } catch (error:any) {
+          throw new GraphQLError(error, {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+          })
+        }
     },
 
     //to get all governorates and villages
