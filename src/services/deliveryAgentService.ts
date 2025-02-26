@@ -102,6 +102,9 @@ export interface IDeliveryAgentFilter {
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
     numberOfPendingReturns: number;
+    numberOfWarrantyCallAssigned: number;
+    numberOfWarrantyCallDelivered: number;
+    numberOfPendingWarrantyCall: number;
   };
   settlementHistory: Types.ObjectId[] | ISettlement[];
 }

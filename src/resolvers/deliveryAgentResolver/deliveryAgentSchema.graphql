@@ -744,6 +744,9 @@ type Wallet {
   numberOfReturnOrderDelivered:Float
   numberOfPendingReturns:Float
   numberOfPendingOrdes:Float
+  numberOfWarrantyCallAssigned: Int
+  numberOfWarrantyCallDelivered: Int
+  numberOfPendingWarrantyCall: Int
 
 }
 input OrderDelivedbyAgentInput{
