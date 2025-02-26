@@ -34,6 +34,12 @@ export interface IDeliveryAgent {
   villageID: string;
 }
 
+interface Options {
+  lean: boolean;
+  page: number;
+  limit: number;
+}
+
 
 export interface ISettlement {
   _id?: Types.ObjectId;
@@ -2016,6 +2022,121 @@ export const getAssignedReturnOrderBundleByDeliveryAgent = async (data: { _id: T
   })
 }
 
+export const getAssignedWarrantyCallDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, startDate: Date, endDate: Date }): Promise<any> => {
+
+
+  return new Promise(async (resolve, reject) => {
+
+    try {
+
+      const deliveryAgentId = new Types.ObjectId(data._id)
+
+      let dataSize: any
+      let result: any
+      let matchObj: any = { deliveryAgentId: deliveryAgentId }
+
+      if (data?.startDate) {
+        matchObj.deliveryAgentAssignedOn = { $gte: startOfDay(new Date(data.startDate)) };
+      }
+      if (data?.endDate) {
+        matchObj.deliveryAgentAssignedOn = {
+          ...(matchObj.deliveryAgentAssignedOn || {}),
+          $lte: endOfDay(new Date(data.endDate)),
+        };
+      }
+
+
+      dataSize = await warrantyClaimModel.aggregate([
+        {
+          $match: matchObj,
+        },
+        {
+          $addFields: {
+            assignedOn: {
+              $dateToString: {
+                date: "$deliveryAgentAssignedOn",
+                format: "%d-%m-%Y",
+                timezone: 'Asia/Kolkata',
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$assignedOn",
+            count: {
+              $sum: 1
+            },
+            date: {
+              $first: "$deliveryAgentAssignedOn"
+            }
+          }
+        },
+      ])
+
+
+      result = await warrantyClaimModel.aggregate([
+        {
+          $match: matchObj,
+        },
+        {
+          $addFields: {
+            assignedOn: {
+              $dateToString: {
+                date: "$deliveryAgentAssignedOn",
+                format: "%d-%m-%Y",
+                timezone: 'Asia/Kolkata',
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$assignedOn",
+            count: {
+              $sum: 1
+            },
+            date: {
+              $first: "$deliveryAgentAssignedOn"
+            }
+          }
+        },
+        {
+          $sort: {
+            _id: -1
+          }
+        },
+        {
+          $skip: data.page * data.size,
+        },
+        {
+          $limit: data.size,
+        },
+      ])
+
+      let response: any = {
+        records: [],
+        maxRecords: 0
+      };
+
+
+      if (result.length) {
+        response.records = result || [];
+        response.maxRecords = dataSize?.length || 0;
+      }
+
+      resolve(response);
+
+
+
+    } catch (error) {
+
+      reject()
+    }
+  })
+}
+
+
 
 export const getAssignedOrderBundleByDeliveryAgent = async (data: { _id: Types.ObjectId, page: number, size: number, startDate: Date, endDate: Date }): Promise<any> => {
   return new Promise(async (resolve, reject) => {
@@ -2316,6 +2437,81 @@ export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.Ob
     }
   })
 }
+
+
+export const getDeliveryAgentWarrantyCall = async (filters: object,projection: object,options: Options): Promise<any> => {
+
+  return new Promise(async(resolve, reject) => {
+
+
+    try {
+
+    
+      const { page, limit } = options;
+      const skip = page * limit;
+      
+      const records = await warrantyClaimModel.aggregate([
+        {
+          $match: filters
+        },
+        {
+          $lookup: {
+            from: "order_products",
+            localField: "product",
+            foreignField: "_id",
+            as: "productData"
+          }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "userData"
+          }
+        },
+        {
+          $addFields: {
+            userData: { $arrayElemAt: ["$userData", 0] }, 
+            productData: { $arrayElemAt: ["$productData", 0] } 
+          }
+        },
+        {
+          $addFields: {
+            userName: "$userData.firstName", 
+            productName: "$productData.productName" 
+          }
+        },
+        {
+          $project: {
+            warrantyId: 1,
+            userName: 1, 
+            productName: 1, 
+            deliveryAgentAssignedOn: 1,
+            claimStatus: 1
+          }
+        },
+        {
+          $skip: skip 
+        },
+        {
+          $limit: limit 
+        }
+      ]);
+
+      const totalCount=await warrantyClaimModel.countDocuments(filters)
+
+      resolve({records,totalCount})
+      
+   
+
+    } catch (error) {
+
+      reject()
+    }
+  })
+}
+
 
 
 
