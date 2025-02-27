@@ -50,14 +50,14 @@ type Mutation {
   logoutMobileUser: LogoutMobileUserResponse!
   updatePaymentSettings(input: UpdatePaymentSettingsInput!): UpdatePaymentSettingsResponse!
   updateShippingSettings(input: UpdateShippingSettingsInput!): UpdateShippingSettingsResponse!
-  createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
-  updateRoleBySuperAdmin(input: updateRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
-  deleteRoleBySuperAdmin(input: deleteRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
-  updateStatusRoleBySuperAdmin(input: updateStatusRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   createReturnPolicyBySuperAdmin(input: createReturnPolicyBySuperAdminInput!): createReturnPolicyBySuperAdminResponse
   updateReturnPolicyByAdmin(input: updateReturnPolicyByAdminInput): updateReturnPolicyByAdminResponse
   deleteReturnPolicyByAdmin(input: deleteReturnPolicyByAdminInput!): deleteReturnPolicyByAdminResponse
   updateStatusReturnPolicyByAdmin(input: updateStatusReturnPolicyByAdminInput!): updateStatusReturnPolicyByAdminResponse
+  createRoleBySuperAdmin(input: createRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  updateRoleBySuperAdmin(input: updateRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  deleteRoleBySuperAdmin(input: deleteRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
+  updateStatusRoleBySuperAdmin(input: updateStatusRoleBySuperAdminInput!): createRoleBySuperAdminResponse!
   createProduct(input: ProductInput!, images: [Upload], productDetailImages: [Upload]): ProductResponse
   createVariant(input: VariantInput!, images: [Upload], productDetailImages: [Upload]): VariantResponse
   updateProduct(input: ProductUpdateInput!, images: [Upload], productDetailImages: [Upload]): ProductUpdateResponse
@@ -117,11 +117,11 @@ type Mutation {
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -187,14 +187,14 @@ type Query {
   getUserRecordInMobile: GetUserRecordInMobileResponse!
   getPaymentSettings: GetPaymentSettingsResponse!
   getShippingSettings: GetShippingSettingsResponse!
-  getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
-  getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
   getAllPoliciesBySuperAdmin(input: getAllPoliciesBySuperAdminInput): getAllPoliciesBySuperAdminResponse
   getReturnPolicyByAdmin(input: getReturnPolicyByAdminInput!): getReturnPolicyByAdminResponse
   getDefaultReturnPolicyInCategory(input: getDefaultReturnPolicyInCategoryInput!): ReturnPolicy!
   getDefaultReturnPolicyInProduct(input: getDefaultReturnPolicyInProductInput!): ReturnPolicy!
   getReturnPolicyOfOrderProduct(input: getReturnPolicyOfOrderProductInput!): getReturnPolicyOfOrderProductResponse
   getReturnPolicyOfOrderProductInMob(input: getReturnPolicyOfOrderProductInput!): getReturnPolicyOfOrderProductResponse
+  getRoleBySuperAdmin(input: getRoleBySuperAdminInput!): getRoleBySuperAdminResponse!
+  getAllRolesBySuperAdmin(input: getAllRolesBySuperAdminInput): getAllRolesBySuperAdminResponse!
   getProductsByAdmin(input: ProductFilters): ProductsResponse!
   getProductsByAdminForCoupon(input: ProductFiltersforCoupon): ProductsForCouponResponse!
   getProductsByVendor(input: ProductByVendorFilters): ProductsResponse!
@@ -294,6 +294,12 @@ type Query {
   getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
   getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
   getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
+  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
+  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
+  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
+  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
+  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
+  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -305,12 +311,6 @@ type Query {
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
-  getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
-  getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
-  getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
-  getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
-  getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
-  getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
@@ -586,6 +586,11 @@ type claimVendorDetail {
   fullName: String
 }
 
+type claimAgentDetail {
+  contactNumber: String
+  agentType: String
+}
+
 type claimProductsDetail {
   images: [FileData]
 }
@@ -608,6 +613,7 @@ type getClaimRequestDetailsByAdminResponse {
   product: claimProductDetail
   vendor: claimVendorDetail
   products: claimProductsDetail
+  agent: claimAgentDetail
   _id: ObjectId
   createdAt: Date
   issueDescription: String
@@ -620,6 +626,17 @@ type getClaimRequestDetailsByAdminResponse {
   rejectedDate: Date
   productImage: [FileData]
   warrantyAddress: warrantyAddress
+  replacementDate: Date
+  replacementReason: String
+  replacementShippedDate: Date
+  replacementCompletedDate: Date
+  returnedWarehouseDate: Date
+  postponedDate: Date
+  postponedReason: String
+  deliveryAgentId: ObjectId
+  deliveryAgentName: String
+  deliveryAgentAssignedOn: Date
+  productImageUploadByAgent: [FileData]
 }
 
 type createWarrantyClaimRequestByUSerResponse {
@@ -1542,66 +1559,6 @@ type GetShippingSettingsResponse {
   defaultReturnPolicy: ObjectId
 }
 
-input createRoleBySuperAdminInput {
-  name: String!
-  description: String
-  permissions: [String]
-}
-
-input updateRoleBySuperAdminInput {
-  roleId: ObjectId!
-  name: String
-  description: String
-  permissions: [String]
-}
-
-input deleteRoleBySuperAdminInput {
-  roleId: ObjectId!
-}
-
-input getRoleBySuperAdminInput {
-  roleId: ObjectId!
-}
-
-input updateStatusRoleBySuperAdminInput {
-  roleId: ObjectId!
-  isEnable: Boolean!
-}
-
-input getAllRolesBySuperAdminInput {
-  page: Int
-  size: Int
-  search: String
-  isEnable: Boolean
-}
-
-type createRoleBySuperAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type getRoleBySuperAdminResponse {
-  _id: ObjectId
-  name: String
-  description: String
-  permissions: [String]
-  isEnable: Boolean
-}
-
-type Roles {
-  _id: ObjectId
-  name: String
-  description: String
-  permissions: [String]
-  isEnable: Boolean
-}
-
-type getAllRolesBySuperAdminResponse {
-  success: Boolean
-  data: [Roles]
-  maxRecords: Int
-}
-
 input getDefaultReturnPolicyInProductInput {
   brandId: ObjectId
   categoryId: ObjectId
@@ -1701,6 +1658,66 @@ type getReturnPolicyOfOrderProductResponse {
   returnCharge: Int
   returnPolicyDescription: String
   returnPeriod: Int
+}
+
+input createRoleBySuperAdminInput {
+  name: String!
+  description: String
+  permissions: [String]
+}
+
+input updateRoleBySuperAdminInput {
+  roleId: ObjectId!
+  name: String
+  description: String
+  permissions: [String]
+}
+
+input deleteRoleBySuperAdminInput {
+  roleId: ObjectId!
+}
+
+input getRoleBySuperAdminInput {
+  roleId: ObjectId!
+}
+
+input updateStatusRoleBySuperAdminInput {
+  roleId: ObjectId!
+  isEnable: Boolean!
+}
+
+input getAllRolesBySuperAdminInput {
+  page: Int
+  size: Int
+  search: String
+  isEnable: Boolean
+}
+
+type createRoleBySuperAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type getRoleBySuperAdminResponse {
+  _id: ObjectId
+  name: String
+  description: String
+  permissions: [String]
+  isEnable: Boolean
+}
+
+type Roles {
+  _id: ObjectId
+  name: String
+  description: String
+  permissions: [String]
+  isEnable: Boolean
+}
+
+type getAllRolesBySuperAdminResponse {
+  success: Boolean
+  data: [Roles]
+  maxRecords: Int
 }
 
 type File {
@@ -4373,6 +4390,128 @@ type CountryRecordsResponse {
   message: String
 }
 
+input AddCmsInput {
+  pageName: String!
+  buttons: [ButtonDataInput]
+}
+
+input ButtonDataInput {
+  buttonText: String!
+  redirectionURL: String!
+}
+
+input UpdateCmsInput {
+  _id: String!
+  buttons: [ButtonDataInput]
+}
+
+input CmsRecordId {
+  _id: String!
+}
+
+type AddCmsResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateCmsResponse {
+  _id: String!
+  message: String
+}
+
+type DeleteCmsResponse {
+  _id: String!
+  message: String
+}
+
+input cmsRecordByAdminFilter {
+  _id: String!
+}
+
+input cmsRecordFilter {
+  sectionName: String!
+  pageName: String!
+}
+
+input GetCmsRecordInMobileInput {
+  sectionName: String!
+  pageName: String!
+}
+
+input CmsRecordsFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+}
+
+input GetAllCmsRecordsInMobileInput {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+}
+
+input CmsRecordsByAdminFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+  isBlocked: Boolean
+}
+
+type ButtonData {
+  buttonText: String
+  redirectionURL: String
+}
+
+type CmsImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type CmsRecord {
+  _id: String
+  pageName: String
+  sectionName: String
+  images: [CmsImageData]
+  buttons: [ButtonData]
+  isBlocked: Boolean
+}
+
+type CmsRecordResponse {
+  record: CmsRecord!
+  message: String
+}
+
+type GetAllCmsRecordsInMobileResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
+}
+
+type GetCmsRecordInMobileResponse {
+  record: CmsRecord!
+  message: String
+}
+
+type CmsRecordsResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
+}
+
 input CreateCategoryInput {
   categoryName: String!
   parentId: String
@@ -4527,128 +4666,6 @@ type CategoriesForCouponResponse {
 
 type GetLevelCategoriesResponse {
   records: [Category]
-}
-
-input AddCmsInput {
-  pageName: String!
-  buttons: [ButtonDataInput]
-}
-
-input ButtonDataInput {
-  buttonText: String!
-  redirectionURL: String!
-}
-
-input UpdateCmsInput {
-  _id: String!
-  buttons: [ButtonDataInput]
-}
-
-input CmsRecordId {
-  _id: String!
-}
-
-type AddCmsResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateCmsResponse {
-  _id: String!
-  message: String
-}
-
-type DeleteCmsResponse {
-  _id: String!
-  message: String
-}
-
-input cmsRecordByAdminFilter {
-  _id: String!
-}
-
-input cmsRecordFilter {
-  sectionName: String!
-  pageName: String!
-}
-
-input GetCmsRecordInMobileInput {
-  sectionName: String!
-  pageName: String!
-}
-
-input CmsRecordsFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-}
-
-input GetAllCmsRecordsInMobileInput {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-}
-
-input CmsRecordsByAdminFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-  isBlocked: Boolean
-}
-
-type ButtonData {
-  buttonText: String
-  redirectionURL: String
-}
-
-type CmsImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-type CmsRecord {
-  _id: String
-  pageName: String
-  sectionName: String
-  images: [CmsImageData]
-  buttons: [ButtonData]
-  isBlocked: Boolean
-}
-
-type CmsRecordResponse {
-  record: CmsRecord!
-  message: String
-}
-
-type GetAllCmsRecordsInMobileResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
-  message: String
-}
-
-type GetCmsRecordInMobileResponse {
-  record: CmsRecord!
-  message: String
-}
-
-type CmsRecordsResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
-  message: String
 }
 
 input addToCartInput {

@@ -286,7 +286,7 @@ export const warrantyClaimResolver: Resolvers = {
                         },
                     });
                 }
-
+                
                 const response=await warrantyClaimService.getClaimRequestDetailsByAdmin(claimRequestId)
                 console.log("response",response)
                 return response.records[0]

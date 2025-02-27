@@ -162,6 +162,17 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
             },
             {
                 $lookup: {
+                    from: collections.DELIVERYAGENT, 
+                    localField: "deliveryAgentId", 
+                    foreignField: "_id",
+                    as: "agent"
+                }
+            },
+            {
+                $unwind: { path: "$agent", preserveNullAndEmptyArrays: true }
+            },
+            {
+                $lookup: {
                     from: collections.PRODUCTS, 
                     localField: "product.productId", 
                     foreignField: "_id",
@@ -196,6 +207,8 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
                     "product.productId":1,
                     "vendor.fullName":1,
                     "products.images":1,
+                    "agent.contactNumber":1,
+                    "agent.agentType":1,
                     _id:1,
                     createdAt: 1,   
                     issueDescription: 1,
@@ -207,7 +220,18 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
                     rejectedReason:1,
                     rejectedDate:1,
                     productImage:1,
-                    warrantyAddress:1
+                    warrantyAddress:1,
+                    replacementDate:1,
+                    replacementReason:1,
+                    replacementShippedDate:1,
+                    replacementCompletedDate:1,
+                    returnedWarehouseDate:1,
+                    postponedDate:1,
+                    postponedReason:1,
+                    deliveryAgentId:1,
+                    deliveryAgentName:1,
+                    deliveryAgentAssignedOn:1,
+                    productImageUploadByAgent:1,
                 } 
             },
            

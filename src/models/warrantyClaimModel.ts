@@ -166,9 +166,6 @@ const warrantyClaimSchema = new Schema(
 
             type: Date,
         },
-
-
-
         postponedDate: {
             type: Date,
         },
