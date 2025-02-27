@@ -2,17 +2,25 @@
 
 scalar ObjectId
 
+scalar Upload
+
 type Mutation {
-  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
-  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
-  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
-  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   createWarrantyPolicyBySuperAdmin(input: createWarrantyPolicyBySuperAdminInput!): createWarrantyPolicyBySuperAdminResponse
   updateWarrantyPolicyByAdmin(input: updateWarrantyPolicyByAdminInput): updateWarrantyPolicyByAdminResponse
   deleteWarrantyPolicyByAdmin(input: deleteWarrantyPolicyByAdminInput!): deleteWarrantyPolicyByAdminResponse
   updateStatusWarrantyPolicyByAdmin(input: updateStatusWarrantyPolicyByAdminInput!): updateStatusWarrantyPolicyByAdminResponse
   createWarrantyClaimRequestByUSer(input: createWarrantyClaimRequestByUSerInput!, image: [Upload]): createWarrantyClaimRequestByUSerResponse
   updateClaimStatusByAdmin(input: updateClaimStatusByAdminInput!): updateClaimStatusByAdminResponse
+  addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
+  updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
+  updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
+  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
+  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
+  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
+  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
+  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
+  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -23,12 +31,6 @@ type Mutation {
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   logoutVendor: LogoutVendorResponse!
-  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
-  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
-  addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
-  updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
-  updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
   createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
   editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
   removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
@@ -152,10 +154,6 @@ type Mutation {
 }
 
 type Query {
-  getWishListProducts: GetWishListProductsResponse!
-  getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
-  getMobileWishListProducts: GetMobileWishListProductsResponse!
-  getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
   getDefaultWarrantyPolicyInCategory(input: getDefaultWarrantyPolicyInCategoryInput): WarrantyPolicy!
   getAllWarrantyPoliciesBySuperAdmin(input: getAllWarrantyPoliciesBySuperAdminInput): getAllWarrantyPoliciesBySuperAdminResponse
   getWarrantyPolicyByAdmin(input: getWarrantyPolicyByAdminInput!): getWarrantyPolicyByAdminResponse
@@ -163,18 +161,22 @@ type Query {
   getWarrantyPolicyOfOrderProduct(input: getWarrantyPolicyOfOrderProductInput!): getWarrantyPolicyOfOrderProductResponse
   getAllClaimRequestsByAdmin(input: getAllClaimRequestsByAdminInput): getAllClaimRequestsByAdminResponse
   getClaimRequestDetailsByAdmin(input: getClaimRequestDetailsByAdminInput!): getClaimRequestDetailsByAdminResponse
+  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
+  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
+  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
+  getWishListProducts: GetWishListProductsResponse!
+  getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
+  getMobileWishListProducts: GetMobileWishListProductsResponse!
+  getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
   getVendorRecordByVendor: VendorsRecordByVendorResponse!
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
-  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
-  getVendorOutletRecord: VendorOutletRecordResponse!
-  getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
-  getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
-  getVendorCompanyRecord: GetVendorCompanyRecordResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
@@ -337,77 +339,6 @@ type Query {
   getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
 }
 
-input AddToWishListInput {
-  productId: ObjectId!
-}
-
-input RemoveFromWishListInput {
-  productId: ObjectId!
-}
-
-input GetWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-input AddToMobileWishListInput {
-  productId: ObjectId!
-}
-
-input RemoveFromMobileWishListInput {
-  productId: ObjectId!
-}
-
-input GetMobileWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-type AddToWishListResponse {
-  message: String
-}
-
-type RemoveFromWishListResponse {
-  message: String
-}
-
-type AddToMobileWishListResponse {
-  message: String
-}
-
-type RemoveFromMobileWishListResponse {
-  message: String
-}
-
-type WishListProduct {
-  productId: ObjectId!
-  productName: String!
-  shortDescription: String
-  sellingPrice: Float!
-  image: String
-}
-
-type GetWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-type GetMobileWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetMobileWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-}
-
-scalar Upload
-
 input getDefaultWarrantyPolicyInProductInput {
   brandId: ObjectId
   categoryId: ObjectId
@@ -509,6 +440,11 @@ type getWarrantyPolicyOfOrderProductResponse {
   duration: Int
   warrantyType: [String]
   warrantyRegister: Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
 }
 
 scalar Date
@@ -680,6 +616,308 @@ type getAllClaimRequestsByAdminResponse {
 
 scalar JSONObject
 
+input UpdateVendorCompanyByAdminInput {
+  _id: ObjectId!
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  remarks: [String!]
+}
+
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
+}
+
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
+  _id: String
+  fullName: String
+  isKycCompleted: String
+  companyName: String
+  companyType: String
+  status: String
+  crNumber: String
+}
+
+input AddVendorCompanyInput {
+  companyName: String!
+  companyType: String!
+  crNumber: String!
+}
+
+input UpdateVendorCompanyInput {
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+type AddVendorCompanyResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyResponse {
+  message: String
+}
+
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyByAdminResponse {
+  message: String
+}
+
+input VendorCompanyIdInput {
+  _id: String!
+}
+
+input VendorCompanyRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+  fullName: String
+  companyName: String
+  vendorId: ObjectId
+  crNumber: String
+}
+
+type ImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorCompanyRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorCompanyRecordsWithKycData!]
+  message: String
+}
+
+type VendorCompanyStatusUpdationResponse {
+  _id: String
+  message: String
+}
+
+type GetVendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorOutlet {
+  _id: String
+  vendorId: String
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  status: String
+  remarks: [String]
+  outletLicense: ImageData
+  interiorImage: ImageData
+  exteriorImage: ImageData
+}
+
+type vendorOutletRecordsWithKycData {
+  vendorId: String
+  fullName: String
+  isKycCompleted: String
+  _id: String
+  outletName: String
+  status: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  remarks: [String]
+}
+
+input AddVendorOutletInput {
+  outletName: String!
+  country: String!
+  district: String!
+  village: String!
+  address: String!
+  contactPersonName: String!
+  contactPersonNumber: String!
+  contactPersonDesignation: String!
+}
+
+input UpdateVendorOutletInput {
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+}
+
+input UpdateVendorOutletByAdminInput {
+  _id: ObjectId!
+  outletName: String
+  country: String
+  district: String
+  village: String
+  address: String
+  contactPersonName: String
+  contactPersonNumber: String
+  contactPersonDesignation: String
+  status: String
+  remarks: [String!]
+}
+
+input DeleteVendorOutletIdInput {
+  _id: String!
+}
+
+input VendorOutletStatusUpdationInput {
+  _id: String!
+  status: String!
+  remarks: [String]
+}
+
+type AddVendorOutletResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorOutletResponse {
+  message: String
+}
+
+type DeleteVendorOutletRecordResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorOutletByAdminResponse {
+  message: String
+}
+
+input VendorOutletRecordByAdminInput {
+  _id: String!
+}
+
+input VendorOutletRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+  vendorId: ObjectId
+  outletName: String
+  fullName: String
+}
+
+type VendorOutletRecordByAdminResponse {
+  record: VendorOutlet!
+  message: String
+}
+
+type VendorOutletRecordResponse {
+  record: VendorOutlet!
+  message: String
+}
+
+type VendorOutletRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorOutletRecordsWithKycData!]
+  message: String
+}
+
+type VendorOutletStatusUpdationResponse {
+  _id: String
+  status: String
+  message: String
+}
+
+input AddToWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromWishListInput {
+  productId: ObjectId!
+}
+
+input GetWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+input AddToMobileWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromMobileWishListInput {
+  productId: ObjectId!
+}
+
+input GetMobileWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+type AddToWishListResponse {
+  message: String
+}
+
+type RemoveFromWishListResponse {
+  message: String
+}
+
+type AddToMobileWishListResponse {
+  message: String
+}
+
+type RemoveFromMobileWishListResponse {
+  message: String
+}
+
+type WishListProduct {
+  productId: ObjectId!
+  productName: String!
+  shortDescription: String
+  sellingPrice: Float!
+  image: String
+}
+
+type GetWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetWishListProductStatusResponse {
+  isExist: Boolean!
+}
+
+type GetMobileWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetMobileWishListProductStatusResponse {
+  isExist: Boolean!
+}
+
 input sendOtpInput {
   fullName: String!
   mobileNumber: String!
@@ -701,13 +939,6 @@ input VendorLoginInput {
 input VerifyVendorLoginOtpInput {
   code: String!
   _id: String!
-}
-
-type ImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
 }
 
 type Vendor {
@@ -921,237 +1152,6 @@ input VendorRecordKycStatusInput {
 type VendorsRecordsByAdminResponse {
   maxRecords: Int!
   records: [VendorWithKycData]
-  message: String
-}
-
-type VendorOutlet {
-  _id: String
-  vendorId: String
-  outletName: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-  status: String
-  remarks: [String]
-  outletLicense: ImageData
-  interiorImage: ImageData
-  exteriorImage: ImageData
-}
-
-type vendorOutletRecordsWithKycData {
-  vendorId: String
-  fullName: String
-  isKycCompleted: String
-  _id: String
-  outletName: String
-  status: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-  remarks: [String]
-}
-
-input AddVendorOutletInput {
-  outletName: String!
-  country: String!
-  district: String!
-  village: String!
-  address: String!
-  contactPersonName: String!
-  contactPersonNumber: String!
-  contactPersonDesignation: String!
-}
-
-input UpdateVendorOutletInput {
-  outletName: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-}
-
-input UpdateVendorOutletByAdminInput {
-  _id: ObjectId!
-  outletName: String
-  country: String
-  district: String
-  village: String
-  address: String
-  contactPersonName: String
-  contactPersonNumber: String
-  contactPersonDesignation: String
-  status: String
-  remarks: [String!]
-}
-
-input DeleteVendorOutletIdInput {
-  _id: String!
-}
-
-input VendorOutletStatusUpdationInput {
-  _id: String!
-  status: String!
-  remarks: [String]
-}
-
-type AddVendorOutletResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorOutletResponse {
-  message: String
-}
-
-type DeleteVendorOutletRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorOutletByAdminResponse {
-  message: String
-}
-
-input VendorOutletRecordByAdminInput {
-  _id: String!
-}
-
-input VendorOutletRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-  vendorId: ObjectId
-  outletName: String
-  fullName: String
-}
-
-type VendorOutletRecordByAdminResponse {
-  record: VendorOutlet!
-  message: String
-}
-
-type VendorOutletRecordResponse {
-  record: VendorOutlet!
-  message: String
-}
-
-type VendorOutletRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorOutletRecordsWithKycData!]
-  message: String
-}
-
-type VendorOutletStatusUpdationResponse {
-  _id: String
-  status: String
-  message: String
-}
-
-input UpdateVendorCompanyByAdminInput {
-  _id: ObjectId!
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  remarks: [String!]
-}
-
-type VendorCompany {
-  _id: String
-  vendorId: String
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  crLicense: ImageData
-  cooCertificate: ImageData
-  remarks: [String]
-}
-
-type vendorCompanyRecordsWithKycData {
-  vendorId: String
-  _id: String
-  fullName: String
-  isKycCompleted: String
-  companyName: String
-  companyType: String
-  status: String
-  crNumber: String
-}
-
-input AddVendorCompanyInput {
-  companyName: String!
-  companyType: String!
-  crNumber: String!
-}
-
-input UpdateVendorCompanyInput {
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-type AddVendorCompanyResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyResponse {
-  message: String
-}
-
-type VendorCompanyDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyByAdminResponse {
-  message: String
-}
-
-input VendorCompanyIdInput {
-  _id: String!
-}
-
-input VendorCompanyRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-  fullName: String
-  companyName: String
-  vendorId: ObjectId
-  crNumber: String
-}
-
-type VendorCompanyRecordResponse {
-  record: VendorCompany!
-  message: String
-}
-
-type VendorCompanyRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorCompanyRecordsWithKycData!]
-  message: String
-}
-
-type VendorCompanyStatusUpdationResponse {
-  _id: String
-  message: String
-}
-
-type GetVendorCompanyRecordResponse {
-  record: VendorCompany!
   message: String
 }
 
