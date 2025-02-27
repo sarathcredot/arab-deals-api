@@ -1326,7 +1326,7 @@ export const warrantyCallAsssignDeliveryAgent = async (data: { warrantyCallID: T
 
       if (warrantyCallDetails) {
 
-        if (warrantyCallDetails.claimStatus === "APPROVED") {
+        if (warrantyCallDetails.claimStatus === "REPLACEMENT_SHIPPED") {
 
           // check  is this first assign
 
