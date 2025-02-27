@@ -206,6 +206,7 @@ type getDetailsOfWarrantyPickupsByAgentResponse{
       claimType:String
       claimDate:Date
       warrantyAddress:warrantyAddress
+      replacementDeliveredLocation:String
 }
 
  type getPendingWarrantyPickupsByAgentResponse{

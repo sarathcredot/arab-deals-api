@@ -358,7 +358,8 @@ export const getDetailsOfWarrantyPickupsByAgent = async (claimRequestId:Types.Ob
                     claimType:1,
                     claimDate:1,
                     productImage:1,
-                    warrantyAddress:1
+                    warrantyAddress:1,
+                    replacementDeliveredLocation:1
                 } 
             },
            

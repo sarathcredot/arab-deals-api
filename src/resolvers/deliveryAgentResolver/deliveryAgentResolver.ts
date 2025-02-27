@@ -879,7 +879,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       if (claimStatus === "RETURNED_TO_WAREHOUSE") {
         result.claimStatus = claimStatus
-        result.returnDate = new Date();
+        result.returnedWarehouseDate = new Date();
         await result.save()
         return {
           status: true,
