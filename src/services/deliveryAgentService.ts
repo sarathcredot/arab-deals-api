@@ -2930,7 +2930,7 @@ export const claimOtpVerification = async (data: {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
         agent.wallet.numberOfPendingWarrantyCall -= 1;
         updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
-        updateFields.replacementDate = new Date();
+        updateFields.replacementCompletedDate = new Date();
         if (data.remarks) {
           updateFields.replacementReason = data.remarks;
         }
