@@ -8,6 +8,7 @@ import path from "path";
 import { ObjectId, QueryOptions, Types } from "mongoose";
 import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
+import { productModel } from "../../models"
 
 export const productResolver: Resolvers = {
     Mutation: {
@@ -306,6 +307,17 @@ export const productResolver: Resolvers = {
                     offerPrice: 0,
                 };
 
+                if (variant.warrantyPolicy) {
+
+                    newProduct.warrantyPolicy = variant.warrantyPolicy
+                }
+
+                if (variant.returnPolicy) {
+
+                    newProduct.returnPolicy = variant.returnPolicy
+                }
+
+
                 // Create the product
                 const result = await productService.createProduct(newProduct);
 
@@ -464,9 +476,29 @@ export const productResolver: Resolvers = {
                     existingProduct.delivery_type = input.delivery_type;
                 }
 
-                existingProduct.returnPolicy = input.returnPolicy
-                existingProduct.warrantyPolicy = input.warrantyPolicy
+                // existingProduct.returnPolicy = input.returnPolicy
+                // existingProduct.warrantyPolicy = input.warrantyPolicy
 
+                // update returnPolicy and warrantyPolicy all variants
+
+                const allVariants = await productModel.find({ productCode: existingProduct.productCode })
+
+                for (let i = 0; i < allVariants.length; i++) {
+
+                    // update one by one variants
+
+                    await productModel.findByIdAndUpdate({ _id: allVariants[i]?._id }, {
+
+                        $set: {
+
+                            warrantyPolicy: input.warrantyPolicy,
+                            returnPolicy: input.returnPolicy
+
+                        }
+                    })
+
+
+                }
 
 
                 // Update the product
@@ -582,8 +614,7 @@ export const productResolver: Resolvers = {
                     existingProduct.remarks = input.remarks as string[];
                 }
 
-                existingProduct.returnPolicy = input.returnPolicy
-                existingProduct.warrantyPolicy = input.warrantyPolicy
+
 
                 if (input.productShortInfo && existingProduct.productShortInfo !== input.shortDescription) {
                     existingProduct.productShortInfo = input.productShortInfo;
@@ -641,6 +672,31 @@ export const productResolver: Resolvers = {
 
                     existingProduct.delivery_type = input.delivery_type;
                 }
+
+
+                // update returnPolicy and warrantyPolicy all variants
+
+                const allVariants = await productModel.find({ productCode: existingProduct.productCode })
+
+                for (let i = 0; i < allVariants.length; i++) {
+
+                    // update one by one variants
+
+                    await productModel.findByIdAndUpdate({ _id: allVariants[i]?._id }, {
+
+                        $set: {
+
+                            warrantyPolicy: input.warrantyPolicy,
+                            returnPolicy: input.returnPolicy
+
+                        }
+                    })
+
+
+                }
+
+
+
 
 
                 // Update the product
