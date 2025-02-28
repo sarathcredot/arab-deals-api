@@ -102,6 +102,9 @@ export interface IDeliveryAgentFilter {
     numberOfReturnOrderAssigned: number;
     numberOfReturnOrderDelivered: number;
     numberOfPendingReturns: number;
+    numberOfWarrantyCallAssigned: number;
+    numberOfWarrantyCallDelivered: number;
+    numberOfPendingWarrantyCall: number;
   };
   settlementHistory: Types.ObjectId[] | ISettlement[];
 }
@@ -1323,7 +1326,7 @@ export const warrantyCallAsssignDeliveryAgent = async (data: { warrantyCallID: T
 
       if (warrantyCallDetails) {
 
-        if (warrantyCallDetails.claimStatus === "APPROVED") {
+        if (warrantyCallDetails.claimStatus === "REPLACEMENT_SHIPPED") {
 
           // check  is this first assign
 
@@ -2927,7 +2930,7 @@ export const claimOtpVerification = async (data: {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
         agent.wallet.numberOfPendingWarrantyCall -= 1;
         updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
-        updateFields.replacementDate = new Date();
+        updateFields.replacementCompletedDate = new Date();
         if (data.remarks) {
           updateFields.replacementReason = data.remarks;
         }

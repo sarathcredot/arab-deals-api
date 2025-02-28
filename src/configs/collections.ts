@@ -29,4 +29,5 @@ export const collections = {
     RETURN_POLICY:"return_policies",
     WARRANTY_POLICY:"warranty_policies",
     WARRANTY_CLAIM:"warranty_claims",
+    ACTIVITY_LOGS:"activity_logs"
 }

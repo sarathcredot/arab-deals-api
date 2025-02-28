@@ -93,6 +93,11 @@ type claimVendorDetail{
   fullName:String
 }
 
+type claimAgentDetail{
+   contactNumber:String,
+   agentType:String,
+}
+
 type claimProductsDetail{
   images:[FileData]
 }
@@ -122,6 +127,7 @@ type getClaimRequestDetailsByAdminResponse{
     product:claimProductDetail
     vendor:claimVendorDetail
     products:claimProductsDetail
+    agent:claimAgentDetail
     _id:ObjectId
     createdAt: Date
     issueDescription: String
@@ -134,6 +140,17 @@ type getClaimRequestDetailsByAdminResponse{
     rejectedDate:Date
     productImage:[FileData]
     warrantyAddress:warrantyAddress
+    replacementDate:Date,
+    replacementReason:String,
+    replacementShippedDate:Date,
+    replacementCompletedDate:Date,
+    returnedWarehouseDate:Date,
+    postponedDate:Date,
+    postponedReason:String,
+    deliveryAgentId:ObjectId,
+    deliveryAgentName:String,
+    deliveryAgentAssignedOn:Date,
+    productImageUploadByAgent:[FileData],
 }
 
 

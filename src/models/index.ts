@@ -28,7 +28,7 @@ import {notificationModel} from "./notificationModel";
 import {returnPolicyModel} from "./returnPolicyModel";
 import { warrantyPolicyModel } from "./warrantyPolicyModel";
 import { warrantyClaimModel } from "./warrantyClaimModel";
-
+import { activityLogModel } from "./activityLogModel";
 
 export {
     productModel,
@@ -60,5 +60,6 @@ export {
     notificationModel,
     returnPolicyModel,
     warrantyPolicyModel,
-    warrantyClaimModel
+    warrantyClaimModel,
+    activityLogModel
 }

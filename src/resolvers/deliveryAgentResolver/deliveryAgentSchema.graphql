@@ -179,6 +179,7 @@ input getDetailsOfWarrantyPickupsByAgentInput{
     claimType:String
     claimDate:Date
     warrantyAddress:warrantyAddress
+    deliveryAgentAssignedOn:Date
 }
 
 type claimProductDetailAgent{
@@ -206,6 +207,8 @@ type getDetailsOfWarrantyPickupsByAgentResponse{
       claimType:String
       claimDate:Date
       warrantyAddress:warrantyAddress
+      replacementDeliveredLocation:String
+      deliveryAgentAssignedOn:Date
 }
 
  type getPendingWarrantyPickupsByAgentResponse{
@@ -744,6 +747,9 @@ type Wallet {
   numberOfReturnOrderDelivered:Float
   numberOfPendingReturns:Float
   numberOfPendingOrdes:Float
+  numberOfWarrantyCallAssigned: Int
+  numberOfWarrantyCallDelivered: Int
+  numberOfPendingWarrantyCall: Int
 
 }
 input OrderDelivedbyAgentInput{

@@ -305,6 +305,7 @@ export const productResolver: Resolvers = {
                     status: "UNDER_VERIFICATION",
                     attributes: attributeData,
                     offerPrice: 0,
+                    
                 };
 
                 if (variant.warrantyPolicy) {

@@ -129,7 +129,7 @@ const warrantyClaimSchema = new Schema(
         },
         claimStatus: {
             type: String,
-            enum: ["PENDING", "APPROVED", "REJECTED", "PACKAGE_IN_PROGRESS", "REPLACEMENT_SHIPPED", "OUT_FOR_DELIVERY", "REPLACEMENT_COMPLETED ", "RETURNED_TO_WAREHOUSE", "POSTPONED"],
+            enum: ["PENDING", "APPROVED", "REJECTED", "PACKAGE_IN_PROGRESS", "REPLACEMENT_SHIPPED", "OUT_FOR_DELIVERY", "REPLACEMENT_COMPLETED", "RETURNED_TO_WAREHOUSE", "POSTPONED"],
             default: "PENDING"
         },
         issueDescription: {
@@ -166,9 +166,6 @@ const warrantyClaimSchema = new Schema(
 
             type: Date,
         },
-
-
-
         postponedDate: {
             type: Date,
         },
