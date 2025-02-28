@@ -304,6 +304,7 @@ export const productResolver: Resolvers = {
                     status: "UNDER_VERIFICATION",
                     attributes: attributeData,
                     offerPrice: 0,
+                    
                 };
 
                 // Create the product
