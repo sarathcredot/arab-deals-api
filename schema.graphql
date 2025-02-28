@@ -2,15 +2,17 @@
 
 scalar ObjectId
 
+scalar Upload
+
 type Mutation {
-  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
-  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
-  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
-  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   createWarrantyPolicyBySuperAdmin(input: createWarrantyPolicyBySuperAdminInput!): createWarrantyPolicyBySuperAdminResponse
   updateWarrantyPolicyByAdmin(input: updateWarrantyPolicyByAdminInput): updateWarrantyPolicyByAdminResponse
   deleteWarrantyPolicyByAdmin(input: deleteWarrantyPolicyByAdminInput!): deleteWarrantyPolicyByAdminResponse
   updateStatusWarrantyPolicyByAdmin(input: updateStatusWarrantyPolicyByAdminInput!): updateStatusWarrantyPolicyByAdminResponse
+  addToWishList(input: AddToWishListInput!): AddToWishListResponse!
+  removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
+  addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
+  removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
   createWarrantyClaimRequestByUSer(input: createWarrantyClaimRequestByUSerInput!, image: [Upload]): createWarrantyClaimRequestByUSerResponse
   updateClaimStatusByAdmin(input: updateClaimStatusByAdminInput!): updateClaimStatusByAdminResponse
   sendOtp(input: sendOtpInput!): sendOtpResponse!
@@ -106,6 +108,11 @@ type Mutation {
   updateClaimStatusByAgent(input: updateClaimStatusByAgentInput!): updateClaimStatusByAgentResponse
   claimOtpVerification(input: claimOtpVerificationInput!): claimOtpVerificationResponse
   updateReplacementDeliveredLocation(input: updateReplacementDeliveredLocationInput!): updateReplacementDeliveredLocationResponse
+  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
+  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
+  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
   adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
@@ -114,11 +121,6 @@ type Mutation {
   applyCouponByUserInMobile(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
   removeCoupon: removeCouponResponse!
   removeCouponInMobile: removeCouponResponse!
-  addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
-  updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
-  deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
@@ -152,15 +154,15 @@ type Mutation {
 }
 
 type Query {
-  getWishListProducts: GetWishListProductsResponse!
-  getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
-  getMobileWishListProducts: GetMobileWishListProductsResponse!
-  getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
   getDefaultWarrantyPolicyInCategory(input: getDefaultWarrantyPolicyInCategoryInput): WarrantyPolicy!
   getAllWarrantyPoliciesBySuperAdmin(input: getAllWarrantyPoliciesBySuperAdminInput): getAllWarrantyPoliciesBySuperAdminResponse
   getWarrantyPolicyByAdmin(input: getWarrantyPolicyByAdminInput!): getWarrantyPolicyByAdminResponse
   getDefaultWarrantyPolicyInProduct(input: getDefaultWarrantyPolicyInProductInput): WarrantyPolicy!
   getWarrantyPolicyOfOrderProduct(input: getWarrantyPolicyOfOrderProductInput!): getWarrantyPolicyOfOrderProductResponse
+  getWishListProducts: GetWishListProductsResponse!
+  getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
+  getMobileWishListProducts: GetMobileWishListProductsResponse!
+  getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
   getAllClaimRequestsByAdmin(input: getAllClaimRequestsByAdminInput): getAllClaimRequestsByAdminResponse
   getClaimRequestDetailsByAdmin(input: getClaimRequestDetailsByAdminInput!): getClaimRequestDetailsByAdminResponse
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
@@ -288,10 +290,6 @@ type Query {
   getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
   getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
   getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
-  getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
-  getCouponsByUserMobile: [Coupon]!
-  getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
   getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
   getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
@@ -300,6 +298,10 @@ type Query {
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
+  getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
+  getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
+  getCouponsByUserMobile: [Coupon]!
+  getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -336,77 +338,6 @@ type Query {
   getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
   getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
 }
-
-input AddToWishListInput {
-  productId: ObjectId!
-}
-
-input RemoveFromWishListInput {
-  productId: ObjectId!
-}
-
-input GetWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-input AddToMobileWishListInput {
-  productId: ObjectId!
-}
-
-input RemoveFromMobileWishListInput {
-  productId: ObjectId!
-}
-
-input GetMobileWishListProductStatusInput {
-  productId: ObjectId!
-}
-
-type AddToWishListResponse {
-  message: String
-}
-
-type RemoveFromWishListResponse {
-  message: String
-}
-
-type AddToMobileWishListResponse {
-  message: String
-}
-
-type RemoveFromMobileWishListResponse {
-  message: String
-}
-
-type WishListProduct {
-  productId: ObjectId!
-  productName: String!
-  shortDescription: String
-  sellingPrice: Float!
-  image: String
-}
-
-type GetWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-type GetMobileWishListProductsResponse {
-  products: [WishListProduct]
-}
-
-type GetMobileWishListProductStatusResponse {
-  isExist: Boolean!
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-}
-
-scalar Upload
 
 input getDefaultWarrantyPolicyInProductInput {
   brandId: ObjectId
@@ -509,6 +440,75 @@ type getWarrantyPolicyOfOrderProductResponse {
   duration: Int
   warrantyType: [String]
   warrantyRegister: Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+input AddToWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromWishListInput {
+  productId: ObjectId!
+}
+
+input GetWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+input AddToMobileWishListInput {
+  productId: ObjectId!
+}
+
+input RemoveFromMobileWishListInput {
+  productId: ObjectId!
+}
+
+input GetMobileWishListProductStatusInput {
+  productId: ObjectId!
+}
+
+type AddToWishListResponse {
+  message: String
+}
+
+type RemoveFromWishListResponse {
+  message: String
+}
+
+type AddToMobileWishListResponse {
+  message: String
+}
+
+type RemoveFromMobileWishListResponse {
+  message: String
+}
+
+type WishListProduct {
+  productId: ObjectId!
+  productName: String!
+  shortDescription: String
+  sellingPrice: Float!
+  image: String
+}
+
+type GetWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetWishListProductStatusResponse {
+  isExist: Boolean!
+}
+
+type GetMobileWishListProductsResponse {
+  products: [WishListProduct]
+}
+
+type GetMobileWishListProductStatusResponse {
+  isExist: Boolean!
 }
 
 scalar Date
@@ -4089,6 +4089,198 @@ type GetDashboardShippingChargePieChartDataResponse {
   paid: Float
 }
 
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
+}
+
+input AddCmsInput {
+  pageName: String!
+  buttons: [ButtonDataInput]
+}
+
+input ButtonDataInput {
+  buttonText: String!
+  redirectionURL: String!
+}
+
+input UpdateCmsInput {
+  _id: String!
+  buttons: [ButtonDataInput]
+}
+
+input CmsRecordId {
+  _id: String!
+}
+
+type AddCmsResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateCmsResponse {
+  _id: String!
+  message: String
+}
+
+type DeleteCmsResponse {
+  _id: String!
+  message: String
+}
+
+input cmsRecordByAdminFilter {
+  _id: String!
+}
+
+input cmsRecordFilter {
+  sectionName: String!
+  pageName: String!
+}
+
+input GetCmsRecordInMobileInput {
+  sectionName: String!
+  pageName: String!
+}
+
+input CmsRecordsFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+}
+
+input GetAllCmsRecordsInMobileInput {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+}
+
+input CmsRecordsByAdminFilter {
+  _id: String
+  page: Int
+  size: Int
+  pageName: String
+  sectionName: String
+  images: [String]
+  buttons: [String]
+  isBlocked: Boolean
+}
+
+type ButtonData {
+  buttonText: String
+  redirectionURL: String
+}
+
+type CmsImageData {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+type CmsRecord {
+  _id: String
+  pageName: String
+  sectionName: String
+  images: [CmsImageData]
+  buttons: [ButtonData]
+  isBlocked: Boolean
+}
+
+type CmsRecordResponse {
+  record: CmsRecord!
+  message: String
+}
+
+type GetAllCmsRecordsInMobileResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
+}
+
+type GetCmsRecordInMobileResponse {
+  record: CmsRecord!
+  message: String
+}
+
+type CmsRecordsResponse {
+  maxRecords: Int!
+  records: [CmsRecord!]
+  message: String
+}
+
 type getCouponsByUserResponse {
   records: [Coupon]!
   maxRecords: Int
@@ -4321,198 +4513,6 @@ type ValidUser {
 type UserUsageLimit {
   userId: ObjectId
   usageCount: Int
-}
-
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
-  message: String
-}
-
-input AddCmsInput {
-  pageName: String!
-  buttons: [ButtonDataInput]
-}
-
-input ButtonDataInput {
-  buttonText: String!
-  redirectionURL: String!
-}
-
-input UpdateCmsInput {
-  _id: String!
-  buttons: [ButtonDataInput]
-}
-
-input CmsRecordId {
-  _id: String!
-}
-
-type AddCmsResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateCmsResponse {
-  _id: String!
-  message: String
-}
-
-type DeleteCmsResponse {
-  _id: String!
-  message: String
-}
-
-input cmsRecordByAdminFilter {
-  _id: String!
-}
-
-input cmsRecordFilter {
-  sectionName: String!
-  pageName: String!
-}
-
-input GetCmsRecordInMobileInput {
-  sectionName: String!
-  pageName: String!
-}
-
-input CmsRecordsFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-}
-
-input GetAllCmsRecordsInMobileInput {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-}
-
-input CmsRecordsByAdminFilter {
-  _id: String
-  page: Int
-  size: Int
-  pageName: String
-  sectionName: String
-  images: [String]
-  buttons: [String]
-  isBlocked: Boolean
-}
-
-type ButtonData {
-  buttonText: String
-  redirectionURL: String
-}
-
-type CmsImageData {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-type CmsRecord {
-  _id: String
-  pageName: String
-  sectionName: String
-  images: [CmsImageData]
-  buttons: [ButtonData]
-  isBlocked: Boolean
-}
-
-type CmsRecordResponse {
-  record: CmsRecord!
-  message: String
-}
-
-type GetAllCmsRecordsInMobileResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
-  message: String
-}
-
-type GetCmsRecordInMobileResponse {
-  record: CmsRecord!
-  message: String
-}
-
-type CmsRecordsResponse {
-  maxRecords: Int!
-  records: [CmsRecord!]
-  message: String
 }
 
 input CreateCategoryInput {

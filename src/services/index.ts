@@ -30,6 +30,7 @@ import * as notificationService from './notificationService'
 import * as returnPolicyService from './returnPolicyService'
 import * as warrantyPolicyService from './warrantyPolicyService'
 import * as warrantyClaimService from './warrantyClaimService'
+import * as activityLogService from './activityLogService'
 
 
 
@@ -65,5 +66,6 @@ export {
     notificationService,
     returnPolicyService,
     warrantyPolicyService,
-    warrantyClaimService
+    warrantyClaimService,
+    activityLogService
 }

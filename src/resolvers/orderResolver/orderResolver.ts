@@ -1,4 +1,5 @@
 import {
+  activityLogService,
   cartService,
   couponService,
   deliveryAgentService,
@@ -26,6 +27,7 @@ import { filePaths } from "../../configs";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { cartModel } from "../../models/cartModel";
 import { orderProductModel } from "../../models/orderProductModel";
+import { adminModel } from "../../models/adminModel";
 
 export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
@@ -256,10 +258,35 @@ export const orderResolver: Resolvers = {
         subTotal: userCart?.subTotal,
         discount: userCart?.discount
       };
-      await Promise.all([
-        orderService.createOrder(order),
-        orderProductService.createOrderProducts(products),
-      ]);
+
+      await orderService.createOrder(order)
+      const orderProducts=await orderProductService.createOrderProducts(products)
+
+      console.log("order result",orderProducts)
+
+
+      if (orderProducts) {
+        for (const orderProduct of orderProducts) {
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "CREATE ORDER",
+            performedBy: userId,
+            performedByRole: "USERS",
+            referenceId: orderProduct?._id,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${shippingAddress.firstname} placed an order (Order ID: ${order._id}) through the website. The system generated the order ID, and the request has been sent for processing.`,
+          });
+        }
+      }
+      
+    
+
+      // await Promise.all([
+      //   orderService.createOrder(order),
+      //   orderProductService.createOrderProducts(products),
+      // ]);
+
+      
 
       try {
         let productStock = cartItems.map((product) => {
@@ -819,8 +846,13 @@ export const orderResolver: Resolvers = {
       { req },
       info
     ) => {
-      // await verifyAdmin(req);
-      // await validateInput(validators.updateAdminOrderProductValidator, req);
+      await verifyAdmin(req);
+      await validateInput(validators.updateAdminOrderProductValidator, req);
+      const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+
+      const admin=await adminModel.findById(adminId);
+
+
       console.log(input);
       const _id = input._id;
 
@@ -836,6 +868,70 @@ export const orderResolver: Resolvers = {
           },
         });
       }
+
+      // console.log("product.shippingStatus", product.shippingStatus);
+      // console.log("input.shippingStatus", input.shippingStatus);
+
+      if(input.shippingStatus === "PACKAGE_IN_PROGRESS"){
+        await activityLogService.createActivityLog({
+          actionType: "ORDER",
+          action: "UPDATE ORDER STATUS",
+          performedBy: adminId,
+          performedByRole: "ADMINS",
+          referenceId: product?._id,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+        });
+      }
+
+      if(input.shippingStatus === "SHIPPED"){
+        await activityLogService.createActivityLog({
+          actionType: "ORDER",
+          action: "UPDATE ORDER STATUS",
+          performedBy: adminId,
+          performedByRole: "ADMINS",
+          referenceId: product?._id,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+        });
+      }
+
+      if(input.shippingStatus === "OUT_FOR_DELIVERY"){
+        await activityLogService.createActivityLog({
+          actionType: "ORDER",
+          action: "UPDATE ORDER STATUS",
+          performedBy: adminId,
+          performedByRole: "ADMINS",
+          referenceId: product?._id,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+        });
+      }
+
+      if(input.shippingStatus === "DELIVERED"){
+        await activityLogService.createActivityLog({
+          actionType: "ORDER",
+          action: "UPDATE ORDER STATUS",
+          performedBy: adminId,
+          performedByRole: "ADMINS",
+          referenceId: product?._id,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+        });
+      }
+
+      if(input.shippingStatus === "CANCELED"){
+        await activityLogService.createActivityLog({
+          actionType: "ORDER",
+          action: "UPDATE ORDER STATUS",
+          performedBy: adminId,
+          performedByRole: "ADMINS",
+          referenceId: product?._id,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+        });
+      }
+
 
       if (input.paymentRemark) {
         product.paymentRemark = input.paymentRemark;
@@ -1047,6 +1143,8 @@ export const orderResolver: Resolvers = {
           originalName: filename,
         };
       }
+
+      
 
       await product.save();
 
