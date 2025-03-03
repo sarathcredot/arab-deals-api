@@ -735,9 +735,24 @@ export const deliveryAgentResolver: Resolvers = {
     // warranty call assign to delivery agent 
     warrantyCallAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
 
+      await verifyAdmin(req)
+
       try {
 
         await deliveryAgentService.warrantyCallAsssignDeliveryAgent(input as WarrantyCallAssignDeliveryAgentInput)
+
+        // add activity log 
+
+        const data = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call assigned to delivery boy `,
+          performedBy: req?.authAccount?._id,
+          performedByRole: req?.authAccount?.accType,
+          referenceId: input?.warrantyCallID,
+          details: ""
+        }
+
+        await warrantyClaimService.createActivityLogByWarranty(data)
 
         return {
 
@@ -847,17 +862,17 @@ export const deliveryAgentResolver: Resolvers = {
 
     //change claim status from agent side 
 
-    updateClaimStatusByAgent:async (parent, { input }, { req }, info) =>{
+    updateClaimStatusByAgent: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       let claimRequestId: Types.ObjectId = input?.claimRequestId;
       let claimStatus: string = input?.claimStatus;
-      let remarks: string |undefined | null = input?.remarks;
+      let remarks: string | undefined | null = input?.remarks;
 
       console.log(claimStatus)
 
-      const result = await warrantyClaimModel.findOne({ _id:claimRequestId });
+      const result = await warrantyClaimModel.findOne({ _id: claimRequestId });
 
 
       if (!result) {
@@ -867,7 +882,7 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
 
-      if (claimStatus === "OUT_FOR_DELIVERY") { 
+      if (claimStatus === "OUT_FOR_DELIVERY") {
         result.claimStatus = claimStatus
         await result.save()
         return {
@@ -891,7 +906,7 @@ export const deliveryAgentResolver: Resolvers = {
       if (claimStatus === "POSTPONED") {
         result.claimStatus = claimStatus
         result.postponedDate = new Date();
-        if(input?.remarks){
+        if (input?.remarks) {
           result.postponedReason = input?.remarks
         }
         await result.save()
@@ -917,6 +932,18 @@ export const deliveryAgentResolver: Resolvers = {
           })
         }
 
+
+        const data = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update to ${claimStatus} `,
+          performedBy: req?.authAccount?._id,
+          performedByRole: "AGENT",
+          referenceId: claimRequestId,
+          details: ""
+        }
+
+    await warrantyClaimService.createActivityLogByWarranty(data)
+
         return {
           status: true,
           otp: true,
@@ -935,7 +962,7 @@ export const deliveryAgentResolver: Resolvers = {
 
     //to verify otp while repalce product with user by agent
 
-    claimOtpVerification: async (parent, { input }, { req }, info) =>{
+    claimOtpVerification: async (parent, { input }, { req }, info) => {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
@@ -1518,8 +1545,8 @@ export const deliveryAgentResolver: Resolvers = {
       const page: number = input?.page || 0;
       const size: number = input?.size || 100;
       const options: any = {
-          page: page,
-          size: size
+        page: page,
+        size: size
       }
 
       if (!agentId) {
@@ -1559,20 +1586,20 @@ export const deliveryAgentResolver: Resolvers = {
 
         if (!response) {
           throw new GraphQLError("unable to fetch warranty claims", {
-              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty claims"] },
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty claims"] },
           });
-      }
+        }
 
-      return {
-        success: true,
-        data: response.records,
-        maxRecords: response.maxRecords
-    }
+        return {
+          success: true,
+          data: response.records,
+          maxRecords: response.maxRecords
+        }
 
       } catch (error: any) {
         throw new GraphQLError(error, {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-      });
+        });
       }
 
     },
@@ -1589,8 +1616,8 @@ export const deliveryAgentResolver: Resolvers = {
       const page: number = input?.page || 0;
       const size: number = input?.size || 100;
       const options: any = {
-          page: page,
-          size: size
+        page: page,
+        size: size
       }
 
       if (!agentId) {
@@ -1630,20 +1657,20 @@ export const deliveryAgentResolver: Resolvers = {
 
         if (!response) {
           throw new GraphQLError("unable to fetch warranty claims", {
-              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty claims"] },
+            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty claims"] },
           });
-      }
+        }
 
-      return {
-        success: true,
-        data: response.records,
-        maxRecords: response.maxRecords
-    }
+        return {
+          success: true,
+          data: response.records,
+          maxRecords: response.maxRecords
+        }
 
       } catch (error: any) {
         throw new GraphQLError(error, {
           extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-      });
+        });
       }
     },
 
@@ -1652,25 +1679,25 @@ export const deliveryAgentResolver: Resolvers = {
 
     getDetailsOfWarrantyPickupsByAgent: async (parent, { input }, { req }, info) => {
       // await verifyDeliveryAgent(req);
-        try {
-          const claimRequestId:Types.ObjectId=input.claimRequestId
+      try {
+        const claimRequestId: Types.ObjectId = input.claimRequestId
 
-          if(!claimRequestId){
-              throw new GraphQLError("claimRequestId is required", {
-                  extensions: {
-                      code: "BAD_REQUEST",
-                      errors: [],
-                  },
-              });
-          }
-          const response=await warrantyClaimService.getDetailsOfWarrantyPickupsByAgent(claimRequestId)
-          console.log("response",response)
-          return response.records[0]
-        } catch (error:any) {
-          throw new GraphQLError(error, {
-              extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-          })
+        if (!claimRequestId) {
+          throw new GraphQLError("claimRequestId is required", {
+            extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+            },
+          });
         }
+        const response = await warrantyClaimService.getDetailsOfWarrantyPickupsByAgent(claimRequestId)
+        console.log("response", response)
+        return response.records[0]
+      } catch (error: any) {
+        throw new GraphQLError(error, {
+          extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+        })
+      }
     },
 
     //to get all governorates and villages
