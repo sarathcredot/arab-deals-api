@@ -536,12 +536,13 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 };
 
 
-export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
+export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number },adminId:Types.ObjectId) => {
 
   return new Promise(async (resolve, reject) => {
 
     try {
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+      const admin=await adminModel.findById(adminId)
 
 
       if (assignOrder) {
@@ -598,6 +599,17 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
                 'wallet.numberOfPendingReturns': 1
               }
             })
+
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "ASSIGN ORDER TO DELIVERY AGENT",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: data.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+            });
+
             resolve({ flag: true })
           } else {
             // reassign this oder to new delivery agent
@@ -658,6 +670,17 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               }
             })
 
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "REASSIGN ORDER TO DELIVERY AGENT",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: data.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} reassigned the order (Order Product ID: ${assignOrder?.itemId}) to delivery agent ${data.deliveryAgentName}.`,
+            });
+            
+            
             resolve({ flag: true })
           }
 
@@ -1316,7 +1339,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             performedByRole: "ADMINS",
             referenceId: data.orderItemId,
             referenceType: "ORDER_PRODUCTS",
-            details: `${admin?.fullName} re-assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+            details: `${admin?.fullName} reassigned order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
           });
            
 
@@ -2727,6 +2750,15 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
 
       if (data.returnStatus === 'REJECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "UPDATE RETURN STATUS",
+          performedBy: data.agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
+        });
         agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
         result.returnStatus = data.returnStatus;
         result.returnRejectedDate = new Date();
@@ -2737,6 +2769,15 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         return { flag: true };
       }
       if (data.returnStatus === 'COLLECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "UPDATE RETURN STATUS",
+          performedBy: data.agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
+        });
         agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
         agent.wallet.numberOfPendingReturns -= 1;   // Decrement the number of returns  pending
         result.returnStatus = data.returnStatus;

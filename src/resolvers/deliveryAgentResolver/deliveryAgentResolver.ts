@@ -697,7 +697,8 @@ export const deliveryAgentResolver: Resolvers = {
     //assign return orders to delivery agent from admin side
 
     returnOrderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
-      // await verifyAdmin(req)
+      await verifyAdmin(req);
+      const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       try {
         // input validation
@@ -705,7 +706,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         const { orderItemId, deliveryAgentId, deliveryAgentName, bundleCount } = input
 
-        const result: any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+        const result: any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput,adminId)
 
         if (result.flag) {
           return {
@@ -772,6 +773,8 @@ export const deliveryAgentResolver: Resolvers = {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
+      const agent=await deliveryAgentModel.findOne({ _id: agentId });
+
       let orderProductId: Types.ObjectId = input?.orderProductId;
       let returnStatus: string = input?.returnStatus;
       let remarks: string = input?.remarks;
@@ -791,6 +794,15 @@ export const deliveryAgentResolver: Resolvers = {
 
 
       if (returnStatus === "RETURNED TO WAREHOUSE") {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "UPDATE RETURN STATUS",
+          performedBy: agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: orderProductId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${result?.itemId} from ${result?.returnStatus} to ${returnStatus}. `,
+        });
         console.log("called")
         result.returnStatus = returnStatus
         result.returnDate = new Date();
@@ -803,6 +815,15 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       if (returnStatus === "POSTPONED") {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "UPDATE RETURN STATUS",
+          performedBy: agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: orderProductId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${result?.itemId} from ${result?.returnStatus} to ${returnStatus}. `,
+        });
         result.returnStatus = returnStatus
         result.returnPostponedDate = new Date();
         result.returnPostponedRemarks = remarks

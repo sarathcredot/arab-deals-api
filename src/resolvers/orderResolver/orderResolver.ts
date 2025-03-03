@@ -597,10 +597,31 @@ export const orderResolver: Resolvers = {
         subTotal: userCart?.subTotal,
         discount: userCart?.discount
       };
-      await Promise.all([
-        orderService.createOrder(order),
-        orderProductService.createOrderProducts(products),
-      ]);
+
+      await orderService.createOrder(order)
+      const orderProducts=await orderProductService.createOrderProducts(products)
+
+      console.log("order result",orderProducts)
+
+
+      if (orderProducts) {
+        for (const orderProduct of orderProducts) {
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "CREATE ORDER",
+            performedBy: userId,
+            performedByRole: "USERS",
+            referenceId: orderProduct?._id,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${shippingAddress.firstname} placed an order (Order ID: ${order._id}) through the website. The system generated the order ID, and the request has been sent for processing.`,
+          });
+        }
+      }
+
+      // await Promise.all([
+      //   orderService.createOrder(order),
+      //   orderProductService.createOrderProducts(products),
+      // ]);
 
       try {
         let productStock = cartItems.map((product) => {
@@ -996,7 +1017,29 @@ export const orderResolver: Resolvers = {
         if (product.shippingStatus == "DELIVERED") {
           product.returnStatus = input.returnStatus;
 
+          if (input.returnStatus === "REJECTED") {
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "RETURN ORDER REJECTED",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: product?._id,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.returnStatus} to ${input.returnStatus}. `,
+            });
+          }
+
+
           if (input.returnStatus === "APPROVED") {
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "RETURN ORDER APPROVED",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: product?._id,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.returnStatus} to ${input.returnStatus}. `,
+            });
             const refund = product.sellingPrice;
             product.refundAmount = refund;
             product.refundStatus = "PENDING";
@@ -1370,6 +1413,20 @@ export const orderResolver: Resolvers = {
       };
 
 
+
+
+      await activityLogService.createActivityLog({
+        actionType: "RETURN",
+        action: "RETURN ORDER REQUESTED",
+        performedBy: userId,
+        performedByRole: "USERS",
+        referenceId: orderProduct?._id,
+        referenceType: "ORDER_PRODUCTS",
+        details: `${returnAddress?.firstname} has requested a return for the order (Order ID: ${orderProduct.itemId}) through the website.`,
+      });
+  
+
+
       const return_order_placed_notification=await notificationService.createNotification({
         title: "New return order placed !!!!",
         message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
@@ -1540,6 +1597,16 @@ export const orderResolver: Resolvers = {
         _id: _id,
       };
 
+
+      await activityLogService.createActivityLog({
+        actionType: "RETURN",
+        action: "RETURN ORDER REQUESTED",
+        performedBy: userId,
+        performedByRole: "USERS",
+        referenceId: orderProduct?._id,
+        referenceType: "ORDER_PRODUCTS",
+        details: `${returnAddress?.firstname} has requested a return for the order (Order ID: ${orderProduct.itemId}) through the website.`,
+      });
 
       const return_order_placed_notification=await notificationService.createNotification({
         title: "New return order placed !!!!",
