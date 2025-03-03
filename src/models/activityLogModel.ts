@@ -4,10 +4,15 @@ import { collections } from "../configs";
 
 
 const activityLogSchema = new Schema(
-    {
+    {   
         actionType: {
-            type: String, 
+            type: String,
             enum: ["ORDER", "RETURN", "WARRANTY","PRODUCT"],
+            required: true
+        },
+        referenceType: {
+            type: String, 
+            enum: ["ORDER_PRODUCTS", "WARRANTY_CLAIM","PRODUCTS"],
             required: true 
             },
         action: { 
@@ -20,7 +25,7 @@ const activityLogSchema = new Schema(
         },
         performedByRole: { 
             type: String, 
-            enum: ["SUB_ADMIN", "SUPER_ADMIN","AGENT","USER","VENDOR"], 
+            enum: ["ADMINS","DELIVERYAGENT","USERS","VENDORS"], 
             required: true 
         },
         referenceId: {

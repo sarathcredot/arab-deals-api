@@ -514,7 +514,8 @@ export interface IUserOrderProductsByAdmin {
 export const createOrderProducts = async (
   records: IOrderProduct[]
 ): Promise<IOrderProductDocument[] | null> => {
-  return await orderProductModel.insertMany(records);
+  const result= await orderProductModel.insertMany(records);
+  return result
 };
 
 export const getOrderProductsWithFilters = async (
