@@ -1,4 +1,4 @@
-import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, warrantyClaimService } from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, warrantyClaimService, activityLogService } from "../../services";
 
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
@@ -652,13 +652,15 @@ export const deliveryAgentResolver: Resolvers = {
     // order assign to delivery agent 
 
     orderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
+       await verifyAdmin(req);
+       const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       try {
 
         // input validation
         await validateInput(validators.orderAssignDeliveryAgentValidator, req)
 
-        const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+        const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput,adminId)
 
         if (result.flag) {
 
@@ -1057,10 +1059,36 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
         const agentId = new Types.ObjectId(deliveryAgentData?.id)
+        const agent=await deliveryAgentModel.findOne({_id:agentId})
+        const order_product=await orderProductModel.findOne({_id:input.orderItemId})
+
 
         // check this delivery status POSTPONED
 
         if (input.deliveryStatus === "POSTPONED" || input.deliveryStatus === "OUT_FOR_DELIVERY") {
+            if(input.deliveryStatus === "POSTPONED"){
+                  await activityLogService.createActivityLog({
+                    actionType: "ORDER",
+                    action: "UPDATE ORDER STATUS",
+                    performedBy: agentId,
+                    performedByRole: "DELIVERYAGENT",
+                    referenceId: input.orderItemId,
+                    referenceType: "ORDER_PRODUCTS",
+                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+                  });
+                }
+          
+                if(input.deliveryStatus === "OUT_FOR_DELIVERY"){
+                  await activityLogService.createActivityLog({
+                    actionType: "ORDER",
+                    action: "UPDATE ORDER STATUS",
+                    performedBy: agentId,
+                    performedByRole: "DELIVERYAGENT",
+                    referenceId: input.orderItemId,
+                    referenceType: "ORDER_PRODUCTS",
+                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+                  });
+                }
 
           console.log(input.deliveryStatus)
           const obj = {

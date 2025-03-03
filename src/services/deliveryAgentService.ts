@@ -1,11 +1,11 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
-import { deliveryAgentModel, settlementModel, warrantyClaimModel } from '../models'
+import { adminModel, deliveryAgentModel, settlementModel, warrantyClaimModel } from '../models'
 import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs, otpService, dashboardService } from "../services"
+import { transactionlogs, otpService, dashboardService, activityLogService } from "../services"
 import { startOfDay, endOfDay } from "date-fns"
 
 
@@ -1128,7 +1128,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
 // order assign to delivery agent
 
-export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
+export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number },adminId:Types.ObjectId) => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -1137,6 +1137,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
       // find assign order 
 
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+      const admin=await adminModel.findById(adminId);
 
       console.log(data, 'ORDER RETURN ASSIGN DATA');
 
@@ -1210,6 +1211,20 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
               'wallet.numberOfPendingOrdes': 1
             }
           })
+
+
+           
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "ASSIGN ORDER TO DELIVERY AGENT",
+            performedBy: adminId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${admin?.fullName} assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+          });
+           
+          
 
           resolve({ flag: true })
 
@@ -1294,19 +1309,24 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             }
           })
 
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "REASSIGN ORDER TO DELIVERY AGENT",
+            performedBy: adminId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${admin?.fullName} re-assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+          });
+           
+
           resolve({ flag: true })
         }
-
       } else {
-
         reject({ flag: false })
       }
-
-
     } catch (error) {
-
       reject({ flag: false })
-
     }
   })
 
@@ -1510,7 +1530,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
       // check this order status POSTPONED
 
       if (data.deliveryStatus === "POSTPONED" || data.deliveryStatus === "OUT_FOR_DELIVERY") {
-
+        
         resolve({ flag: true })
         return;
       }
@@ -2772,6 +2792,19 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
             'wallet.numberOfPendingOrdes': -1
           }
         })
+
+        if(data.deliveryStatus === "DELIVERED"){
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "UPDATE ORDER STATUS",
+            performedBy: data.agentId,
+            performedByRole: "DELIVERYAGENT",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} update order status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.shippingStatus} to ${data.deliveryStatus}. `,
+          });
+        }
+  
         // check this order pyment type is COD
         if (data.paymentMode === "COD") {
           // update this order product pyment status
@@ -2825,6 +2858,17 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           }
         })
 
+        if(data.deliveryStatus === "CANCELED"){
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "UPDATE ORDER STATUS",
+            performedBy: data.agentId,
+            performedByRole: "DELIVERYAGENT",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} update order status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.shippingStatus} to ${data.deliveryStatus}. `,
+          });
+        }
 
       }
     };
