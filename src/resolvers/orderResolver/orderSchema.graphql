@@ -243,6 +243,31 @@ type Query {
   getProductDeliveryTypeDeliveryAgents(
     input: GetProductDeliveryTypeDeliveryAgentsInput!
   ): GetProductDeliveryTypeDeliveryAgentsResponse!
+  getOrderActivityLogByAdmin(input:getOrderActivityLogByAdminInput!):[getOrderActivityLogByAdminResponse]
+}
+
+
+input getOrderActivityLogByAdminInput{
+  orderProductId:ObjectId!
+}
+
+type performedBy{
+  _id:ObjectId
+  name:String
+}
+
+type getOrderActivityLogByAdminResponse{
+  _id:ObjectId
+  actionType: String
+  action: String
+  performedBy: ObjectId
+  performedByRole: String
+  referenceId: ObjectId
+  referenceType: String
+  details:String
+  createdAt:Date
+  timeDifference:Int
+  performedByDetails:[performedBy]
 }
 
 # delivery agent type

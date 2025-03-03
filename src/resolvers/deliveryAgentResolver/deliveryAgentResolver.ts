@@ -1090,7 +1090,7 @@ export const deliveryAgentResolver: Resolvers = {
             if(input.deliveryStatus === "POSTPONED"){
                   await activityLogService.createActivityLog({
                     actionType: "ORDER",
-                    action: "UPDATE ORDER STATUS",
+                    action: " ORDER DELIVERY POSTPONED",
                     performedBy: agentId,
                     performedByRole: "DELIVERYAGENT",
                     referenceId: input.orderItemId,
@@ -1102,7 +1102,7 @@ export const deliveryAgentResolver: Resolvers = {
                 if(input.deliveryStatus === "OUT_FOR_DELIVERY"){
                   await activityLogService.createActivityLog({
                     actionType: "ORDER",
-                    action: "UPDATE ORDER STATUS",
+                    action: " ORDER IS OUT FOR DELIVERY",
                     performedBy: agentId,
                     performedByRole: "DELIVERYAGENT",
                     referenceId: input.orderItemId,

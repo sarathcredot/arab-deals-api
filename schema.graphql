@@ -80,6 +80,9 @@ type Mutation {
   exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
   exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
+  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   editDeliveryAgentData(input: EditAgentDataInput!, image: Upload): EditAgentDataInputResponse!
   createDeliveryAgent(input: CreateDeliveryAgentInput!, image: Upload): CreateDeliveryAgentResponse!
   suspendDeliveryAgent(input: SuspendDeliveryAgentInput!): AllDeliveryAgentResponse!
@@ -103,9 +106,6 @@ type Mutation {
   updateClaimStatusByAgent(input: updateClaimStatusByAgentInput!): updateClaimStatusByAgentResponse
   claimOtpVerification(input: claimOtpVerificationInput!): claimOtpVerificationResponse
   updateReplacementDeliveredLocation(input: updateReplacementDeliveredLocationInput!): updateReplacementDeliveredLocationResponse
-  getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
-  getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
   adminSuspendTheCupone(input: adminSuspendTheCuponeInput!): adminSuspendTheCuponeResponse!
   adminDeleteTheCoupon(input: adminDeleteTheCouponInput!): adminDeleteTheCouponResponse!
   createCouponsByAdmin(input: CreateCouponsByAdminInput!): CreateCouponsByAdminResponse
@@ -114,11 +114,11 @@ type Mutation {
   applyCouponByUserInMobile(input: applyCouponByUserInput!): ApplyCouponsByAdminResponse!
   removeCoupon: removeCouponResponse!
   removeCouponInMobile: removeCouponResponse!
-  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
-  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   addCountry(input: AddCountryInput!, image: Upload): AddCountryResponse!
   updateCountry(input: updateCountryInput!, image: Upload): updateCountryResponse!
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
+  addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
+  updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
@@ -130,6 +130,9 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
+  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
+  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
+  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
@@ -146,9 +149,6 @@ type Mutation {
   suspendAdmin(input: suspendAdminInput!): suspendAdminResponse!
   deleteAdminAccount(input: deleteAdminAccountInput!): suspendAdminResponse!
   editAdminAccount(input: editAdminAccountInput!, image: Upload): editAdminAccountResponse!
-  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
-  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
-  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
 }
 
 type Query {
@@ -237,6 +237,7 @@ type Query {
   getVendorOrderDetails(input: GetAdminOrderDetailsInput!): GetAdminOrderDetailsResponse!
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
+  getOrderActivityLogByAdmin(input: getOrderActivityLogByAdminInput!): [getOrderActivityLogByAdminResponse]
   getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
@@ -292,14 +293,14 @@ type Query {
   getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
   getCouponsByUserMobile: [Coupon]!
   getOneCouponDetails(input: getOneCouponDetailsInput): getOneCouponDetailsRespons!
+  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
+  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getCmsRecord(input: cmsRecordFilter!): CmsRecordResponse!
   getAllCmsRecords(input: CmsRecordsFilter): CmsRecordsResponse!
   getAllCmsRecordsByAdmin(input: CmsRecordsByAdminFilter): CmsRecordsResponse!
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
-  getAllCountryRecordsByAdmin(input: CountryRecordsFilter): CountryRecordsResponse!
-  getCountryRecordByAdmin(input: CountryIdInput!): CountryRecordResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -313,6 +314,15 @@ type Query {
   getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
   getCart: getCartResponse!
   getCartInMobile: getCartInMobileResponse!
+  getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
+  getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
+  getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
+  getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
+  getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
+  getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!): BrandsDetailsWithCategoryResponse!
+  getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
+  getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
+  getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
@@ -326,15 +336,6 @@ type Query {
   getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
   getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
-  getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
-  getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
-  getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
-  getAllBrandRecordsWithVendorByAdmin(input: getAllBrandRecordsWithVendorByAdminInput!): BrandRecordsWithVendorByAdminResponse!
-  getAllBrandRecordsWithVendorByVendor(input: getAllBrandRecordsWithVendorByVendorInput!): BrandRecordsWithVendorByVendorResponse!
-  getBrandDetailsWithCategory(input: BrandsDetailsWithCategoryIdInput!): BrandsDetailsWithCategoryResponse!
-  getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
-  getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
-  getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
 }
 
 input AddToWishListInput {
@@ -2334,6 +2335,29 @@ type CancelUserOrderProductInMobileResponse {
   _id: ObjectId
 }
 
+input getOrderActivityLogByAdminInput {
+  orderProductId: ObjectId!
+}
+
+type performedBy {
+  _id: ObjectId
+  name: String
+}
+
+type getOrderActivityLogByAdminResponse {
+  _id: ObjectId
+  actionType: String
+  action: String
+  performedBy: ObjectId
+  performedByRole: String
+  referenceId: ObjectId
+  referenceType: String
+  details: String
+  createdAt: Date
+  timeDifference: Int
+  performedByDetails: [performedBy]
+}
+
 type AllAgents {
   _id: ObjectId!
   fullName: String!
@@ -3168,6 +3192,23 @@ type GetAdminDownloadTokenResponse {
   url: String!
 }
 
+input GetAdminSignedFileUrlInput {
+  fileURL: String!
+  mimeType: String!
+}
+
+input GetUserIvoiceUrlInput {
+  _id: ObjectId!
+}
+
+type GetAdminSignedFileUrlResponse {
+  url: String
+}
+
+type GetUserIvoiceUrlResponse {
+  url: String
+}
+
 input updateReplacementDeliveredLocationInput {
   claimRequestId: ObjectId!
   mapLocation: String!
@@ -3878,23 +3919,6 @@ type LoginDeliveryAgentResponse {
   msg: String
 }
 
-input GetAdminSignedFileUrlInput {
-  fileURL: String!
-  mimeType: String!
-}
-
-input GetUserIvoiceUrlInput {
-  _id: ObjectId!
-}
-
-type GetAdminSignedFileUrlResponse {
-  url: String
-}
-
-type GetUserIvoiceUrlResponse {
-  url: String
-}
-
 input GetDashboardUsersGraphInput {
   startDate: Date
   endDate: Date
@@ -4323,6 +4347,76 @@ type UserUsageLimit {
   usageCount: Int
 }
 
+input ImageDataInput {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
+input AddCountryInput {
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+input updateCountryInput {
+  _id: String!
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageDataInput
+}
+
+type AddCountryResponse {
+  _id: String!
+  message: String
+}
+
+type updateCountryResponse {
+  _id: String!
+  message: String
+}
+
+type CountryDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandRecordId {
+  _id: String
+}
+
+input CountryIdInput {
+  _id: String!
+}
+
+input CountryRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type CountryRecord {
+  _id: String
+  name: String
+  isBlocked: Boolean
+  countryCode: String
+  countryLogo: ImageData
+}
+
+type CountryRecordResponse {
+  record: CountryRecord!
+  message: String
+}
+
+type CountryRecordsResponse {
+  maxRecords: Int!
+  records: [CountryRecord!]
+  message: String
+}
+
 input AddCmsInput {
   pageName: String!
   buttons: [ButtonDataInput]
@@ -4442,76 +4536,6 @@ type GetCmsRecordInMobileResponse {
 type CmsRecordsResponse {
   maxRecords: Int!
   records: [CmsRecord!]
-  message: String
-}
-
-input ImageDataInput {
-  fileType: String
-  fileURL: String
-  mimeType: String
-  originalName: String
-}
-
-input AddCountryInput {
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-input updateCountryInput {
-  _id: String!
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageDataInput
-}
-
-type AddCountryResponse {
-  _id: String!
-  message: String
-}
-
-type updateCountryResponse {
-  _id: String!
-  message: String
-}
-
-type CountryDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandRecordId {
-  _id: String
-}
-
-input CountryIdInput {
-  _id: String!
-}
-
-input CountryRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type CountryRecord {
-  _id: String
-  name: String
-  isBlocked: Boolean
-  countryCode: String
-  countryLogo: ImageData
-}
-
-type CountryRecordResponse {
-  record: CountryRecord!
-  message: String
-}
-
-type CountryRecordsResponse {
-  maxRecords: Int!
-  records: [CountryRecord!]
   message: String
 }
 
@@ -4780,6 +4804,157 @@ type getCartInMobileResponse {
   isCouponApplied: Boolean
   appliedCoupon: ObjectId
   code: String
+}
+
+input AddBrandInput {
+  brandName: String!
+  isBlocked: Boolean
+  isPopular: Boolean
+  priority: Int!
+  returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
+}
+
+input updateBrandInput {
+  _id: String!
+  brandName: String
+  isBlocked: Boolean
+  isPopular: Boolean
+  priority: Int
+  categories: [String]
+  returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
+}
+
+input BrandRecordIdInput {
+  _id: String
+}
+
+input BrandsDetailsWithCategoryIdInput {
+  categoryId: ObjectId
+}
+
+input BrandsDetailsWithCategoryIdInMobileInput {
+  categoryId: ObjectId
+}
+
+type AddBrandResponse {
+  _id: String!
+  message: String
+}
+
+type updateBrandResponse {
+  _id: String!
+  message: String
+}
+
+type BrandDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type BrandsDetailsWithCategoryResponse {
+  records: [BrandRecord]
+  message: String
+}
+
+type BrandsDetailsWithCategoryInMobileResponse {
+  records: [BrandRecord]
+  message: String
+}
+
+input BrandIdInput {
+  _id: String!
+}
+
+input getAllBrandRecordsWithVendorByAdminInput {
+  vendorId: String!
+  page: Int
+  size: Int
+}
+
+input getAllBrandRecordsWithVendorByVendorInput {
+  page: Int
+  size: Int
+  query: String
+}
+
+input BrandRecordsFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+  query: String
+  paginationEnabled: Boolean
+}
+
+input BrandRecordsInMobileFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+input CategoriesDetailsWithBrandIdInput {
+  brandId: String!
+}
+
+type BrandRecord {
+  _id: String
+  brandName: String
+  isBlocked: Boolean
+  logo: ImageData
+  isPopular: Boolean
+  priority: Int
+  returnPolicy: ObjectId
+  warrantyPolicy: ObjectId
+}
+
+type BrandRecordResponse {
+  record: BrandRecord!
+  message: String
+}
+
+type BrandRecordsResponse {
+  maxRecords: Int!
+  records: [BrandRecord!]
+  message: String
+}
+
+type BrandRecordsInMobileResponse {
+  maxRecords: Int!
+  records: [BrandRecord!]
+  message: String
+}
+
+type BrandRecordsWithVendorByAdminResponse {
+  maxRecords: Int!
+  records: [BrandRecord!]
+  message: String
+}
+
+type BrandRecordsWithVendorByVendorResponse {
+  maxRecords: Int!
+  records: [BrandRecord!]
+  message: String
+}
+
+type CategoriesDetailsWithBrandResponse {
+  records: BrandDetailsWithCategory
+}
+
+type BrandDetailsWithCategory {
+  brandId: String
+  brandName: String
+  categories: [CategoryInBrands]
+  message: String
+}
+
+type CategoryInBrands {
+  categoryName: String
+  _id: String
+  isBlocked: Boolean
+  fullCategoryName: String
+  isLeaf: Boolean
+  description: String
 }
 
 type AttributeValue {
@@ -5110,155 +5285,4 @@ type getAdminRecordResponse {
 type adminApprovalForVendorResponse {
   _id: String
   message: String
-}
-
-input AddBrandInput {
-  brandName: String!
-  isBlocked: Boolean
-  isPopular: Boolean
-  priority: Int!
-  returnPolicy: ObjectId
-  warrantyPolicy: ObjectId
-}
-
-input updateBrandInput {
-  _id: String!
-  brandName: String
-  isBlocked: Boolean
-  isPopular: Boolean
-  priority: Int
-  categories: [String]
-  returnPolicy: ObjectId
-  warrantyPolicy: ObjectId
-}
-
-input BrandRecordIdInput {
-  _id: String
-}
-
-input BrandsDetailsWithCategoryIdInput {
-  categoryId: ObjectId
-}
-
-input BrandsDetailsWithCategoryIdInMobileInput {
-  categoryId: ObjectId
-}
-
-type AddBrandResponse {
-  _id: String!
-  message: String
-}
-
-type updateBrandResponse {
-  _id: String!
-  message: String
-}
-
-type BrandDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type BrandsDetailsWithCategoryResponse {
-  records: [BrandRecord]
-  message: String
-}
-
-type BrandsDetailsWithCategoryInMobileResponse {
-  records: [BrandRecord]
-  message: String
-}
-
-input BrandIdInput {
-  _id: String!
-}
-
-input getAllBrandRecordsWithVendorByAdminInput {
-  vendorId: String!
-  page: Int
-  size: Int
-}
-
-input getAllBrandRecordsWithVendorByVendorInput {
-  page: Int
-  size: Int
-  query: String
-}
-
-input BrandRecordsFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-  query: String
-  paginationEnabled: Boolean
-}
-
-input BrandRecordsInMobileFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-input CategoriesDetailsWithBrandIdInput {
-  brandId: String!
-}
-
-type BrandRecord {
-  _id: String
-  brandName: String
-  isBlocked: Boolean
-  logo: ImageData
-  isPopular: Boolean
-  priority: Int
-  returnPolicy: ObjectId
-  warrantyPolicy: ObjectId
-}
-
-type BrandRecordResponse {
-  record: BrandRecord!
-  message: String
-}
-
-type BrandRecordsResponse {
-  maxRecords: Int!
-  records: [BrandRecord!]
-  message: String
-}
-
-type BrandRecordsInMobileResponse {
-  maxRecords: Int!
-  records: [BrandRecord!]
-  message: String
-}
-
-type BrandRecordsWithVendorByAdminResponse {
-  maxRecords: Int!
-  records: [BrandRecord!]
-  message: String
-}
-
-type BrandRecordsWithVendorByVendorResponse {
-  maxRecords: Int!
-  records: [BrandRecord!]
-  message: String
-}
-
-type CategoriesDetailsWithBrandResponse {
-  records: BrandDetailsWithCategory
-}
-
-type BrandDetailsWithCategory {
-  brandId: String
-  brandName: String
-  categories: [CategoryInBrands]
-  message: String
-}
-
-type CategoryInBrands {
-  categoryName: String
-  _id: String
-  isBlocked: Boolean
-  fullCategoryName: String
-  isLeaf: Boolean
-  description: String
 }

@@ -1239,7 +1239,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
            
           await activityLogService.createActivityLog({
             actionType: "ORDER",
-            action: "ASSIGN ORDER TO DELIVERY AGENT",
+            action: "DELIVERY BOY ASSIGNED",
             performedBy: adminId,
             performedByRole: "ADMINS",
             referenceId: data.orderItemId,
@@ -1334,7 +1334,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
 
           await activityLogService.createActivityLog({
             actionType: "ORDER",
-            action: "REASSIGN ORDER TO DELIVERY AGENT",
+            action: "DELIVERY BOY REASSIGNED",
             performedBy: adminId,
             performedByRole: "ADMINS",
             referenceId: data.orderItemId,
@@ -2752,7 +2752,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
       if (data.returnStatus === 'REJECTED') {
         await activityLogService.createActivityLog({
           actionType: "RETURN",
-          action: "UPDATE RETURN STATUS",
+          action: "RETURN REJECTED ",
           performedBy: data.agentId,
           performedByRole: "DELIVERYAGENT",
           referenceId: data.orderItemId,
@@ -2771,7 +2771,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
       if (data.returnStatus === 'COLLECTED') {
         await activityLogService.createActivityLog({
           actionType: "RETURN",
-          action: "UPDATE RETURN STATUS",
+          action: "RETURN COLLECTED",
           performedBy: data.agentId,
           performedByRole: "DELIVERYAGENT",
           referenceId: data.orderItemId,
@@ -2837,7 +2837,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         if(data.deliveryStatus === "DELIVERED"){
           await activityLogService.createActivityLog({
             actionType: "ORDER",
-            action: "UPDATE ORDER STATUS",
+            action: "ORDER DELIVERED",
             performedBy: data.agentId,
             performedByRole: "DELIVERYAGENT",
             referenceId: data.orderItemId,
