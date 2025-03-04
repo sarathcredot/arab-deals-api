@@ -1,5 +1,6 @@
 import { FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { adminModel, vendorModel, deliveryAgentConfigModel } from '../models';
+import { adminModel, vendorModel, deliveryAgentConfigModel, activityLogModel } from '../models';
+import { collections } from "../configs/collections";
 
 
 export interface FileData {
@@ -408,6 +409,86 @@ export const updateAdminDetails = async (data: { id: Types.ObjectId, fullName: s
     }
 
   })
+}
+
+
+export const getActivityLogOfAdmin=async(adminId:Types.ObjectId):Promise<any>=>{
+  return await activityLogModel.aggregate([
+    {
+      $match: { performedBy: adminId }
+    },
+    { $sort: { createdAt: 1 } }, 
+    {
+      $facet: {
+        order: [
+          { $match: { referenceType: "ORDER_PRODUCTS" } },
+          {
+            $lookup: {
+              from: collections.ORDER_PRODUCTS,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$itemId" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        warranty: [
+          { $match: { referenceType: "WARRANTY_CLAIM" } },
+          {
+            $lookup: {
+              from: collections.WARRANTY_CLAIM,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$warrantyId" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        product: [
+          { $match: { referenceType: "PRODUCTS" } },
+          {
+            $lookup: {
+              from: collections.PRODUCTS,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$productName" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+      }
+    },
+    {
+      $project: {
+        mergedResults: {
+          $concatArrays: ["$order", "$warranty", "$product"]
+        }
+      }
+    },
+    { $unwind: "$mergedResults" },
+    { $replaceRoot: { newRoot: "$mergedResults" } },
+  ]);
 }
 
 

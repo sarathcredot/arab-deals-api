@@ -336,6 +336,7 @@ type Query {
   getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
   getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
+  getActivityLogOfAdmin(input: getActivityLogOfAdminInput!): [getActivityLogOfAdminResponse]
 }
 
 input AddToWishListInput {
@@ -5234,6 +5235,28 @@ type AdminAuthResponse {
 type UpdateAdminResponse {
   _id: String
   message: String
+}
+
+input getActivityLogOfAdminInput {
+  adminId: ObjectId!
+}
+
+type referenceDetail {
+  _id: ObjectId
+  ID: String
+}
+
+type getActivityLogOfAdminResponse {
+  referenceDetails: [referenceDetail]
+  _id: ObjectId
+  actionType: String
+  action: String
+  performedBy: ObjectId
+  performedByRole: String
+  referenceId: ObjectId
+  referenceType: String
+  details: String
+  createdAt: Date
 }
 
 input getAllAdminDataInput {

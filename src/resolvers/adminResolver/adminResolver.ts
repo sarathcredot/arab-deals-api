@@ -756,6 +756,25 @@ export const adminResolver: Resolvers = {
         });
       }
     },
+
+    getActivityLogOfAdmin:async(parent,{input},{req},info)=>{
+      await verifyAdmin(req)
+      try {
+        // const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+        const adminId=input.adminId;
+        const result = await adminService.getActivityLogOfAdmin(adminId)
+        console.log("result",result)
+        return result   
+
+      } catch (error) {
+        throw new GraphQLError("Unable find data", {
+          extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+          },
+      })
+      }
+    }
   
   },
 };
