@@ -1,5 +1,5 @@
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator } from "mongoose";
-import { vendorModel } from '../models';
+import { activityLogModel, vendorModel } from '../models';
 import { collections } from "../configs";
 
 export interface FileData {
@@ -756,7 +756,84 @@ export const getVendorRecordsByVendorWithFilters = async (options: IVendorsRecor
 };
 
 
-
+export const getActivityLogOfVendor=async(vendorId:Types.ObjectId,matchObj:any):Promise<any>=>{
+  return await activityLogModel.aggregate([
+    {
+      $match: matchObj
+    },
+    { $sort: { createdAt: 1 } }, 
+    {
+      $facet: {
+        order: [
+          { $match: { referenceType: "ORDER_PRODUCTS" } },
+          {
+            $lookup: {
+              from: collections.ORDER_PRODUCTS,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$itemId" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        warranty: [
+          { $match: { referenceType: "WARRANTY_CLAIM" } },
+          {
+            $lookup: {
+              from: collections.WARRANTY_CLAIM,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$warrantyId" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        product: [
+          { $match: { referenceType: "PRODUCTS" } },
+          {
+            $lookup: {
+              from: collections.PRODUCTS,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$productName" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+      }
+    },
+    {
+      $project: {
+        mergedResults: {
+          $concatArrays: ["$order", "$warranty", "$product"]
+        }
+      }
+    },
+    { $unwind: "$mergedResults" },
+    { $replaceRoot: { newRoot: "$mergedResults" } },
+  ]);
+}
 
 
 

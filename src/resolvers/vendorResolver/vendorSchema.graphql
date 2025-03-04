@@ -247,9 +247,15 @@ type Query {
   getVendorRecordByVendor: VendorsRecordByVendorResponse!
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
+  getActivityLogOfVendor(input:getActivityLogOfVendorInput!):[getActivityLogOfAdminResponse]
 }
 
 # Vendor type
+
+input getActivityLogOfVendorInput{
+  vendorId:ObjectId!
+  date:Date
+}
 
 type CreateVendorResponse{
     _id: String
