@@ -23,12 +23,12 @@ type Mutation {
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   logoutVendor: LogoutVendorResponse!
-  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
-  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
+  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
+  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
   editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
   removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
@@ -71,6 +71,8 @@ type Mutation {
   returnUserOrderProductInMobile(input: ReturnUserOrderProductInMobileInput!): ReturnUserOrderProductInMobileResponse!
   cancelUserOrderProduct(input: CancelUserOrderProductInput!): CancelUserOrderProductResponse!
   cancelUserOrderProductInMobile(input: CancelUserOrderProductInMobileInput!): CancelUserOrderProductInMobileResponse!
+  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
+  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
   exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
@@ -78,8 +80,6 @@ type Mutation {
   exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
   exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
-  addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
@@ -119,6 +119,9 @@ type Mutation {
   deleteCountry(input: CountryIdInput!): CountryDeleteRecordResponse!
   addCmsSection(input: AddCmsInput!, images: [Upload]): AddCmsResponse!
   updateCmsRecord(input: UpdateCmsInput!, images: [Upload]): UpdateCmsResponse!
+  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
+  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
+  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -127,16 +130,13 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
-  createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
-  updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
-  deleteCategory(input: CategoryId!): DeleteCategoryResponse!
   addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
   updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createAdmin(input: createAdminInput!, image: Upload): createAdminResponse!
   createSuperAdmin(input: AdminSignUpInput!, image: Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
@@ -170,12 +170,12 @@ type Query {
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
   getActivityLogOfVendor(input: getActivityLogOfVendorInput!): [getActivityLogOfAdminResponse]
-  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
-  getVendorOutletRecord: VendorOutletRecordResponse!
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
@@ -240,12 +240,12 @@ type Query {
   getVendorOrderProducts(input: GetAdminOrderProductsInput!): GetAdminOrderProductsResponse!
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
   getOrderActivityLogByAdmin(input: getOrderActivityLogByAdminInput!): [getOrderActivityLogByAdminResponse]
+  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
   getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
@@ -304,8 +304,6 @@ type Query {
   getCmsRecordByAdmin(input: cmsRecordByAdminFilter!): CmsRecordResponse!
   getCmsRecordInMobile(input: GetCmsRecordInMobileInput!): GetCmsRecordInMobileResponse!
   getAllCmsRecordsInMobile(input: GetAllCmsRecordsInMobileInput): GetAllCmsRecordsInMobileResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
   getAllChildCategories(input: GetAllChildLevelCategoriesInput!): GetAllChildLevelCategoriesResponse!
   getActiveChildCategories(input: GetActiveChildCategoriesInput!): GetActiveChildCategoriesResponse!
   getActiveChildCategoriesInMobile(input: GetActiveChildCategoriesInMobileInput!): GetActiveChildCategoriesInMobileResponse!
@@ -317,6 +315,8 @@ type Query {
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -326,6 +326,7 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -334,7 +335,6 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
-  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAdminRecord: getAdminRecordResponse
   getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
@@ -934,6 +934,103 @@ type VendorsRecordsByAdminResponse {
   message: String
 }
 
+input UpdateVendorCompanyByAdminInput {
+  _id: ObjectId!
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  remarks: [String!]
+}
+
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
+}
+
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
+  _id: String
+  fullName: String
+  isKycCompleted: String
+  companyName: String
+  companyType: String
+  status: String
+  crNumber: String
+}
+
+input AddVendorCompanyInput {
+  companyName: String!
+  companyType: String!
+  crNumber: String!
+}
+
+input UpdateVendorCompanyInput {
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+type AddVendorCompanyResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyResponse {
+  message: String
+}
+
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyByAdminResponse {
+  message: String
+}
+
+input VendorCompanyIdInput {
+  _id: String!
+}
+
+input VendorCompanyRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+  fullName: String
+  companyName: String
+  vendorId: ObjectId
+  crNumber: String
+}
+
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorCompanyRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorCompanyRecordsWithKycData!]
+  message: String
+}
+
+type VendorCompanyStatusUpdationResponse {
+  _id: String
+  message: String
+}
+
+type GetVendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
 type VendorOutlet {
   _id: String
   vendorId: String
@@ -1065,103 +1162,6 @@ type VendorOutletRecordsByAdminResponse {
 type VendorOutletStatusUpdationResponse {
   _id: String
   status: String
-  message: String
-}
-
-input UpdateVendorCompanyByAdminInput {
-  _id: ObjectId!
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  remarks: [String!]
-}
-
-type VendorCompany {
-  _id: String
-  vendorId: String
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  crLicense: ImageData
-  cooCertificate: ImageData
-  remarks: [String]
-}
-
-type vendorCompanyRecordsWithKycData {
-  vendorId: String
-  _id: String
-  fullName: String
-  isKycCompleted: String
-  companyName: String
-  companyType: String
-  status: String
-  crNumber: String
-}
-
-input AddVendorCompanyInput {
-  companyName: String!
-  companyType: String!
-  crNumber: String!
-}
-
-input UpdateVendorCompanyInput {
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-type AddVendorCompanyResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyResponse {
-  message: String
-}
-
-type VendorCompanyDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyByAdminResponse {
-  message: String
-}
-
-input VendorCompanyIdInput {
-  _id: String!
-}
-
-input VendorCompanyRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-  fullName: String
-  companyName: String
-  vendorId: ObjectId
-  crNumber: String
-}
-
-type VendorCompanyRecordResponse {
-  record: VendorCompany!
-  message: String
-}
-
-type VendorCompanyRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorCompanyRecordsWithKycData!]
-  message: String
-}
-
-type VendorCompanyStatusUpdationResponse {
-  _id: String
-  message: String
-}
-
-type GetVendorCompanyRecordResponse {
-  record: VendorCompany!
   message: String
 }
 
@@ -3080,6 +3080,42 @@ type GetVendorRefundProductsResponse {
   records: [VendorOrderProduct]!
 }
 
+input getAllNotificationInput {
+  filter: String
+}
+
+type NotificationType {
+  _id: ObjectId
+  message: String
+  permissions: [String]
+  orderId: String
+  title: String
+  productId: ObjectId
+  type: String
+  view: [viewType]
+  createdAt: Date
+  updatedAt: Date
+}
+
+type getAllNotificationResponse {
+  allNotification: [NotificationType]
+  unReadCount: Int
+}
+
+type viewType {
+  id: ObjectId
+  remove: Boolean
+}
+
+input addNotificationViewPersonIdInput {
+  notificationId: ObjectId
+}
+
+type addNotificationViewPersonIdResponse {
+  status: Boolean
+  msg: String
+}
+
 input ExportAdminOrdersInput {
   _id: ObjectId
   userId: ObjectId
@@ -3180,42 +3216,6 @@ type GetJobQueueResponse {
 
 type GetAdminDownloadTokenResponse {
   url: String!
-}
-
-input getAllNotificationInput {
-  filter: String
-}
-
-type NotificationType {
-  _id: ObjectId
-  message: String
-  permissions: [String]
-  orderId: String
-  title: String
-  productId: ObjectId
-  type: String
-  view: [viewType]
-  createdAt: Date
-  updatedAt: Date
-}
-
-type getAllNotificationResponse {
-  allNotification: [NotificationType]
-  unReadCount: Int
-}
-
-type viewType {
-  id: ObjectId
-  remove: Boolean
-}
-
-input addNotificationViewPersonIdInput {
-  notificationId: ObjectId
-}
-
-type addNotificationViewPersonIdResponse {
-  status: Boolean
-  msg: String
 }
 
 input GetAdminSignedFileUrlInput {
@@ -4570,117 +4570,6 @@ type CmsRecordsResponse {
   message: String
 }
 
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-input BulkAddToCartInMobileInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type BulkAddToCartInMobileResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
-  name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
-}
-
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  appliedProducts: [ObjectId]
-  code: String
-}
-
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  code: String
-}
-
 input CreateCategoryInput {
   categoryName: String!
   parentId: String
@@ -4837,6 +4726,117 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input removeFromCartInput {
+  productId: String!
+}
+
+input removeFromCartInMobileInput {
+  productId: String!
+}
+
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
+  message: String
+}
+
+type BulkAddToCartResponse {
+  message: String
+}
+
+type BulkAddToCartInMobileResponse {
+  message: String
+}
+
+type addToCartInMObileResponse {
+  message: String
+}
+
+type removeFromCartResponse {
+  message: String
+}
+
+type removeFromCartInMobileResponse {
+  message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  appliedProducts: [ObjectId]
+  code: String
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  code: String
+}
+
 input AddBrandInput {
   brandName: String!
   isBlocked: Boolean
@@ -4988,6 +4988,56 @@ type CategoryInBrands {
   description: String
 }
 
+type AttributeValue {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+input CreateAttributeValueInput {
+  attributeId: String!
+  value: String!
+  colorCode: String!
+  priority: Int!
+  isBlocked: Boolean
+}
+
+input AttributeValueEditInput {
+  attributeValueId: String!
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type CreateAttributeValueResponse {
+  _id: String
+  message: String
+}
+
+input AttributeValueRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type AttributeValueRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
 type Attribute {
   _id: String
   attributeType: String
@@ -5094,56 +5144,6 @@ type AttributesDetailsWithCategoryResponse {
 type AttributesDetailsWithCategoryInMobileResponse {
   record: CategoryWithCategory
   message: String
-}
-
-type AttributeValue {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-input CreateAttributeValueInput {
-  attributeId: String!
-  value: String!
-  colorCode: String!
-  priority: Int!
-  isBlocked: Boolean
-}
-
-input AttributeValueEditInput {
-  attributeValueId: String!
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-type CreateAttributeValueResponse {
-  _id: String
-  message: String
-}
-
-input AttributeValueRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type AttributeValueRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
-}
-
-type AttributeValueEditResponse {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
 }
 
 input deleteAdminAccountInput {
@@ -5334,7 +5334,7 @@ type getAllAdminDataType {
   accType: String
   isBlocked: Boolean
   roles: [adminroles]
-  admin: [createdAdmin]
+  admin: createdAdmin
 }
 
 type getAdminRecordResponse {
