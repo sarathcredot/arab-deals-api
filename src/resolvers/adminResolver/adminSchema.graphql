@@ -265,21 +265,23 @@ type getOneAdminDetailsResponse{
 
 
 type getAllAdminDataResponse{
-
      records:[getAllAdminDataType]
      maxRecords:Int
 
 }
 
-type getAllAdminDataType{
+type createdAdmin{
+  fullName:String
+}
 
+type getAllAdminDataType{
   _id: String
   fullName: String
   email: String
   accType: String
   isBlocked: Boolean
   roles:[adminroles]
-  
+  admin:[createdAdmin]
 }
 
 

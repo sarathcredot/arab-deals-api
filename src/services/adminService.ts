@@ -36,6 +36,7 @@ export interface IAdminDocument extends Document {
   fullName?: string;
   role?: any;
   token?: string;
+  createdBy?:Types.ObjectId;
   profilePic?: {
     fileType?: string,
     fileURL?: string,
@@ -284,6 +285,14 @@ export const getAllAdminsDetails = async ({ page, size, isBlocked, search }: { p
             }
           },
           {
+            $lookup:{
+              from: collections.ADMINS,
+              localField: "createdBy",
+              foreignField: "_id",
+              as: "admin"
+            }
+          },
+          {
 
             $sort: {
               createdAt: -1
@@ -301,7 +310,8 @@ export const getAllAdminsDetails = async ({ page, size, isBlocked, search }: { p
               email: 1,
               isBlocked: 1,
               accType: 1,
-              roles: 1
+              roles: 1,
+              "admin.fullName": 1,
             }
           }
 

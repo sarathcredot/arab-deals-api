@@ -275,7 +275,7 @@ export const orderResolver: Resolvers = {
             performedByRole: "USERS",
             referenceId: orderProduct?._id,
             referenceType: "ORDER_PRODUCTS",
-            details: `${shippingAddress.firstname} placed an order (Order ID: ${order._id}) through the website. The system generated the order ID, and the request has been sent for processing.`,
+            details: `${shippingAddress.firstname} placed an order (Order ID: ${orderProduct.orderId}) through the website. The system generated the order ID, and the request has been sent for processing.`,
           });
         }
       }
