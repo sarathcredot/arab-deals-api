@@ -2650,9 +2650,37 @@ export const deliveryAgentResolver: Resolvers = {
           },
         });
       }
-    }
+    },
 
+   getActivityLogOfAgent: async (parent, { input }, { req }, info) => {
+      //  await verifyDeliveryAgent(req);
+      try {
+             // const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+             const agentId=input.agentId;
+             const date=input?.date
 
+            const matchObj: any = { performedBy: agentId };
+
+            if (date) {
+              const startDate = new Date(date);
+              const endDate = new Date(date);
+              endDate.setHours(23, 59, 59, 999); 
+          
+              matchObj.createdAt = { $gte: startDate, $lte: endDate };
+            }
+        
+             const result = await deliveryAgentService.getActivityLogOfAgent(agentId,matchObj)
+             console.log("result",result)
+             return result   
+           } catch (error) {
+             throw new GraphQLError("Unable find data", {
+               extensions: {
+                   code: "BAD_REQUEST",
+                   errors: [],
+               },
+           })
+           }
+   }
 
 
   }

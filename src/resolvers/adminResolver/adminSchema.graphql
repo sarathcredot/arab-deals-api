@@ -205,6 +205,7 @@ type Query {
 
 input getActivityLogOfAdminInput{
   adminId:ObjectId!
+  date:Date
 }
 
 type referenceDetail{

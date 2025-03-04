@@ -7,12 +7,12 @@ type Mutation {
   removeFromWishList(input: RemoveFromWishListInput!): RemoveFromWishListResponse!
   addToMobileWishList(input: AddToMobileWishListInput!): AddToMobileWishListResponse!
   removeFromMobileWishList(input: RemoveFromMobileWishListInput!): RemoveFromMobileWishListResponse!
+  createWarrantyClaimRequestByUSer(input: createWarrantyClaimRequestByUSerInput!, image: [Upload]): createWarrantyClaimRequestByUSerResponse
+  updateClaimStatusByAdmin(input: updateClaimStatusByAdminInput!): updateClaimStatusByAdminResponse
   createWarrantyPolicyBySuperAdmin(input: createWarrantyPolicyBySuperAdminInput!): createWarrantyPolicyBySuperAdminResponse
   updateWarrantyPolicyByAdmin(input: updateWarrantyPolicyByAdminInput): updateWarrantyPolicyByAdminResponse
   deleteWarrantyPolicyByAdmin(input: deleteWarrantyPolicyByAdminInput!): deleteWarrantyPolicyByAdminResponse
   updateStatusWarrantyPolicyByAdmin(input: updateStatusWarrantyPolicyByAdminInput!): updateStatusWarrantyPolicyByAdminResponse
-  createWarrantyClaimRequestByUSer(input: createWarrantyClaimRequestByUSerInput!, image: [Upload]): createWarrantyClaimRequestByUSerResponse
-  updateClaimStatusByAdmin(input: updateClaimStatusByAdminInput!): updateClaimStatusByAdminResponse
   sendOtp(input: sendOtpInput!): sendOtpResponse!
   createVendor(input: VendorSignUpInput!, image: Upload): CreateVendorResponse!
   createVendorByAdmin(input: VendorSignUpByAdminInput!, image: Upload): CreateVendorByAdminResponse!
@@ -156,13 +156,13 @@ type Query {
   getWishListProductStatus(input: GetWishListProductStatusInput!): GetWishListProductStatusResponse!
   getMobileWishListProducts: GetMobileWishListProductsResponse!
   getMobileWishListProductStatus(input: GetMobileWishListProductStatusInput!): GetMobileWishListProductStatusResponse!
+  getAllClaimRequestsByAdmin(input: getAllClaimRequestsByAdminInput): getAllClaimRequestsByAdminResponse
+  getClaimRequestDetailsByAdmin(input: getClaimRequestDetailsByAdminInput!): getClaimRequestDetailsByAdminResponse
   getDefaultWarrantyPolicyInCategory(input: getDefaultWarrantyPolicyInCategoryInput): WarrantyPolicy!
   getAllWarrantyPoliciesBySuperAdmin(input: getAllWarrantyPoliciesBySuperAdminInput): getAllWarrantyPoliciesBySuperAdminResponse
   getWarrantyPolicyByAdmin(input: getWarrantyPolicyByAdminInput!): getWarrantyPolicyByAdminResponse
   getDefaultWarrantyPolicyInProduct(input: getDefaultWarrantyPolicyInProductInput): WarrantyPolicy!
   getWarrantyPolicyOfOrderProduct(input: getWarrantyPolicyOfOrderProductInput!): getWarrantyPolicyOfOrderProductResponse
-  getAllClaimRequestsByAdmin(input: getAllClaimRequestsByAdminInput): getAllClaimRequestsByAdminResponse
-  getClaimRequestDetailsByAdmin(input: getClaimRequestDetailsByAdminInput!): getClaimRequestDetailsByAdminResponse
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
@@ -267,6 +267,7 @@ type Query {
   getPendingWarrantyPickupsByAgent(input: getPendingWarrantyPickupsByAgentInput): getPendingWarrantyPickupsByAgentResponse
   getHistoryOfWarrantyPickupsByAgent(input: getPendingWarrantyPickupsByAgentInput): getPendingWarrantyPickupsByAgentResponse
   getDetailsOfWarrantyPickupsByAgent(input: getDetailsOfWarrantyPickupsByAgentInput!): getDetailsOfWarrantyPickupsByAgentResponse
+  getActivityLogOfAgent(input: getActivityLogOfAgentInput!): [getActivityLogOfAdminResponse]
   getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
   getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
   getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
@@ -409,109 +410,6 @@ schema {
 }
 
 scalar Upload
-
-input getDefaultWarrantyPolicyInProductInput {
-  brandId: ObjectId
-  categoryId: ObjectId
-}
-
-input getDefaultWarrantyPolicyInCategoryInput {
-  id: ObjectId
-}
-
-input createWarrantyPolicyBySuperAdminInput {
-  name: String!
-  description: String
-  warrantyType: [String!]
-  duration: Int!
-}
-
-input getAllWarrantyPoliciesBySuperAdminInput {
-  page: Int
-  size: Int
-  search: String
-  isEnable: Boolean
-}
-
-input getWarrantyPolicyByAdminInput {
-  warrantyPolicyId: ObjectId!
-}
-
-input updateWarrantyPolicyByAdminInput {
-  warrantyPolicyId: ObjectId!
-  name: String
-  description: String
-  duration: Int
-  warrantyType: [String]
-}
-
-input deleteWarrantyPolicyByAdminInput {
-  warrantyPolicyId: ObjectId!
-}
-
-input updateStatusWarrantyPolicyByAdminInput {
-  warrantyPolicyId: ObjectId!
-  isEnable: Boolean!
-}
-
-input getWarrantyPolicyOfOrderProductInput {
-  orderProductId: ObjectId!
-}
-
-type createWarrantyPolicyBySuperAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type WarrantyPolicy {
-  _id: ObjectId
-  name: String
-  description: String
-  duration: Int
-  isEnable: Boolean
-  isDeleted: Boolean
-  warrantyType: [String]
-}
-
-type getAllWarrantyPoliciesBySuperAdminResponse {
-  success: Boolean
-  data: [WarrantyPolicy]
-  maxRecords: Int
-}
-
-type getWarrantyPolicyByAdminResponse {
-  _id: ObjectId
-  name: String
-  description: String
-  duration: Int
-  isEnable: Boolean
-  isDeleted: Boolean
-  warrantyType: [String]
-}
-
-type updateWarrantyPolicyByAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type deleteWarrantyPolicyByAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type updateStatusWarrantyPolicyByAdminResponse {
-  success: Boolean
-  message: String
-}
-
-type getWarrantyPolicyOfOrderProductResponse {
-  _id: ObjectId
-  name: String
-  description: String
-  duration: Int
-  warrantyType: [String]
-  warrantyRegister: Boolean
-}
 
 scalar Date
 
@@ -678,6 +576,109 @@ type getAllClaimRequestsByAdminResponse {
   success: Boolean
   data: [claimData]
   maxRecords: Int
+}
+
+input getDefaultWarrantyPolicyInProductInput {
+  brandId: ObjectId
+  categoryId: ObjectId
+}
+
+input getDefaultWarrantyPolicyInCategoryInput {
+  id: ObjectId
+}
+
+input createWarrantyPolicyBySuperAdminInput {
+  name: String!
+  description: String
+  warrantyType: [String!]
+  duration: Int!
+}
+
+input getAllWarrantyPoliciesBySuperAdminInput {
+  page: Int
+  size: Int
+  search: String
+  isEnable: Boolean
+}
+
+input getWarrantyPolicyByAdminInput {
+  warrantyPolicyId: ObjectId!
+}
+
+input updateWarrantyPolicyByAdminInput {
+  warrantyPolicyId: ObjectId!
+  name: String
+  description: String
+  duration: Int
+  warrantyType: [String]
+}
+
+input deleteWarrantyPolicyByAdminInput {
+  warrantyPolicyId: ObjectId!
+}
+
+input updateStatusWarrantyPolicyByAdminInput {
+  warrantyPolicyId: ObjectId!
+  isEnable: Boolean!
+}
+
+input getWarrantyPolicyOfOrderProductInput {
+  orderProductId: ObjectId!
+}
+
+type createWarrantyPolicyBySuperAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type WarrantyPolicy {
+  _id: ObjectId
+  name: String
+  description: String
+  duration: Int
+  isEnable: Boolean
+  isDeleted: Boolean
+  warrantyType: [String]
+}
+
+type getAllWarrantyPoliciesBySuperAdminResponse {
+  success: Boolean
+  data: [WarrantyPolicy]
+  maxRecords: Int
+}
+
+type getWarrantyPolicyByAdminResponse {
+  _id: ObjectId
+  name: String
+  description: String
+  duration: Int
+  isEnable: Boolean
+  isDeleted: Boolean
+  warrantyType: [String]
+}
+
+type updateWarrantyPolicyByAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type deleteWarrantyPolicyByAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type updateStatusWarrantyPolicyByAdminResponse {
+  success: Boolean
+  message: String
+}
+
+type getWarrantyPolicyOfOrderProductResponse {
+  _id: ObjectId
+  name: String
+  description: String
+  duration: Int
+  warrantyType: [String]
+  warrantyRegister: Boolean
 }
 
 scalar JSONObject
@@ -3210,6 +3211,11 @@ type GetUserIvoiceUrlResponse {
   url: String
 }
 
+input getActivityLogOfAgentInput {
+  agentId: ObjectId!
+  date: Date
+}
+
 input updateReplacementDeliveredLocationInput {
   claimRequestId: ObjectId!
   mapLocation: String!
@@ -5239,6 +5245,7 @@ type UpdateAdminResponse {
 
 input getActivityLogOfAdminInput {
   adminId: ObjectId!
+  date: Date
 }
 
 type referenceDetail {

@@ -762,7 +762,20 @@ export const adminResolver: Resolvers = {
       try {
         // const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
         const adminId=input.adminId;
-        const result = await adminService.getActivityLogOfAdmin(adminId)
+        const date=input?.date
+
+        const matchObj: any = { performedBy: adminId };
+
+        if (date) {
+          const startDate = new Date(date);
+          const endDate = new Date(date);
+          endDate.setHours(23, 59, 59, 999); 
+      
+          matchObj.createdAt = { $gte: startDate, $lte: endDate };
+        }
+        
+
+        const result = await adminService.getActivityLogOfAdmin(adminId,matchObj)
         console.log("result",result)
         return result   
 

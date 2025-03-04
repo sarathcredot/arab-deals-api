@@ -412,10 +412,10 @@ export const updateAdminDetails = async (data: { id: Types.ObjectId, fullName: s
 }
 
 
-export const getActivityLogOfAdmin=async(adminId:Types.ObjectId):Promise<any>=>{
+export const getActivityLogOfAdmin=async(adminId:Types.ObjectId,matchObj:any):Promise<any>=>{
   return await activityLogModel.aggregate([
     {
-      $match: { performedBy: adminId }
+      $match: matchObj
     },
     { $sort: { createdAt: 1 } }, 
     {
