@@ -2761,7 +2761,11 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
         });
-        agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+          $inc: {
+            'wallet.numberOfPendingReturns': -1
+          }
+        })
         result.returnStatus = data.returnStatus;
         result.returnRejectedDate = new Date();
         if (data.returnRemark) {
@@ -2780,8 +2784,12 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
         });
-        agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
-        agent.wallet.numberOfPendingReturns -= 1;   // Decrement the number of returns  pending
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+          $inc: {
+            'wallet.numberOfReturnOrderDelivered': 1,
+            'wallet.numberOfPendingReturns': -1
+          }
+        })
         result.returnStatus = data.returnStatus;
         result.returnCollectedDate = new Date();
         if (data.returnRemark) {
