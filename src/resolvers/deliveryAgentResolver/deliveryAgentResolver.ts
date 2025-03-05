@@ -844,6 +844,12 @@ export const deliveryAgentResolver: Resolvers = {
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} update return status of an order Order Product ID: ${result?.itemId} from ${result?.returnStatus} to ${returnStatus}. `,
         });
+
+        await deliveryAgentModel.findByIdAndUpdate({ _id:agentId }, {
+          $inc: {
+            'wallet.numberOfPendingReturns': -1
+          }
+        })
         result.returnStatus = returnStatus
         result.returnPostponedDate = new Date();
         result.returnPostponedRemarks = remarks

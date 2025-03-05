@@ -719,6 +719,7 @@ export const adminResolver: Resolvers = {
         }
 
         const result = await adminService.getAllAdminsDetails(options)
+        console.log("result = ", result)
 
         return result;
 
