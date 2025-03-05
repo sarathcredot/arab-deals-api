@@ -18,7 +18,41 @@ type Mutation {
 type Query {
     getAllClaimRequestsByAdmin(input:getAllClaimRequestsByAdminInput):getAllClaimRequestsByAdminResponse
     getClaimRequestDetailsByAdmin(input:getClaimRequestDetailsByAdminInput!):getClaimRequestDetailsByAdminResponse
+    getWarrantyActivityLogByAdmin(input:getWarrantyActivityLogByAdminInput!):[getWarrantyActivityLogByAdminResponse]
 }
+
+
+ input getWarrantyActivityLogByAdminInput{
+
+          warrantyId:ObjectId
+ }
+
+
+
+
+type performedByType{
+
+  _id:ObjectId
+  name:String
+}
+
+
+type getWarrantyActivityLogByAdminResponse{
+
+        _id:ObjectId
+  actionType: String
+  action: String
+  performedBy: ObjectId
+  performedByRole: String
+  referenceId: ObjectId
+  referenceType: String
+  details:String
+  createdAt:Date
+  timeDifference:Int
+  performedByDetails:[performedBy]
+}
+
+
 
 input warrantyAddressInput{
   firstname: String

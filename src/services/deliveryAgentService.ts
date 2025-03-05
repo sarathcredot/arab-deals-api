@@ -536,13 +536,13 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 };
 
 
-export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number },adminId:Types.ObjectId) => {
+export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }, adminId: Types.ObjectId) => {
 
   return new Promise(async (resolve, reject) => {
 
     try {
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
-      const admin=await adminModel.findById(adminId)
+      const admin = await adminModel.findById(adminId)
 
 
       if (assignOrder) {
@@ -679,8 +679,8 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               referenceType: "ORDER_PRODUCTS",
               details: `${admin?.fullName} (Admin) assigned ${data.deliveryAgentName} (Delivery Agent) to deliver order ${assignOrder?.itemId}.The package is now in transit and will be delivered soon. `,
             });
-            
-            
+
+
             resolve({ flag: true })
           }
 
@@ -1151,7 +1151,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
 // order assign to delivery agent
 
-export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number },adminId:Types.ObjectId) => {
+export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }, adminId: Types.ObjectId) => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -1160,7 +1160,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
       // find assign order 
 
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
-      const admin=await adminModel.findById(adminId);
+      const admin = await adminModel.findById(adminId);
 
       console.log(data, 'ORDER RETURN ASSIGN DATA');
 
@@ -1236,7 +1236,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
           })
 
 
-           
+
           await activityLogService.createActivityLog({
             actionType: "ORDER",
             action: "DELIVERY BOY ASSIGNED",
@@ -1246,8 +1246,8 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             referenceType: "ORDER_PRODUCTS",
             details: `${admin?.fullName} (Admin) assigned ${data.deliveryAgentName} (Delivery Agent) to deliver order ${assignOrder?.itemId}. The package is now in transit and will be delivered soon. `,
           });
-           
-          
+
+
 
           resolve({ flag: true })
 
@@ -1341,7 +1341,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             referenceType: "ORDER_PRODUCTS",
             details: `${admin?.fullName} (Admin) assigned ${data.deliveryAgentName} (Delivery Agent) to deliver order ${assignOrder?.itemId}. The package is now in transit and will be delivered soon. `,
           });
-           
+
 
           resolve({ flag: true })
         }
@@ -1538,22 +1538,40 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
     try {
 
-      // change order product delivery status 
 
-      await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
-        $set: {
-
-          shippingStatus: data.deliveryStatus,
-          postponedremark: data.remarks,
-          postponeddate: new Date()
-        }
-      })
 
       // check this order status POSTPONED
 
-      if (data.deliveryStatus === "POSTPONED" || data.deliveryStatus === "OUT_FOR_DELIVERY") {
-        
+      if (data.deliveryStatus === "POSTPONED") {
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
+
+            shippingStatus: data.deliveryStatus,
+            postponedremark: data.remarks,
+            postponeddate: new Date()
+          }
+        })
+
+
+        resolve({ flag: true })
+        return;
+      }
+
+      if (data.deliveryStatus === "OUT_FOR_DELIVERY") {
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
+
+            shippingStatus: data.deliveryStatus,
+
+          }
+        })
+
+
         resolve({ flag: true })
         return;
       }
@@ -1562,6 +1580,16 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
       // check this order status DELIVERED
 
       if (data.deliveryStatus === "DELIVERED") {
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
+
+            shippingStatus: data.deliveryStatus,
+            deliveryDate : new Date()
+          }
+        })
+
 
         //to auto register warranty
         const result = await orderProductModel.findById({ _id: data.orderItemId })
@@ -1654,7 +1682,8 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
         }
 
       } else {
-
+       
+         
 
       }
 
@@ -2488,17 +2517,17 @@ export const getTodayAssignedOrderByDeliveryAgent = async (data: { _id: Types.Ob
 }
 
 
-export const getDeliveryAgentWarrantyCall = async (filters: object,projection: object,options: Options): Promise<any> => {
+export const getDeliveryAgentWarrantyCall = async (filters: object, projection: object, options: Options): Promise<any> => {
 
-  return new Promise(async(resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
 
 
     try {
 
-    
+
       const { page, limit } = options;
       const skip = page * limit;
-      
+
       const records = await warrantyClaimModel.aggregate([
         {
           $match: filters
@@ -2521,39 +2550,39 @@ export const getDeliveryAgentWarrantyCall = async (filters: object,projection: o
         },
         {
           $addFields: {
-            userData: { $arrayElemAt: ["$userData", 0] }, 
-            productData: { $arrayElemAt: ["$productData", 0] } 
+            userData: { $arrayElemAt: ["$userData", 0] },
+            productData: { $arrayElemAt: ["$productData", 0] }
           }
         },
         {
           $addFields: {
-            userName: "$userData.firstName", 
-            productName: "$productData.productName" 
+            userName: "$userData.firstName",
+            productName: "$productData.productName"
           }
         },
         {
           $project: {
             warrantyId: 1,
-            userName: 1, 
-            productName: 1, 
+            userName: 1,
+            productName: 1,
             deliveryAgentAssignedOn: 1,
             claimStatus: 1,
-            createdAt:1
+            createdAt: 1
           }
         },
         {
-          $skip: skip 
+          $skip: skip
         },
         {
-          $limit: limit 
+          $limit: limit
         }
       ]);
 
-      const totalCount=await warrantyClaimModel.countDocuments(filters)
+      const totalCount = await warrantyClaimModel.countDocuments(filters)
 
-      resolve({records,totalCount})
-      
-   
+      resolve({ records, totalCount })
+
+
 
     } catch (error) {
 
@@ -2629,7 +2658,7 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             returnPostponedRemarks: 1,
             returnCollectedDate: 1,
             address: 1,
-           
+
 
 
             // User information from the aggregated userDetails
@@ -2844,7 +2873,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           }
         })
 
-        if(data.deliveryStatus === "DELIVERED"){
+        if (data.deliveryStatus === "DELIVERED") {
           await activityLogService.createActivityLog({
             actionType: "ORDER",
             action: "ORDER DELIVERED",
@@ -2855,7 +2884,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
             details: `${agent?.fullName} (Delivery Agent) successfully delivered the order ${otpData?.itemId} to the customer. The status has been updated to "Delivered". `,
           });
         }
-  
+
         // check this order pyment type is COD
         if (data.paymentMode === "COD") {
           // update this order product pyment status
@@ -2909,7 +2938,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           }
         })
 
-        if(data.deliveryStatus === "CANCELED"){
+        if (data.deliveryStatus === "CANCELED") {
           await activityLogService.createActivityLog({
             actionType: "ORDER",
             action: "ORDER CANCELED",
@@ -2977,18 +3006,18 @@ export const getDeliveryAgentlistCustomizOrderAssigen = async (data: { deliveryA
 }
 
 
-export const claimOtpVerification = async (data: { 
-  claimRequestId: Types.ObjectId, 
-  code: string, 
-  claimStatus?: string, 
-  remarks?: string, 
-  agentId: Types.ObjectId 
+export const claimOtpVerification = async (data: {
+  claimRequestId: Types.ObjectId,
+  code: string,
+  claimStatus?: string,
+  remarks?: string,
+  agentId: Types.ObjectId
 }): Promise<any> => {
   try {
     // Find OTP data for claim verification
-    const otpData = await warrantyClaimModel.findOne({ 
-      _id: data.claimRequestId, 
-      'otp.code': data.code 
+    const otpData = await warrantyClaimModel.findOne({
+      _id: data.claimRequestId,
+      'otp.code': data.code
     });
 
     if (!otpData) {
@@ -3020,7 +3049,7 @@ export const claimOtpVerification = async (data: {
         if (data.remarks) {
           updateFields.rejectedReason = data.remarks;
         }
-      } 
+      }
       else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
         agent.wallet.numberOfPendingWarrantyCall -= 1;
@@ -3029,16 +3058,30 @@ export const claimOtpVerification = async (data: {
         if (data.remarks) {
           updateFields.replacementReason = data.remarks;
         }
-      } 
+      }
       else {
         throw new Error('Invalid claim status');
       }
 
+      const warrantyCallData = await warrantyClaimModel.findById({ _id: data.claimRequestId })
       // Update warranty claim status in DB
       await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
-      
+
       // Save agent updates
       await agent.save();
+      const activityData = {
+        actionType: "WARRANTY",
+        action: `Warranty claim call status update to ${data.claimStatus} `,
+        performedBy: agent?._id,
+        performedByRole: "DELIVERYAGENT",
+        referenceId: data?.claimRequestId,
+        referenceType: "WARRANTY_CLAIM",
+        details: `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+      }
+
+      const final = new activityLogModel(activityData)
+      final.save()
 
       return { flag: true, message: 'Claim status updated successfully' };
     }
@@ -3049,12 +3092,12 @@ export const claimOtpVerification = async (data: {
   }
 };
 
-export const getActivityLogOfAgent=async(agentId:Types.ObjectId,matchObj:any):Promise<any>=>{
+export const getActivityLogOfAgent = async (agentId: Types.ObjectId, matchObj: any): Promise<any> => {
   return await activityLogModel.aggregate([
     {
       $match: matchObj
     },
-    { $sort: { createdAt: 1 } }, 
+    { $sort: { createdAt: 1 } },
     {
       $facet: {
         order: [
@@ -3069,7 +3112,7 @@ export const getActivityLogOfAgent=async(agentId:Types.ObjectId,matchObj:any):Pr
                 {
                   $project: {
                     _id: 1,
-                    ID: "$itemId" 
+                    ID: "$itemId"
                   }
                 }
               ]
@@ -3088,7 +3131,7 @@ export const getActivityLogOfAgent=async(agentId:Types.ObjectId,matchObj:any):Pr
                 {
                   $project: {
                     _id: 1,
-                    ID: "$warrantyId" 
+                    ID: "$warrantyId"
                   }
                 }
               ]
@@ -3107,7 +3150,7 @@ export const getActivityLogOfAgent=async(agentId:Types.ObjectId,matchObj:any):Pr
                 {
                   $project: {
                     _id: 1,
-                    ID: "$productName" 
+                    ID: "$productName"
                   }
                 }
               ]
