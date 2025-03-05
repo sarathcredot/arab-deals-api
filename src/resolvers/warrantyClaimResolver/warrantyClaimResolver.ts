@@ -457,10 +457,12 @@ export const warrantyClaimResolver: Resolvers = {
 
         getWarrantyActivityLogByAdmin: async (parent, { input }, { req }, info) => {
 
-            verifyAdmin(req)
+        //    await verifyAdmin(req)
             try {
 
             const result=await warrantyClaimService.getWarrantyActivityLogByAdmin(input?.warrantyId)
+
+            console.log("result",result)
 
             return result
 

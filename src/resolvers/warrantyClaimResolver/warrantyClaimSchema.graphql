@@ -18,7 +18,7 @@ type Mutation {
 type Query {
     getAllClaimRequestsByAdmin(input:getAllClaimRequestsByAdminInput):getAllClaimRequestsByAdminResponse
     getClaimRequestDetailsByAdmin(input:getClaimRequestDetailsByAdminInput!):getClaimRequestDetailsByAdminResponse
-    getWarrantyActivityLogByAdmin(input:getWarrantyActivityLogByAdminInput!):getWarrantyActivityLogByAdminResponse
+    getWarrantyActivityLogByAdmin(input:getWarrantyActivityLogByAdminInput!):[getWarrantyActivityLogByAdminResponse]
 }
 
 

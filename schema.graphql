@@ -136,6 +136,8 @@ type Mutation {
   deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
   createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
   editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createAdmin(input: createAdminInput!, image: Upload): createAdminResponse!
   createSuperAdmin(input: AdminSignUpInput!, image: Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
@@ -148,8 +150,6 @@ type Mutation {
   suspendAdmin(input: suspendAdminInput!): suspendAdminResponse!
   deleteAdminAccount(input: deleteAdminAccountInput!): suspendAdminResponse!
   editAdminAccount(input: editAdminAccountInput!, image: Upload): editAdminAccountResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
 }
 
 type Query {
@@ -165,7 +165,7 @@ type Query {
   getWarrantyPolicyOfOrderProductInMobile(input: getWarrantyPolicyOfOrderProductInput!): getWarrantyPolicyOfOrderProductResponse
   getAllClaimRequestsByAdmin(input: getAllClaimRequestsByAdminInput): getAllClaimRequestsByAdminResponse
   getClaimRequestDetailsByAdmin(input: getClaimRequestDetailsByAdminInput!): getClaimRequestDetailsByAdminResponse
-  getWarrantyActivityLogByAdmin(input: getWarrantyActivityLogByAdminInput!): getWarrantyActivityLogByAdminResponse
+  getWarrantyActivityLogByAdmin(input: getWarrantyActivityLogByAdminInput!): [getWarrantyActivityLogByAdminResponse]
   getAllVendorsRecordsByAdmin(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getAllVendorsRecordsByVendor(input: VendorsRecordsByAdminFilter): VendorsRecordsByAdminResponse!
   getVendorRecordByAdmin(input: VendorRecordByAdminInput!): VendorsRecordByAdminResponse
@@ -330,11 +330,6 @@ type Query {
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
   getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
-  getAdminRecord: getAdminRecordResponse
-  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
-  getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
-  getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
-  getActivityLogOfAdmin(input: getActivityLogOfAdminInput!): [getActivityLogOfAdminResponse]
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -343,6 +338,11 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAdminRecord: getAdminRecordResponse
+  getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
+  getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
+  getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
+  getActivityLogOfAdmin(input: getActivityLogOfAdminInput!): [getActivityLogOfAdminResponse]
 }
 
 input AddToWishListInput {
@@ -5074,6 +5074,114 @@ type AttributeValueEditResponse {
   isBlocked: Boolean
 }
 
+type Attribute {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+type AttributeValueRecord {
+  _id: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type AttributeWithValue {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  attributeValues: [AttributeValueRecord]
+  isBlocked: Boolean
+}
+
+type CategoryWithCategory {
+  _id: String
+  categoryName: String
+  attributes: [AttributeWithValue]
+}
+
+input CreateAttributeInput {
+  attributeType: String!
+  name: String!
+  description: String!
+  isBlocked: Boolean
+}
+
+input AttributeEditInput {
+  attributeId: String!
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+}
+
+type CreateAttributeResponse {
+  _id: String
+  message: String
+}
+
+type AttributeEditResponse {
+  _id: String
+  attributeType: String
+  name: String
+  description: String
+  isBlocked: Boolean
+  message: String
+}
+
+input AttributeRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+  paginationEnabled: Boolean
+}
+
+input AttributeRecordByAdminInput {
+  attributeId: String!
+}
+
+input AttributeRecordByVendorInput {
+  attributeId: String!
+}
+
+input AttributesDetailsWithCategoryIdInput {
+  categoryId: ObjectId
+}
+
+input AttributesDetailsWithCategoryIdInMobileInput {
+  categoryId: ObjectId
+}
+
+type AttributeRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeRecordByAdminResponse {
+  record: AttributeWithValue
+  message: String
+}
+
+type AttributeRecordByVendorResponse {
+  record: AttributeWithValue
+  message: String
+}
+
+type AttributesDetailsWithCategoryResponse {
+  record: CategoryWithCategory
+  message: String
+}
+
+type AttributesDetailsWithCategoryInMobileResponse {
+  record: CategoryWithCategory
+  message: String
+}
+
 input deleteAdminAccountInput {
   id: ObjectId
 }
@@ -5271,113 +5379,5 @@ type getAdminRecordResponse {
 
 type adminApprovalForVendorResponse {
   _id: String
-  message: String
-}
-
-type Attribute {
-  _id: String
-  attributeType: String
-  name: String
-  description: String
-  isBlocked: Boolean
-}
-
-type AttributeValueRecord {
-  _id: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-type AttributeWithValue {
-  _id: String
-  attributeType: String
-  name: String
-  description: String
-  attributeValues: [AttributeValueRecord]
-  isBlocked: Boolean
-}
-
-type CategoryWithCategory {
-  _id: String
-  categoryName: String
-  attributes: [AttributeWithValue]
-}
-
-input CreateAttributeInput {
-  attributeType: String!
-  name: String!
-  description: String!
-  isBlocked: Boolean
-}
-
-input AttributeEditInput {
-  attributeId: String!
-  attributeType: String
-  name: String
-  description: String
-  isBlocked: Boolean
-}
-
-type CreateAttributeResponse {
-  _id: String
-  message: String
-}
-
-type AttributeEditResponse {
-  _id: String
-  attributeType: String
-  name: String
-  description: String
-  isBlocked: Boolean
-  message: String
-}
-
-input AttributeRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-  paginationEnabled: Boolean
-}
-
-input AttributeRecordByAdminInput {
-  attributeId: String!
-}
-
-input AttributeRecordByVendorInput {
-  attributeId: String!
-}
-
-input AttributesDetailsWithCategoryIdInput {
-  categoryId: ObjectId
-}
-
-input AttributesDetailsWithCategoryIdInMobileInput {
-  categoryId: ObjectId
-}
-
-type AttributeRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
-}
-
-type AttributeRecordByAdminResponse {
-  record: AttributeWithValue
-  message: String
-}
-
-type AttributeRecordByVendorResponse {
-  record: AttributeWithValue
-  message: String
-}
-
-type AttributesDetailsWithCategoryResponse {
-  record: CategoryWithCategory
-  message: String
-}
-
-type AttributesDetailsWithCategoryInMobileResponse {
-  record: CategoryWithCategory
   message: String
 }
