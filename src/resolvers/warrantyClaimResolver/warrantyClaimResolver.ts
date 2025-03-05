@@ -250,7 +250,7 @@ export const warrantyClaimResolver: Resolvers = {
                     actionType: "WARRANTY",
                     action: "WARRANTY HAS BEEN REQUESTED",
                     performedBy: userId,
-                    performedByRole: "USER",
+                    performedByRole: "USERS",
                     referenceId: result?._id,
                     referenceType: "WARRANTY_CLAIM",
                     details: `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
