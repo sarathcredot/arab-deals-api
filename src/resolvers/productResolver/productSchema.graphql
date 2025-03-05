@@ -182,10 +182,30 @@ type Query {
     getRelatedProductsInMobile(input: RelatedProductsInMobileFilters!):RelatedProductsInMobileResponse!
     getProductsMaxPriceInMobile(input:GettProductsMaxPriceInMobileInput) : GetProductsMaxPriceInMobileResponse!
 
+    getActivityLogOfProduct(input:getActivityLogOfProductInput!):[getActivityLogOfProductResponse]
+
 
 }
 
     # Input
+
+    input getActivityLogOfProductInput{
+          productId:ObjectId!
+    }
+
+    type getActivityLogOfProductResponse{
+         _id:ObjectId
+        actionType: String
+        action: String
+        performedBy: ObjectId
+        performedByRole: String
+        referenceId: ObjectId
+        referenceType: String
+        details:String
+        createdAt:Date
+        performedByDetails:[performedBy]
+    }
+
     input ProductFilters {
         page: Int
         size: Int

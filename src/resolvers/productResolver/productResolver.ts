@@ -1,5 +1,5 @@
 import { Resolvers } from "../../_generated_/resolvers-types";
-import { categoryService, orderProductService, productService, spaceService } from "../../services";
+import { activityLogService, categoryService, orderProductService, productService, spaceService } from "../../services";
 import * as validators from "./productValidator";
 import { validateInput, verifyAdmin, verifyVendor } from "../../middlewares";
 import { createWriteStream } from 'fs';
@@ -8,7 +8,7 @@ import path from "path";
 import { ObjectId, QueryOptions, Types } from "mongoose";
 import { GraphQLError } from "graphql";
 import { filePaths } from "../../configs";
-import { productModel } from "../../models"
+import { adminModel, productModel, vendorModel } from "../../models"
 
 export const productResolver: Resolvers = {
     Mutation: {
@@ -34,6 +34,7 @@ export const productResolver: Resolvers = {
                 await validateInput(validators.createProductValidator, req);
 
                 const vendorId = req.authAccount._id;
+                const vendor=await vendorModel.findById(vendorId);
 
 
                 images = images || [];
@@ -179,6 +180,16 @@ export const productResolver: Resolvers = {
                     message: "Product created successfully",
                 };
 
+                await activityLogService.createActivityLog({
+                    actionType: "PRODUCT",
+                    action: "PRODUCT CREATED",
+                    performedBy: vendorId,
+                    performedByRole: "VENDORS",
+                    referenceId: result?._id,
+                    referenceType: "PRODUCTS",
+                    details: `A new product, "${result?.productName}", was successfully added by ${vendor?.fullName} (Vendor).`,
+                });
+
                 return response;
             } catch (error) {
                 console.log(error);
@@ -191,6 +202,7 @@ export const productResolver: Resolvers = {
                 await verifyVendor(req);
                 await validateInput(validators.createVariantValidator, req);
                 const vendorId = req.authAccount._id;
+                const vendor=await vendorModel.findById(vendorId);
 
                 images = images || [];
 
@@ -327,6 +339,16 @@ export const productResolver: Resolvers = {
                     message: "Variant created successfully",
                 };
 
+                await activityLogService.createActivityLog({
+                    actionType: "PRODUCT",
+                    action: "PRODUCT CREATED",
+                    performedBy: vendorId,
+                    performedByRole: "VENDORS",
+                    referenceId: result?._id,
+                    referenceType: "PRODUCTS",
+                    details: `A new product, "${result?.productName}", was successfully added by ${vendor?.fullName} (Vendor).`,
+                });
+
                 return response;
             } catch (error) {
                 console.log(error);
@@ -341,6 +363,7 @@ export const productResolver: Resolvers = {
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const vendorId = req.authAccount._id;
+                const vendor=await vendorModel.findById(vendorId);
 
                 const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id, vendorId: vendorId }, {}, {});
                 if (!existingProduct) {
@@ -351,6 +374,8 @@ export const productResolver: Resolvers = {
                         },
                     });
                 }
+                const existingProductBeforeUpdate = existingProduct.toObject() as Record<string, any>; 
+                const updatedProduct = existingProduct as Record<string, any>; 
 
                 images = images || [];
 
@@ -515,6 +540,39 @@ export const productResolver: Resolvers = {
                     });
                 }
 
+               
+                
+                
+                // Track updated fields
+                const updatedFields: string[] = [];
+                
+                Object.keys(existingProductBeforeUpdate).forEach((key) => {
+                    if (JSON.stringify(existingProductBeforeUpdate[key]) !== JSON.stringify(updatedProduct[key])) {
+                        if(key!== "updatedAt"){
+                            updatedFields.push(`${key}`);
+                        }
+                       
+                    }
+                });
+                
+                // Construct the change message
+                const changesMessage = updatedFields.length
+                    ? `Updated fields: ${updatedFields.join(", ")}`
+                    : "No changes detected.";
+               
+                //complete this
+
+
+                await activityLogService.createActivityLog({
+                    actionType: "PRODUCT",
+                    action: "EDIT PRODUCT",
+                    performedBy: vendorId,
+                    performedByRole: "VENDORS",
+                    referenceId: result?._id,
+                    referenceType: "PRODUCTS",
+                    details: ` Vendor ${vendor?.fullName} ${changesMessage} `,
+                });
+
                 const response = {
                     _id: result?._id?.toString() || "",
                     message: "Product updated successfully",
@@ -533,7 +591,8 @@ export const productResolver: Resolvers = {
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
-
+                const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+                const admin=await adminModel.findById(adminId);
                 const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
@@ -543,6 +602,8 @@ export const productResolver: Resolvers = {
                         },
                     });
                 }
+                const existingProductBeforeUpdate = existingProduct.toObject() as Record<string, any>; 
+                const updatedProduct = existingProduct as Record<string, any>;
 
                 images = images || [];
 
@@ -712,6 +773,34 @@ export const productResolver: Resolvers = {
                         },
                     });
                 }
+
+                 // Track updated fields
+                 const updatedFields: string[] = [];
+                
+                 Object.keys(existingProductBeforeUpdate).forEach((key) => {
+                     if (JSON.stringify(existingProductBeforeUpdate[key]) !== JSON.stringify(updatedProduct[key])) {
+                         if(key!== "updatedAt"){
+                             updatedFields.push(`${key}`);
+                         }
+                        
+                     }
+                 });
+                 
+                 // Construct the change message
+                 const changesMessage = updatedFields.length
+                     ? `Updated fields: ${updatedFields.join(", ")}`
+                     : "No changes detected.";
+                
+                
+                 await activityLogService.createActivityLog({
+                     actionType: "PRODUCT",
+                     action: "EDIT PRODUCT",
+                     performedBy: adminId,
+                     performedByRole: "ADMINS",
+                     referenceId: result?._id,
+                     referenceType: "PRODUCTS",
+                     details: ` Admin ${admin?.fullName} ${changesMessage} `,
+                 });
 
                 const response = {
                     _id: result?._id?.toString() || "",
@@ -1863,8 +1952,20 @@ export const productResolver: Resolvers = {
 
         },
 
-
+        getActivityLogOfProduct: async (parent, { input }, { req }, info) => {
+        try {
+            const productId=input.productId;
+            const result=await productService.getActivityLogOfProduct(productId);
+            console.log("result",result)
+            return result
+            } catch (error) {
+                throw new GraphQLError("Unable find data", {
+                    extensions: {
+                        code: "BAD_REQUEST",
+                        errors: [],
+                    },
+                })
+            }
+        }
     },
-
-
 }

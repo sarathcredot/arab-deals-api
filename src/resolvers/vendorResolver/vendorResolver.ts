@@ -794,6 +794,34 @@ export const vendorResolver: Resolvers = {
       }
 
     },
+
+    getActivityLogOfVendor: async (parent, { input }, { req }, info) => {  
+          try {
+                 const vendorId=input.vendorId;
+                 const date=input?.date
+    
+                const matchObj: any = { performedBy: vendorId };
+    
+                if (date) {
+                  const startDate = new Date(date);
+                  const endDate = new Date(date);
+                  endDate.setHours(23, 59, 59, 999); 
+              
+                  matchObj.createdAt = { $gte: startDate, $lte: endDate };
+                }
+            
+                 const result = await vendorService.getActivityLogOfVendor(vendorId,matchObj)
+                 console.log("result",result)
+                 return result   
+               } catch (error) {
+                 throw new GraphQLError("Unable find data", {
+                   extensions: {
+                       code: "BAD_REQUEST",
+                       errors: [],
+                   },
+               })
+               }
+    }
   },
 };
 

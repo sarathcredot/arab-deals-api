@@ -1,7 +1,7 @@
 import { Types, PipelineStage, QueryOptions, Document, FilterQuery, UpdateQuery, ObjectId, Model, ProjectionFields } from "mongoose";
 import mongoose from 'mongoose';
 import { collections } from "../configs";
-import { attributeValueModel, productModel, brandModel, categoryModel, shippingConfigModel, returnPolicyModel, warrantyPolicyModel } from "../models";
+import { attributeValueModel, productModel, brandModel, categoryModel, shippingConfigModel, returnPolicyModel, warrantyPolicyModel, activityLogModel } from "../models";
 import { attributeService } from ".";
 
 
@@ -275,7 +275,7 @@ export const getLatestProductCode = async (): Promise<number> => {
 
 
 
-export const createProduct = async (productData: IProduct): Promise<Document> => {
+export const createProduct = async (productData: IProduct): Promise<any> => {
     const newProduct = await productModel.create(productData);
     return newProduct;
 }
@@ -2070,3 +2070,101 @@ export const getProductReturnPolicy = async (id: Types.ObjectId): Promise<any> =
         }
     })
 }
+
+export const getActivityLogOfProduct = async (productId: Types.ObjectId) => {
+    return await activityLogModel.aggregate([
+      {
+        $match: { referenceId: productId }
+      },
+      { $sort: { createdAt: 1 } }, 
+      {
+        $facet: {
+          admins: [
+            { $match: { performedByRole: "ADMINS" } },
+            {
+              $lookup: {
+                from: collections.ADMINS,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$fullName" 
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          users: [
+            { $match: { performedByRole: "USERS" } },
+            {
+              $lookup: {
+                from: collections.USERS,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$displayName" 
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          vendors: [
+            { $match: { performedByRole: "VENDORS" } },
+            {
+              $lookup: {
+                from: collections.VENDORS,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$fullName" 
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          deliveryAgents: [
+            { $match: { performedByRole: "DELIVERYAGENT" } },
+            {
+              $lookup: {
+                from: collections.DELIVERYAGENT,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$fullName" 
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        $project: {
+          mergedResults: {
+            $concatArrays: ["$admins", "$users", "$vendors", "$deliveryAgents"]
+          }
+        }
+      },
+      { $unwind: "$mergedResults" },
+      { $replaceRoot: { newRoot: "$mergedResults" } },
+    ]);
+  };

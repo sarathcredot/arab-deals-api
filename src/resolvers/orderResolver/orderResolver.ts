@@ -28,6 +28,7 @@ import { GraphQLUpload } from "graphql-upload-ts";
 import { cartModel } from "../../models/cartModel";
 import { orderProductModel } from "../../models/orderProductModel";
 import { adminModel } from "../../models/adminModel";
+import { userModel } from "../../models/userModel";
 
 export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
@@ -269,12 +270,12 @@ export const orderResolver: Resolvers = {
         for (const orderProduct of orderProducts) {
           await activityLogService.createActivityLog({
             actionType: "ORDER",
-            action: "CREATE ORDER",
+            action: "ORDER HAS BEEN PLACED",
             performedBy: userId,
             performedByRole: "USERS",
             referenceId: orderProduct?._id,
             referenceType: "ORDER_PRODUCTS",
-            details: `${shippingAddress.firstname} placed an order (Order ID: ${order._id}) through the website. The system generated the order ID, and the request has been sent for processing.`,
+            details: `${shippingAddress.firstname} placed an order (Order ID: ${orderProduct.orderId}) through the website. The system generated the order ID, and the request has been sent for processing.`,
           });
         }
       }
@@ -597,10 +598,31 @@ export const orderResolver: Resolvers = {
         subTotal: userCart?.subTotal,
         discount: userCart?.discount
       };
-      await Promise.all([
-        orderService.createOrder(order),
-        orderProductService.createOrderProducts(products),
-      ]);
+
+      await orderService.createOrder(order)
+      const orderProducts=await orderProductService.createOrderProducts(products)
+
+      console.log("order result",orderProducts)
+
+
+      if (orderProducts) {
+        for (const orderProduct of orderProducts) {
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "ORDER HAS BEEN PLACED",
+            performedBy: userId,
+            performedByRole: "USERS",
+            referenceId: orderProduct?._id,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${shippingAddress.firstname} placed an order (Order ID: ${order._id}) through the website. The system generated the order ID, and the request has been sent for processing.`,
+          });
+        }
+      }
+
+      // await Promise.all([
+      //   orderService.createOrder(order),
+      //   orderProductService.createOrderProducts(products),
+      // ]);
 
       try {
         let productStock = cartItems.map((product) => {
@@ -875,7 +897,7 @@ export const orderResolver: Resolvers = {
       if(input.shippingStatus === "PACKAGE_IN_PROGRESS"){
         await activityLogService.createActivityLog({
           actionType: "ORDER",
-          action: "UPDATE ORDER STATUS",
+          action: "PACKAGING STARTED",
           performedBy: adminId,
           performedByRole: "ADMINS",
           referenceId: product?._id,
@@ -887,7 +909,7 @@ export const orderResolver: Resolvers = {
       if(input.shippingStatus === "SHIPPED"){
         await activityLogService.createActivityLog({
           actionType: "ORDER",
-          action: "UPDATE ORDER STATUS",
+          action: "ORDER SHIPPED",
           performedBy: adminId,
           performedByRole: "ADMINS",
           referenceId: product?._id,
@@ -899,7 +921,7 @@ export const orderResolver: Resolvers = {
       if(input.shippingStatus === "OUT_FOR_DELIVERY"){
         await activityLogService.createActivityLog({
           actionType: "ORDER",
-          action: "UPDATE ORDER STATUS",
+          action: "OUT FOR DELIVERY",
           performedBy: adminId,
           performedByRole: "ADMINS",
           referenceId: product?._id,
@@ -911,7 +933,7 @@ export const orderResolver: Resolvers = {
       if(input.shippingStatus === "DELIVERED"){
         await activityLogService.createActivityLog({
           actionType: "ORDER",
-          action: "UPDATE ORDER STATUS",
+          action: "ORDER DELIVERED",
           performedBy: adminId,
           performedByRole: "ADMINS",
           referenceId: product?._id,
@@ -923,7 +945,7 @@ export const orderResolver: Resolvers = {
       if(input.shippingStatus === "CANCELED"){
         await activityLogService.createActivityLog({
           actionType: "ORDER",
-          action: "UPDATE ORDER STATUS",
+          action: "ORDER CANCELED",
           performedBy: adminId,
           performedByRole: "ADMINS",
           referenceId: product?._id,
@@ -996,7 +1018,29 @@ export const orderResolver: Resolvers = {
         if (product.shippingStatus == "DELIVERED") {
           product.returnStatus = input.returnStatus;
 
+          if (input.returnStatus === "REJECTED") {
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "ORDER RETURN REQUEST REJECTED",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: product?._id,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.returnStatus} to ${input.returnStatus}. `,
+            });
+          }
+
+
           if (input.returnStatus === "APPROVED") {
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "ORDER RETURN REQUEST APPROVED",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: product?._id,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.returnStatus} to ${input.returnStatus}. `,
+            });
             const refund = product.sellingPrice;
             product.refundAmount = refund;
             product.refundStatus = "PENDING";
@@ -1370,6 +1414,20 @@ export const orderResolver: Resolvers = {
       };
 
 
+
+
+      await activityLogService.createActivityLog({
+        actionType: "RETURN",
+        action: "RETURN ORDER REQUESTED",
+        performedBy: userId,
+        performedByRole: "USERS",
+        referenceId: orderProduct?._id,
+        referenceType: "ORDER_PRODUCTS",
+        details: `${returnAddress?.firstname} has requested a return for the order (Order ID: ${orderProduct.itemId}) through the website.`,
+      });
+  
+
+
       const return_order_placed_notification=await notificationService.createNotification({
         title: "New return order placed !!!!",
         message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
@@ -1541,6 +1599,16 @@ export const orderResolver: Resolvers = {
       };
 
 
+      await activityLogService.createActivityLog({
+        actionType: "RETURN",
+        action: "RETURN ORDER REQUESTED",
+        performedBy: userId,
+        performedByRole: "USERS",
+        referenceId: orderProduct?._id,
+        referenceType: "ORDER_PRODUCTS",
+        details: `${returnAddress?.firstname} has requested a return for the order (Order ID: ${orderProduct.itemId}) through the website.`,
+      });
+
       const return_order_placed_notification=await notificationService.createNotification({
         title: "New return order placed !!!!",
         message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
@@ -1614,6 +1682,8 @@ export const orderResolver: Resolvers = {
       const userId = req.authAccount._id;
       let { _id } = input;
 
+      const user=await userModel.findById(userId)
+
       const orderProduct = await orderProductService.getOrderProductWithFilters(
         { userId: userId, _id: _id }
       );
@@ -1687,6 +1757,18 @@ export const orderResolver: Resolvers = {
       const response = {
         _id: _id,
       };
+
+      
+      await activityLogService.createActivityLog({
+        actionType: "ORDER",
+        action: "ORDER CANCELED",
+        performedBy: userId,
+        performedByRole: "USERS",
+        referenceId: orderProduct?._id,
+        referenceType: "ORDER_PRODUCTS",
+        details: `${user?.displayName} cancelled order with Product ID: ${orderProduct?.itemId} `,
+      });
+  
 
       return response;
     },
@@ -1700,6 +1782,7 @@ export const orderResolver: Resolvers = {
       await validateInput(validators.cancelUserOrderValidator, req);
       const userId = req.authAccount._id;
       let { _id } = input;
+      const user=await userModel.findById(userId)
 
       const orderProduct = await orderProductService.getOrderProductWithFilters(
         { userId: userId, _id: _id }
@@ -1774,6 +1857,17 @@ export const orderResolver: Resolvers = {
       const response = {
         _id: _id,
       };
+
+      await activityLogService.createActivityLog({
+        actionType: "ORDER",
+        action: "ORDER CANCELED",
+        performedBy: userId,
+        performedByRole: "USERS",
+        referenceId: orderProduct?._id,
+        referenceType: "ORDER_PRODUCTS",
+        details: `${user?.displayName} cancelled order with Product ID: ${orderProduct?.itemId} `,
+      });
+  
 
       return response;
     },
@@ -2729,5 +2823,23 @@ export const orderResolver: Resolvers = {
         });
       }
     },
-  },
+
+    getOrderActivityLogByAdmin: async (parent, { input }, { req }, info) => {
+       // await verifyAdmin(req);
+       try {
+        const orderProductId=input.orderProductId;
+        const result=await orderService.getOrderActivityLogByAdmin(orderProductId);
+        console.log("result",result)
+        return result
+       } catch (error) {
+           throw new GraphQLError("Unable find data", {
+               extensions: {
+                   code: "BAD_REQUEST",
+                   errors: [],
+               },
+           })
+       }
+
+    },
+  }
 };

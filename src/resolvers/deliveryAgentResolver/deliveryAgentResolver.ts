@@ -1,4 +1,4 @@
-import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, warrantyClaimService } from "../../services";
+import { jwtService, spaceService, otpService, deliveryAgentService, orderProductService, warrantyClaimService, activityLogService } from "../../services";
 
 import { Resolvers } from "../../_generated_/resolvers-types";
 import { GraphQLUpload } from "graphql-upload-ts";
@@ -652,13 +652,15 @@ export const deliveryAgentResolver: Resolvers = {
     // order assign to delivery agent 
 
     orderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
+       await verifyAdmin(req);
+       const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       try {
 
         // input validation
         await validateInput(validators.orderAssignDeliveryAgentValidator, req)
 
-        const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+        const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput,adminId)
 
         if (result.flag) {
 
@@ -695,7 +697,8 @@ export const deliveryAgentResolver: Resolvers = {
     //assign return orders to delivery agent from admin side
 
     returnOrderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
-      // await verifyAdmin(req)
+      await verifyAdmin(req);
+      const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       try {
         // input validation
@@ -703,7 +706,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         const { orderItemId, deliveryAgentId, deliveryAgentName, bundleCount } = input
 
-        const result: any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput)
+        const result: any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput,adminId)
 
         if (result.flag) {
           return {
@@ -785,6 +788,8 @@ export const deliveryAgentResolver: Resolvers = {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
+      const agent=await deliveryAgentModel.findOne({ _id: agentId });
+
       let orderProductId: Types.ObjectId = input?.orderProductId;
       let returnStatus: string = input?.returnStatus;
       let remarks: string = input?.remarks;
@@ -804,6 +809,15 @@ export const deliveryAgentResolver: Resolvers = {
 
 
       if (returnStatus === "RETURNED TO WAREHOUSE") {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "UPDATE RETURN STATUS",
+          performedBy: agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: orderProductId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${result?.itemId} from ${result?.returnStatus} to ${returnStatus}. `,
+        });
         console.log("called")
         result.returnStatus = returnStatus
         result.returnDate = new Date();
@@ -816,6 +830,15 @@ export const deliveryAgentResolver: Resolvers = {
       }
 
       if (returnStatus === "POSTPONED") {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "UPDATE RETURN STATUS",
+          performedBy: agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: orderProductId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${result?.itemId} from ${result?.returnStatus} to ${returnStatus}. `,
+        });
         result.returnStatus = returnStatus
         result.returnPostponedDate = new Date();
         result.returnPostponedRemarks = remarks
@@ -1084,10 +1107,36 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
         const agentId = new Types.ObjectId(deliveryAgentData?.id)
+        const agent=await deliveryAgentModel.findOne({_id:agentId})
+        const order_product=await orderProductModel.findOne({_id:input.orderItemId})
+
 
         // check this delivery status POSTPONED
 
         if (input.deliveryStatus === "POSTPONED" || input.deliveryStatus === "OUT_FOR_DELIVERY") {
+            if(input.deliveryStatus === "POSTPONED"){
+                  await activityLogService.createActivityLog({
+                    actionType: "ORDER",
+                    action: " ORDER DELIVERY POSTPONED",
+                    performedBy: agentId,
+                    performedByRole: "DELIVERYAGENT",
+                    referenceId: input.orderItemId,
+                    referenceType: "ORDER_PRODUCTS",
+                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+                  });
+                }
+          
+                if(input.deliveryStatus === "OUT_FOR_DELIVERY"){
+                  await activityLogService.createActivityLog({
+                    actionType: "ORDER",
+                    action: " ORDER IS OUT FOR DELIVERY",
+                    performedBy: agentId,
+                    performedByRole: "DELIVERYAGENT",
+                    referenceId: input.orderItemId,
+                    referenceType: "ORDER_PRODUCTS",
+                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+                  });
+                }
 
           console.log(input.deliveryStatus)
           const obj = {
@@ -2628,9 +2677,37 @@ export const deliveryAgentResolver: Resolvers = {
           },
         });
       }
-    }
+    },
 
+   getActivityLogOfAgent: async (parent, { input }, { req }, info) => {
+      //  await verifyDeliveryAgent(req);
+      try {
+             // const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+             const agentId=input.agentId;
+             const date=input?.date
 
+            const matchObj: any = { performedBy: agentId };
+
+            if (date) {
+              const startDate = new Date(date);
+              const endDate = new Date(date);
+              endDate.setHours(23, 59, 59, 999); 
+          
+              matchObj.createdAt = { $gte: startDate, $lte: endDate };
+            }
+        
+             const result = await deliveryAgentService.getActivityLogOfAgent(agentId,matchObj)
+             console.log("result",result)
+             return result   
+           } catch (error) {
+             throw new GraphQLError("Unable find data", {
+               extensions: {
+                   code: "BAD_REQUEST",
+                   errors: [],
+               },
+           })
+           }
+   }
 
 
   }

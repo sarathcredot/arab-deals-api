@@ -57,11 +57,15 @@ type Query{
    getPendingWarrantyPickupsByAgent(input:getPendingWarrantyPickupsByAgentInput):getPendingWarrantyPickupsByAgentResponse
    getHistoryOfWarrantyPickupsByAgent(input:getPendingWarrantyPickupsByAgentInput):getPendingWarrantyPickupsByAgentResponse
    getDetailsOfWarrantyPickupsByAgent(input:getDetailsOfWarrantyPickupsByAgentInput!):getDetailsOfWarrantyPickupsByAgentResponse
+   getActivityLogOfAgent(input:getActivityLogOfAgentInput!):[getActivityLogOfAdminResponse]
 
 }
 
 
-
+input getActivityLogOfAgentInput{
+  agentId:ObjectId!
+  date:Date
+}
 
 
 input updateReplacementDeliveredLocationInput{

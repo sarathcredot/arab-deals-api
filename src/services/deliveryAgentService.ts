@@ -1,11 +1,11 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
-import { deliveryAgentModel, settlementModel, warrantyClaimModel } from '../models'
+import { activityLogModel, adminModel, deliveryAgentModel, settlementModel, warrantyClaimModel } from '../models'
 import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs, otpService, dashboardService } from "../services"
+import { transactionlogs, otpService, dashboardService, activityLogService } from "../services"
 import { startOfDay, endOfDay } from "date-fns"
 
 
@@ -536,12 +536,13 @@ export const exportAllSettlementHistoryWithFilters = async (options: IAllSettlem
 };
 
 
-export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
+export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number },adminId:Types.ObjectId) => {
 
   return new Promise(async (resolve, reject) => {
 
     try {
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+      const admin=await adminModel.findById(adminId)
 
 
       if (assignOrder) {
@@ -598,6 +599,17 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
                 'wallet.numberOfPendingReturns': 1
               }
             })
+
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "ASSIGN ORDER TO DELIVERY AGENT",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: data.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+            });
+
             resolve({ flag: true })
           } else {
             // reassign this oder to new delivery agent
@@ -658,6 +670,17 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
               }
             })
 
+            await activityLogService.createActivityLog({
+              actionType: "RETURN",
+              action: "REASSIGN ORDER TO DELIVERY AGENT",
+              performedBy: adminId,
+              performedByRole: "ADMINS",
+              referenceId: data.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${admin?.fullName} reassigned the order (Order Product ID: ${assignOrder?.itemId}) to delivery agent ${data.deliveryAgentName}.`,
+            });
+            
+            
             resolve({ flag: true })
           }
 
@@ -1128,7 +1151,7 @@ export const loginDeliveryAgent = async (agentInput: DeliveryLoginData) => {
 
 // order assign to delivery agent
 
-export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number }) => {
+export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.ObjectId, deliveryAgentId: Types.ObjectId, deliveryAgentName: string, bundleCount: number },adminId:Types.ObjectId) => {
 
   return new Promise(async (resolve, reject) => {
 
@@ -1137,6 +1160,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
       // find assign order 
 
       const assignOrder = await orderProductModel.findById({ _id: data.orderItemId })
+      const admin=await adminModel.findById(adminId);
 
       console.log(data, 'ORDER RETURN ASSIGN DATA');
 
@@ -1210,6 +1234,20 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
               'wallet.numberOfPendingOrdes': 1
             }
           })
+
+
+           
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "DELIVERY BOY ASSIGNED",
+            performedBy: adminId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${admin?.fullName} assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+          });
+           
+          
 
           resolve({ flag: true })
 
@@ -1294,19 +1332,24 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             }
           })
 
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "DELIVERY BOY REASSIGNED",
+            performedBy: adminId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${admin?.fullName} reassigned order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+          });
+           
+
           resolve({ flag: true })
         }
-
       } else {
-
         reject({ flag: false })
       }
-
-
     } catch (error) {
-
       reject({ flag: false })
-
     }
   })
 
@@ -1510,7 +1553,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
       // check this order status POSTPONED
 
       if (data.deliveryStatus === "POSTPONED" || data.deliveryStatus === "OUT_FOR_DELIVERY") {
-
+        
         resolve({ flag: true })
         return;
       }
@@ -2709,6 +2752,15 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
 
       if (data.returnStatus === 'REJECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "RETURN REJECTED ",
+          performedBy: data.agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
+        });
         agent.wallet.numberOfPendingReturns -= 1;  // Decrement the number of returns delivered
         result.returnStatus = data.returnStatus;
         result.returnRejectedDate = new Date();
@@ -2719,6 +2771,15 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         return { flag: true };
       }
       if (data.returnStatus === 'COLLECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "RETURN COLLECTED",
+          performedBy: data.agentId,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
+        });
         agent.wallet.numberOfReturnOrderDelivered += 1;  // Decrement the number of returns delivered
         agent.wallet.numberOfPendingReturns -= 1;   // Decrement the number of returns  pending
         result.returnStatus = data.returnStatus;
@@ -2774,6 +2835,19 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
             'wallet.numberOfPendingOrdes': -1
           }
         })
+
+        if(data.deliveryStatus === "DELIVERED"){
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "ORDER DELIVERED",
+            performedBy: data.agentId,
+            performedByRole: "DELIVERYAGENT",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} update order status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.shippingStatus} to ${data.deliveryStatus}. `,
+          });
+        }
+  
         // check this order pyment type is COD
         if (data.paymentMode === "COD") {
           // update this order product pyment status
@@ -2827,6 +2901,17 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           }
         })
 
+        if(data.deliveryStatus === "CANCELED"){
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "UPDATE ORDER STATUS",
+            performedBy: data.agentId,
+            performedByRole: "DELIVERYAGENT",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} update order status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.shippingStatus} to ${data.deliveryStatus}. `,
+          });
+        }
 
       }
     };
@@ -2956,7 +3041,84 @@ export const claimOtpVerification = async (data: {
   }
 };
 
-
+export const getActivityLogOfAgent=async(agentId:Types.ObjectId,matchObj:any):Promise<any>=>{
+  return await activityLogModel.aggregate([
+    {
+      $match: matchObj
+    },
+    { $sort: { createdAt: 1 } }, 
+    {
+      $facet: {
+        order: [
+          { $match: { referenceType: "ORDER_PRODUCTS" } },
+          {
+            $lookup: {
+              from: collections.ORDER_PRODUCTS,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$itemId" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        warranty: [
+          { $match: { referenceType: "WARRANTY_CLAIM" } },
+          {
+            $lookup: {
+              from: collections.WARRANTY_CLAIM,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$warrantyId" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        product: [
+          { $match: { referenceType: "PRODUCTS" } },
+          {
+            $lookup: {
+              from: collections.PRODUCTS,
+              localField: "referenceId",
+              foreignField: "_id",
+              as: "referenceDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    ID: "$productName" 
+                  }
+                }
+              ]
+            }
+          }
+        ],
+      }
+    },
+    {
+      $project: {
+        mergedResults: {
+          $concatArrays: ["$order", "$warranty", "$product"]
+        }
+      }
+    },
+    { $unwind: "$mergedResults" },
+    { $replaceRoot: { newRoot: "$mergedResults" } },
+  ]);
+}
 
 
 

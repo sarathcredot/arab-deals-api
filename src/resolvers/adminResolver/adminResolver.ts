@@ -18,16 +18,19 @@ export const adminResolver: Resolvers = {
     // create super admin and sub admin 
     createAdmin: async (parent, { input, image }, { req }, info) => {
  
-       await verifySuperAdmin(req)
+      await verifySuperAdmin(req)
       await validateInput(validators.AdminCreateValidator, req);
       try {
+
+        const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+        const admin=await adminModel.findById(adminId)
 
         // input validation 
         let profilePic: adminService.FileData | null = null;
         let email: string = input?.email.toLowerCase();
         let fullName: string = input?.fullName;
         let password: string = input?.password;
-        let accType: string = input?.accType
+        let accType: string = input?.accType;
 
         if (image) {
           const { createReadStream, filename, mimetype, encoding } = await image;
@@ -54,7 +57,7 @@ export const adminResolver: Resolvers = {
         }
 
         const newAdminData: any = {
-
+          createdBy:admin?._id,
           fullName,
           email,
           accType,
@@ -75,7 +78,6 @@ export const adminResolver: Resolvers = {
         await adminService.createAdmin(newAdminData, password);
 
         return {
-
           status: true,
           msg: "Account created successfully"
         }
@@ -703,14 +705,13 @@ export const adminResolver: Resolvers = {
 
     getAllAdminData: async (parent, { input }, { req }, info) => {
 
-       await verifySuperAdmin(req)
+      //  await verifySuperAdmin(req)
       try {
 
         const page: number = input?.page || 0;
         const size: number = input?.size || 10;
 
         const options: any = {
-
           page,
           size,
           isBlocked: input?.isBlocked,
@@ -756,6 +757,38 @@ export const adminResolver: Resolvers = {
         });
       }
     },
+
+    getActivityLogOfAdmin:async(parent,{input},{req},info)=>{
+      await verifyAdmin(req)
+      try {
+        // const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+        const adminId=input.adminId;
+        const date=input?.date
+
+        const matchObj: any = { performedBy: adminId };
+
+        if (date) {
+          const startDate = new Date(date);
+          const endDate = new Date(date);
+          endDate.setHours(23, 59, 59, 999); 
+      
+          matchObj.createdAt = { $gte: startDate, $lte: endDate };
+        }
+        
+
+        const result = await adminService.getActivityLogOfAdmin(adminId,matchObj)
+        console.log("result",result)
+        return result   
+
+      } catch (error) {
+        throw new GraphQLError("Unable find data", {
+          extensions: {
+              code: "BAD_REQUEST",
+              errors: [],
+          },
+      })
+      }
+    }
   
   },
 };
