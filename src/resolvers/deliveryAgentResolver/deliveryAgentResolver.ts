@@ -805,18 +805,18 @@ export const deliveryAgentResolver: Resolvers = {
         })
       }
 
-
+ 
 
 
       if (returnStatus === "RETURNED TO WAREHOUSE") {
         await activityLogService.createActivityLog({
           actionType: "RETURN",
-          action: "UPDATE RETURN STATUS",
+          action: "RETURNED TO WAREHOUSE",
           performedBy: agentId,
           performedByRole: "DELIVERYAGENT",
           referenceId: orderProductId,
           referenceType: "ORDER_PRODUCTS",
-          details: `${agent?.fullName} update return status of an order Order Product ID: ${result?.itemId} from ${result?.returnStatus} to ${returnStatus}. `,
+          details: `${agent?.fullName} (Delivery Agent) successfully returned the collected item to the warehouse. The return process is now completed for order ${result?.itemId}, and the customer is now waiting for the refund. `,
         });
         console.log("called")
         result.returnStatus = returnStatus
@@ -832,12 +832,12 @@ export const deliveryAgentResolver: Resolvers = {
       if (returnStatus === "POSTPONED") {
         await activityLogService.createActivityLog({
           actionType: "RETURN",
-          action: "UPDATE RETURN STATUS",
+          action: " RETURN POSTPONED",
           performedBy: agentId,
           performedByRole: "DELIVERYAGENT",
           referenceId: orderProductId,
           referenceType: "ORDER_PRODUCTS",
-          details: `${agent?.fullName} update return status of an order Order Product ID: ${result?.itemId} from ${result?.returnStatus} to ${returnStatus}. `,
+          details: `${agent?.fullName} postponed return of Order  ${result?.itemId}. `,
         });
 
         await deliveryAgentModel.findByIdAndUpdate({ _id:agentId }, {
@@ -1123,24 +1123,24 @@ export const deliveryAgentResolver: Resolvers = {
             if(input.deliveryStatus === "POSTPONED"){
                   await activityLogService.createActivityLog({
                     actionType: "ORDER",
-                    action: " ORDER DELIVERY POSTPONED",
+                    action: "DELIVERY POSTPONED",
                     performedBy: agentId,
                     performedByRole: "DELIVERYAGENT",
                     referenceId: input.orderItemId,
                     referenceType: "ORDER_PRODUCTS",
-                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+                    details: `${agent?.fullName} postponed order ${order_product?.itemId} . `,
                   });
                 }
           
                 if(input.deliveryStatus === "OUT_FOR_DELIVERY"){
                   await activityLogService.createActivityLog({
                     actionType: "ORDER",
-                    action: " ORDER IS OUT FOR DELIVERY",
+                    action: "OUT FOR DELIVERY",
                     performedBy: agentId,
                     performedByRole: "DELIVERYAGENT",
                     referenceId: input.orderItemId,
                     referenceType: "ORDER_PRODUCTS",
-                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+                    details: `${agent?.fullName} (Delivery Agent) has picked up the package for order ${order_product?.itemId} and is now "Out for Delivery". The customer will receive the package shortly. `,
                   });
                 }
 

@@ -275,7 +275,7 @@ export const orderResolver: Resolvers = {
             performedByRole: "USERS",
             referenceId: orderProduct?._id,
             referenceType: "ORDER_PRODUCTS",
-            details: `${shippingAddress.firstname} placed an order (Order ID: ${orderProduct.orderId}) through the website. The system generated the order ID, and the request has been sent for processing.`,
+            details: `${shippingAddress.firstname} placed an order ${orderProduct.orderId} through the website.  The order has been successfully registered in the system and is now waiting for processing.`,
           });
         }
       }
@@ -614,7 +614,7 @@ export const orderResolver: Resolvers = {
             performedByRole: "USERS",
             referenceId: orderProduct?._id,
             referenceType: "ORDER_PRODUCTS",
-            details: `${shippingAddress.firstname} placed an order (Order ID: ${order._id}) through the website. The system generated the order ID, and the request has been sent for processing.`,
+            details: `${shippingAddress.firstname} placed an order ${orderProduct.orderId} through the website.  The order has been successfully registered in the system and is now waiting for processing.`,
           });
         }
       }
@@ -902,7 +902,7 @@ export const orderResolver: Resolvers = {
           performedByRole: "ADMINS",
           referenceId: product?._id,
           referenceType: "ORDER_PRODUCTS",
-          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+          details: `${admin?.fullName} (Admin) updated the order ${product?.itemId} status to "Packaging In Progress". The product is now being packed and prepared for shipment. `,
         });
       }
 
@@ -914,7 +914,7 @@ export const orderResolver: Resolvers = {
           performedByRole: "ADMINS",
           referenceId: product?._id,
           referenceType: "ORDER_PRODUCTS",
-          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+          details: `${admin?.fullName} (Admin) marked order  ${product?.itemId} as "Shipped". The package has been successfully handed over to the team for delivery.`,
         });
       }
 
@@ -926,7 +926,7 @@ export const orderResolver: Resolvers = {
           performedByRole: "ADMINS",
           referenceId: product?._id,
           referenceType: "ORDER_PRODUCTS",
-          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+          details: `${product?.deliveryAgentName} (Delivery Agent) has picked up the package for order ${product?.itemId} and is now "Out for Delivery". The customer will receive the package shortly. `,
         });
       }
 
@@ -938,7 +938,7 @@ export const orderResolver: Resolvers = {
           performedByRole: "ADMINS",
           referenceId: product?._id,
           referenceType: "ORDER_PRODUCTS",
-          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+          details: `${product?.deliveryAgentName}  (Delivery Agent) successfully delivered the order ${product?.itemId} to the customer. The status has been updated to "Delivered". `,
         });
       }
 
@@ -950,10 +950,34 @@ export const orderResolver: Resolvers = {
           performedByRole: "ADMINS",
           referenceId: product?._id,
           referenceType: "ORDER_PRODUCTS",
-          details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.shippingStatus} to ${input.shippingStatus}. `,
+          details: `${admin?.fullName} (Admin) Cancelled  the order ${product?.itemId} . The status has been updated to "Cancelled" `,
         });
       }
 
+      if (input.refundStatus === "PENDING") {
+        await activityLogService.createActivityLog({
+          actionType: "ORDER",
+          action: "REFUND REQUEST PENDING",
+          performedBy: adminId,
+          performedByRole: "ADMINS",
+          referenceId: product?._id,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${admin?.fullName} (Admin) marked the refund status as PENDING for order ${product?.orderId}. The request is under review.`,
+        });
+      }
+      
+      if (input.refundStatus === "PAID") {
+        await activityLogService.createActivityLog({
+          actionType: "ORDER",
+          action: "REFUND PROCESSED",
+          performedBy: adminId,
+          performedByRole: "ADMINS",
+          referenceId: product?._id,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${admin?.fullName} (Admin) marked the refund as PAID for order ${product?.orderId}. The amount has been successfully processed, and the refund has been issued to the customer.`,
+        });
+      }
+      
 
       if (input.paymentRemark) {
         product.paymentRemark = input.paymentRemark;
@@ -1021,12 +1045,12 @@ export const orderResolver: Resolvers = {
           if (input.returnStatus === "REJECTED") {
             await activityLogService.createActivityLog({
               actionType: "RETURN",
-              action: "ORDER RETURN REQUEST REJECTED",
+              action: "RETURN REQUEST REJECTED",
               performedBy: adminId,
               performedByRole: "ADMINS",
               referenceId: product?._id,
               referenceType: "ORDER_PRODUCTS",
-              details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.returnStatus} to ${input.returnStatus}. `,
+              details: `${admin?.fullName} (Admin) rejected the return request for order ${product?.itemId}. The return process has been declined, and the customer has been notified. `,
             });
           }
 
@@ -1034,12 +1058,12 @@ export const orderResolver: Resolvers = {
           if (input.returnStatus === "APPROVED") {
             await activityLogService.createActivityLog({
               actionType: "RETURN",
-              action: "ORDER RETURN REQUEST APPROVED",
+              action: "RETURN REQUEST APPROVED",
               performedBy: adminId,
               performedByRole: "ADMINS",
               referenceId: product?._id,
               referenceType: "ORDER_PRODUCTS",
-              details: `${admin?.fullName} update order status of an order Order Product ID: ${product?.itemId} from ${product?.returnStatus} to ${input.returnStatus}. `,
+              details: `${admin?.fullName} (Admin) approved the return request for order ${product?.itemId}. The system has now marked the order as "Return Approved", and a delivery agent will be assigned for pickup. `,
             });
             const refund = product.sellingPrice;
             product.refundAmount = refund;
@@ -1418,12 +1442,12 @@ export const orderResolver: Resolvers = {
 
       await activityLogService.createActivityLog({
         actionType: "RETURN",
-        action: "RETURN ORDER REQUESTED",
+        action: "RETURN REQUEST INITIATED",
         performedBy: userId,
         performedByRole: "USERS",
         referenceId: orderProduct?._id,
         referenceType: "ORDER_PRODUCTS",
-        details: `${returnAddress?.firstname} has requested a return for the order (Order ID: ${orderProduct.itemId}) through the website.`,
+        details: `${returnAddress?.firstname} (Customer) requested a return for order  ${orderProduct.itemId} through the website. The return request has been submitted and is now waiting for approval.`,
       });
   
 
@@ -1599,14 +1623,15 @@ export const orderResolver: Resolvers = {
       };
 
 
+      
       await activityLogService.createActivityLog({
         actionType: "RETURN",
-        action: "RETURN ORDER REQUESTED",
+        action: "RETURN REQUEST INITIATED",
         performedBy: userId,
         performedByRole: "USERS",
         referenceId: orderProduct?._id,
         referenceType: "ORDER_PRODUCTS",
-        details: `${returnAddress?.firstname} has requested a return for the order (Order ID: ${orderProduct.itemId}) through the website.`,
+        details: `${returnAddress?.firstname} (Customer) requested a return for order  ${orderProduct.itemId} through the website. The return request has been submitted and is now waiting for approval.`,
       });
 
       const return_order_placed_notification=await notificationService.createNotification({

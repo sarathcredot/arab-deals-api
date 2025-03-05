@@ -24,12 +24,12 @@ type Mutation {
   updateVendorProfile(input: VendorEditProfileInput!, image: Upload): UpdateVendorResponse!
   updateVendorProfileByAdmin(input: VendorEditProfileByAdminInput!, image: Upload): UpdateVendorByAdminResponse!
   logoutVendor: LogoutVendorResponse!
-  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
-  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
-  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   addVendorCompany(input: AddVendorCompanyInput!, images: [Upload], fileMap: JSONObject): AddVendorCompanyResponse!
   updateVendorCompany(input: UpdateVendorCompanyInput!, images: [Upload], fileMap: JSONObject): UpdateVendorCompanyResponse!
   updateVendorCompanyByAdmin(input: UpdateVendorCompanyByAdminInput!, crLicense: Upload, cooCertificate: Upload): UpdateVendorCompanyByAdminResponse!
+  addVendorOutlet(input: AddVendorOutletInput!, images: [Upload], fileMap: JSONObject): AddVendorOutletResponse!
+  updateVendorOutlet(input: UpdateVendorOutletInput!, images: [Upload], fileMap: JSONObject): UpdateVendorOutletResponse!
+  updateVendorOutletByAdmin(input: UpdateVendorOutletByAdminInput!, outletLicense: Upload, interiorImage: Upload, exteriorImage: Upload): UpdateVendorOutletByAdminResponse!
   createUserShippingAddress(input: UserCreateShippingAddressInput!): UserCreateShippingAddressResponse!
   editUserShippingAddress(input: UserEditShippingAddressInput!): UserEditShippingAddressResponse!
   removeUserShippingAddress(input: UserRemoveShippingAddressInput!): UserRemoveShippingAddressResponse!
@@ -123,6 +123,13 @@ type Mutation {
   createCategory(input: CreateCategoryInput!, image: Upload): CreateCategoryResponse!
   updateCategory(input: UpdateCategoryInput!, image: Upload): UpdateCategoryResponse!
   deleteCategory(input: CategoryId!): DeleteCategoryResponse!
+  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
+  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
+  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
+  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
+  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
+  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
+  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
   addToCart(input: addToCartInput!): addToCartResponse!
   removeFromCart(input: removeFromCartInput!): removeFromCartResponse!
   updateCartQuantity(input: updateCartQuantityInput!): updateCartQuantityResponse!
@@ -131,13 +138,6 @@ type Mutation {
   bulkAddToCartInMobile(input: BulkAddToCartInMobileInput!): BulkAddToCartInMobileResponse!
   removeFromCartInMobile(input: removeFromCartInMobileInput!): removeFromCartInMobileResponse!
   updateCartQuantityInMobile(input: updateCartQuantityInMobileInput!): updateCartQuantityInMobileResponse!
-  addBrand(input: AddBrandInput!, image: Upload): AddBrandResponse!
-  updateBrand(input: updateBrandInput!, image: Upload): updateBrandResponse!
-  deleteBrand(input: BrandIdInput!): BrandDeleteRecordResponse!
-  createAttributeValue(input: CreateAttributeValueInput!): CreateAttributeResponse!
-  editAttributeValue(input: AttributeValueEditInput!): AttributeValueEditResponse!
-  createAttribute(input: CreateAttributeInput!): CreateAttributeResponse!
-  editAttribute(input: AttributeEditInput!): AttributeEditResponse!
   createAdmin(input: createAdminInput!, image: Upload): createAdminResponse!
   createSuperAdmin(input: AdminSignUpInput!, image: Upload): AddAdminResponse!
   createSubAdmin(input: SubAdminSignUpInput!, image: Upload): AddAdminResponse!
@@ -172,12 +172,12 @@ type Query {
   getVendorAllKycRecordByVendor: VendorAllKycRecordByVendorResponse!
   getKycStatus: VendorRecordKycStatusResponse!
   getActivityLogOfVendor(input: getActivityLogOfVendorInput!): [getActivityLogOfAdminResponse]
-  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
-  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
-  getVendorOutletRecord: VendorOutletRecordResponse!
   getAllVendorCompanyRecordsByAdmin(input: VendorCompanyRecordsByAdminFilter): VendorCompanyRecordsByAdminResponse!
   getVendorCompanyRecordByAdmin(input: VendorCompanyIdInput!): VendorCompanyRecordResponse!
   getVendorCompanyRecord: GetVendorCompanyRecordResponse!
+  getAllVendorOutletRecordsByAdmin(input: VendorOutletRecordsByAdminFilter): VendorOutletRecordsByAdminResponse!
+  getVendorOutletRecordByAdmin(input: VendorOutletRecordByAdminInput!): VendorOutletRecordByAdminResponse!
+  getVendorOutletRecord: VendorOutletRecordResponse!
   getUserShippingAddresses: GetUserShippingAddressesResponse!
   getUserShippingAddress(input: GetUserShippingAddressInput!): GetUserShippingAddressResponse!
   getUserDefaultShippingAddress: GetUserShippingAddressResponse!
@@ -248,28 +248,6 @@ type Query {
   getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
   getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
-  getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
-  getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
-  getDashboardVendorsGraph(input: GetDashboardVendorsGraphInput!): GetDashboardVendorsGraphResposne!
-  getDashboardOrderSummary(input: GetDashboardOrderSummaryInput!): GetDashboardOrderSummaryResponse!
-  getDashboardOrdersGraph(input: GetDashboardOrdersGraphInput!): GetDashboardOrdersGraphResposne!
-  getDashboardOrdersPieChartData(input: GetDashboardOrdersPieChartDataInput!): GetDashboardOrdersPieChartDataResponse!
-  getDashboardReturnedOrdersPieChartData(input: GetDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
-  getDashboardReturnedOrderSummary(input: GetDashboardReturnedOrderSummaryInput!): GetDashboardReturnedOrderSummaryResponse!
-  getDashboardRefundOrdersPieChartData(input: GetDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
-  getDashboardRefundOrdersSummary(input: getDashboardRefundOrdersSummaryInput!): GetDashboardRefundOrderSummaryResponse!
-  getDashboardOrdersAmountPieChartData(input: GetDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
-  getDashboardShippingChargePieChartData(input: GetDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
-  getVendorDashboardOrderSummary: GetVendorDashboardOrderSummaryResponse!
-  getVendorDashboardOrdersGraph(input: GetVendorDashboardOrdersGraphInput!): GetVendorDashboardOrdersGraphResposne!
-  getVendorDashboardOrdersPieChartData(input: GetVendorDashboardOrdersPieChartDataInput!): GetVendorDashboardOrdersPieChartDataResponse!
-  getVendorDashboardReturnedOrdersPieChartData(input: GetVendorDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
-  getVendorDashboardReturnedOrderSummary: GetDashboardReturnedOrderSummaryResponse!
-  getVendorDashboardRefundOrdersPieChartData(input: GetVendorDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
-  getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
-  getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
-  getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
   getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
@@ -294,6 +272,28 @@ type Query {
   getHistoryOfWarrantyPickupsByAgent(input: getPendingWarrantyPickupsByAgentInput): getPendingWarrantyPickupsByAgentResponse
   getDetailsOfWarrantyPickupsByAgent(input: getDetailsOfWarrantyPickupsByAgentInput!): getDetailsOfWarrantyPickupsByAgentResponse
   getActivityLogOfAgent(input: getActivityLogOfAgentInput!): [getActivityLogOfAdminResponse]
+  getDashboardUsersSummary: GetDashboardUsersSummaryResponse!
+  getDashboardUsersGraph(input: GetDashboardUsersGraphInput!): GetDashboardUsersGraphResposne!
+  getDashboardVendorsSummary: GetDashboardVendorsSummaryResponse!
+  getDashboardVendorsGraph(input: GetDashboardVendorsGraphInput!): GetDashboardVendorsGraphResposne!
+  getDashboardOrderSummary(input: GetDashboardOrderSummaryInput!): GetDashboardOrderSummaryResponse!
+  getDashboardOrdersGraph(input: GetDashboardOrdersGraphInput!): GetDashboardOrdersGraphResposne!
+  getDashboardOrdersPieChartData(input: GetDashboardOrdersPieChartDataInput!): GetDashboardOrdersPieChartDataResponse!
+  getDashboardReturnedOrdersPieChartData(input: GetDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
+  getDashboardReturnedOrderSummary(input: GetDashboardReturnedOrderSummaryInput!): GetDashboardReturnedOrderSummaryResponse!
+  getDashboardRefundOrdersPieChartData(input: GetDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
+  getDashboardRefundOrdersSummary(input: getDashboardRefundOrdersSummaryInput!): GetDashboardRefundOrderSummaryResponse!
+  getDashboardOrdersAmountPieChartData(input: GetDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
+  getDashboardShippingChargePieChartData(input: GetDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
+  getVendorDashboardOrderSummary: GetVendorDashboardOrderSummaryResponse!
+  getVendorDashboardOrdersGraph(input: GetVendorDashboardOrdersGraphInput!): GetVendorDashboardOrdersGraphResposne!
+  getVendorDashboardOrdersPieChartData(input: GetVendorDashboardOrdersPieChartDataInput!): GetVendorDashboardOrdersPieChartDataResponse!
+  getVendorDashboardReturnedOrdersPieChartData(input: GetVendorDashboardReturnedOrdersPieChartDataInput!): GetDashboardReturnedOrdersPieChartDataResponse!
+  getVendorDashboardReturnedOrderSummary: GetDashboardReturnedOrderSummaryResponse!
+  getVendorDashboardRefundOrdersPieChartData(input: GetVendorDashboardRefundOrdersPieChartDataInput!): GetDashboardRefundOrdersPieChartDataResponse!
+  getVendorDashboardRefundOrdersSummary: GetDashboardRefundOrderSummaryResponse!
+  getVendorDashboardOrdersAmountPieChartData(input: GetVendorDashboardOrdersAmountPieChartDataInput!): GetDashboardOrdersAmountPieChartDataResponse!
+  getVendorDashboardShippingChargePieChartData(input: GetVendorDashboardShippingChargePieChartDataInput!): GetDashboardShippingChargePieChartDataResponse!
   getAllCoupenToAdmin(input: getAllCoupenToAdminInput!): getAllCoupenToAdminResponse!
   getCouponsByUser(input: getCouponsByUserInput!): getCouponsByUserResponse!
   getCouponsByUserMobile: [Coupon]!
@@ -317,8 +317,6 @@ type Query {
   getAllCategoriesOfVendor: getAllCategoriesOfVendorResponse!
   getAllCategoriesOfVendorByAdmin(input: vendorIdInput!): getAllCategoriesOfVendorResponse!
   getCategoriesByAdminForCoupon(input: categoryForCouponInput!): CategoriesForCouponResponse!
-  getCart: getCartResponse!
-  getCartInMobile: getCartInMobileResponse!
   getAllBrandRecordsByAdmin(input: BrandRecordsFilter): BrandRecordsResponse!
   getAllTopBrandRecords(input: BrandRecordsFilter): BrandRecordsResponse!
   getBrandRecordByAdmin(input: BrandIdInput!): BrandRecordResponse!
@@ -328,7 +326,6 @@ type Query {
   getBrandDetailsWithCategoryInMobile(input: BrandsDetailsWithCategoryIdInMobileInput!): BrandsDetailsWithCategoryInMobileResponse!
   getCategoryDetailsWithBrand(input: CategoriesDetailsWithBrandIdInput!): CategoriesDetailsWithBrandResponse!
   getAllTopBrandRecordsInMobile(input: BrandRecordsInMobileFilter): BrandRecordsInMobileResponse!
-  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
   getAllAttributeRecordsByAdmin(input: AttributeRecordsByAdminFilter): AttributeRecordsByAdminResponse!
   getAttributeRecordByAdmin(input: AttributeRecordByAdminInput!): AttributeRecordByAdminResponse
   getAttributeRecordByVendor(input: AttributeRecordByVendorInput!): AttributeRecordByVendorResponse
@@ -337,6 +334,9 @@ type Query {
   getAttributesDetailsWithCategoryInMobile(input: AttributesDetailsWithCategoryIdInMobileInput!): AttributesDetailsWithCategoryInMobileResponse
   getAttributesDetailsByCategory(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
   getAttributesDetailsWithCategoryByAdmin(input: AttributesDetailsWithCategoryIdInput!): AttributesDetailsWithCategoryResponse
+  getAllAttributeValueRecordsByAdmin(input: AttributeValueRecordsByAdminFilter): AttributeValueRecordsByAdminResponse!
+  getCart: getCartResponse!
+  getCartInMobile: getCartInMobileResponse!
   getAdminRecord: getAdminRecordResponse
   getAllDeliveryAgentConfig: getAllDeliveryAgentConfigResponse!
   getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
@@ -936,6 +936,103 @@ type VendorsRecordsByAdminResponse {
   message: String
 }
 
+input UpdateVendorCompanyByAdminInput {
+  _id: ObjectId!
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  remarks: [String!]
+}
+
+type VendorCompany {
+  _id: String
+  vendorId: String
+  companyName: String
+  companyType: String
+  crNumber: String
+  status: String
+  crLicense: ImageData
+  cooCertificate: ImageData
+  remarks: [String]
+}
+
+type vendorCompanyRecordsWithKycData {
+  vendorId: String
+  _id: String
+  fullName: String
+  isKycCompleted: String
+  companyName: String
+  companyType: String
+  status: String
+  crNumber: String
+}
+
+input AddVendorCompanyInput {
+  companyName: String!
+  companyType: String!
+  crNumber: String!
+}
+
+input UpdateVendorCompanyInput {
+  companyName: String
+  companyType: String
+  crNumber: String
+}
+
+type AddVendorCompanyResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyResponse {
+  message: String
+}
+
+type VendorCompanyDeleteRecordResponse {
+  _id: String!
+  message: String
+}
+
+type UpdateVendorCompanyByAdminResponse {
+  message: String
+}
+
+input VendorCompanyIdInput {
+  _id: String!
+}
+
+input VendorCompanyRecordsByAdminFilter {
+  page: Int
+  size: Int
+  status: String
+  fullName: String
+  companyName: String
+  vendorId: ObjectId
+  crNumber: String
+}
+
+type VendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
+type VendorCompanyRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [vendorCompanyRecordsWithKycData!]
+  message: String
+}
+
+type VendorCompanyStatusUpdationResponse {
+  _id: String
+  message: String
+}
+
+type GetVendorCompanyRecordResponse {
+  record: VendorCompany!
+  message: String
+}
+
 type VendorOutlet {
   _id: String
   vendorId: String
@@ -1067,103 +1164,6 @@ type VendorOutletRecordsByAdminResponse {
 type VendorOutletStatusUpdationResponse {
   _id: String
   status: String
-  message: String
-}
-
-input UpdateVendorCompanyByAdminInput {
-  _id: ObjectId!
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  remarks: [String!]
-}
-
-type VendorCompany {
-  _id: String
-  vendorId: String
-  companyName: String
-  companyType: String
-  crNumber: String
-  status: String
-  crLicense: ImageData
-  cooCertificate: ImageData
-  remarks: [String]
-}
-
-type vendorCompanyRecordsWithKycData {
-  vendorId: String
-  _id: String
-  fullName: String
-  isKycCompleted: String
-  companyName: String
-  companyType: String
-  status: String
-  crNumber: String
-}
-
-input AddVendorCompanyInput {
-  companyName: String!
-  companyType: String!
-  crNumber: String!
-}
-
-input UpdateVendorCompanyInput {
-  companyName: String
-  companyType: String
-  crNumber: String
-}
-
-type AddVendorCompanyResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyResponse {
-  message: String
-}
-
-type VendorCompanyDeleteRecordResponse {
-  _id: String!
-  message: String
-}
-
-type UpdateVendorCompanyByAdminResponse {
-  message: String
-}
-
-input VendorCompanyIdInput {
-  _id: String!
-}
-
-input VendorCompanyRecordsByAdminFilter {
-  page: Int
-  size: Int
-  status: String
-  fullName: String
-  companyName: String
-  vendorId: ObjectId
-  crNumber: String
-}
-
-type VendorCompanyRecordResponse {
-  record: VendorCompany!
-  message: String
-}
-
-type VendorCompanyRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [vendorCompanyRecordsWithKycData!]
-  message: String
-}
-
-type VendorCompanyStatusUpdationResponse {
-  _id: String
-  message: String
-}
-
-type GetVendorCompanyRecordResponse {
-  record: VendorCompany!
   message: String
 }
 
@@ -3246,200 +3246,6 @@ type GetUserIvoiceUrlResponse {
   url: String
 }
 
-input GetDashboardUsersGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
-}
-
-input GetDashboardVendorsGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
-}
-
-input GetDashboardOrdersGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
-  vendorId: ObjectId
-}
-
-input GetVendorDashboardOrdersGraphInput {
-  startDate: Date
-  endDate: Date
-  graphType: String
-}
-
-input GetDashboardOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
-}
-
-input GetVendorDashboardOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-}
-
-input GetDashboardReturnedOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
-}
-
-input GetVendorDashboardReturnedOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-}
-
-input GetDashboardRefundOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
-}
-
-input GetVendorDashboardRefundOrdersPieChartDataInput {
-  startDate: Date
-  endDate: Date
-}
-
-input GetDashboardOrdersAmountPieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
-}
-
-input GetVendorDashboardOrdersAmountPieChartDataInput {
-  startDate: Date
-  endDate: Date
-}
-
-input GetDashboardShippingChargePieChartDataInput {
-  startDate: Date
-  endDate: Date
-  vendorId: ObjectId
-}
-
-input GetVendorDashboardShippingChargePieChartDataInput {
-  startDate: Date
-  endDate: Date
-}
-
-input GetDashboardOrderSummaryInput {
-  vendorId: ObjectId
-}
-
-input GetDashboardReturnedOrderSummaryInput {
-  vendorId: ObjectId
-}
-
-input getDashboardRefundOrdersSummaryInput {
-  vendorId: ObjectId
-}
-
-type GetDashboardUsersSummaryResponse {
-  totalUsers: Int
-  activeUsers: Int
-  blockedUsers: Int
-  todayUsers: Int
-  weekUsers: Int
-  monthUsers: Int
-  yearUsers: Int
-}
-
-type GetDashboardVendorsSummaryResponse {
-  totalVendors: Int
-  activeVendors: Int
-  blockedVendors: Int
-  todayVendors: Int
-  weekVendors: Int
-  monthVendors: Int
-  yearVendors: Int
-}
-
-type GetDashboardUsersGraphResposne {
-  y1: [Int]
-  x: [String]
-}
-
-type GetDashboardVendorsGraphResposne {
-  y1: [Int]
-  x: [String]
-}
-
-type GetDashboardOrderSummaryResponse {
-  pendingOrders: Int
-  progressOrders: Int
-  shippedOrders: Int
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
-}
-
-type GetVendorDashboardOrderSummaryResponse {
-  pendingOrders: Int
-  progressOrders: Int
-  shippedOrders: Int
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
-}
-
-type GetDashboardOrdersGraphResposne {
-  y1: [Int]
-  x: [String]
-}
-
-type GetVendorDashboardOrdersGraphResposne {
-  y1: [Int]
-  x: [String]
-}
-
-type GetDashboardOrdersPieChartDataResponse {
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
-}
-
-type GetVendorDashboardOrdersPieChartDataResponse {
-  deliveredOrders: Int
-  cancelledOrders: Int
-  returnedOrders: Int
-}
-
-type GetDashboardReturnedOrdersPieChartDataResponse {
-  pending: Int
-  approved: Int
-  rejected: Int
-}
-
-type GetDashboardReturnedOrderSummaryResponse {
-  pending: Int
-  approvedToday: Int
-  rejectedToday: Int
-}
-
-type GetDashboardRefundOrdersPieChartDataResponse {
-  pending: Float
-  paid: Float
-}
-
-type GetDashboardRefundOrderSummaryResponse {
-  pendingAmount: Int
-  paidToday: Int
-}
-
-type GetDashboardOrdersAmountPieChartDataResponse {
-  pending: Float
-  paid: Float
-}
-
-type GetDashboardShippingChargePieChartDataResponse {
-  pending: Float
-  paid: Float
-}
-
 input getActivityLogOfAgentInput {
   agentId: ObjectId!
   date: Date
@@ -4156,6 +3962,200 @@ type LoginDeliveryAgentResponse {
   msg: String
 }
 
+input GetDashboardUsersGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+}
+
+input GetDashboardVendorsGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+}
+
+input GetDashboardOrdersGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardOrdersGraphInput {
+  startDate: Date
+  endDate: Date
+  graphType: String
+}
+
+input GetDashboardOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardReturnedOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardReturnedOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardRefundOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardRefundOrdersPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardOrdersAmountPieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardOrdersAmountPieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardShippingChargePieChartDataInput {
+  startDate: Date
+  endDate: Date
+  vendorId: ObjectId
+}
+
+input GetVendorDashboardShippingChargePieChartDataInput {
+  startDate: Date
+  endDate: Date
+}
+
+input GetDashboardOrderSummaryInput {
+  vendorId: ObjectId
+}
+
+input GetDashboardReturnedOrderSummaryInput {
+  vendorId: ObjectId
+}
+
+input getDashboardRefundOrdersSummaryInput {
+  vendorId: ObjectId
+}
+
+type GetDashboardUsersSummaryResponse {
+  totalUsers: Int
+  activeUsers: Int
+  blockedUsers: Int
+  todayUsers: Int
+  weekUsers: Int
+  monthUsers: Int
+  yearUsers: Int
+}
+
+type GetDashboardVendorsSummaryResponse {
+  totalVendors: Int
+  activeVendors: Int
+  blockedVendors: Int
+  todayVendors: Int
+  weekVendors: Int
+  monthVendors: Int
+  yearVendors: Int
+}
+
+type GetDashboardUsersGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetDashboardVendorsGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetDashboardOrderSummaryResponse {
+  pendingOrders: Int
+  progressOrders: Int
+  shippedOrders: Int
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetVendorDashboardOrderSummaryResponse {
+  pendingOrders: Int
+  progressOrders: Int
+  shippedOrders: Int
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetDashboardOrdersGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetVendorDashboardOrdersGraphResposne {
+  y1: [Int]
+  x: [String]
+}
+
+type GetDashboardOrdersPieChartDataResponse {
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetVendorDashboardOrdersPieChartDataResponse {
+  deliveredOrders: Int
+  cancelledOrders: Int
+  returnedOrders: Int
+}
+
+type GetDashboardReturnedOrdersPieChartDataResponse {
+  pending: Int
+  approved: Int
+  rejected: Int
+}
+
+type GetDashboardReturnedOrderSummaryResponse {
+  pending: Int
+  approvedToday: Int
+  rejectedToday: Int
+}
+
+type GetDashboardRefundOrdersPieChartDataResponse {
+  pending: Float
+  paid: Float
+}
+
+type GetDashboardRefundOrderSummaryResponse {
+  pendingAmount: Int
+  paidToday: Int
+}
+
+type GetDashboardOrdersAmountPieChartDataResponse {
+  pending: Float
+  paid: Float
+}
+
+type GetDashboardShippingChargePieChartDataResponse {
+  pending: Float
+  paid: Float
+}
+
 type getCouponsByUserResponse {
   records: [Coupon]!
   maxRecords: Int
@@ -4738,117 +4738,6 @@ type GetLevelCategoriesResponse {
   records: [Category]
 }
 
-input addToCartInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input addToCartInMobileInput {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input removeFromCartInput {
-  productId: String!
-}
-
-input removeFromCartInMobileInput {
-  productId: String!
-}
-
-input updateCartQuantityInput {
-  productId: String!
-  quantity: Int!
-}
-
-input updateCartQuantityInMobileInput {
-  productId: String!
-  quantity: Int!
-}
-
-input CartItem {
-  productId: ObjectId!
-  quantity: Int!
-}
-
-input BulkAddToCartInput {
-  products: [CartItem!]
-}
-
-input BulkAddToCartInMobileInput {
-  products: [CartItem!]
-}
-
-type addToCartResponse {
-  message: String
-}
-
-type BulkAddToCartResponse {
-  message: String
-}
-
-type BulkAddToCartInMobileResponse {
-  message: String
-}
-
-type addToCartInMObileResponse {
-  message: String
-}
-
-type removeFromCartResponse {
-  message: String
-}
-
-type removeFromCartInMobileResponse {
-  message: String
-}
-
-type updateCartQuantityResponse {
-  message: String
-}
-
-type updateCartQuantityInMobileResponse {
-  message: String
-}
-
-type cartProduct {
-  _id: ObjectId
-  productId: ObjectId
-  quantity: Int
-  name: String
-  shortDescription: String
-  stock: Int
-  color: String
-  size: String
-  price: Float
-  image: String
-  sellingPrice: Float
-  mrp: Float
-}
-
-type getCartResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  appliedProducts: [ObjectId]
-  code: String
-}
-
-type getCartInMobileResponse {
-  products: [cartProduct]
-  grandTotal: Float
-  subTotal: Float
-  deliveryCharge: Int
-  discount: Float
-  isCouponApplied: Boolean
-  appliedCoupon: ObjectId
-  code: String
-}
-
 input AddBrandInput {
   brandName: String!
   isBlocked: Boolean
@@ -5000,56 +4889,6 @@ type CategoryInBrands {
   description: String
 }
 
-type AttributeValue {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-input CreateAttributeValueInput {
-  attributeId: String!
-  value: String!
-  colorCode: String!
-  priority: Int!
-  isBlocked: Boolean
-}
-
-input AttributeValueEditInput {
-  attributeValueId: String!
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
-type CreateAttributeValueResponse {
-  _id: String
-  message: String
-}
-
-input AttributeValueRecordsByAdminFilter {
-  page: Int
-  size: Int
-  isBlocked: Boolean
-}
-
-type AttributeValueRecordsByAdminResponse {
-  maxRecords: Int!
-  records: [Attribute!]
-}
-
-type AttributeValueEditResponse {
-  _id: String
-  attributeId: String
-  value: String
-  colorCode: String
-  priority: Int
-  isBlocked: Boolean
-}
-
 type Attribute {
   _id: String
   attributeType: String
@@ -5156,6 +4995,167 @@ type AttributesDetailsWithCategoryResponse {
 type AttributesDetailsWithCategoryInMobileResponse {
   record: CategoryWithCategory
   message: String
+}
+
+type AttributeValue {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+input CreateAttributeValueInput {
+  attributeId: String!
+  value: String!
+  colorCode: String!
+  priority: Int!
+  isBlocked: Boolean
+}
+
+input AttributeValueEditInput {
+  attributeValueId: String!
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+type CreateAttributeValueResponse {
+  _id: String
+  message: String
+}
+
+input AttributeValueRecordsByAdminFilter {
+  page: Int
+  size: Int
+  isBlocked: Boolean
+}
+
+type AttributeValueRecordsByAdminResponse {
+  maxRecords: Int!
+  records: [Attribute!]
+}
+
+type AttributeValueEditResponse {
+  _id: String
+  attributeId: String
+  value: String
+  colorCode: String
+  priority: Int
+  isBlocked: Boolean
+}
+
+input addToCartInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input addToCartInMobileInput {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input removeFromCartInput {
+  productId: String!
+}
+
+input removeFromCartInMobileInput {
+  productId: String!
+}
+
+input updateCartQuantityInput {
+  productId: String!
+  quantity: Int!
+}
+
+input updateCartQuantityInMobileInput {
+  productId: String!
+  quantity: Int!
+}
+
+input CartItem {
+  productId: ObjectId!
+  quantity: Int!
+}
+
+input BulkAddToCartInput {
+  products: [CartItem!]
+}
+
+input BulkAddToCartInMobileInput {
+  products: [CartItem!]
+}
+
+type addToCartResponse {
+  message: String
+}
+
+type BulkAddToCartResponse {
+  message: String
+}
+
+type BulkAddToCartInMobileResponse {
+  message: String
+}
+
+type addToCartInMObileResponse {
+  message: String
+}
+
+type removeFromCartResponse {
+  message: String
+}
+
+type removeFromCartInMobileResponse {
+  message: String
+}
+
+type updateCartQuantityResponse {
+  message: String
+}
+
+type updateCartQuantityInMobileResponse {
+  message: String
+}
+
+type cartProduct {
+  _id: ObjectId
+  productId: ObjectId
+  quantity: Int
+  name: String
+  shortDescription: String
+  stock: Int
+  color: String
+  size: String
+  price: Float
+  image: String
+  sellingPrice: Float
+  mrp: Float
+}
+
+type getCartResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  appliedProducts: [ObjectId]
+  code: String
+}
+
+type getCartInMobileResponse {
+  products: [cartProduct]
+  grandTotal: Float
+  subTotal: Float
+  deliveryCharge: Int
+  discount: Float
+  isCouponApplied: Boolean
+  appliedCoupon: ObjectId
+  code: String
 }
 
 input deleteAdminAccountInput {
