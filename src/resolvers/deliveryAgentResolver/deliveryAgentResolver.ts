@@ -20,7 +20,8 @@ import { startOfDay, endOfDay } from "date-fns"
 
 import path from "path";
 import fs from "fs";
-import { warrantyClaimModel } from "../../models/warrantyClaimModel";
+import { warrantyClaimModel, adminModel } from "../../models";
+
 
 // Load the static JSON file
 const locationsPath = path.resolve(__dirname, "../../../public/locations.json");
@@ -652,15 +653,15 @@ export const deliveryAgentResolver: Resolvers = {
     // order assign to delivery agent 
 
     orderAssignDeliveryAgent: async (parent, { input }, { req }, info) => {
-       await verifyAdmin(req);
-       const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+      await verifyAdmin(req);
+      const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       try {
 
         // input validation
         await validateInput(validators.orderAssignDeliveryAgentValidator, req)
 
-        const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput,adminId)
+        const result: any = await deliveryAgentService.orderAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput, adminId)
 
         if (result.flag) {
 
@@ -706,7 +707,7 @@ export const deliveryAgentResolver: Resolvers = {
 
         const { orderItemId, deliveryAgentId, deliveryAgentName, bundleCount } = input
 
-        const result: any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput,adminId)
+        const result: any = await deliveryAgentService.returnAssignDeliveryAgent(input as OrderAssignDeliveryAgentInput, adminId)
 
         if (result.flag) {
           return {
@@ -743,6 +744,8 @@ export const deliveryAgentResolver: Resolvers = {
       try {
 
         await deliveryAgentService.warrantyCallAsssignDeliveryAgent(input as WarrantyCallAssignDeliveryAgentInput)
+        const admin = await adminModel.findById({ _id: req?.authAccount?._id })
+        const warrantyCallDetails = await warrantyClaimModel.findById({ _id: input?.warrantyCallID })
 
         // add activity log 
 
@@ -752,7 +755,9 @@ export const deliveryAgentResolver: Resolvers = {
           performedBy: req?.authAccount?._id,
           performedByRole: req?.authAccount?.accType,
           referenceId: input?.warrantyCallID,
-          details: ""
+          referenceType: "WARRANTY_CLAIM",
+          details: `${admin?.fullName} assign Warranty call of an Warranty ID: ${warrantyCallDetails?.warrantyId}  to delivery agent ${warrantyCallDetails?.deliveryAgentName}. `,
+
         }
 
         await warrantyClaimService.createActivityLogByWarranty(data)
@@ -788,7 +793,7 @@ export const deliveryAgentResolver: Resolvers = {
       await verifyDeliveryAgent(req);
       const agentId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-      const agent=await deliveryAgentModel.findOne({ _id: agentId });
+      const agent = await deliveryAgentModel.findOne({ _id: agentId });
 
       let orderProductId: Types.ObjectId = input?.orderProductId;
       let returnStatus: string = input?.returnStatus;
@@ -896,6 +901,7 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(claimStatus)
 
       const result = await warrantyClaimModel.findOne({ _id: claimRequestId });
+      const agentData=await deliveryAgentModel.findById({_id:req?.authAccount?._id})
 
 
       if (!result) {
@@ -908,6 +914,20 @@ export const deliveryAgentResolver: Resolvers = {
       if (claimStatus === "OUT_FOR_DELIVERY") {
         result.claimStatus = claimStatus
         await result.save()
+
+        const data = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update to ${claimStatus} `,
+          performedBy: req?.authAccount?._id,
+          performedByRole: "AGENT",
+          referenceId: claimRequestId,
+          details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
+
+        }
+
+        await warrantyClaimService.createActivityLogByWarranty(data)
+
+
         return {
           status: true,
           otp: false,
@@ -919,6 +939,20 @@ export const deliveryAgentResolver: Resolvers = {
         result.claimStatus = claimStatus
         result.returnedWarehouseDate = new Date();
         await result.save()
+
+        const data = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update to ${claimStatus} `,
+          performedBy: req?.authAccount?._id,
+          performedByRole: "AGENT",
+          referenceId: claimRequestId,
+          details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
+
+        }
+
+        await warrantyClaimService.createActivityLogByWarranty(data)
+
+
         return {
           status: true,
           otp: false,
@@ -933,6 +967,20 @@ export const deliveryAgentResolver: Resolvers = {
           result.postponedReason = input?.remarks
         }
         await result.save()
+
+        const data = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update to ${claimStatus} `,
+          performedBy: req?.authAccount?._id,
+          performedByRole: "AGENT",
+          referenceId: claimRequestId,
+          details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
+
+        }
+
+        await warrantyClaimService.createActivityLogByWarranty(data)
+
+
         return {
           status: true,
           otp: false,
@@ -956,16 +1004,7 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
 
-        const data = {
-          actionType: "WARRANTY",
-          action: `Warranty claim call status update to ${claimStatus} `,
-          performedBy: req?.authAccount?._id,
-          performedByRole: "AGENT",
-          referenceId: claimRequestId,
-          details: ""
-        }
 
-    await warrantyClaimService.createActivityLogByWarranty(data)
 
         return {
           status: true,
@@ -1107,36 +1146,36 @@ export const deliveryAgentResolver: Resolvers = {
         }
 
         const agentId = new Types.ObjectId(deliveryAgentData?.id)
-        const agent=await deliveryAgentModel.findOne({_id:agentId})
-        const order_product=await orderProductModel.findOne({_id:input.orderItemId})
+        const agent = await deliveryAgentModel.findOne({ _id: agentId })
+        const order_product = await orderProductModel.findOne({ _id: input.orderItemId })
 
 
         // check this delivery status POSTPONED
 
         if (input.deliveryStatus === "POSTPONED" || input.deliveryStatus === "OUT_FOR_DELIVERY") {
-            if(input.deliveryStatus === "POSTPONED"){
-                  await activityLogService.createActivityLog({
-                    actionType: "ORDER",
-                    action: " ORDER DELIVERY POSTPONED",
-                    performedBy: agentId,
-                    performedByRole: "DELIVERYAGENT",
-                    referenceId: input.orderItemId,
-                    referenceType: "ORDER_PRODUCTS",
-                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
-                  });
-                }
-          
-                if(input.deliveryStatus === "OUT_FOR_DELIVERY"){
-                  await activityLogService.createActivityLog({
-                    actionType: "ORDER",
-                    action: " ORDER IS OUT FOR DELIVERY",
-                    performedBy: agentId,
-                    performedByRole: "DELIVERYAGENT",
-                    referenceId: input.orderItemId,
-                    referenceType: "ORDER_PRODUCTS",
-                    details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
-                  });
-                }
+          if (input.deliveryStatus === "POSTPONED") {
+            await activityLogService.createActivityLog({
+              actionType: "ORDER",
+              action: " ORDER DELIVERY POSTPONED",
+              performedBy: agentId,
+              performedByRole: "DELIVERYAGENT",
+              referenceId: input.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+            });
+          }
+
+          if (input.deliveryStatus === "OUT_FOR_DELIVERY") {
+            await activityLogService.createActivityLog({
+              actionType: "ORDER",
+              action: " ORDER IS OUT FOR DELIVERY",
+              performedBy: agentId,
+              performedByRole: "DELIVERYAGENT",
+              referenceId: input.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${agent?.fullName} update order status of an order Order Product ID: ${order_product?.itemId} from ${order_product?.shippingStatus} to ${input.deliveryStatus}. `,
+            });
+          }
 
           console.log(input.deliveryStatus)
           const obj = {
@@ -2679,35 +2718,35 @@ export const deliveryAgentResolver: Resolvers = {
       }
     },
 
-   getActivityLogOfAgent: async (parent, { input }, { req }, info) => {
+    getActivityLogOfAgent: async (parent, { input }, { req }, info) => {
       //  await verifyDeliveryAgent(req);
       try {
-             // const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
-             const agentId=input.agentId;
-             const date=input?.date
+        // const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
+        const agentId = input.agentId;
+        const date = input?.date
 
-            const matchObj: any = { performedBy: agentId };
+        const matchObj: any = { performedBy: agentId };
 
-            if (date) {
-              const startDate = new Date(date);
-              const endDate = new Date(date);
-              endDate.setHours(23, 59, 59, 999); 
-          
-              matchObj.createdAt = { $gte: startDate, $lte: endDate };
-            }
-        
-             const result = await deliveryAgentService.getActivityLogOfAgent(agentId,matchObj)
-             console.log("result",result)
-             return result   
-           } catch (error) {
-             throw new GraphQLError("Unable find data", {
-               extensions: {
-                   code: "BAD_REQUEST",
-                   errors: [],
-               },
-           })
-           }
-   }
+        if (date) {
+          const startDate = new Date(date);
+          const endDate = new Date(date);
+          endDate.setHours(23, 59, 59, 999);
+
+          matchObj.createdAt = { $gte: startDate, $lte: endDate };
+        }
+
+        const result = await deliveryAgentService.getActivityLogOfAgent(agentId, matchObj)
+        console.log("result", result)
+        return result
+      } catch (error) {
+        throw new GraphQLError("Unable find data", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: [],
+          },
+        })
+      }
+    }
 
 
   }

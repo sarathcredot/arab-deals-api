@@ -15,6 +15,7 @@ import { returnPolicyModel } from "../../models/returnPolicyModel";
 import { shippingConfigModel } from "../../models/shippingConfigModel";
 import { warrantyPolicyModel } from "../../models/warrantyPolicyModel";
 import { warrantyClaimModel } from "../../models/warrantyClaimModel";
+import {adminModel} from  "../../models"
 
 
 export const warrantyClaimResolver: Resolvers = {
@@ -124,11 +125,12 @@ export const warrantyClaimResolver: Resolvers = {
                 const data = {
 
                     actionType: "WARRANTY",
-                    action: "Warranty claim requested by customer",
+                    action: "WARRANTY HAS BEEN REQUESTED",
                     performedBy: userId,
-                    performedByRole: "USER",
+                    performedByRole: "USERS",
                     referenceId: result?._id,
-                    details: ""
+                    referenceType:"WARRANTY_CLAIM",
+                    details: `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
                 }
 
                 await warrantyClaimService.createActivityLogByWarranty(data)
@@ -144,7 +146,7 @@ export const warrantyClaimResolver: Resolvers = {
                 });
             }
         },
-       
+
         createWarrantyClaimRequestByUSerInMobile: async (parent, { input, image }, { req }, info) => {
             console.log("createWarrantyClaimRequestByUSer");
             await verifyUser(req);
@@ -246,12 +248,16 @@ export const warrantyClaimResolver: Resolvers = {
                 const data = {
 
                     actionType: "WARRANTY",
-                    action: "Warranty claim requested by customer",
+                    action: "WARRANTY HAS BEEN REQUESTED",
                     performedBy: userId,
                     performedByRole: "USER",
                     referenceId: result?._id,
-                    details: ""
+                    referenceType:"WARRANTY_CLAIM",
+                    details: `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
                 }
+
+
+
 
                 await warrantyClaimService.createActivityLogByWarranty(data)
 
@@ -266,7 +272,7 @@ export const warrantyClaimResolver: Resolvers = {
                 });
             }
         },
-       
+
 
 
 
@@ -274,7 +280,7 @@ export const warrantyClaimResolver: Resolvers = {
         //to update claim status by admin
 
         updateClaimStatusByAdmin: async (parent, { input }, { req }, info) => {
-               await verifyAdmin(req)
+            await verifyAdmin(req)
 
             try {
                 const claimRequestId: Types.ObjectId = input.claimRequestId
@@ -352,16 +358,17 @@ export const warrantyClaimResolver: Resolvers = {
 
                 // add activity log
 
-                
+           const admin=await  adminModel.findById({_id:req?.authAccount?._id})
 
                 const data = {
 
                     actionType: "WARRANTY",
                     action: `Warranty claim request status update to ${input?.claimStatus} `,
-                    performedBy:req?.authAccount?._id ,
+                    performedBy: req?.authAccount?._id,
                     performedByRole: req?.authAccount?.accType,
-                    referenceId:claimRequestId ,
-                    details: ""
+                    referenceId: claimRequestId,
+                    referenceType:"WARRANTY_CLAIM",
+                    details: `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingClaimRequest?.claimStatus} to ${claimStatus}. `
                 }
 
                 await warrantyClaimService.createActivityLogByWarranty(data)

@@ -396,7 +396,7 @@ export const createActivityLogByWarranty = async (data: { actionType: string, ac
 
         } catch (error) {
 
-            reject()
+            reject(error)
         }
     })
 
