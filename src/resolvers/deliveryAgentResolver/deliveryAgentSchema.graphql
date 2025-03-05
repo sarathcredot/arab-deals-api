@@ -136,7 +136,7 @@ type AdminWarrantyCallDetails{
   productName:String
   deliveryAgentAssignedOn:Date
   claimStatus:String
-       
+  createdAt:Date    
 }
 
 

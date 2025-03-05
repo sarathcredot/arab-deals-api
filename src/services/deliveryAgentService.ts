@@ -2537,7 +2537,8 @@ export const getDeliveryAgentWarrantyCall = async (filters: object,projection: o
             userName: 1, 
             productName: 1, 
             deliveryAgentAssignedOn: 1,
-            claimStatus: 1
+            claimStatus: 1,
+            createdAt:1
           }
         },
         {
@@ -2628,6 +2629,7 @@ export const getAssignedeOrderDeatilsByAgentProfile = async (data: { _id: Types.
             returnPostponedRemarks: 1,
             returnCollectedDate: 1,
             address: 1,
+           
 
 
             // User information from the aggregated userDetails

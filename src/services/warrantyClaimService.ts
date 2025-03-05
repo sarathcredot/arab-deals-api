@@ -1,6 +1,6 @@
 
 import { warrantyPolicyModel } from "../models/warrantyPolicyModel";
-import { categoryModel, brandModel, orderProductModel, warrantyClaimModel } from "../models"
+import { categoryModel, brandModel, orderProductModel, warrantyClaimModel, activityLogModel } from "../models"
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
 import { collections } from "../configs";
 
@@ -11,11 +11,11 @@ export const findOrderProductWithFilters = async (productId: Types.ObjectId, use
 };
 
 
-export const createWarrantyClaimRequest= async(newClaimData:any):Promise<any>=>{
+export const createWarrantyClaimRequest = async (newClaimData: any): Promise<any> => {
     try {
-         const result= new warrantyClaimModel(newClaimData)
-         const savedResult=await result.save()
-         return savedResult
+        const result = new warrantyClaimModel(newClaimData)
+        const savedResult = await result.save()
+        return savedResult
     } catch (error) {
         console.error("Error saving claim request:", error);
         throw new Error("Failed to save claim request ");
@@ -73,21 +73,21 @@ export const getAllWarrantyClaimsBySuperAdmin = async (options: any, matchQuery:
                     preserveNullAndEmptyArrays: true
                 }
             },
-            { 
-                $project: { 
-                    "user.displayName": 1, 
-                    "product.productName": 1, 
-                    "product._id":1,
-                    "product.itemId":1,
-                    _id:1,
-                    productImage:1,
-                    createdAt: 1,   
+            {
+                $project: {
+                    "user.displayName": 1,
+                    "product.productName": 1,
+                    "product._id": 1,
+                    "product.itemId": 1,
+                    _id: 1,
+                    productImage: 1,
+                    createdAt: 1,
                     issueDescription: 1,
-                    order:1,
-                    warrantyId:1,
-                    claimStatus:1,
-                    claimType:1
-                } 
+                    order: 1,
+                    warrantyId: 1,
+                    claimStatus: 1,
+                    claimType: 1
+                }
             },
             {
                 $skip: options.page * options.size
@@ -96,7 +96,7 @@ export const getAllWarrantyClaimsBySuperAdmin = async (options: any, matchQuery:
                 $limit: options.size
             }
         ])
-         console.log("result",result)
+        console.log("result", result)
         let response: any = {
             records: [],
             maxRecords: 0,
@@ -112,13 +112,13 @@ export const getAllWarrantyClaimsBySuperAdmin = async (options: any, matchQuery:
 }
 
 
-export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectId): Promise<any> => {
+export const getClaimRequestDetailsByAdmin = async (claimRequestId: Types.ObjectId): Promise<any> => {
     try {
-      
+
         const result = await warrantyClaimModel.aggregate([
             {
                 $match: {
-                    _id:claimRequestId
+                    _id: claimRequestId
                 }
             },
             {
@@ -151,8 +151,8 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
             },
             {
                 $lookup: {
-                    from: collections.VENDORS, 
-                    localField: "product.vendorId", 
+                    from: collections.VENDORS,
+                    localField: "product.vendorId",
                     foreignField: "_id",
                     as: "vendor"
                 }
@@ -162,8 +162,8 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
             },
             {
                 $lookup: {
-                    from: collections.DELIVERYAGENT, 
-                    localField: "deliveryAgentId", 
+                    from: collections.DELIVERYAGENT,
+                    localField: "deliveryAgentId",
                     foreignField: "_id",
                     as: "agent"
                 }
@@ -173,8 +173,8 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
             },
             {
                 $lookup: {
-                    from: collections.PRODUCTS, 
-                    localField: "product.productId", 
+                    from: collections.PRODUCTS,
+                    localField: "product.productId",
                     foreignField: "_id",
                     as: "products"
                 }
@@ -182,61 +182,61 @@ export const getClaimRequestDetailsByAdmin = async (claimRequestId:Types.ObjectI
             {
                 $unwind: { path: "$products", preserveNullAndEmptyArrays: true }
             },
-            { 
-                $project: { 
-                    "user.displayName": 1, 
-                    "user._id": 1, 
-                    "product.productName": 1, 
-                    "product.warranty.name": 1, 
-                    "product.warranty.description": 1, 
-                    "product.warranty.duration": 1, 
-                    "product.warranty.warrantyType": 1, 
-                    "product.deliveryDate": 1, 
-                    "product.shippingStatus": 1, 
-                    "product.orderDate": 1, 
-                    "product.paymentStatus": 1, 
-                    "product.shippingCharge": 1, 
-                    "product.sellingPrice": 1, 
-                    "product.shortDescription": 1, 
-                    "product.paymentMode": 1, 
-                    "product.vendorId": 1, 
-                    "product.itemId": 1, 
-                    "product.courierId": 1, 
-                    "product.invoiceNumber": 1, 
-                    "product.warehouseSkuId": 1, 
-                    "product.productId":1,
-                    "vendor.fullName":1,
-                    "products.images":1,
-                    "agent.contactNumber":1,
-                    "agent.agentType":1,
-                    _id:1,
-                    createdAt: 1,   
+            {
+                $project: {
+                    "user.displayName": 1,
+                    "user._id": 1,
+                    "product.productName": 1,
+                    "product.warranty.name": 1,
+                    "product.warranty.description": 1,
+                    "product.warranty.duration": 1,
+                    "product.warranty.warrantyType": 1,
+                    "product.deliveryDate": 1,
+                    "product.shippingStatus": 1,
+                    "product.orderDate": 1,
+                    "product.paymentStatus": 1,
+                    "product.shippingCharge": 1,
+                    "product.sellingPrice": 1,
+                    "product.shortDescription": 1,
+                    "product.paymentMode": 1,
+                    "product.vendorId": 1,
+                    "product.itemId": 1,
+                    "product.courierId": 1,
+                    "product.invoiceNumber": 1,
+                    "product.warehouseSkuId": 1,
+                    "product.productId": 1,
+                    "vendor.fullName": 1,
+                    "products.images": 1,
+                    "agent.contactNumber": 1,
+                    "agent.agentType": 1,
+                    _id: 1,
+                    createdAt: 1,
                     issueDescription: 1,
-                    order:1,
-                    warrantyId:1,
-                    claimStatus:1,
-                    claimType:1,
-                    claimDate:1,
-                    rejectedReason:1,
-                    rejectedDate:1,
-                    productImage:1,
-                    warrantyAddress:1,
-                    replacementDate:1,
-                    replacementReason:1,
-                    replacementShippedDate:1,
-                    replacementCompletedDate:1,
-                    returnedWarehouseDate:1,
-                    postponedDate:1,
-                    postponedReason:1,
-                    deliveryAgentId:1,
-                    deliveryAgentName:1,
-                    deliveryAgentAssignedOn:1,
-                    productImageUploadByAgent:1,
-                } 
+                    order: 1,
+                    warrantyId: 1,
+                    claimStatus: 1,
+                    claimType: 1,
+                    claimDate: 1,
+                    rejectedReason: 1,
+                    rejectedDate: 1,
+                    productImage: 1,
+                    warrantyAddress: 1,
+                    replacementDate: 1,
+                    replacementReason: 1,
+                    replacementShippedDate: 1,
+                    replacementCompletedDate: 1,
+                    returnedWarehouseDate: 1,
+                    postponedDate: 1,
+                    postponedReason: 1,
+                    deliveryAgentId: 1,
+                    deliveryAgentName: 1,
+                    deliveryAgentAssignedOn: 1,
+                    productImageUploadByAgent: 1,
+                }
             },
-           
+
         ])
-         console.log("result",result)
+        console.log("result", result)
         let response: any = {
             records: [],
         };
@@ -278,7 +278,7 @@ export const getPendingWarrantyPickupsByAgent = async (options: any, claimFilter
                 $limit: options.size
             }
         ])
-         console.log("result",result)
+        console.log("result", result)
         let response: any = {
             records: [],
             maxRecords: 0,
@@ -296,13 +296,13 @@ export const getPendingWarrantyPickupsByAgent = async (options: any, claimFilter
 
 
 
-export const getDetailsOfWarrantyPickupsByAgent = async (claimRequestId:Types.ObjectId): Promise<any> => {
+export const getDetailsOfWarrantyPickupsByAgent = async (claimRequestId: Types.ObjectId): Promise<any> => {
     try {
-      
+
         const result = await warrantyClaimModel.aggregate([
             {
                 $match: {
-                    _id:claimRequestId
+                    _id: claimRequestId
                 }
             },
             // {
@@ -333,39 +333,39 @@ export const getDetailsOfWarrantyPickupsByAgent = async (claimRequestId:Types.Ob
                     preserveNullAndEmptyArrays: true
                 }
             },
-            { 
-                $project: { 
-                    "product.productName": 1, 
-                    "product.warranty.name": 1, 
-                    "product.warranty.description": 1, 
-                    "product.warranty.duration": 1, 
-                    "product.warranty.warrantyType": 1, 
-                    "product.deliveryDate": 1, 
-                    "product.shippingStatus": 1, 
-                    "product.orderDate": 1, 
-                    "product.paymentStatus": 1, 
-                    "product.shippingCharge": 1, 
-                    "product.sellingPrice": 1, 
-                    "product.paymentMode": 1, 
-                    "product.itemId": 1,  
-                    "product.productId":1,
-                    _id:1,
-                    createdAt: 1,   
+            {
+                $project: {
+                    "product.productName": 1,
+                    "product.warranty.name": 1,
+                    "product.warranty.description": 1,
+                    "product.warranty.duration": 1,
+                    "product.warranty.warrantyType": 1,
+                    "product.deliveryDate": 1,
+                    "product.shippingStatus": 1,
+                    "product.orderDate": 1,
+                    "product.paymentStatus": 1,
+                    "product.shippingCharge": 1,
+                    "product.sellingPrice": 1,
+                    "product.paymentMode": 1,
+                    "product.itemId": 1,
+                    "product.productId": 1,
+                    _id: 1,
+                    createdAt: 1,
                     issueDescription: 1,
-                    order:1,
-                    warrantyId:1,
-                    claimStatus:1,
-                    claimType:1,
-                    claimDate:1,
-                    productImage:1,
-                    warrantyAddress:1,
-                    replacementDeliveredLocation:1,
-                    deliveryAgentAssignedOn:1
-                } 
+                    order: 1,
+                    warrantyId: 1,
+                    claimStatus: 1,
+                    claimType: 1,
+                    claimDate: 1,
+                    productImage: 1,
+                    warrantyAddress: 1,
+                    replacementDeliveredLocation: 1,
+                    deliveryAgentAssignedOn: 1
+                }
             },
-           
+
         ])
-         console.log("result",result)
+        console.log("result", result)
         let response: any = {
             records: [],
         };
@@ -376,5 +376,29 @@ export const getDetailsOfWarrantyPickupsByAgent = async (claimRequestId:Types.Ob
     } catch (error) {
         throw error
     }
+}
+
+
+
+export const createActivityLogByWarranty = async (data: { actionType: string, action: string, performedBy: string, performedByRole: string, referenceId: Types.ObjectId, details: string }): Promise<any> => {
+
+
+    return new Promise(async (resolve, reject) => {
+
+        try {
+
+
+            const final = new activityLogModel(data)
+
+            await final.save()
+
+            resolve(true)
+
+        } catch (error) {
+
+            reject()
+        }
+    })
+
 }
 

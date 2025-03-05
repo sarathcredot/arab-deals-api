@@ -522,7 +522,20 @@ type UserOrderProduct {
   courierId: String
   invoiceNumber: String
   invoice: FileData
+  warranty:WarrantyTypeUserOrders
+  
 }
+
+ type WarrantyTypeUserOrders{
+
+    name:String
+    description:String
+    duration:Int
+    warrantyType:[String]
+    warrantyRegister:Boolean
+ }
+
+
 
 type DeliveryAgentForOrderProduct {
   _id: ObjectId
