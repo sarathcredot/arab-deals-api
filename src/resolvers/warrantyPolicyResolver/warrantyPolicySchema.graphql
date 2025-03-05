@@ -18,6 +18,7 @@ type Query {
   getWarrantyPolicyByAdmin(input:getWarrantyPolicyByAdminInput!):getWarrantyPolicyByAdminResponse
   getDefaultWarrantyPolicyInProduct(input:getDefaultWarrantyPolicyInProductInput):WarrantyPolicy!
   getWarrantyPolicyOfOrderProduct(input:getWarrantyPolicyOfOrderProductInput!):getWarrantyPolicyOfOrderProductResponse
+  getWarrantyPolicyOfOrderProductInMobile(input:getWarrantyPolicyOfOrderProductInput!):getWarrantyPolicyOfOrderProductResponse
  
 }
 

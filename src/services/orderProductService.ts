@@ -1126,6 +1126,7 @@ export const getShippingProducts = async (
               courierId: 1,
               invoiceNumber: 1,
               cancelledDate: 1,
+              
             },
           },
         ],
@@ -2662,6 +2663,7 @@ export const getUserOrderProducts = async (
               invoice: 1,
               courierId: 1,
               invoiceNumber: 1,
+              warranty:1
             },
           },
         ],

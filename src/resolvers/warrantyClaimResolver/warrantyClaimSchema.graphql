@@ -6,6 +6,12 @@ scalar Date
 type Mutation {
    createWarrantyClaimRequestByUSer(input:createWarrantyClaimRequestByUSerInput! 
    image: [Upload]):createWarrantyClaimRequestByUSerResponse
+
+   createWarrantyClaimRequestByUSerInMobile(input:createWarrantyClaimRequestByUSerInput! 
+   image: [Upload]):createWarrantyClaimRequestByUSerResponse
+
+
+
    updateClaimStatusByAdmin(input:updateClaimStatusByAdminInput!):updateClaimStatusByAdminResponse
 }
 
