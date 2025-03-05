@@ -753,7 +753,7 @@ export const deliveryAgentResolver: Resolvers = {
           actionType: "WARRANTY",
           action: `Warranty claim call assigned to delivery boy `,
           performedBy: req?.authAccount?._id,
-          performedByRole: req?.authAccount?.accType,
+          performedByRole: "ADMINS",
           referenceId: input?.warrantyCallID,
           referenceType: "WARRANTY_CLAIM",
           details: `${admin?.fullName} assign Warranty call of an Warranty ID: ${warrantyCallDetails?.warrantyId}  to delivery agent ${warrantyCallDetails?.deliveryAgentName}. `,
@@ -925,7 +925,7 @@ export const deliveryAgentResolver: Resolvers = {
           actionType: "WARRANTY",
           action: `Warranty claim call status update to ${claimStatus} `,
           performedBy: req?.authAccount?._id,
-          performedByRole: "AGENT",
+          performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
 
@@ -950,7 +950,7 @@ export const deliveryAgentResolver: Resolvers = {
           actionType: "WARRANTY",
           action: `Warranty claim call status update to ${claimStatus} `,
           performedBy: req?.authAccount?._id,
-          performedByRole: "AGENT",
+          performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
 
@@ -978,7 +978,7 @@ export const deliveryAgentResolver: Resolvers = {
           actionType: "WARRANTY",
           action: `Warranty claim call status update to ${claimStatus} `,
           performedBy: req?.authAccount?._id,
-          performedByRole: "AGENT",
+          performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
 

@@ -365,7 +365,7 @@ export const warrantyClaimResolver: Resolvers = {
                     actionType: "WARRANTY",
                     action: `Warranty claim request status update to ${input?.claimStatus} `,
                     performedBy: req?.authAccount?._id,
-                    performedByRole: req?.authAccount?.accType,
+                    performedByRole: "ADMINS",
                     referenceId: claimRequestId,
                     referenceType:"WARRANTY_CLAIM",
                     details: `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingClaimRequest?.claimStatus} to ${claimStatus}. `
