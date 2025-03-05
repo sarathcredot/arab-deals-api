@@ -928,7 +928,8 @@ export const deliveryAgentResolver: Resolvers = {
           performedBy: req?.authAccount?._id,
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
-          details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
+          referenceType: "WARRANTY_CLAIM",
+          details: `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus} to ${claimStatus}. `,
 
         }
 
@@ -953,7 +954,8 @@ export const deliveryAgentResolver: Resolvers = {
           performedBy: req?.authAccount?._id,
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
-          details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
+          referenceType: "WARRANTY_CLAIM",
+          details: `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
 
         }
 
@@ -981,7 +983,8 @@ export const deliveryAgentResolver: Resolvers = {
           performedBy: req?.authAccount?._id,
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
-          details: `${agentData?.fullName} update Warranty call status of an Warranty cal ID: ${result?.warrantyId} from ${result?.claimStatus} to ${claimStatus}. `,
+          referenceType: "WARRANTY_CLAIM",
+          details: `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
 
         }
 

@@ -3075,7 +3075,8 @@ export const claimOtpVerification = async (data: {
         performedBy: agent?._id,
         performedByRole: "DELIVERYAGENT",
         referenceId: data?.claimRequestId,
-        details: `${agent?.fullName} update Warranty call status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+        referenceType: "WARRANTY_CLAIM",
+        details: `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
 
       }
 
