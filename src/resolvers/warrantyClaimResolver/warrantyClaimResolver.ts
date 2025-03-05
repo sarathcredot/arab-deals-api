@@ -15,7 +15,7 @@ import { returnPolicyModel } from "../../models/returnPolicyModel";
 import { shippingConfigModel } from "../../models/shippingConfigModel";
 import { warrantyPolicyModel } from "../../models/warrantyPolicyModel";
 import { warrantyClaimModel } from "../../models/warrantyClaimModel";
-import {adminModel} from  "../../models"
+import { adminModel } from "../../models"
 
 
 export const warrantyClaimResolver: Resolvers = {
@@ -129,7 +129,7 @@ export const warrantyClaimResolver: Resolvers = {
                     performedBy: userId,
                     performedByRole: "USERS",
                     referenceId: result?._id,
-                    referenceType:"WARRANTY_CLAIM",
+                    referenceType: "WARRANTY_CLAIM",
                     details: `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
                 }
 
@@ -252,7 +252,7 @@ export const warrantyClaimResolver: Resolvers = {
                     performedBy: userId,
                     performedByRole: "USER",
                     referenceId: result?._id,
-                    referenceType:"WARRANTY_CLAIM",
+                    referenceType: "WARRANTY_CLAIM",
                     details: `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
                 }
 
@@ -358,7 +358,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                 // add activity log
 
-           const admin=await  adminModel.findById({_id:req?.authAccount?._id})
+                const admin = await adminModel.findById({ _id: req?.authAccount?._id })
 
                 const data = {
 
@@ -367,7 +367,7 @@ export const warrantyClaimResolver: Resolvers = {
                     performedBy: req?.authAccount?._id,
                     performedByRole: "ADMINS",
                     referenceId: claimRequestId,
-                    referenceType:"WARRANTY_CLAIM",
+                    referenceType: "WARRANTY_CLAIM",
                     details: `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingClaimRequest?.claimStatus} to ${claimStatus}. `
                 }
 
@@ -452,6 +452,27 @@ export const warrantyClaimResolver: Resolvers = {
                 throw new GraphQLError(error, {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
+            }
+        },
+
+        getWarrantyActivityLogByAdmin: async (parent, { input }, { req }, info) => {
+
+            verifyAdmin(req)
+            try {
+
+            const result=await warrantyClaimService.getWarrantyActivityLogByAdmin(input?.warrantyId)
+
+            return result
+
+            } catch (error:any) {
+
+                throw new GraphQLError(error, {
+                    extensions: {
+                        code: "INTERNAL_SERVER_ERROR",
+                        errors: [],
+                    },
+                });
+
             }
         }
 

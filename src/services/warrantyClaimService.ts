@@ -402,3 +402,130 @@ export const createActivityLogByWarranty = async (data: { actionType: string, ac
 
 }
 
+
+
+
+export const getWarrantyActivityLogByAdmin = async (warrantyId: Types.ObjectId): Promise<any> => {
+    return await activityLogModel.aggregate([
+      {
+        $match: { referenceId: warrantyId }
+      },
+      { $sort: { createdAt: 1 } }, 
+      {
+        $facet: {
+          admins: [
+            { $match: { performedByRole: "ADMINS" } },
+            {
+              $lookup: {
+                from: collections.ADMINS,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$fullName" // Standardizing as "name"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          users: [
+            { $match: { performedByRole: "USERS" } },
+            {
+              $lookup: {
+                from: collections.USERS,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$displayName" // Standardizing as "name"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          vendors: [
+            { $match: { performedByRole: "VENDORS" } },
+            {
+              $lookup: {
+                from: collections.VENDORS,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$fullName" // Standardizing as "name"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          deliveryAgents: [
+            { $match: { performedByRole: "DELIVERYAGENT" } },
+            {
+              $lookup: {
+                from: collections.DELIVERYAGENT,
+                localField: "performedBy",
+                foreignField: "_id",
+                as: "performedByDetails",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: "$fullName" // Standardizing as "name"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        $project: {
+          mergedResults: {
+            $concatArrays: ["$admins", "$users", "$vendors", "$deliveryAgents"]
+          }
+        }
+      },
+      { $unwind: "$mergedResults" },
+      { $replaceRoot: { newRoot: "$mergedResults" } },
+        // Calculate time difference between current and previous document using $shift
+        {
+          $setWindowFields: {
+            sortBy: { createdAt: 1 }, 
+            output: {
+              prevCreatedAt: {
+                $shift: { output: "$createdAt", by: -1 } 
+              }
+            }
+          }
+        },
+    
+        // Compute time difference in milliseconds
+        {
+          $addFields: {
+            timeDifference: {
+              $cond: {
+                if: { $eq: ["$prevCreatedAt", null] },
+                then: null, 
+                else: {
+                  $toInt: { $divide: [{ $subtract: ["$createdAt", "$prevCreatedAt"] }, 1000] } // in seconds
+                }
+              }
+            }
+          }
+        },
+    ]);
+  };
+
