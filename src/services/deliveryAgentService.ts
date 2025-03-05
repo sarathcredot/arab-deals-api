@@ -2885,6 +2885,13 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           });
         }
 
+
+
+        const result=await orderProductModel.findById(data.orderItemId)
+        if(result?.warranty?.duration){
+           await orderProductModel.findByIdAndUpdate(data.orderItemId, { "warranty.warrantyRegister": true}, { new: true });
+        }
+      
         // check this order pyment type is COD
         if (data.paymentMode === "COD") {
           // update this order product pyment status
