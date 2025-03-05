@@ -281,7 +281,7 @@ type getAllAdminDataType{
   accType: String
   isBlocked: Boolean
   roles:[adminroles]
-  admin:createdAdmin
+  admin:[createdAdmin]
 }
 
 
