@@ -1315,7 +1315,7 @@ export const orderResolver: Resolvers = {
           extensions: { code: "BAD_REQUEST", errors: [] },
         });
       }
-
+ 
       // console.log(orderProduct);
 
       if (orderProduct.shippingStatus !== "DELIVERED") {
