@@ -299,6 +299,7 @@ export const warrantyClaimResolver: Resolvers = {
                 }
 
                 const existingClaimRequest: any = await warrantyClaimModel.findById(claimRequestId)
+                const existingStatus = existingClaimRequest?.claimStatus
 
                 if (!existingClaimRequest) {
                     throw new GraphQLError("claim Request with this id is not exist", {
@@ -368,7 +369,7 @@ export const warrantyClaimResolver: Resolvers = {
                     performedByRole: "ADMINS",
                     referenceId: claimRequestId,
                     referenceType: "WARRANTY_CLAIM",
-                    details: `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingClaimRequest?.claimStatus} to ${claimStatus}. `
+                    details: `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
                 }
 
                 await warrantyClaimService.createActivityLogByWarranty(data)
@@ -457,16 +458,16 @@ export const warrantyClaimResolver: Resolvers = {
 
         getWarrantyActivityLogByAdmin: async (parent, { input }, { req }, info) => {
 
-        //    await verifyAdmin(req)
+            //    await verifyAdmin(req)
             try {
 
-            const result=await warrantyClaimService.getWarrantyActivityLogByAdmin(input?.warrantyId)
+                const result = await warrantyClaimService.getWarrantyActivityLogByAdmin(input?.warrantyId)
 
-            console.log("result",result)
+                console.log("result", result)
 
-            return result
+                return result
 
-            } catch (error:any) {
+            } catch (error: any) {
 
                 throw new GraphQLError(error, {
                     extensions: {

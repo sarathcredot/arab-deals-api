@@ -907,6 +907,7 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(claimStatus)
 
       const result = await warrantyClaimModel.findOne({ _id: claimRequestId });
+      const existingStatus=result?.claimStatus
       const agentData=await deliveryAgentModel.findById({_id:req?.authAccount?._id})
 
 

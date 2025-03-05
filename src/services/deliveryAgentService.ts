@@ -1538,21 +1538,39 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
 
     try {
 
-      // change order product delivery status 
 
-      await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
 
-        $set: {
-
-          shippingStatus: data.deliveryStatus,
-          postponedremark: data.remarks,
-          postponeddate: new Date()
-        }
-      })
 
       // check this order status POSTPONED
 
-      if (data.deliveryStatus === "POSTPONED" || data.deliveryStatus === "OUT_FOR_DELIVERY") {
+      if (data.deliveryStatus === "POSTPONED") {
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
+
+            shippingStatus: data.deliveryStatus,
+            postponedremark: data.remarks,
+            postponeddate: new Date()
+          }
+        })
+
+
+        resolve({ flag: true })
+        return;
+      }
+
+      if (data.deliveryStatus === "OUT_FOR_DELIVERY") {
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
+
+            shippingStatus: data.deliveryStatus,
+
+          }
+        })
+
 
         resolve({ flag: true })
         return;
@@ -1562,6 +1580,16 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
       // check this order status DELIVERED
 
       if (data.deliveryStatus === "DELIVERED") {
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+
+          $set: {
+
+            shippingStatus: data.deliveryStatus,
+            deliveryDate : new Date()
+          }
+        })
+
 
         //to auto register warranty
         const result = await orderProductModel.findById({ _id: data.orderItemId })
@@ -1654,7 +1682,8 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
         }
 
       } else {
-
+       
+         
 
       }
 
