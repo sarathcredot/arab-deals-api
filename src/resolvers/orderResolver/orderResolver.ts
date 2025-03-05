@@ -1791,7 +1791,7 @@ export const orderResolver: Resolvers = {
         performedByRole: "USERS",
         referenceId: orderProduct?._id,
         referenceType: "ORDER_PRODUCTS",
-        details: `${user?.displayName} cancelled order with Product ID: ${orderProduct?.itemId} `,
+        details: `${user?.displayName}  (User) Cancelled  the order ${orderProduct?.itemId} . The status has been updated to "Cancelled" `,
       });
   
 
@@ -1890,9 +1890,8 @@ export const orderResolver: Resolvers = {
         performedByRole: "USERS",
         referenceId: orderProduct?._id,
         referenceType: "ORDER_PRODUCTS",
-        details: `${user?.displayName} cancelled order with Product ID: ${orderProduct?.itemId} `,
+        details: `${user?.displayName}  (User) Cancelled  the order ${orderProduct?.itemId} . The status has been updated to "Cancelled" `,
       });
-  
 
       return response;
     },
