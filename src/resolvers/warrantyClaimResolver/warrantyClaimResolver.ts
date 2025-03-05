@@ -77,6 +77,16 @@ export const warrantyClaimResolver: Resolvers = {
                     });
                 }
 
+                const existingClaimRequest=await warrantyClaimModel.findOne({product:productId})
+                if(existingClaimRequest){
+                    throw new GraphQLError("Claim request already exist for this product", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
                 if (!existingOrderProduct.warranty.warrantyRegister) {
                     throw new GraphQLError("Warranty is not registered for this product", {
                         extensions: {
@@ -202,6 +212,16 @@ export const warrantyClaimResolver: Resolvers = {
 
                 if (!existingOrderProduct.warranty.warrantyRegister) {
                     throw new GraphQLError("Warranty is not registered for this product", {
+                        extensions: {
+                            code: "BAD_REQUEST",
+                            errors: [],
+                        },
+                    });
+                }
+
+                const existingClaimRequest=await warrantyClaimModel.findOne({product:productId})
+                if(existingClaimRequest){
+                    throw new GraphQLError("Claim request already exist for this product", {
                         extensions: {
                             code: "BAD_REQUEST",
                             errors: [],

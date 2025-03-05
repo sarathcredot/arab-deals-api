@@ -265,6 +265,7 @@ export interface IOrderProductDocument extends Document {
   invoice?: FileData;
   returnProductImage?: FileData[];
   deliveryAssignedOn?: Date;
+  deliveryAgentName?:String;
   returnOrderAssignedOn?: Date;
   refundBankDetails?: {
     accountHolderName?: string;

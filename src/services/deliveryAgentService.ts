@@ -602,12 +602,12 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
 
             await activityLogService.createActivityLog({
               actionType: "RETURN",
-              action: "ASSIGN ORDER TO DELIVERY AGENT",
+              action: "DELIVERY BOY ASSIGNED",
               performedBy: adminId,
               performedByRole: "ADMINS",
               referenceId: data.orderItemId,
               referenceType: "ORDER_PRODUCTS",
-              details: `${admin?.fullName} assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+              details: `${admin?.fullName} (Admin) assigned ${data.deliveryAgentName} (Delivery Agent) to deliver order ${assignOrder?.itemId}.The package is now in transit and will be delivered soon. `,
             });
 
             resolve({ flag: true })
@@ -672,12 +672,12 @@ export const returnAssignDeliveryAgent = async (data: { orderItemId: Types.Objec
 
             await activityLogService.createActivityLog({
               actionType: "RETURN",
-              action: "REASSIGN ORDER TO DELIVERY AGENT",
+              action: "DELIVERY BOY REASSIGNED",
               performedBy: adminId,
               performedByRole: "ADMINS",
               referenceId: data.orderItemId,
               referenceType: "ORDER_PRODUCTS",
-              details: `${admin?.fullName} reassigned the order (Order Product ID: ${assignOrder?.itemId}) to delivery agent ${data.deliveryAgentName}.`,
+              details: `${admin?.fullName} (Admin) assigned ${data.deliveryAgentName} (Delivery Agent) to deliver order ${assignOrder?.itemId}.The package is now in transit and will be delivered soon. `,
             });
 
 
@@ -1244,7 +1244,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             performedByRole: "ADMINS",
             referenceId: data.orderItemId,
             referenceType: "ORDER_PRODUCTS",
-            details: `${admin?.fullName} assign order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+            details: `${admin?.fullName} (Admin) assigned ${data.deliveryAgentName} (Delivery Agent) to deliver order ${assignOrder?.itemId}. The package is now in transit and will be delivered soon. `,
           });
 
 
@@ -1339,7 +1339,7 @@ export const orderAssignDeliveryAgent = async (data: { orderItemId: Types.Object
             performedByRole: "ADMINS",
             referenceId: data.orderItemId,
             referenceType: "ORDER_PRODUCTS",
-            details: `${admin?.fullName} reassigned order  of an order Order Product ID: ${assignOrder?.itemId}  to delivery agent ${data.deliveryAgentName}. `,
+            details: `${admin?.fullName} (Admin) assigned ${data.deliveryAgentName} (Delivery Agent) to deliver order ${assignOrder?.itemId}. The package is now in transit and will be delivered soon. `,
           });
 
 
@@ -2783,12 +2783,12 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
       if (data.returnStatus === 'REJECTED') {
         await activityLogService.createActivityLog({
           actionType: "RETURN",
-          action: "RETURN REJECTED ",
+          action: "RETURN PICKUP REJECTED",
           performedBy: data.agentId,
           performedByRole: "DELIVERYAGENT",
           referenceId: data.orderItemId,
           referenceType: "ORDER_PRODUCTS",
-          details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
+          details: `${agent?.fullName} (Delivery Agent) rejected the return pickup for order ${otpData?.itemId} due to an issue . The admin has been notified to review the case `,
         });
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
@@ -2811,7 +2811,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           performedByRole: "DELIVERYAGENT",
           referenceId: data.orderItemId,
           referenceType: "ORDER_PRODUCTS",
-          details: `${agent?.fullName} update return status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.returnStatus} to ${data.returnStatus}. `,
+          details: `${agent?.fullName} (Delivery Agent) successfully collected the returned item for order ${otpData?.itemId}. The package is now being sent back to the warehouse.`,
         });
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
@@ -2881,7 +2881,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
             performedByRole: "DELIVERYAGENT",
             referenceId: data.orderItemId,
             referenceType: "ORDER_PRODUCTS",
-            details: `${agent?.fullName} update order status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.shippingStatus} to ${data.deliveryStatus}. `,
+            details: `${agent?.fullName} (Delivery Agent) successfully delivered the order ${otpData?.itemId} to the customer. The status has been updated to "Delivered". `,
           });
         }
 
@@ -2941,12 +2941,12 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         if (data.deliveryStatus === "CANCELED") {
           await activityLogService.createActivityLog({
             actionType: "ORDER",
-            action: "UPDATE ORDER STATUS",
+            action: "ORDER CANCELED",
             performedBy: data.agentId,
             performedByRole: "DELIVERYAGENT",
             referenceId: data.orderItemId,
             referenceType: "ORDER_PRODUCTS",
-            details: `${agent?.fullName} update order status of an order Order Product ID: ${otpData?.itemId} from ${otpData?.shippingStatus} to ${data.deliveryStatus}. `,
+            details: `${agent?.fullName} (Delivery Agent) has canceled the order ${otpData?.itemId}. The admin has been notified to review the case.`,
           });
         }
 
