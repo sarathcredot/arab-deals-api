@@ -1736,6 +1736,7 @@ export const orderResolver: Resolvers = {
       }
 
       orderProduct.shippingStatus = "CANCELED";
+      orderProduct.cancelUserReason=input?.cancelUserReason
       orderProduct.cancelledDate = moment().toDate();
 
       await orderProduct.save();
@@ -1836,6 +1837,7 @@ export const orderResolver: Resolvers = {
       }
 
       orderProduct.shippingStatus = "CANCELED";
+      orderProduct.cancelUserReason=input?.cancelUserReason
       orderProduct.cancelledDate = moment().toDate();
 
       await orderProduct.save();

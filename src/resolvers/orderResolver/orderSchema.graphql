@@ -142,10 +142,15 @@ input ReturnUserOrderProductInMobileInput {
 
 input CancelUserOrderProductInput {
   _id: ObjectId!
+  cancelUserReason:String!
+
 }
 
 input CancelUserOrderProductInMobileInput {
   _id: ObjectId!
+  cancelUserReason:String!
+
+
 }
 
 type CreateUserOrderResponse {
