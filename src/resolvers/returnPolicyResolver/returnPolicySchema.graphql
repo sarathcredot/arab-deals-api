@@ -16,7 +16,22 @@ type Query {
   getDefaultReturnPolicyInProduct(input:getDefaultReturnPolicyInProductInput!):ReturnPolicy!
   getReturnPolicyOfOrderProduct(input:getReturnPolicyOfOrderProductInput!):getReturnPolicyOfOrderProductResponse
   getReturnPolicyOfOrderProductInMob(input:getReturnPolicyOfOrderProductInput!):getReturnPolicyOfOrderProductResponse
+  getDefaultReturnPolicyVariantCreate(input:getDefaultReturnPolicyVariantCreateInput!):getDefaultReturnPolicyVariantCreateResponse
 }
+
+
+input getDefaultReturnPolicyVariantCreateInput{
+
+         productCode:Int!
+}
+
+type getDefaultReturnPolicyVariantCreateResponse{
+
+      ReturnPolicyData:ReturnPolicy
+      policyGet:Boolean
+
+}
+
 
 
 
