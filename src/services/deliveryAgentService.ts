@@ -22,6 +22,7 @@ export interface IDeliveryAgent {
   _id?: Types.ObjectId;
   fullName: string;
   contactNumber: string;
+  countryCode:string;
   userID: string;
   password: string;
   agentType: string;
@@ -1586,7 +1587,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
           $set: {
 
             shippingStatus: data.deliveryStatus,
-            deliveryDate : new Date()
+            deliveryDate: new Date()
           }
         })
 
@@ -1682,8 +1683,8 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
         }
 
       } else {
-       
-         
+
+
 
       }
 
@@ -2887,11 +2888,11 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
 
 
-        const result=await orderProductModel.findById(data.orderItemId)
-        if(result?.warranty?.duration){
-           await orderProductModel.findByIdAndUpdate(data.orderItemId, { "warranty.warrantyRegister": true}, { new: true });
+        const result = await orderProductModel.findById(data.orderItemId)
+        if (result?.warranty?.duration) {
+          await orderProductModel.findByIdAndUpdate(data.orderItemId, { "warranty.warrantyRegister": true }, { new: true });
         }
-      
+
         // check this order pyment type is COD
         if (data.paymentMode === "COD") {
           // update this order product pyment status
@@ -3047,6 +3048,8 @@ export const claimOtpVerification = async (data: {
       'otp.code': '',
       'otp.expiresAt': '',
     };
+    const warrantyCallData = await warrantyClaimModel.findById({ _id: data.claimRequestId })
+
 
     if (data.claimStatus) {
       if (data.claimStatus === 'REJECTED') {
@@ -3056,7 +3059,31 @@ export const claimOtpVerification = async (data: {
         if (data.remarks) {
           updateFields.rejectedReason = data.remarks;
         }
+
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: ` ${agent?.fullName} (Delivery Agent) rejected the warranty claim request ${warrantyCallData?.warrantyId} . The claim has been declined, and the customer has been notified.
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
+
       }
+
+
+
       else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
         agent.wallet.numberOfPendingWarrantyCall -= 1;
@@ -3065,30 +3092,39 @@ export const claimOtpVerification = async (data: {
         if (data.remarks) {
           updateFields.replacementReason = data.remarks;
         }
+
+
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: `${agent?.fullName} (Delivery Agent) successfully delivered the replacement product and collected the defective product from the customer for warranty ${warrantyCallData?.warrantyId} .
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
       }
       else {
         throw new Error('Invalid claim status');
       }
 
-      const warrantyCallData = await warrantyClaimModel.findById({ _id: data.claimRequestId })
       // Update warranty claim status in DB
       await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
 
       // Save agent updates
       await agent.save();
-      const activityData = {
-        actionType: "WARRANTY",
-        action: `Warranty claim call status update to ${data.claimStatus} `,
-        performedBy: agent?._id,
-        performedByRole: "DELIVERYAGENT",
-        referenceId: data?.claimRequestId,
-        referenceType: "WARRANTY_CLAIM",
-        details: `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
 
-      }
 
-      const final = new activityLogModel(activityData)
-      final.save()
 
       return { flag: true, message: 'Claim status updated successfully' };
     }

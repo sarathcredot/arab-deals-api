@@ -70,6 +70,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       let fullName: string = input.fullName;
       let contactNumber: string = input.contactNumber;
+      let countryCode:string=input.countryCode;
       let userID: string = input.userID;
       let password: string = input.password;
       let agentType: string = input.agentType;
@@ -132,6 +133,7 @@ export const deliveryAgentResolver: Resolvers = {
         let newDeliveryAgentData: deliveryAgentService.IDeliveryAgent = {
           fullName,
           contactNumber,
+          countryCode,
           userID,
           password,
           agentType,
@@ -924,12 +926,14 @@ export const deliveryAgentResolver: Resolvers = {
 
         const data = {
           actionType: "WARRANTY",
-          action: `Warranty claim call status update to ${claimStatus} `,
+          action: `Warranty claim call status update ${existingStatus} to ${claimStatus} `,
           performedBy: req?.authAccount?._id,
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           referenceType: "WARRANTY_CLAIM",
-          details: `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus} to ${claimStatus}. `,
+          details:`${agentData?.fullName}(Delivery Agent) has picked up the replacement product for warranty ${result?.warrantyId} and is now "Out for Delivery". The customer will receive the product shortly.
+`
+          // `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus} to ${claimStatus}. `,
 
         }
 
@@ -943,19 +947,22 @@ export const deliveryAgentResolver: Resolvers = {
         }
       }
 
-      if (claimStatus === "RETURNED_TO_WAREHOUSE") {
+      if (claimStatus === "RETURNED_TO_WAREHOUSE") { 
         result.claimStatus = claimStatus
         result.returnedWarehouseDate = new Date();
         await result.save()
 
         const data = {
           actionType: "WARRANTY",
-          action: `Warranty claim call status update to ${claimStatus} `,
+          action: `Warranty claim call status update ${existingStatus} to ${claimStatus} `,
           performedBy: req?.authAccount?._id,
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           referenceType: "WARRANTY_CLAIM",
-          details: `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
+          details:` ${agentData?.fullName}(Delivery Agent) successfully returned the defective product for warranty ${result?.warrantyId} to the warehouse for further inspection or disposal.
+
+`
+          //  `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
 
         }
 
@@ -979,12 +986,13 @@ export const deliveryAgentResolver: Resolvers = {
 
         const data = {
           actionType: "WARRANTY",
-          action: `Warranty claim call status update to ${claimStatus} `,
+          action: `Warranty claim call status update ${existingStatus}} to ${claimStatus} `,
           performedBy: req?.authAccount?._id,
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           referenceType: "WARRANTY_CLAIM",
-          details: `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
+          details: `${agentData?.fullName} (Delivery Agent) Delivery of the replacement product and collection of the defective item for warranty ${result?.warrantyId} has been POSTPONED`
+          // `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
 
         }
 

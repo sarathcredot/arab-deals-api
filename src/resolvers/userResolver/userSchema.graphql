@@ -44,10 +44,13 @@ type accountDeleteByUserResponse{
 
 input userLoginOtpInput {
   mobileNumber: String!
+  countryCode:String!
 }
 
 input userLoginOtpInMobileInput {
   mobileNumber: String!
+  countryCode:String!
+
 }
 
 input userBlockInput {

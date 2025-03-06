@@ -664,6 +664,7 @@ export const userResolver: Resolvers = {
     userLoginOtp: async (parent, { input }, { req }, info) => {
       await validateInput(validators.userNumberValidator, req);
       const mobileNumber: string = input.mobileNumber;
+      const countryCode: string = input.countryCode;
       const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
 
       if (user?.isBlocked) {
@@ -701,7 +702,9 @@ export const userResolver: Resolvers = {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
           mobileNumber,
+          countryCode,
           device: "WEB"
+
         },
         isVerified: false
       };
@@ -731,6 +734,8 @@ export const userResolver: Resolvers = {
     userLoginOtpInMobile: async (parent, { input }, { req }, info) => {
       await validateInput(validators.userMobileNumberValidator, req);
       const mobileNumber: string = input.mobileNumber;
+      const countryCode: string = input.countryCode;
+
       const user = await userService.findUserWithFilters({ mobileNumber: mobileNumber }, {}, {});
 
       if (user?.isBlocked) {
@@ -757,7 +762,10 @@ export const userResolver: Resolvers = {
           code: mobileOtp.code,
           expiresAt: mobileOtp.expiresAt,
           mobileNumber,
+          countryCode,
           device: "MOBILE"
+          
+
         },
         isVerified: false
       };
@@ -782,6 +790,8 @@ export const userResolver: Resolvers = {
       }
       return response;
     },
+
+
     userVerifyOtp: async (parent, { input }, { req }, info) => {
       await validateInput(validators.userOtpValidator, req);
       const code: string = input.code;
@@ -807,7 +817,7 @@ export const userResolver: Resolvers = {
       let user = await userService.findUserWithFilters({ mobileNumber: otpVerification?.metadata?.mobileNumber }, {}, {})
 
       if (!user) {
-        user = await userService.createUser({ mobileNumber: otpVerification?.metadata?.mobileNumber });
+        user = await userService.createUser({ mobileNumber: otpVerification?.metadata?.mobileNumber, countryCode: otpVerification?.metadata?.countryCode });
       }
       let token = await jwtService.createUserJWT(user._id!.toString());
       user.token = token;
@@ -850,7 +860,7 @@ export const userResolver: Resolvers = {
       let user = await userService.findUserWithFilters({ mobileNumber: otpVerification?.metadata?.mobileNumber }, {}, {})
 
       if (!user) {
-        user = await userService.createUser({ mobileNumber: otpVerification?.metadata?.mobileNumber });
+        user = await userService.createUser({ mobileNumber: otpVerification?.metadata?.mobileNumber,countryCode:otpVerification?.metadata?.countryCode});
       }
       let token = await jwtService.createUserJWT(user._id!.toString());
       user.mobileToken = token;
@@ -1320,7 +1330,7 @@ export const userResolver: Resolvers = {
             mobileNumber: 1, _id: 1,
           },
           {});
-          
+
         if (!result) {
           throw new GraphQLError("INTERNAL_SERVER_ERROR", {
             extensions: {

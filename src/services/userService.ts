@@ -13,6 +13,7 @@ export interface IUser {
   isDeleted?: boolean;
   token?: string;
   mobileToken?: string;
+  countryCode?: string;
 }
 
 export interface IUserDocument extends Document {
@@ -176,18 +177,18 @@ export const logoutUser = async (userId: Types.ObjectId): Promise<IUserDocument 
 }
 
 
-export const accountDeleteByUser = async (userId: Types.ObjectId,isDeleted: boolean,deleteReason?: string | undefined |null): Promise<IUserDocument | null> => {
-  console.log("call",isDeleted,userId)
-  return await userModel.findByIdAndUpdate(userId, 
-    { $set: { isDeleted: isDeleted ,deletedAt: new Date() ,token:"",isBlocked:true,mobileNumber:userId,deleteReason:deleteReason } },
+export const accountDeleteByUser = async (userId: Types.ObjectId, isDeleted: boolean, deleteReason?: string | undefined | null): Promise<IUserDocument | null> => {
+  console.log("call", isDeleted, userId)
+  return await userModel.findByIdAndUpdate(userId,
+    { $set: { isDeleted: isDeleted, deletedAt: new Date(), token: "", isBlocked: true, mobileNumber: userId, deleteReason: deleteReason } },
     { new: true }
   );
 }
 
-export const updateOrdersByUserId = async (userId: Types.ObjectId,updateStatus:any): Promise<any> => {
-      // Define the shipping statuses to filter
+export const updateOrdersByUserId = async (userId: Types.ObjectId, updateStatus: any): Promise<any> => {
+  // Define the shipping statuses to filter
   const shippingStatusesToCancel = ["PENDING", "PACKAGE_IN_PROGRESS", "SHIPPED"];
-  
+
   // Update orders that match the user ID and the specified shipping statuses
   return await orderProductModel.updateMany(
     {

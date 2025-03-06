@@ -77,8 +77,8 @@ export const warrantyClaimResolver: Resolvers = {
                     });
                 }
 
-                const existingClaimRequest=await warrantyClaimModel.findOne({product:productId})
-                if(existingClaimRequest){
+                const existingClaimRequest = await warrantyClaimModel.findOne({ product: productId })
+                if (existingClaimRequest) {
                     throw new GraphQLError("Claim request already exist for this product", {
                         extensions: {
                             code: "BAD_REQUEST",
@@ -140,7 +140,8 @@ export const warrantyClaimResolver: Resolvers = {
                     performedByRole: "USERS",
                     referenceId: result?._id,
                     referenceType: "WARRANTY_CLAIM",
-                    details: `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
+                    details: `${warrantyAddress.firstname} (Customer) requested a warranty claim for Warranty ID: ${result.warrantyId} through the website. The request is now waiting for processing.`
+                    // `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
                 }
 
                 await warrantyClaimService.createActivityLogByWarranty(data)
@@ -219,8 +220,8 @@ export const warrantyClaimResolver: Resolvers = {
                     });
                 }
 
-                const existingClaimRequest=await warrantyClaimModel.findOne({product:productId})
-                if(existingClaimRequest){
+                const existingClaimRequest = await warrantyClaimModel.findOne({ product: productId })
+                if (existingClaimRequest) {
                     throw new GraphQLError("Claim request already exist for this product", {
                         extensions: {
                             code: "BAD_REQUEST",
@@ -273,7 +274,8 @@ export const warrantyClaimResolver: Resolvers = {
                     performedByRole: "USERS",
                     referenceId: result?._id,
                     referenceType: "WARRANTY_CLAIM",
-                    details: `${warrantyAddress.firstname} requested an warranty (Warranty ID: ${result.warrantyId}) through the website. The system generated the Warranty ID, and the request has been sent for processing.`
+                    details: `${warrantyAddress.firstname} (Customer) requested a warranty claim for Warranty ID: ${result.warrantyId} through the website. The request is now waiting for processing.`
+
                 }
 
 
@@ -304,7 +306,7 @@ export const warrantyClaimResolver: Resolvers = {
 
             try {
                 const claimRequestId: Types.ObjectId = input.claimRequestId
-                const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "REJECTED" | "REPLACEMENT_SHIPPED" | "REPLACEMENT_COMPLETED" | "RETURNED_TO_WAREHOUSE";
+                const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "REJECTED" | "REPLACEMENT_SHIPPED" | "REPLACEMENT_COMPLETED" | "RETURNED_TO_WAREHOUSE" | "PACKAGE_IN_PROGRESS";
                 const Reason: string | null = input?.Reason || null;
                 // const rejectedDate: Date | null = input?.rejectedDate || null;
                 // const claimDate: Date | null  = input?.claimDate || null;
@@ -320,6 +322,8 @@ export const warrantyClaimResolver: Resolvers = {
 
                 const existingClaimRequest: any = await warrantyClaimModel.findById(claimRequestId)
                 const existingStatus = existingClaimRequest?.claimStatus
+                const admin = await adminModel.findById({ _id: req?.authAccount?._id })
+
 
                 if (!existingClaimRequest) {
                     throw new GraphQLError("claim Request with this id is not exist", {
@@ -335,6 +339,22 @@ export const warrantyClaimResolver: Resolvers = {
                 if (claimStatus === "APPROVED") {
                     if (input?.Date) {
                         existingClaimRequest.claimDate = input.Date;
+
+                        const data = {
+
+                            actionType: "WARRANTY",
+                            action: `Warranty claim request status update ${existingStatus} to ${claimStatus} `,
+                            performedBy: req?.authAccount?._id,
+                            performedByRole: "ADMINS",
+                            referenceId: claimRequestId,
+                            referenceType: "WARRANTY_CLAIM",
+                            details: `${admin?.fullName} (Admin) approved the warranty claim request ${existingClaimRequest?.warrantyId}. The process has been initiated to provide a ${existingClaimRequest?.claimType}.`
+                            // `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
+                        }
+
+                        await warrantyClaimService.createActivityLogByWarranty(data)
+
+
                     }
                 }
 
@@ -350,7 +370,48 @@ export const warrantyClaimResolver: Resolvers = {
                     existingClaimRequest.rejectedReason = Reason;
                     if (input?.Date) {
                         existingClaimRequest.rejectedDate = input.Date;
+
+
+                        const data = {
+
+                            actionType: "WARRANTY",
+                            action: `Warranty claim request status update ${existingStatus} to ${claimStatus}  `,
+                            performedBy: req?.authAccount?._id,
+                            performedByRole: "ADMINS",
+                            referenceId: claimRequestId,
+                            referenceType: "WARRANTY_CLAIM",
+                            details: `${admin?.fullName} (Admin) rejected the warranty claim request ${existingClaimRequest?.warrantyId} . The claim has been declined, and the customer has been notified`
+                            // `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
+                        }
+
+                        await warrantyClaimService.createActivityLogByWarranty(data)
+
+
+
+
+
                     }
+                }
+
+                if (claimStatus === "PACKAGE_IN_PROGRESS") {
+
+                    const data = {
+
+                        actionType: "WARRANTY",
+                        action: `Warranty claim request status update ${existingStatus} to ${claimStatus}  `,
+                        performedBy: req?.authAccount?._id,
+                        performedByRole: "ADMINS",
+                        referenceId: claimRequestId,
+                        referenceType: "WARRANTY_CLAIM",
+                        details: `${admin?.fullName} (Admin) updated the warranty ${existingClaimRequest?.warrantyId} status to "Packaging In Progress". The replacement product is now being packed and prepared for shipment.
+`
+                        // `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
+                    }
+
+                    await warrantyClaimService.createActivityLogByWarranty(data)
+
+
+
                 }
 
 
@@ -358,13 +419,35 @@ export const warrantyClaimResolver: Resolvers = {
 
                     if (input?.Date) {
                         existingClaimRequest.replacementShippedDate = input.Date;
+
+                        const data = {
+
+                            actionType: "WARRANTY",
+                            action: `Warranty claim request status update ${existingStatus} to ${claimStatus}  `,
+                            performedBy: req?.authAccount?._id,
+                            performedByRole: "ADMINS",
+                            referenceId: claimRequestId,
+                            referenceType: "WARRANTY_CLAIM",
+                            details: `${admin?.fullName}(Admin) marked the replacement product for warranty ${existingClaimRequest?.warrantyId}  as "Shipped". The package has been handed over to the delivery agent.
+`
+
+                            // `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
+                        }
+
+                        await warrantyClaimService.createActivityLogByWarranty(data)
+
+
+
                     }
                 }
+
+
 
                 if (claimStatus === "REPLACEMENT_COMPLETED") {
 
                     if (input?.Date) {
                         existingClaimRequest.replacementCompletedDate = input.Date;
+
                     }
                 }
 
@@ -377,22 +460,8 @@ export const warrantyClaimResolver: Resolvers = {
 
                 await existingClaimRequest.save();
 
-                // add activity log
 
-                const admin = await adminModel.findById({ _id: req?.authAccount?._id })
 
-                const data = {
-
-                    actionType: "WARRANTY",
-                    action: `Warranty claim request status update to ${input?.claimStatus} `,
-                    performedBy: req?.authAccount?._id,
-                    performedByRole: "ADMINS",
-                    referenceId: claimRequestId,
-                    referenceType: "WARRANTY_CLAIM",
-                    details: `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
-                }
-
-                await warrantyClaimService.createActivityLogByWarranty(data)
 
                 return {
                     success: true,
@@ -499,21 +568,21 @@ export const warrantyClaimResolver: Resolvers = {
             }
         },
 
-        getOrderProductWarrantyClaim:async(parent, { input }, { req }, info)=>{
-               
+        getOrderProductWarrantyClaim: async (parent, { input }, { req }, info) => {
+
             try {
 
                 const result = await warrantyClaimService.getOrderProductWarrantyClaim(input?.orderProductId)
 
                 return result;
-                
-            } catch (error:any) {
-                
+
+            } catch (error: any) {
+
                 throw new GraphQLError(error, {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
             }
-               
+
         }
 
     }
