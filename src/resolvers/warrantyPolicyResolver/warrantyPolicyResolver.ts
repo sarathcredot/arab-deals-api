@@ -20,182 +20,182 @@ export const warrantyPolicyResolver: Resolvers = {
 
     Upload: GraphQLUpload,
 
-        Mutation: {
-            //to create  warranty policies by admin
-            createWarrantyPolicyBySuperAdmin: async (parent, { input }, { req }, info) => {
-                //   await verifySuperAdmin(req);
-                try {
-                    const name: string = input.name;
-                    const description: string | undefined | null = input?.description;
-                    const warrantyType: string[] = input.warrantyType ?? [];
-                    const duration = input.duration
-                    if (!name) {
-                        throw new GraphQLError("name is required", {
-                            extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
-                        });
-                    }
-                    
-                    const existingwarrantyPolicy = await warrantyPolicyModel.findOne({ name })
-                    if (existingwarrantyPolicy) {
-                        throw new GraphQLError("policy with this name already exists", {
-                            extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
-                        });
-                    }
-                    let newWarrantyPolicyData: warrantyPolicyService.IWarrantyPolicy = {
-                        name,
-                        description,
-                        warrantyType,
-                        duration,
-                        
-                    }
-                    console.log(" Creating  policy with data:", newWarrantyPolicyData);
-                    const newWarrantyPolicy = await warrantyPolicyService.createWarrantyPolicyBySuperAdmin(newWarrantyPolicyData)
-                    if (!newWarrantyPolicy) {
-                        console.log(" Failed to save warranty policy to DB");
-                        throw new GraphQLError("unable to create warranty policy", {
-                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to create warranty policy"] },
-                        });
-                    }
-                    return {
-                        success: true,
-                        message: "Warranty policy created succesfully",
-                    }
-                } catch (error: any) {
-                    console.error(" Error in createWarrantyPolicyBySuperAdmin resolver:", error);
-                    throw new GraphQLError(error, {
-                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+    Mutation: {
+        //to create  warranty policies by admin
+        createWarrantyPolicyBySuperAdmin: async (parent, { input }, { req }, info) => {
+            //   await verifySuperAdmin(req);
+            try {
+                const name: string = input.name;
+                const description: string | undefined | null = input?.description;
+                const warrantyType: string[] = input.warrantyType ?? [];
+                const duration = input.duration
+                if (!name) {
+                    throw new GraphQLError("name is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["name is required"] },
                     });
                 }
-            } ,
 
-            //to edit warranty policies by admin
-
-            updateWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
-                //   await verifySuperAdmin(req);
-                try {
-                    const warrantyPolicyId: Types.ObjectId = input?.warrantyPolicyId;
-                    const name: string | undefined | null = input?.name;
-                    const description: string | undefined | null = input?.description;
-                    const warrantyType = (input?.warrantyType) as string[];
-                    const duration: number | undefined | null = input?.duration;
-                   
-                    if (!warrantyPolicyId) {
-                        throw new GraphQLError("policy id is required", {
-                            extensions: { code: "BAD_REQUEST", errors: ["policy id is required"] },
-                        });
-                    }
-                    const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
-                    if (!existingPolicy) {
-                        throw new GraphQLError("policy not found", {
-                            extensions: { code: "BAD_REQUEST", errors: ["policy not found"] },
-                        });
-                    }
-                    let updatePolicyData: any = {}
-                    if (name) {
-                        updatePolicyData.name = name
-                    }
-                    if (description) {
-                        updatePolicyData.description = description
-                    }
-                    if (duration) {
-                        updatePolicyData.duration = duration
-                    }
-                    if (warrantyType) {
-                        updatePolicyData.warrantyType = warrantyType
-                    }
-                    const result = await warrantyPolicyService.updateWarrantyPolicyByAdmin(warrantyPolicyId, updatePolicyData)
-                    if (!result) {
-                        throw new GraphQLError("Unable to update policy", {
-                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Unable to update policy"] },
-                        });
-                    }
-                    return {
-                        success: true,
-                        message: "Warranty policy updated succesfully",
-                    }
-                } catch (error: any) {
-                    throw new GraphQLError(error, {
-                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-                    })
+                const existingwarrantyPolicy = await warrantyPolicyModel.findOne({ name })
+                if (existingwarrantyPolicy) {
+                    throw new GraphQLError("policy with this name already exists", {
+                        extensions: { code: "BAD_REQUEST", errors: ["policy with this name already exists!!Try another name"] },
+                    });
                 }
-            },
-            
-            //to delete warranty policies by admin
+                let newWarrantyPolicyData: warrantyPolicyService.IWarrantyPolicy = {
+                    name,
+                    description,
+                    warrantyType,
+                    duration,
 
-            deleteWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
-                //   await verifySuperAdmin(req);
-                try {
-                    const warrantyPolicyId: Types.ObjectId = input.warrantyPolicyId;
-                    if (!warrantyPolicyId) {
-                        throw new GraphQLError("Policy id is required", {
-                            extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
-                        });
-                    }
-                    const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
-                    if (!existingPolicy) {
-                        throw new GraphQLError("Warranty Policy not found", {
-                            extensions: { code: "BAD_REQUEST", errors: ["Warranty Policy not found"] },
-                        });
-                    }
-                    
-                    const result = await warrantyPolicyService.deleteWarrantyPolicyByAdmin(warrantyPolicyId)
-                    if (!result) {
-                        throw new GraphQLError("unable to delete warranty policy", {
-                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to delete warranty policy"] },
-                        });
-                    }
-                    return {
-                        success: true,
-                        message: "warranty policy deleted succesfully",
-                    }
-                } catch (error: any) {
-                    throw new GraphQLError(error, {
-                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-                    })
                 }
-            },
-
-
-            //to change status of warranty policy
-
-            updateStatusWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
-                //   await verifySuperAdmin(req);
-                try {
-                    const warrantyPolicyId: Types.ObjectId = input.warrantyPolicyId;
-                    const isEnable: boolean = input.isEnable
-                    if (!warrantyPolicyId) {
-                        throw new GraphQLError("Policy id is required", {
-                            extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
-                        });
-                    }
-                    const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
-                    if (!existingPolicy) {
-                        throw new GraphQLError("Warranty Policy not found", {
-                            extensions: { code: "BAD_REQUEST", errors: ["Warranty Policy not found"] },
-                        });
-                    }
-                    const result = await warrantyPolicyService.updateStatusWarrantyPolicyByAdmin(warrantyPolicyId, isEnable)
-                    if (!result) {
-                        throw new GraphQLError("unable to update warranty policy status", {
-                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to update warranty policy status"] },
-                        });
-                    }
-                    return {
-                        success: true,
-                        message: "Warranty policy status updated successfully"
-                    }
-                } catch (error: any) {
-                    throw new GraphQLError(error, {
-                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-                    })
+                console.log(" Creating  policy with data:", newWarrantyPolicyData);
+                const newWarrantyPolicy = await warrantyPolicyService.createWarrantyPolicyBySuperAdmin(newWarrantyPolicyData)
+                if (!newWarrantyPolicy) {
+                    console.log(" Failed to save warranty policy to DB");
+                    throw new GraphQLError("unable to create warranty policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to create warranty policy"] },
+                    });
                 }
+                return {
+                    success: true,
+                    message: "Warranty policy created succesfully",
+                }
+            } catch (error: any) {
+                console.error(" Error in createWarrantyPolicyBySuperAdmin resolver:", error);
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                });
             }
-           
+        },
+
+        //to edit warranty policies by admin
+
+        updateWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
+            //   await verifySuperAdmin(req);
+            try {
+                const warrantyPolicyId: Types.ObjectId = input?.warrantyPolicyId;
+                const name: string | undefined | null = input?.name;
+                const description: string | undefined | null = input?.description;
+                const warrantyType = (input?.warrantyType) as string[];
+                const duration: number | undefined | null = input?.duration;
+
+                if (!warrantyPolicyId) {
+                    throw new GraphQLError("policy id is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["policy id is required"] },
+                    });
+                }
+                const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
+                if (!existingPolicy) {
+                    throw new GraphQLError("policy not found", {
+                        extensions: { code: "BAD_REQUEST", errors: ["policy not found"] },
+                    });
+                }
+                let updatePolicyData: any = {}
+                if (name) {
+                    updatePolicyData.name = name
+                }
+                if (description) {
+                    updatePolicyData.description = description
+                }
+                if (duration) {
+                    updatePolicyData.duration = duration
+                }
+                if (warrantyType) {
+                    updatePolicyData.warrantyType = warrantyType
+                }
+                const result = await warrantyPolicyService.updateWarrantyPolicyByAdmin(warrantyPolicyId, updatePolicyData)
+                if (!result) {
+                    throw new GraphQLError("Unable to update policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["Unable to update policy"] },
+                    });
+                }
+                return {
+                    success: true,
+                    message: "Warranty policy updated succesfully",
+                }
+            } catch (error: any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        },
+
+        //to delete warranty policies by admin
+
+        deleteWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
+            //   await verifySuperAdmin(req);
+            try {
+                const warrantyPolicyId: Types.ObjectId = input.warrantyPolicyId;
+                if (!warrantyPolicyId) {
+                    throw new GraphQLError("Policy id is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
+                    });
+                }
+                const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
+                if (!existingPolicy) {
+                    throw new GraphQLError("Warranty Policy not found", {
+                        extensions: { code: "BAD_REQUEST", errors: ["Warranty Policy not found"] },
+                    });
+                }
+
+                const result = await warrantyPolicyService.deleteWarrantyPolicyByAdmin(warrantyPolicyId)
+                if (!result) {
+                    throw new GraphQLError("unable to delete warranty policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to delete warranty policy"] },
+                    });
+                }
+                return {
+                    success: true,
+                    message: "warranty policy deleted succesfully",
+                }
+            } catch (error: any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
         },
 
 
+        //to change status of warranty policy
 
-        Query: {
+        updateStatusWarrantyPolicyByAdmin: async (parent, { input }, { req }, info) => {
+            //   await verifySuperAdmin(req);
+            try {
+                const warrantyPolicyId: Types.ObjectId = input.warrantyPolicyId;
+                const isEnable: boolean = input.isEnable
+                if (!warrantyPolicyId) {
+                    throw new GraphQLError("Policy id is required", {
+                        extensions: { code: "BAD_REQUEST", errors: ["Policy id is required"] },
+                    });
+                }
+                const existingPolicy = await warrantyPolicyModel.findById(warrantyPolicyId)
+                if (!existingPolicy) {
+                    throw new GraphQLError("Warranty Policy not found", {
+                        extensions: { code: "BAD_REQUEST", errors: ["Warranty Policy not found"] },
+                    });
+                }
+                const result = await warrantyPolicyService.updateStatusWarrantyPolicyByAdmin(warrantyPolicyId, isEnable)
+                if (!result) {
+                    throw new GraphQLError("unable to update warranty policy status", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to update warranty policy status"] },
+                    });
+                }
+                return {
+                    success: true,
+                    message: "Warranty policy status updated successfully"
+                }
+            } catch (error: any) {
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        }
+
+    },
+
+
+
+    Query: {
 
 
         //to get all warranty policies by admin
@@ -304,32 +304,32 @@ export const warrantyPolicyResolver: Resolvers = {
 
         getWarrantyPolicyOfOrderProduct: async (parent, { input }, { req }, info) => {
             try {
-                const orderProductId=input.orderProductId
-                if(!orderProductId){
+                const orderProductId = input.orderProductId
+                if (!orderProductId) {
                     throw new GraphQLError("orderProductId is required", {
                         extensions: { code: "BAD_REQUEST", errors: ["orderProductId is required"] },
                     });
                 }
-               
-               const result=await warrantyPolicyService.getWarrantyPolicyOfOrderProduct(orderProductId)
-               if(!result){
-                throw new GraphQLError("unable to fetch warranty policy", {
-                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty policy"] },
-                });
-               }
 
-               console.log("result",result)
+                const result = await warrantyPolicyService.getWarrantyPolicyOfOrderProduct(orderProductId)
+                if (!result) {
+                    throw new GraphQLError("unable to fetch warranty policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty policy"] },
+                    });
+                }
 
-               return {
-                _id:result._id,
-                name:result.warranty.name,
-                description:result.warranty.description,
-                duration:result.warranty.duration,
-                warrantyType:result.warranty.warrantyType,
-                warrantyRegister:result.warranty.warrantyRegister
-               }
-                
-            }catch (error: any) {
+                console.log("result", result)
+
+                return {
+                    _id: result._id,
+                    name: result.warranty.name,
+                    description: result.warranty.description,
+                    duration: result.warranty.duration,
+                    warrantyType: result.warranty.warrantyType,
+                    warrantyRegister: result.warranty.warrantyRegister
+                }
+
+            } catch (error: any) {
                 throw new GraphQLError(error, {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
@@ -338,39 +338,56 @@ export const warrantyPolicyResolver: Resolvers = {
 
         getWarrantyPolicyOfOrderProductInMobile: async (parent, { input }, { req }, info) => {
             try {
-                const orderProductId=input.orderProductId
-                if(!orderProductId){
+                const orderProductId = input.orderProductId
+                if (!orderProductId) {
                     throw new GraphQLError("orderProductId is required", {
                         extensions: { code: "BAD_REQUEST", errors: ["orderProductId is required"] },
                     });
                 }
-               
-               const result=await warrantyPolicyService.getWarrantyPolicyOfOrderProduct(orderProductId)
-               if(!result){
-                throw new GraphQLError("unable to fetch warranty policy", {
-                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty policy"] },
-                });
-               }
 
-               console.log("result",result)
+                const result = await warrantyPolicyService.getWarrantyPolicyOfOrderProduct(orderProductId)
+                if (!result) {
+                    throw new GraphQLError("unable to fetch warranty policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch warranty policy"] },
+                    });
+                }
 
-               return {
-                _id:result._id,
-                name:result.warranty.name,
-                description:result.warranty.description,
-                duration:result.warranty.duration,
-                warrantyType:result.warranty.warrantyType,
-                warrantyRegister:result.warranty.warrantyRegister
-               }
-                
-            }catch (error: any) {
+                console.log("result", result)
+
+                return {
+                    _id: result._id,
+                    name: result.warranty.name,
+                    description: result.warranty.description,
+                    duration: result.warranty.duration,
+                    warrantyType: result.warranty.warrantyType,
+                    warrantyRegister: result.warranty.warrantyRegister
+                }
+
+            } catch (error: any) {
                 throw new GraphQLError(error, {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
             }
         },
 
+        getDefaultWarrantyPolicyVariantCreate: async (parent, { input }, { req }, info) => {
 
-       }
+            try {
+
+
+
+                const result = warrantyPolicyService.getDefaultWarrantyPolicyVariantCreate(input.productCode)
+                return result
+
+            } catch (error: any) {
+
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+        }
+
+
+    }
 
 }

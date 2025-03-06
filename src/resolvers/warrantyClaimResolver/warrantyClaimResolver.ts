@@ -497,6 +497,23 @@ export const warrantyClaimResolver: Resolvers = {
                 });
 
             }
+        },
+
+        getOrderProductWarrantyClaim:async(parent, { input }, { req }, info)=>{
+               
+            try {
+
+                const result = await warrantyClaimService.getOrderProductWarrantyClaim(input?.orderProductId)
+
+                return result;
+                
+            } catch (error:any) {
+                
+                throw new GraphQLError(error, {
+                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                })
+            }
+               
         }
 
     }

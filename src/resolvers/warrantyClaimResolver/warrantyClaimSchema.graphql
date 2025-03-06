@@ -19,7 +19,21 @@ type Query {
     getAllClaimRequestsByAdmin(input:getAllClaimRequestsByAdminInput):getAllClaimRequestsByAdminResponse
     getClaimRequestDetailsByAdmin(input:getClaimRequestDetailsByAdminInput!):getClaimRequestDetailsByAdminResponse
     getWarrantyActivityLogByAdmin(input:getWarrantyActivityLogByAdminInput!):[getWarrantyActivityLogByAdminResponse]
+    getOrderProductWarrantyClaim(input:getOrderProductWarrantyClaimInput):getOrderProductWarrantyClaimResponse
 }
+
+input getOrderProductWarrantyClaimInput{
+
+     orderProductId:ObjectId
+}
+
+type getOrderProductWarrantyClaimResponse{
+
+    _id:ObjectId,
+    claimStatus:String
+}
+
+
 
 
  input getWarrantyActivityLogByAdminInput{
