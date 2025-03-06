@@ -842,7 +842,7 @@ export const deliveryAgentResolver: Resolvers = {
           performedByRole: "DELIVERYAGENT",
           referenceId: orderProductId,
           referenceType: "ORDER_PRODUCTS",
-          details: `${agent?.fullName} postponed return of Order  ${result?.itemId}. `,
+          details: `${agent?.fullName} (Delivery Agent) postponed the return process for Order Product ID: ${result?.itemId}. The return will be rescheduled for a later date.`,
         });
 
         await deliveryAgentModel.findByIdAndUpdate({ _id:agentId }, {
