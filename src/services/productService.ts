@@ -596,19 +596,43 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
     }
 
 
+    // if (options.query) {
+    //     let query = options.query || '';
+    //     query = query.trim();
+    //     pipeline.push(
+    //         { $match: { $text: { $search: query } } },
+    //         {
+    //             $addFields: {
+    //                 score: { $meta: "textScore" }
+    //             }
+    //         }
+    //     );
+    //     sort = { score: -1 }
+    // }
+
     if (options.query) {
-        let query = options.query || '';
-        query = query.trim();
-        pipeline.push(
-            { $match: { $text: { $search: query } } },
-            {
-                $addFields: {
-                    score: { $meta: "textScore" }
-                }
+        let query = options.query.trim();
+
+        pipeline.push({
+            $match: {
+                $or: [
+                    { $text: { $search: query } },
+                    { code: { $regex: query, $options: "i" } }
+                ]
             }
-        );
-        sort = { score: -1 }
+        });
+
+        pipeline.push({
+            $addFields: {
+                score: { $meta: "textScore" }
+            }
+        });
+
+        sort = { score: -1 };
     }
+
+
+
 
     if (options.minPrice) {
         pipeline.push({
@@ -2073,98 +2097,98 @@ export const getProductReturnPolicy = async (id: Types.ObjectId): Promise<any> =
 
 export const getActivityLogOfProduct = async (productId: Types.ObjectId) => {
     return await activityLogModel.aggregate([
-      {
-        $match: { referenceId: productId }
-      },
-      { $sort: { createdAt: 1 } }, 
-      {
-        $facet: {
-          admins: [
-            { $match: { performedByRole: "ADMINS" } },
-            {
-              $lookup: {
-                from: collections.ADMINS,
-                localField: "performedBy",
-                foreignField: "_id",
-                as: "performedByDetails",
-                pipeline: [
-                  {
-                    $project: {
-                      _id: 1,
-                      name: "$fullName" 
+        {
+            $match: { referenceId: productId }
+        },
+        { $sort: { createdAt: 1 } },
+        {
+            $facet: {
+                admins: [
+                    { $match: { performedByRole: "ADMINS" } },
+                    {
+                        $lookup: {
+                            from: collections.ADMINS,
+                            localField: "performedBy",
+                            foreignField: "_id",
+                            as: "performedByDetails",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        name: "$fullName"
+                                    }
+                                }
+                            ]
+                        }
                     }
-                  }
-                ]
-              }
-            }
-          ],
-          users: [
-            { $match: { performedByRole: "USERS" } },
-            {
-              $lookup: {
-                from: collections.USERS,
-                localField: "performedBy",
-                foreignField: "_id",
-                as: "performedByDetails",
-                pipeline: [
-                  {
-                    $project: {
-                      _id: 1,
-                      name: "$displayName" 
+                ],
+                users: [
+                    { $match: { performedByRole: "USERS" } },
+                    {
+                        $lookup: {
+                            from: collections.USERS,
+                            localField: "performedBy",
+                            foreignField: "_id",
+                            as: "performedByDetails",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        name: "$displayName"
+                                    }
+                                }
+                            ]
+                        }
                     }
-                  }
-                ]
-              }
-            }
-          ],
-          vendors: [
-            { $match: { performedByRole: "VENDORS" } },
-            {
-              $lookup: {
-                from: collections.VENDORS,
-                localField: "performedBy",
-                foreignField: "_id",
-                as: "performedByDetails",
-                pipeline: [
-                  {
-                    $project: {
-                      _id: 1,
-                      name: "$fullName" 
+                ],
+                vendors: [
+                    { $match: { performedByRole: "VENDORS" } },
+                    {
+                        $lookup: {
+                            from: collections.VENDORS,
+                            localField: "performedBy",
+                            foreignField: "_id",
+                            as: "performedByDetails",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        name: "$fullName"
+                                    }
+                                }
+                            ]
+                        }
                     }
-                  }
-                ]
-              }
-            }
-          ],
-          deliveryAgents: [
-            { $match: { performedByRole: "DELIVERYAGENT" } },
-            {
-              $lookup: {
-                from: collections.DELIVERYAGENT,
-                localField: "performedBy",
-                foreignField: "_id",
-                as: "performedByDetails",
-                pipeline: [
-                  {
-                    $project: {
-                      _id: 1,
-                      name: "$fullName" 
+                ],
+                deliveryAgents: [
+                    { $match: { performedByRole: "DELIVERYAGENT" } },
+                    {
+                        $lookup: {
+                            from: collections.DELIVERYAGENT,
+                            localField: "performedBy",
+                            foreignField: "_id",
+                            as: "performedByDetails",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        _id: 1,
+                                        name: "$fullName"
+                                    }
+                                }
+                            ]
+                        }
                     }
-                  }
                 ]
-              }
             }
-          ]
-        }
-      },
-      {
-        $project: {
-          mergedResults: {
-            $concatArrays: ["$admins", "$users", "$vendors", "$deliveryAgents"]
-          }
-        }
-      },
-      { $unwind: "$mergedResults" },
-      { $replaceRoot: { newRoot: "$mergedResults" } },
+        },
+        {
+            $project: {
+                mergedResults: {
+                    $concatArrays: ["$admins", "$users", "$vendors", "$deliveryAgents"]
+                }
+            }
+        },
+        { $unwind: "$mergedResults" },
+        { $replaceRoot: { newRoot: "$mergedResults" } },
     ]);
-  };
+};

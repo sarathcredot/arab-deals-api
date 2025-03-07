@@ -263,7 +263,7 @@ export const getAllCoupenToAdmin = (data: { page: number, size: number, search: 
 
       if (data.search) {
 
-        matchObj.code = data.search
+        matchObj.code = { $regex: data.search, $options: "i" }
       }
 
       if (data.expiryDate) {

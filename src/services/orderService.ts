@@ -126,10 +126,17 @@ export const getAdminOrdersWithFilters = async (
       },
     });
   }
+  // if (options.orderId) {
+  //   pipeline.push({
+  //     $match: {
+  //       orderId: options.orderId,
+  //     },
+  //   });
+  // }
   if (options.orderId) {
     pipeline.push({
       $match: {
-        orderId: options.orderId,
+        orderId: { $regex: options.orderId, $options: "i" },
       },
     });
   }

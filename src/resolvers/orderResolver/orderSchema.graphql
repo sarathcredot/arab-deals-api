@@ -528,6 +528,7 @@ type UserOrderProduct {
   invoiceNumber: String
   invoice: FileData
   warranty:WarrantyTypeUserOrders
+  warrantyClaimStatus:String
   
 }
 
