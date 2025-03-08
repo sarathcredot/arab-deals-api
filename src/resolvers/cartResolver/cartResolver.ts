@@ -66,18 +66,35 @@ export const cartResolver: Resolvers = {
                         await cartService.editQuantityOfItem(productId, userId, quantity);
                     }
                     else {
+
+
+
                         await cartService.addItem(productId, userId, quantity);
 
                     }
 
-                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null,appliedProducts:null}, { new: true });
+                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false, discount: 0, appliedCoupon: null, appliedProducts: null }, { new: true });
 
                 } else {
                     try {
-                        const shippingCharge = shippingConfig?.shippingCharge || 0; 
+                        const shippingChargeconfig = shippingConfig?.shippingCharge || 0;
+                        const freeShippingThreshold=shippingConfig?.freeShippingThreshold || 0
+                        let shippingCharge = 0
                         const subTotal = product.sellingPrice * quantity;
-                        const grandTotal = subTotal + shippingCharge;
-                        await cartService.createCart(input.productId, userId, quantity,shippingCharge,grandTotal,subTotal);
+                        let grandTotal = 0
+
+                        if (subTotal <= freeShippingThreshold) {
+
+                            grandTotal = subTotal + shippingChargeconfig
+                            shippingCharge = shippingChargeconfig
+                            console.log("add shiping")
+                        } else {
+
+                            grandTotal = subTotal
+                            console.log(" no shiping")
+                        }
+
+                        await cartService.createCart(input.productId, userId, quantity, shippingCharge, grandTotal, subTotal);
                     } catch (error) {
                         console.log(error);
                     }
@@ -151,13 +168,13 @@ export const cartResolver: Resolvers = {
                         await cartService.addItem(productId, userId, quantity);
                     }
 
-                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null,appliedProducts:null}, { new: true });
+                    await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false, discount: 0, appliedCoupon: null, appliedProducts: null }, { new: true });
                 } else {
                     try {
-                        const shippingCharge = shippingConfig?.shippingCharge || 0; 
+                        const shippingCharge = shippingConfig?.shippingCharge || 0;
                         const subTotal = product.sellingPrice * quantity;
                         const grandTotal = subTotal + shippingCharge;
-                        await cartService.createCart(input.productId, userId, quantity,shippingCharge,grandTotal,subTotal);
+                        await cartService.createCart(input.productId, userId, quantity, shippingCharge, grandTotal, subTotal);
                     } catch (error) {
                         console.log(error);
                     }
@@ -315,7 +332,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null ,appliedProducts:null}, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false, discount: 0, appliedCoupon: null, appliedProducts: null }, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -381,7 +398,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0 ,appliedCoupon:null,appliedProducts:null}, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false, discount: 0, appliedCoupon: null, appliedProducts: null }, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -455,7 +472,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null,appliedProducts:null}, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false, discount: 0, appliedCoupon: null, appliedProducts: null }, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -525,7 +542,7 @@ export const cartResolver: Resolvers = {
                         } catch (error) {
                             console.log(error);
                         }
-                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false,discount:0,appliedCoupon:null,appliedProducts:null}, { new: true });
+                        await cartModel.findByIdAndUpdate(cart._id, { isCouponApplied: false, discount: 0, appliedCoupon: null, appliedProducts: null }, { new: true });
                     }
                     else {
                         throw new GraphQLError("Product does not exist in cart", {
@@ -606,10 +623,10 @@ export const cartResolver: Resolvers = {
                     await Promise.all(updateList);
                 }
 
-                
-                const userCart=await cartService.findUserCart(userId)
 
-                console.log("Usercart",userCart)
+                const userCart = await cartService.findUserCart(userId)
+
+                console.log("Usercart", userCart)
 
                 let subTotal = userCart?.subTotal || 0;
                 let grandTotal = userCart?.grandTotal || 0;
@@ -618,11 +635,11 @@ export const cartResolver: Resolvers = {
                 let isCouponApplied = userCart?.isCouponApplied || false;
                 let appliedCoupon = userCart?.appliedCoupon || null;
                 let appliedProducts = userCart?.appliedProducts || null;
-                let code:string | undefined="";
+                let code: string | undefined = "";
 
-                if(userCart?.isCouponApplied){
-                    const coupon=await couponsModel.findOne({_id:userCart?.appliedCoupon})
-                    code=coupon?.code
+                if (userCart?.isCouponApplied) {
+                    const coupon = await couponsModel.findOne({ _id: userCart?.appliedCoupon })
+                    code = coupon?.code
                 }
 
 
@@ -699,7 +716,7 @@ export const cartResolver: Resolvers = {
 
                     await Promise.all(updateList);
                 }
-                const userCart=await cartService.findUserCart(userId)
+                const userCart = await cartService.findUserCart(userId)
 
                 let subTotal = userCart?.subTotal || 0;
                 let grandTotal = userCart?.grandTotal || 0;
@@ -708,10 +725,10 @@ export const cartResolver: Resolvers = {
                 let isCouponApplied = userCart?.isCouponApplied || false;
                 let appliedCoupon = userCart?.coupon?._id || null;
                 let appliedProducts = userCart?.appliedProducts || null;
-                let code=userCart?.coupon?.code || null
-                
+                let code = userCart?.coupon?.code || null
 
-               
+
+
 
                 // if (subTotal >= shippingConfig.freeShippingThreshold!) {
                 //     deliveryCharge = 0;
@@ -734,7 +751,7 @@ export const cartResolver: Resolvers = {
                     code
                 }
 
-                console.log("response",response)
+                console.log("response", response)
                 return response
             } catch (error) {
                 console.log(error);

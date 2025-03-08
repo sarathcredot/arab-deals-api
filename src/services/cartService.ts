@@ -56,27 +56,56 @@ export interface ICartProduct {
     skuId: string;
     warehouseSkuId: string;
     sellingPrice: number;
-    mrp: number; 
-    returnPolicy:Types.ObjectId;
-    brandId:Types.ObjectId;
-    categoryId:Types.ObjectId;
-    categoryIdPath:string;
+    mrp: number;
+    returnPolicy: Types.ObjectId;
+    brandId: Types.ObjectId;
+    categoryId: Types.ObjectId;
+    categoryIdPath: string;
 }
 
 
 export const updateCartTotals = async (userId: Types.ObjectId): Promise<any> => {
     const cart = await cartModel.findOne({ userId }).populate('products.productId');
-     const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+    const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+    const freeShippingThreshold = shippingConfig?.freeShippingThreshold || 0
 
     if (cart) {
         const subTotal = cart.products.reduce((total, item) => {
-            const product = item.productId as { sellingPrice: number }; 
+            const product = item.productId as { sellingPrice: number };
             const price = product.sellingPrice || 0;
             return total + price * item.quantity;
         }, 0);
 
-        const shippingCharge = shippingConfig?.shippingCharge || 0;
-        const grandTotal = subTotal + shippingCharge;
+        const shippingChargeConfig = shippingConfig?.shippingCharge || 0;
+        let shippingCharge = 0
+        let grandTotal = 0
+
+        if (subTotal !== 0) {
+
+            if (subTotal <= freeShippingThreshold) {
+
+                grandTotal = subTotal + shippingChargeConfig
+                shippingCharge = shippingChargeConfig
+
+                console.log("add shiping charg2")
+                console.log("sub", subTotal)
+                console.log("shipping", shippingChargeConfig)
+
+            } else {
+
+                grandTotal = subTotal
+
+                console.log("no shipping2")
+                console.log("sub", subTotal)
+                console.log("shipping", shippingChargeConfig)
+
+            }
+
+
+        }
+
+
+
 
         cart.subTotal = subTotal;
         cart.shippingCharge = shippingCharge;
@@ -90,7 +119,7 @@ export const updateCartTotals = async (userId: Types.ObjectId): Promise<any> => 
 
 
 
-export const createCart = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number,shippingCharge?:number,grandTotal?:number,subTotal?:number): Promise<any> => {
+export const createCart = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number, shippingCharge?: number, grandTotal?: number, subTotal?: number): Promise<any> => {
     return await cartModel.create({
         userId: userId,
         products: [
@@ -99,9 +128,9 @@ export const createCart = async (productId: Types.ObjectId, userId: Types.Object
                 quantity: quantity,
             },
         ],
-        shippingCharge:shippingCharge,
-        grandTotal:grandTotal,
-        subTotal:subTotal
+        shippingCharge: shippingCharge,
+        grandTotal: grandTotal,
+        subTotal: subTotal
     });
 }
 
@@ -124,7 +153,7 @@ export const editQuantityOfItem = async (productId: Types.ObjectId, userId: Type
     return await updateCartTotals(userId);
 }
 export const removeItem = async (productId: Types.ObjectId, userId: Types.ObjectId): Promise<any> => {
-     await cartModel.findOneAndUpdate(
+    await cartModel.findOneAndUpdate(
         { userId: userId },
         { $pull: { products: { productId: productId } } },
         { new: true }
@@ -141,7 +170,7 @@ export const updateQuantity = async (productId: Types.ObjectId, userId: Types.Ob
     return await updateCartTotals(userId);
 }
 export const addItem = async (productId: Types.ObjectId, userId: Types.ObjectId, quantity: number): Promise<any> => {
-   await cartModel.findOneAndUpdate(
+    await cartModel.findOneAndUpdate(
         { userId: userId },
         {
             $push: {
@@ -156,6 +185,8 @@ export const addItem = async (productId: Types.ObjectId, userId: Types.ObjectId,
 
     return await updateCartTotals(userId);
 }
+
+
 
 export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> => {
     let pipeline: any = []
@@ -243,17 +274,17 @@ export const getCart = async (userId: Types.ObjectId): Promise<ICartProduct[]> =
 
 
 export const findUserCart = async (userId: Types.ObjectId): Promise<any> => {
-   const result=await cartModel.aggregate(
-    [
-        {
-          $match: {
-            userId:userId
-          }
-        },
-      ]
-   )
-   console.log(result)
-   return result[0]
+    const result = await cartModel.aggregate(
+        [
+            {
+                $match: {
+                    userId: userId
+                }
+            },
+        ]
+    )
+    console.log(result)
+    return result[0]
 }
 
 
@@ -305,10 +336,10 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                             shortDescription: 1,
                             sellingPrice: 1,
                             mrp: 1,
-                            returnPolicy:1,
-                            brandId:1,
-                            categoryId:1,
-                            categoryIdPath:1,
+                            returnPolicy: 1,
+                            brandId: 1,
+                            categoryId: 1,
+                            categoryIdPath: 1,
                         }
                     }
                 ],
@@ -339,10 +370,10 @@ export const getOrderCart = async (userId: Types.ObjectId): Promise<ICartProduct
                 shortDescription: "$productData.shortDescription",
                 sellingPrice: "$productData.sellingPrice",
                 mrp: "$productData.mrp",
-                returnPolicy:"$productData.returnPolicy",
-                brandId:"$productData.brandId",
-                categoryId:"$productData.categoryId",
-                categoryIdPath:"$productData.categoryIdPath",
+                returnPolicy: "$productData.returnPolicy",
+                brandId: "$productData.brandId",
+                categoryId: "$productData.categoryId",
+                categoryIdPath: "$productData.categoryIdPath",
             }
         }
 
