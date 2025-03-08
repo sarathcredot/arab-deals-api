@@ -260,7 +260,7 @@ export interface IProductSuggestion {
 }
 
 export interface ProductStock {
-    _id: Types.ObjectId;
+    _id: Types.ObjectId | undefined;
     quantity: number;
 }
 
@@ -610,7 +610,7 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
     //     sort = { score: -1 }
     // }
 
-    
+
 
 
     if (options.query) {
@@ -1576,6 +1576,11 @@ export const decreaseProductsStock = async (products: ProductStock[]): Promise<v
 }
 
 export const increaseProductsStock = async (products: ProductStock[]): Promise<void> => {
+
+    console.log("cancel time pro stock update", products)
+    const foundProduct = await productModel.findById(products[0]?._id);
+    console.log("Found product:", foundProduct);
+
     let writes: any[] = [];
 
     for (let product of products) {
@@ -1592,6 +1597,7 @@ export const increaseProductsStock = async (products: ProductStock[]): Promise<v
     }
 
     const result = await productModel.bulkWrite(writes);
+    console.log(result)
 }
 
 

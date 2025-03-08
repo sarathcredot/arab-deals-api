@@ -5,7 +5,7 @@ import { orderProductModel, deliveryAgentConfigModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs, otpService, dashboardService, activityLogService } from "../services"
+import { transactionlogs, otpService, dashboardService, activityLogService ,productService} from "../services"
 import { startOfDay, endOfDay } from "date-fns"
 
 
@@ -2945,6 +2945,17 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
             'wallet.numberOfPendingOrdes': -1
           }
         })
+
+        // update this product stock 
+
+        let product = [
+          {
+            _id: otpData?.productId,
+            quantity: 1,
+          },
+        ];
+
+        await productService.increaseProductsStock(product)
 
         if (data.deliveryStatus === "CANCELED") {
           await activityLogService.createActivityLog({

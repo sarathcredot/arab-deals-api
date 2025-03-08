@@ -1306,7 +1306,7 @@ export const orderResolver: Resolvers = {
           msg: "OTP verified and status updated"
         }
 
-      } catch (error:any) {
+      } catch (error: any) {
 
         throw new GraphQLError(error, {
           extensions: {
@@ -1326,7 +1326,7 @@ export const orderResolver: Resolvers = {
 
 
     //API for return request from user
-returnUserOrderProduct: async (parent, { input, image }, { req, io }, info) => {
+    returnUserOrderProduct: async (parent, { input, image }, { req, io }, info) => {
       //add product image and return address
       // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
@@ -1822,10 +1822,12 @@ returnUserOrderProduct: async (parent, { input, image }, { req, io }, info) => {
       try {
         let product = [
           {
-            _id: _id,
+            _id: orderProduct?.productId,
             quantity: 1,
           },
         ];
+
+        console.log("update stock")
 
         await productService.increaseProductsStock(product);
       } catch (error) {
