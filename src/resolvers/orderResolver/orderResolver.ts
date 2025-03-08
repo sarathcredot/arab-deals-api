@@ -1043,7 +1043,7 @@ export const orderResolver: Resolvers = {
         const result = await orderProductModel.findById(_id)
         let product = [
           {
-            _id: result?._id,
+            _id: result?.productId,
             quantity: 1,
           },
         ];
