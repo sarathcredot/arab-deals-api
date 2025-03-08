@@ -3386,6 +3386,142 @@ export const claimOtpVerification = async (data: {
   }
 };
 
+
+export const claimOtpVerificationAdmin = async (data: {
+  claimRequestId: Types.ObjectId,
+  code: string,
+  claimStatus?: string,
+  remarks?: string,
+  agentId: Types.ObjectId
+}): Promise<any> => {
+  try {
+    // Find OTP data for claim verification
+    const otpData = await warrantyClaimModel.findOne({
+      _id: data.claimRequestId,
+      'otp.code': data.code
+    });
+
+    if (!otpData) {
+      throw new Error('Invalid OTP');
+    }
+
+    // Validate OTP expiration
+    const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
+    if (isExpired) {
+      throw new Error('Expired OTP');
+    }
+
+    // Verify the delivery agent
+    const agent = await deliveryAgentModel.findOne({ _id: data.agentId });
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+
+    const updateFields: any = {
+      'otp.code': '',
+      'otp.expiresAt': '',
+    };
+    const warrantyCallData = await warrantyClaimModel.findById({ _id: data.claimRequestId })
+
+
+    if (data.claimStatus) {
+      if (data.claimStatus === 'REJECTED') {
+        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        updateFields.claimStatus = 'REJECTED';
+        updateFields.rejectedDate = new Date();
+        if (data.remarks) {
+          updateFields.rejectedReason = data.remarks;
+        }
+
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "ADMINS",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: ` ${agent?.fullName} (Delivery Agent) rejected the warranty claim request ${warrantyCallData?.warrantyId} . The claim has been declined, and the customer has been notified.
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
+
+      }
+
+
+
+      else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
+        agent.wallet.numberOfWarrantyCallDelivered += 1;
+        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
+        updateFields.replacementCompletedDate = new Date();
+        if (data.remarks) {
+          updateFields.replacementReason = data.remarks;
+        }
+
+        // find product by update replaced product stock count
+
+        const orderProduct = await orderProductModel.findById({ _id: warrantyCallData?.product })
+        await productModel.findByIdAndUpdate({ _id: orderProduct?.productId }, {
+
+          $inc: {
+            stock: -1
+          }
+        })
+
+        // const orderData=await warrantyClaimModel.
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "ADMINS",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: `${agent?.fullName} (Delivery Agent) successfully delivered the replacement product and collected the defective product from the customer for warranty ${warrantyCallData?.warrantyId} .
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
+      }
+      else {
+        throw new Error('Invalid claim status');
+      }
+
+      // Update warranty claim status in DB
+      await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
+
+      // Save agent updates
+      await agent.save();
+
+
+
+      return { flag: true, message: 'Claim status updated successfully' };
+    }
+
+    return { flag: false, message: 'No claim status provided' };
+  } catch (error: any) {
+    throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+  }
+};
+
+
+
+
+
 export const getActivityLogOfAgent = async (agentId: Types.ObjectId, matchObj: any): Promise<any> => {
   return await activityLogModel.aggregate([
     {

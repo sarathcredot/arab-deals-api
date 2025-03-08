@@ -13,6 +13,8 @@ type Mutation {
 
 
    updateClaimStatusByAdmin(input:updateClaimStatusByAdminInput!):updateClaimStatusByAdminResponse
+   updateClaimStatusByAdminAgentStatus(input:updateClaimStatusByAdminAgentStatusInput!):updateClaimStatusByAdminAgentStatusResponse
+   claimOtpVerificationByAdminAGentStatus(input:claimOtpVerificationByAdminAGentStatusInput):claimOtpVerificationByAdminAGentStatusResponse
 }
 
 type Query {
@@ -21,6 +23,50 @@ type Query {
     getWarrantyActivityLogByAdmin(input:getWarrantyActivityLogByAdminInput!):[getWarrantyActivityLogByAdminResponse]
     getOrderProductWarrantyClaim(input:getOrderProductWarrantyClaimInput):getOrderProductWarrantyClaimResponse
 }
+
+
+
+input claimOtpVerificationByAdminAGentStatusInput{
+
+      claimRequestId: ObjectId!
+    code: String!
+    claimStatus: String
+    remarks: String
+    agentId:ObjectId
+    
+}
+
+type claimOtpVerificationByAdminAGentStatusResponse{
+
+       status: Boolean
+   msg: String
+}
+
+
+type updateClaimStatusByAdminAgentStatusResponse{
+
+       status: Boolean
+    otp: Boolean
+    msg: String
+}
+
+
+
+
+input updateClaimStatusByAdminAgentStatusInput{
+
+     claimRequestId:ObjectId!
+   claimStatus:String!
+   remarks:String
+   agentId:ObjectId
+}
+
+type getOrderProductWarrantyClaimResponse{
+
+      _id: ObjectId
+  claimStatus: String
+}
+
 
 input getOrderProductWarrantyClaimInput{
 
