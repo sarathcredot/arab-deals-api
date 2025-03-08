@@ -610,6 +610,9 @@ export const getProductsByAdminWithFilters = async (options: IProductsOptions): 
     //     sort = { score: -1 }
     // }
 
+    
+
+
     if (options.query) {
         let query = options.query.trim();
 

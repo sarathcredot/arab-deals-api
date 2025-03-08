@@ -32,6 +32,46 @@ type Mutation {
   cancelUserOrderProductInMobile(
     input: CancelUserOrderProductInMobileInput!
   ): CancelUserOrderProductInMobileResponse!
+
+  updateAdminOrderProductOtpSent(input:updateAdminOrderProductOtpSentInput):updateAdminOrderProductOtpSentResponse
+  deliveryStatusOtpVerifyAdmin(input:deliveryStatusOtpVerifyAdminInput):deliveryStatusOtpVerifyAdminResponse
+}
+
+
+type deliveryStatusOtpVerifyAdminResponse{
+
+
+      status:Boolean
+      msg:String
+
+}
+
+input deliveryStatusOtpVerifyAdminInput{
+        
+        agentId:ObjectId!
+        orderItemId:ObjectId!
+        code:String
+        returnStatus:String
+        returnRemark:String
+        deliveryStatus:String
+        paymentMode:String
+        remarks:String
+}
+
+
+input updateAdminOrderProductOtpSentInput{
+
+      orderId:ObjectId!
+}
+
+type updateAdminOrderProductOtpSentResponse{
+ 
+    status:Boolean
+    otp:Boolean
+    msg:String
+
+
+      
 }
 
 # Create Order Input
