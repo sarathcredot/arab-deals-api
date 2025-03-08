@@ -1312,7 +1312,7 @@ export const orderResolver: Resolvers = {
           remarks: input?.remarks || undefined
         };
 
-        await deliveryAgentService.deliveryTimeOtpverify(options)
+        await deliveryAgentService.deliveryTimeOtpverifyAdmin(options)
 
         return {
           status: true,

@@ -730,6 +730,8 @@ type DeliveryAgentResponse{
   totalItems:Float
   currentPage: Float
   totalPages: Float
+  countryCode:Int
+
 }
 
 type SettlementResponse{

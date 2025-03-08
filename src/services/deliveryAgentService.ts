@@ -1,11 +1,11 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
 import { activityLogModel, adminModel, deliveryAgentModel, settlementModel, warrantyClaimModel } from '../models'
-import { orderProductModel, deliveryAgentConfigModel } from '../models'
+import { orderProductModel, deliveryAgentConfigModel, productModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs, otpService, dashboardService, activityLogService ,productService} from "../services"
+import { transactionlogs, otpService, dashboardService, activityLogService, productService } from "../services"
 import { startOfDay, endOfDay } from "date-fns"
 
 
@@ -22,7 +22,7 @@ export interface IDeliveryAgent {
   _id?: Types.ObjectId;
   fullName: string;
   contactNumber: string;
-  countryCode:string;
+  countryCode: string;
   userID: string;
   password: string;
   agentType: string;
@@ -2982,6 +2982,236 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 };
 
 
+
+export const deliveryTimeOtpverifyAdmin = async (data: { orderItemId: Types.ObjectId, code: string, deliveryStatus?: string, paymentMode?: string, remarks?: string, returnStatus?: string, returnRemark?: string, agentId: Types.ObjectId }): Promise<any> => {
+  try {
+    // Fetch OTP data from the orderProduct collection
+    const otpData = await orderProductModel.findOne({ _id: data.orderItemId, 'otp.code': data.code });
+    // Check if the OTP data exists
+    if (!otpData) {
+      throw new Error('Invalid OTP');
+    }
+    // Validate OTP expiration
+    const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
+    if (isExpired) {
+      throw new Error('Expired OTP');
+    }
+    const agent = await deliveryAgentModel.findOne({ _id: data.agentId })
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+    const result: any = {};
+    if (data.returnStatus) {
+
+
+      if (data.returnStatus === 'REJECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "RETURN PICKUP REJECTED",
+          performedBy: data.agentId,
+          performedByRole: "ADMINS",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} (Delivery Agent) rejected the return pickup for order ${otpData?.itemId} due to an issue . The admin has been notified to review the case `,
+        });
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+          $inc: {
+            'wallet.numberOfPendingReturns': -1
+          }
+        })
+        result.returnStatus = data.returnStatus;
+        result.returnRejectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+        }
+        // Resolve with a success response
+        return { flag: true };
+      }
+      if (data.returnStatus === 'COLLECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "RETURN COLLECTED",
+          performedBy: data.agentId,
+          performedByRole: "ADMINS",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} (Delivery Agent) successfully collected the returned item for order ${otpData?.itemId}. The package is now being sent back to the warehouse.`,
+        });
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+          $inc: {
+            'wallet.numberOfReturnOrderDelivered': 1,
+            'wallet.numberOfPendingReturns': -1
+          }
+        })
+        result.returnStatus = data.returnStatus;
+        result.returnCollectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnCollectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+        }
+      }
+
+
+      const updateFields: any = {
+        'otp.code': '',
+        'otp.expiresAt': ''
+      };
+      // Add return status and remarks to the update fields if they are provided
+      if (result.returnStatus) {
+        updateFields['returnStatus'] = result.returnStatus;
+      }
+      if (result.returnRejectedDate) {
+        updateFields['returnRejectedDate'] = result.returnRejectedDate;
+      }
+      if (result.returnRejectedRemarks) {
+        updateFields['returnRejectedRemarks'] = result.returnRejectedRemarks;
+      }
+      if (result.returnCollectedDate) {
+        updateFields['returnCollectedDate'] = result.returnCollectedDate;
+      }
+      if (result.returnCollectedRemarks) {
+        updateFields['returnCollectedRemarks'] = result.returnCollectedRemarks;
+      }
+      // Reset OTP fields in the order product document
+      await orderProductModel.findByIdAndUpdate(data.orderItemId, { $set: updateFields });
+      // Resolve with a success response
+      return { flag: true };
+    }
+
+
+    if (data.deliveryStatus) {
+      if (data.deliveryStatus === "DELIVERED") {
+        // uppdate this order product delivery status , pymentmode,delivery remark
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            paymentMode: data.paymentMode,
+            deliveyremark: data.remarks,
+            deliveryDate: new Date()
+          }
+        })
+        // update delivery agent numberOfOrderDelivered count
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+          $inc: {
+            'wallet.numberOfOrderDelivered': 1,
+            'wallet.numberOfPendingOrdes': -1
+          }
+        })
+
+        if (data.deliveryStatus === "DELIVERED") {
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "ORDER DELIVERED",
+            performedBy: data.agentId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} (Delivery Agent) successfully delivered the order ${otpData?.itemId} to the customer. The status has been updated to "Delivered". `,
+          });
+        }
+
+
+
+        const result = await orderProductModel.findById(data.orderItemId)
+        if (result?.warranty?.duration) {
+          await orderProductModel.findByIdAndUpdate(data.orderItemId, { "warranty.warrantyRegister": true }, { new: true });
+        }
+
+        // check this order pyment type is COD
+        if (data.paymentMode === "COD") {
+          // update this order product pyment status
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+            $set: {
+              paymentStatus: "COMPLETED"
+            }
+          })
+          // get this order product price
+          const orderProduct = await orderProductModel.findOne({ _id: data.orderItemId })
+          let productPrice: any = orderProduct?.sellingPrice
+          productPrice = parseFloat(productPrice)
+          // genarat transaction logs
+          const obj = {
+            agentId: data.agentId,
+            amount: productPrice,
+            orderId: data.orderItemId,
+            remarks: data.remarks
+          }
+          await transactionlogs.orderDeliverytimeTransactionLogs(obj)
+          // update delivery agent wallet
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+            $inc: {
+              'wallet.cashInHand': productPrice,
+              'wallet.grandTotal': productPrice,
+            }
+          })
+          return ({ flag: true })
+        } else {
+          return ({ flag: true })
+        }
+      } else {
+
+        // delivery status  CANCELED
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            cancelremark: data.remarks,
+            canceldate: new Date()
+          }
+        })
+
+        // update delivery agent wallet details
+
+        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+
+          $inc: {
+
+            'wallet.numberOfPendingOrdes': -1
+          }
+        })
+
+        // update this product stock 
+
+        let product = [
+          {
+            _id: otpData?.productId,
+            quantity: 1,
+          },
+        ];
+
+        await productService.increaseProductsStock(product)
+
+        if (data.deliveryStatus === "CANCELED") {
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "ORDER CANCELED",
+            performedBy: data.agentId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} (Delivery Agent) has canceled the order ${otpData?.itemId}. The admin has been notified to review the case.`,
+          });
+        }
+
+      }
+    };
+
+
+    await agent.save();
+    return ({ flag: false })
+  } catch (error: any) {
+    // Reject with a specific error message
+    throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+  }
+};
+
+
+
+
+
+
+
+
+
 export const getDeliveryAgentlistCustomizOrderAssigen = async (data: { deliveryAgentType: string, vendorID?: Types.ObjectId, villageID: string, governorateID: string }): Promise<any> => {
 
 
@@ -3104,7 +3334,17 @@ export const claimOtpVerification = async (data: {
           updateFields.replacementReason = data.remarks;
         }
 
+        // find product by update replaced product stock count
 
+        const orderProduct = await orderProductModel.findById({ _id: warrantyCallData?.product })
+        await productModel.findByIdAndUpdate({ _id: orderProduct?.productId }, {
+
+          $inc: {
+            stock: -1
+          }
+        })
+
+        // const orderData=await warrantyClaimModel.
         const activityData = {
           actionType: "WARRANTY",
           action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
