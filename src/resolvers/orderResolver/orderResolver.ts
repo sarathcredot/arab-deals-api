@@ -1038,6 +1038,19 @@ export const orderResolver: Resolvers = {
         product.shippedDate = undefined;
       }
 
+      if (input.shippingStatus === "CANCELED") {
+
+        const result = await orderProductModel.findById(_id)
+        let product = [
+          {
+            _id: result?._id,
+            quantity: 1,
+          },
+        ];
+
+        await productService.increaseProductsStock(product)
+      }
+
       if (input.returnStatus) {
         if (product.shippingStatus == "DELIVERED") {
           product.returnStatus = input.returnStatus;
