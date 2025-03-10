@@ -527,6 +527,17 @@ export const warrantyClaimResolver: Resolvers = {
 
                     }
 
+                    await deliveryAgentModel.findByIdAndUpdate({_id:agentData?._id},{
+
+                        $inc: {
+              
+                        
+                          'wallet.numberOfPendingWarrantyCall': -1
+              
+                        }
+                      })
+              
+
                     await warrantyClaimService.createActivityLogByWarranty(data)
 
                     await existingClaimRequest.save();
@@ -568,7 +579,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                 }
 
-                
+
 
                 if (claimStatus === "POSTPONED" && agentStatus === true) {
 

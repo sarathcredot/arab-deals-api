@@ -3327,7 +3327,7 @@ export const claimOtpVerification = async (data: {
 
       else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
-        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        
         updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
         updateFields.replacementCompletedDate = new Date();
         if (data.remarks) {
@@ -3373,6 +3373,7 @@ export const claimOtpVerification = async (data: {
       await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
 
       // Save agent updates
+      agent.markModified("wallet")
       await agent.save();
 
 
@@ -3382,6 +3383,8 @@ export const claimOtpVerification = async (data: {
 
     return { flag: false, message: 'No claim status provided' };
   } catch (error: any) {
+
+    console.log("claim error",error.message)
     throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
   }
 };
@@ -3459,7 +3462,7 @@ export const claimOtpVerificationAdmin = async (data: {
 
       else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
-        agent.wallet.numberOfPendingWarrantyCall -= 1;
+       
         updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
         updateFields.replacementCompletedDate = new Date();
         if (data.remarks) {
@@ -3505,6 +3508,7 @@ export const claimOtpVerificationAdmin = async (data: {
       await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
 
       // Save agent updates
+      agent.markModified("wallet")
       await agent.save();
 
 

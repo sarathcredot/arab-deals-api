@@ -953,6 +953,16 @@ export const deliveryAgentResolver: Resolvers = {
         result.returnedWarehouseDate = new Date();
         await result.save()
 
+        await deliveryAgentModel.findByIdAndUpdate({_id:req?.authAccount?._id},{
+
+          $inc: {
+
+          
+            'wallet.numberOfPendingWarrantyCall': -1
+
+          }
+        })
+
         const data = {
           actionType: "WARRANTY",
           action: `Warranty claim call status update ${existingStatus} to ${claimStatus} `,
@@ -1082,6 +1092,8 @@ export const deliveryAgentResolver: Resolvers = {
         };
 
       } catch (error: any) {
+
+     
 
         throw new GraphQLError(error, {
           extensions: {
