@@ -154,6 +154,7 @@ input getClaimRequestDetailsByAdminInput{
 input updateClaimStatusByAdminInput{
      claimRequestId:ObjectId!
      claimStatus:String!
+     agentStatus:Boolean
      Reason:String
      Date:Date
 }

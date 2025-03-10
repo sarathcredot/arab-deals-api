@@ -306,8 +306,10 @@ export const warrantyClaimResolver: Resolvers = {
 
             try {
                 const claimRequestId: Types.ObjectId = input.claimRequestId
-                const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "REJECTED" | "REPLACEMENT_SHIPPED" | "REPLACEMENT_COMPLETED" | "RETURNED_TO_WAREHOUSE" | "PACKAGE_IN_PROGRESS";
+                const claimStatus = input.claimStatus as "PENDING" | "APPROVED" | "POSTPONED" | "OUT_FOR_DELIVERY" | "REJECTED" | "REPLACEMENT_SHIPPED" | "REPLACEMENT_COMPLETED" | "RETURNED_TO_WAREHOUSE" | "PACKAGE_IN_PROGRESS";
                 const Reason: string | null = input?.Reason || null;
+                const agentStatus = input.agentStatus
+                let agentData
                 // const rejectedDate: Date | null = input?.rejectedDate || null;
                 // const claimDate: Date | null  = input?.claimDate || null;
 
@@ -325,6 +327,8 @@ export const warrantyClaimResolver: Resolvers = {
                 const admin = await adminModel.findById({ _id: req?.authAccount?._id })
 
 
+
+
                 if (!existingClaimRequest) {
                     throw new GraphQLError("claim Request with this id is not exist", {
                         extensions: {
@@ -334,9 +338,16 @@ export const warrantyClaimResolver: Resolvers = {
                     });
                 }
 
-                existingClaimRequest.claimStatus = claimStatus
+                // existingClaimRequest.claimStatus = claimStatus
+
+                if (agentStatus === true) {
+
+                    agentData = await deliveryAgentModel.findById({ _id: existingClaimRequest?.deliveryAgentId })
+                }
 
                 if (claimStatus === "APPROVED") {
+
+                    existingClaimRequest.claimStatus = claimStatus
                     if (input?.Date) {
                         existingClaimRequest.claimDate = input.Date;
 
@@ -356,9 +367,17 @@ export const warrantyClaimResolver: Resolvers = {
 
 
                     }
+
+                    await existingClaimRequest.save();
+
+                    return {
+                        success: true,
+                        message: "Warranty Claim status updated succesfully",
+                    }
+
                 }
 
-                if (claimStatus === "REJECTED") {
+                if (claimStatus === "REJECTED" && agentStatus === false) {
                     if (!Reason) {
                         throw new GraphQLError("Rejection reason is required for rejected claims", {
                             extensions: {
@@ -368,6 +387,7 @@ export const warrantyClaimResolver: Resolvers = {
                         });
                     }
                     existingClaimRequest.rejectedReason = Reason;
+                    existingClaimRequest.claimStatus = claimStatus
                     if (input?.Date) {
                         existingClaimRequest.rejectedDate = input.Date;
 
@@ -385,16 +405,19 @@ export const warrantyClaimResolver: Resolvers = {
                         }
 
                         await warrantyClaimService.createActivityLogByWarranty(data)
+                    }
 
+                    await existingClaimRequest.save();
 
-
-
-
+                    return {
+                        success: true,
+                        message: "Warranty Claim status updated succesfully",
                     }
                 }
 
                 if (claimStatus === "PACKAGE_IN_PROGRESS") {
 
+                    existingClaimRequest.claimStatus = claimStatus
                     const data = {
 
                         actionType: "WARRANTY",
@@ -410,13 +433,19 @@ export const warrantyClaimResolver: Resolvers = {
 
                     await warrantyClaimService.createActivityLogByWarranty(data)
 
+                    await existingClaimRequest.save();
 
+                    return {
+                        success: true,
+                        message: "Warranty Claim status updated succesfully",
+                    }
 
                 }
 
 
                 if (claimStatus === "REPLACEMENT_SHIPPED") {
 
+                    existingClaimRequest.claimStatus = claimStatus
                     if (input?.Date) {
                         existingClaimRequest.replacementShippedDate = input.Date;
 
@@ -436,21 +465,154 @@ export const warrantyClaimResolver: Resolvers = {
 
                         await warrantyClaimService.createActivityLogByWarranty(data)
 
+                        await existingClaimRequest.save();
 
+                        return {
+                            success: true,
+                            message: "Warranty Claim status updated succesfully",
+                        }
 
                     }
                 }
 
+                if (claimStatus === "OUT_FOR_DELIVERY" && agentStatus === true) {
 
-                if (claimStatus === "RETURNED_TO_WAREHOUSE") {
+                    existingClaimRequest.claimStatus = claimStatus
 
-                    if (input?.Date) {
-                        existingClaimRequest.returnedWarehouseDate = input.Date;
+                    const data = {
+                        actionType: "WARRANTY",
+                        action: `Warranty claim call status update ${existingStatus} to ${claimStatus} `,
+                        performedBy: req?.authAccount?._id,
+                        performedByRole: "ADMINS",
+                        referenceId: claimRequestId,
+                        referenceType: "WARRANTY_CLAIM",
+                        details: `${agentData?.fullName}(Delivery Agent) has picked up the replacement product for warranty ${existingClaimRequest?.warrantyId} and is now "Out for Delivery". The customer will receive the product shortly.
+          `
+                        // `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus} to ${claimStatus}. `,
+
+                    }
+
+                    await warrantyClaimService.createActivityLogByWarranty(data)
+
+
+                    await existingClaimRequest.save();
+
+                    return {
+                        success: true,
+                        message: "Warranty Claim status updated succesfully",
                     }
                 }
 
-                await existingClaimRequest.save();
 
+                if (claimStatus === "RETURNED_TO_WAREHOUSE" && agentStatus === true) {
+                    existingClaimRequest.claimStatus = claimStatus
+                    existingClaimRequest.returnedWarehouseDate = new Date();
+
+                    const data = {
+                        actionType: "WARRANTY",
+                        action: `Warranty claim call status update ${existingStatus} to ${claimStatus} `,
+                        performedBy: req?.authAccount?._id,
+                        performedByRole: "ADMINS",
+                        referenceId: claimRequestId,
+                        referenceType: "WARRANTY_CLAIM",
+                        details: ` ${agentData?.fullName}(Delivery Agent) successfully returned the defective product for warranty ${existingClaimRequest?.warrantyId} to the warehouse for further inspection or disposal.
+          
+          `
+                        //  `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
+
+                    }
+
+                    await warrantyClaimService.createActivityLogByWarranty(data)
+
+                    await existingClaimRequest.save();
+
+                    return {
+                        success: true,
+                        message: "Warranty Claim status updated succesfully",
+                    }
+
+
+                }
+
+                if (claimStatus === "POSTPONED" && agentStatus === false) {
+
+                    existingClaimRequest.claimStatus = claimStatus
+
+
+                    const data = {
+
+                        actionType: "WARRANTY",
+                        action: `Warranty claim request status update ${existingStatus} to ${claimStatus} `,
+                        performedBy: req?.authAccount?._id,
+                        performedByRole: "ADMINS",
+                        referenceId: claimRequestId,
+                        referenceType: "WARRANTY_CLAIM",
+                        details: `${admin?.fullName} (Admin) approved the warranty claim request ${existingClaimRequest?.warrantyId}. The process has been initiated to provide a ${existingClaimRequest?.claimType}.`
+                        // `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
+                    }
+
+                    await warrantyClaimService.createActivityLogByWarranty(data)
+
+                    await existingClaimRequest.save();
+                    return {
+                        success: true,
+                        message: "Warranty Claim status updated succesfully",
+                    }
+
+                }
+
+
+                if (claimStatus === "POSTPONED" && agentStatus === true) {
+
+                    existingClaimRequest.claimStatus = claimStatus
+
+
+                    const data = {
+
+                        actionType: "WARRANTY",
+                        action: `Warranty claim request status update ${existingStatus} to ${claimStatus} `,
+                        performedBy: req?.authAccount?._id,
+                        performedByRole: "ADMINS",
+                        referenceId: claimRequestId,
+                        referenceType: "WARRANTY_CLAIM",
+                        details: `${agentData?.fullName} (Admin) approved the warranty claim request ${existingClaimRequest?.warrantyId}. The process has been initiated to provide a ${existingClaimRequest?.claimType}.`
+                        // `${admin?.fullName} update Warranty request status of an Warranty ID: ${existingClaimRequest?.warrantyId} from ${existingStatus} to ${claimStatus}. `
+                    }
+
+                    await warrantyClaimService.createActivityLogByWarranty(data)
+
+                    await existingClaimRequest.save();
+                    return {
+                        success: true,
+                        message: "Warranty Claim status updated succesfully",
+                    }
+
+                }
+
+
+                if (claimStatus === "REPLACEMENT_COMPLETED" && agentStatus === true || claimStatus === "REJECTED" && agentStatus === true) {
+                    console.log("called")
+                    // agent.wallet.numberOfReturnOrderDelivered+=1;
+
+                    //generate otp and save and send to user
+                    const result = await deliveryAgentService.replacementTimeOtpGenerate(claimRequestId)
+                    console.log(result)
+
+                    if (!result) {
+                        throw new GraphQLError("Unable to generate otp", {
+                            extensions: { code: "INTERNAL_SERVER_ERROR" },
+                        })
+                    }
+
+
+
+
+                    return {
+                        status: true,
+                        otp: true,
+                        msg: "Claim status updated"
+                    }
+                }
                 return {
                     success: true,
                     message: "Warranty Claim status updated succesfully",
