@@ -263,6 +263,7 @@ type createWarrantyClaimRequestByUSerResponse{
 type updateClaimStatusByAdminResponse{
    success: Boolean
    message: String
+   otp:Boolean
 }
 
 

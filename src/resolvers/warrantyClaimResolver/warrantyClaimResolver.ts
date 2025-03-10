@@ -372,6 +372,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
+                        otp:false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -411,6 +412,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
+                        otp:false,
                         message: "Warranty Claim status updated succesfully",
                     }
                 }
@@ -437,6 +439,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
+                        otp:false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -469,6 +472,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                         return {
                             success: true,
+                            otp:false,
                             message: "Warranty Claim status updated succesfully",
                         }
 
@@ -499,6 +503,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
+                        otp:false,
                         message: "Warranty Claim status updated succesfully",
                     }
                 }
@@ -528,6 +533,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
+                        otp:false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -556,11 +562,13 @@ export const warrantyClaimResolver: Resolvers = {
                     await existingClaimRequest.save();
                     return {
                         success: true,
+                        otp:false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
                 }
 
+                
 
                 if (claimStatus === "POSTPONED" && agentStatus === true) {
 
@@ -584,6 +592,7 @@ export const warrantyClaimResolver: Resolvers = {
                     await existingClaimRequest.save();
                     return {
                         success: true,
+                        otp:false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -606,17 +615,21 @@ export const warrantyClaimResolver: Resolvers = {
 
 
 
-
                     return {
-                        status: true,
-                        otp: true,
-                        msg: "Claim status updated"
+                        success: true,
+                        otp:true,
+                        message: "Warranty Claim status updated succesfully",
                     }
+                   
                 }
+
+
                 return {
-                    success: true,
-                    message: "Warranty Claim status updated succesfully",
+                    success: false,
+                    otp:false,
+                    message: "Warranty Claim status updated failed",
                 }
+                
 
             } catch (error: any) {
                 throw new GraphQLError(error, {
