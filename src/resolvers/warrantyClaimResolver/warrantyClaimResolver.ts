@@ -784,7 +784,7 @@ export const warrantyClaimResolver: Resolvers = {
         //  // admin update delivery agent status in claim request otp verification
 
         claimOtpVerificationByAdminAGentStatus: async (parent, { input }, { req }, info) => {
-            await verifyDeliveryAgent(req);
+            await verifyAdmin(req);
             const agentId: Types.ObjectId = new Types.ObjectId(input?.agentId);
 
             try {
