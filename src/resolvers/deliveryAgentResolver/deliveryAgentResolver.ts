@@ -956,11 +956,17 @@ export const deliveryAgentResolver: Resolvers = {
         await deliveryAgentModel.findByIdAndUpdate({_id:req?.authAccount?._id},{
 
           $inc: {
-
-          
-            'wallet.numberOfPendingWarrantyCall': -1
+            'wallet.numberOfPendingWarrantyCall': {
+              $cond: {
+                if: { $gt: ["$wallet.numberOfPendingWarrantyCall", 0] },
+                then: -1,
+                else: 0
+              }
+            }
 
           }
+
+          
         })
 
         const data = {

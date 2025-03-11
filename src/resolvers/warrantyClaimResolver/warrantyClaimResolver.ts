@@ -78,7 +78,7 @@ export const warrantyClaimResolver: Resolvers = {
                 }
 
                 const existingClaimRequest = await warrantyClaimModel.findOne({ product: productId })
-                if (existingClaimRequest) {
+                if (existingClaimRequest && existingClaimRequest.claimStatus != "REJECTED" || existingClaimRequest && existingClaimRequest.claimStatus != "REPLACEMENT_COMPLETED" || existingClaimRequest && existingClaimRequest.claimStatus != "RETURNED_TO_WAREHOUSE"  ) {
                     throw new GraphQLError("Claim request already exist for this product", {
                         extensions: {
                             code: "BAD_REQUEST",

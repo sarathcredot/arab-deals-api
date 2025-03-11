@@ -2791,11 +2791,23 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} (Delivery Agent) rejected the return pickup for order ${otpData?.itemId} due to an issue . The admin has been notified to review the case `,
         });
+
+
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+
           $inc: {
-            'wallet.numberOfPendingReturns': -1
-          }
+            'wallet.numberOfPendingReturns': {
+              $cond: {
+                if: { $gt: ["$wallet.numberOfPendingReturns", 0] },
+                then: -1,
+                else: 0
+              }
+            }
+
+          },
         })
+
+
         result.returnStatus = data.returnStatus;
         result.returnRejectedDate = new Date();
         if (data.returnRemark) {
@@ -2817,7 +2829,13 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
             'wallet.numberOfReturnOrderDelivered': 1,
-            'wallet.numberOfPendingReturns': -1
+            'wallet.numberOfPendingReturns': {
+              $cond: {
+                if: { $gt: ["$wallet.numberOfPendingReturns", 0] },
+                then: -1,
+                else: 0
+              }
+            }
           }
         })
         result.returnStatus = data.returnStatus;
@@ -2870,7 +2888,14 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
             'wallet.numberOfOrderDelivered': 1,
-            'wallet.numberOfPendingOrdes': -1
+
+            'wallet.numberOfPendingOrdes': {
+              $cond: {
+                if: { $gt: ["$wallet.numberOfPendingOrdes", 0] },
+                then: -1,
+                else: 0
+              }
+            }
           }
         })
 
@@ -2940,9 +2965,19 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
 
+
+
           $inc: {
 
-            'wallet.numberOfPendingOrdes': -1
+            'wallet.numberOfPendingOrdes': {
+              $cond: {
+                if: { $gt: ["$wallet.numberOfPendingOrdes", 0] },
+                then: -1,
+                else: 0
+              }
+            }
+
+
           }
         })
 
@@ -3327,7 +3362,7 @@ export const claimOtpVerification = async (data: {
 
       else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
-        
+
         updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
         updateFields.replacementCompletedDate = new Date();
         if (data.remarks) {
@@ -3384,7 +3419,7 @@ export const claimOtpVerification = async (data: {
     return { flag: false, message: 'No claim status provided' };
   } catch (error: any) {
 
-    console.log("claim error",error.message)
+    console.log("claim error", error.message)
     throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
   }
 };
@@ -3429,7 +3464,13 @@ export const claimOtpVerificationAdmin = async (data: {
 
     if (data.claimStatus) {
       if (data.claimStatus === 'REJECTED') {
-        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        if (agent.wallet.numberOfPendingWarrantyCall === 0) {
+          agent.wallet.numberOfPendingWarrantyCall = 0;
+        } else {
+
+          agent.wallet.numberOfPendingWarrantyCall -= 1;
+        }
+
         updateFields.claimStatus = 'REJECTED';
         updateFields.rejectedDate = new Date();
         if (data.remarks) {
@@ -3462,7 +3503,7 @@ export const claimOtpVerificationAdmin = async (data: {
 
       else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
-       
+
         updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
         updateFields.replacementCompletedDate = new Date();
         if (data.remarks) {
