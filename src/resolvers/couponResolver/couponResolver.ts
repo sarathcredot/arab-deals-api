@@ -1599,6 +1599,15 @@ export const couponResolver: Resolvers = {
         console.log(existingCoupon.discountType)
 
         if (existingCoupon.discountType === "FREE_SHIPPING") {
+          console.log("called")
+          console.log(existingCart.shippingCharge)
+
+          if(existingCart.shippingCharge === 0){
+            throw new GraphQLError("You already have free shipping", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["You already have free shipping"] },
+            })
+          }
+           
 
           console.log("free_shipping coupon")
           if (existingCoupon.validBrands.length !== 0) {
