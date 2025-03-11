@@ -21,6 +21,13 @@ const userSchema = new Schema(
     displayName: {
       type: String,
     },
+
+    countryCode: {
+
+      type: String,
+      required: true
+    },
+
     mobileNumber: {
       type: String,
       unique: true,
@@ -37,7 +44,7 @@ const userSchema = new Schema(
     deletedAt: {
       type: Date,
     },
-    deleteReason:{
+    deleteReason: {
       type: String
     },
     token: {

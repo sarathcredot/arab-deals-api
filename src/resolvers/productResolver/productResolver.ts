@@ -34,7 +34,7 @@ export const productResolver: Resolvers = {
                 await validateInput(validators.createProductValidator, req);
 
                 const vendorId = req.authAccount._id;
-                const vendor=await vendorModel.findById(vendorId);
+                const vendor = await vendorModel.findById(vendorId);
 
 
                 images = images || [];
@@ -202,7 +202,7 @@ export const productResolver: Resolvers = {
                 await verifyVendor(req);
                 await validateInput(validators.createVariantValidator, req);
                 const vendorId = req.authAccount._id;
-                const vendor=await vendorModel.findById(vendorId);
+                const vendor = await vendorModel.findById(vendorId);
 
                 images = images || [];
 
@@ -317,18 +317,20 @@ export const productResolver: Resolvers = {
                     status: "UNDER_VERIFICATION",
                     attributes: attributeData,
                     offerPrice: 0,
-                    
+                    warrantyPolicy: input.warrantyPolicy,
+                    returnPolicy: input.returnPolicy
+
                 };
 
-                if (variant.warrantyPolicy) {
+                // if (variant.warrantyPolicy) {
 
-                    newProduct.warrantyPolicy = variant.warrantyPolicy
-                }
+                //     newProduct.warrantyPolicy = variant.warrantyPolicy
+                // }
 
-                if (variant.returnPolicy) {
+                // if (variant.returnPolicy) {
 
-                    newProduct.returnPolicy = variant.returnPolicy
-                }
+                //     newProduct.returnPolicy = variant.returnPolicy
+                // }
 
 
                 // Create the product
@@ -363,7 +365,7 @@ export const productResolver: Resolvers = {
 
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
                 const vendorId = req.authAccount._id;
-                const vendor=await vendorModel.findById(vendorId);
+                const vendor = await vendorModel.findById(vendorId);
 
                 const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id, vendorId: vendorId }, {}, {});
                 if (!existingProduct) {
@@ -374,8 +376,8 @@ export const productResolver: Resolvers = {
                         },
                     });
                 }
-                const existingProductBeforeUpdate = existingProduct.toObject() as Record<string, any>; 
-                const updatedProduct = existingProduct as Record<string, any>; 
+                const existingProductBeforeUpdate = existingProduct.toObject() as Record<string, any>;
+                const updatedProduct = existingProduct as Record<string, any>;
 
                 images = images || [];
 
@@ -502,29 +504,29 @@ export const productResolver: Resolvers = {
                     existingProduct.delivery_type = input.delivery_type;
                 }
 
-                // existingProduct.returnPolicy = input.returnPolicy
-                // existingProduct.warrantyPolicy = input.warrantyPolicy
+                existingProduct.returnPolicy = input.returnPolicy
+                existingProduct.warrantyPolicy = input.warrantyPolicy
 
                 // update returnPolicy and warrantyPolicy all variants
 
-                const allVariants = await productModel.find({ productCode: existingProduct.productCode })
+                // const allVariants = await productModel.find({ productCode: existingProduct.productCode })
 
-                for (let i = 0; i < allVariants.length; i++) {
+                // for (let i = 0; i < allVariants.length; i++) {
 
-                    // update one by one variants
+                //     // update one by one variants
 
-                    await productModel.findByIdAndUpdate({ _id: allVariants[i]?._id }, {
+                //     await productModel.findByIdAndUpdate({ _id: allVariants[i]?._id }, {
 
-                        $set: {
+                //         $set: {
 
-                            warrantyPolicy: input.warrantyPolicy,
-                            returnPolicy: input.returnPolicy
+                //             warrantyPolicy: input.warrantyPolicy,
+                //             returnPolicy: input.returnPolicy
 
-                        }
-                    })
+                //         }
+                //     })
 
 
-                }
+                // }
 
 
                 // Update the product
@@ -540,26 +542,26 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-               
-                
-                
+
+
+
                 // Track updated fields
                 const updatedFields: string[] = [];
-                
+
                 Object.keys(existingProductBeforeUpdate).forEach((key) => {
                     if (JSON.stringify(existingProductBeforeUpdate[key]) !== JSON.stringify(updatedProduct[key])) {
-                        if(key!== "updatedAt"){
+                        if (key !== "updatedAt") {
                             updatedFields.push(`${key}`);
                         }
-                       
+
                     }
                 });
-                
+
                 // Construct the change message
                 const changesMessage = updatedFields.length
                     ? `Updated fields: ${updatedFields.join(", ")}`
                     : "No changes detected.";
-               
+
                 //complete this
 
 
@@ -592,7 +594,7 @@ export const productResolver: Resolvers = {
                 const _id: Types.ObjectId = new Types.ObjectId(input._id);
 
                 const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
-                const admin=await adminModel.findById(adminId);
+                const admin = await adminModel.findById(adminId);
                 const existingProduct: productService.IProductDocument | null = await productService.getProductWithFilters({ _id: _id }, {}, {});
                 if (!existingProduct) {
                     throw new GraphQLError("Product not found", {
@@ -602,7 +604,7 @@ export const productResolver: Resolvers = {
                         },
                     });
                 }
-                const existingProductBeforeUpdate = existingProduct.toObject() as Record<string, any>; 
+                const existingProductBeforeUpdate = existingProduct.toObject() as Record<string, any>;
                 const updatedProduct = existingProduct as Record<string, any>;
 
                 images = images || [];
@@ -735,27 +737,30 @@ export const productResolver: Resolvers = {
                     existingProduct.delivery_type = input.delivery_type;
                 }
 
+                existingProduct.returnPolicy = input.returnPolicy
+                existingProduct.warrantyPolicy = input.warrantyPolicy
+
 
                 // update returnPolicy and warrantyPolicy all variants
 
-                const allVariants = await productModel.find({ productCode: existingProduct.productCode })
+                // const allVariants = await productModel.find({ productCode: existingProduct.productCode })
 
-                for (let i = 0; i < allVariants.length; i++) {
+                // for (let i = 0; i < allVariants.length; i++) {
 
-                    // update one by one variants
+                //     // update one by one variants
 
-                    await productModel.findByIdAndUpdate({ _id: allVariants[i]?._id }, {
+                //     await productModel.findByIdAndUpdate({ _id: allVariants[i]?._id }, {
 
-                        $set: {
+                //         $set: {
 
-                            warrantyPolicy: input.warrantyPolicy,
-                            returnPolicy: input.returnPolicy
+                //             warrantyPolicy: input.warrantyPolicy,
+                //             returnPolicy: input.returnPolicy
 
-                        }
-                    })
+                //         }
+                //     })
 
 
-                }
+                // }
 
 
 
@@ -774,33 +779,33 @@ export const productResolver: Resolvers = {
                     });
                 }
 
-                 // Track updated fields
-                 const updatedFields: string[] = [];
-                
-                 Object.keys(existingProductBeforeUpdate).forEach((key) => {
-                     if (JSON.stringify(existingProductBeforeUpdate[key]) !== JSON.stringify(updatedProduct[key])) {
-                         if(key!== "updatedAt"){
-                             updatedFields.push(`${key}`);
-                         }
-                        
-                     }
-                 });
-                 
-                 // Construct the change message
-                 const changesMessage = updatedFields.length
-                     ? `Updated fields: ${updatedFields.join(", ")}`
-                     : "No changes detected.";
-                
-                
-                 await activityLogService.createActivityLog({
-                     actionType: "PRODUCT",
-                     action: "EDIT PRODUCT",
-                     performedBy: adminId,
-                     performedByRole: "ADMINS",
-                     referenceId: result?._id,
-                     referenceType: "PRODUCTS",
-                     details: ` Admin ${admin?.fullName} ${changesMessage} `,
-                 });
+                // Track updated fields
+                const updatedFields: string[] = [];
+
+                Object.keys(existingProductBeforeUpdate).forEach((key) => {
+                    if (JSON.stringify(existingProductBeforeUpdate[key]) !== JSON.stringify(updatedProduct[key])) {
+                        if (key !== "updatedAt") {
+                            updatedFields.push(`${key}`);
+                        }
+
+                    }
+                });
+
+                // Construct the change message
+                const changesMessage = updatedFields.length
+                    ? `Updated fields: ${updatedFields.join(", ")}`
+                    : "No changes detected.";
+
+
+                await activityLogService.createActivityLog({
+                    actionType: "PRODUCT",
+                    action: "EDIT PRODUCT",
+                    performedBy: adminId,
+                    performedByRole: "ADMINS",
+                    referenceId: result?._id,
+                    referenceType: "PRODUCTS",
+                    details: ` Admin ${admin?.fullName} ${changesMessage} `,
+                });
 
                 const response = {
                     _id: result?._id?.toString() || "",
@@ -1953,11 +1958,11 @@ export const productResolver: Resolvers = {
         },
 
         getActivityLogOfProduct: async (parent, { input }, { req }, info) => {
-        try {
-            const productId=input.productId;
-            const result=await productService.getActivityLogOfProduct(productId);
-            console.log("result",result)
-            return result
+            try {
+                const productId = input.productId;
+                const result = await productService.getActivityLogOfProduct(productId);
+                console.log("result", result)
+                return result
             } catch (error) {
                 throw new GraphQLError("Unable find data", {
                     extensions: {

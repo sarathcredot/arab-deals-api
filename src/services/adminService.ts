@@ -251,7 +251,7 @@ export const getAllAdminsDetails = async ({ page, size, isBlocked, search }: { p
 
       if (search) {
 
-        matchingObj.fullName = search
+        matchingObj.fullName = { $regex: search, $options: "i" }
       }
 
       const resutlCount = await adminModel.find(matchingObj)

@@ -1,11 +1,11 @@
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, } from "mongoose";
 import { activityLogModel, adminModel, deliveryAgentModel, settlementModel, warrantyClaimModel } from '../models'
-import { orderProductModel, deliveryAgentConfigModel } from '../models'
+import { orderProductModel, deliveryAgentConfigModel, productModel } from '../models'
 import { collections } from "../configs";
 import excel from 'exceljs';
 import path from 'path';
-import { transactionlogs, otpService, dashboardService, activityLogService } from "../services"
+import { transactionlogs, otpService, dashboardService, activityLogService, productService } from "../services"
 import { startOfDay, endOfDay } from "date-fns"
 
 
@@ -22,6 +22,7 @@ export interface IDeliveryAgent {
   _id?: Types.ObjectId;
   fullName: string;
   contactNumber: string;
+  countryCode: string;
   userID: string;
   password: string;
   agentType: string;
@@ -1586,7 +1587,7 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
           $set: {
 
             shippingStatus: data.deliveryStatus,
-            deliveryDate : new Date()
+            deliveryDate: new Date()
           }
         })
 
@@ -1682,8 +1683,8 @@ export const orderDelivedbyAgent = async (data: { deliveryAgentId: Types.ObjectI
         }
 
       } else {
-       
-         
+
+
 
       }
 
@@ -2790,11 +2791,28 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} (Delivery Agent) rejected the return pickup for order ${otpData?.itemId} due to an issue . The admin has been notified to review the case `,
         });
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfPendingReturns': -1
-          }
-        })
+
+
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
+
+
         result.returnStatus = data.returnStatus;
         result.returnRejectedDate = new Date();
         if (data.returnRemark) {
@@ -2813,12 +2831,23 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} (Delivery Agent) successfully collected the returned item for order ${otpData?.itemId}. The package is now being sent back to the warehouse.`,
         });
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfReturnOrderDelivered': 1,
-            'wallet.numberOfPendingReturns': -1
-          }
-        })
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
         result.returnStatus = data.returnStatus;
         result.returnCollectedDate = new Date();
         if (data.returnRemark) {
@@ -2866,12 +2895,23 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           }
         })
         // update delivery agent numberOfOrderDelivered count
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfOrderDelivered': 1,
-            'wallet.numberOfPendingOrdes': -1
-          }
-        })
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
 
         if (data.deliveryStatus === "DELIVERED") {
           await activityLogService.createActivityLog({
@@ -2887,11 +2927,11 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
 
 
-        const result=await orderProductModel.findById(data.orderItemId)
-        if(result?.warranty?.duration){
-           await orderProductModel.findByIdAndUpdate(data.orderItemId, { "warranty.warrantyRegister": true}, { new: true });
+        const result = await orderProductModel.findById(data.orderItemId)
+        if (result?.warranty?.duration) {
+          await orderProductModel.findByIdAndUpdate(data.orderItemId, { "warranty.warrantyRegister": true }, { new: true });
         }
-      
+
         // check this order pyment type is COD
         if (data.paymentMode === "COD") {
           // update this order product pyment status
@@ -2937,13 +2977,34 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
         // update delivery agent wallet details
 
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
 
-          $inc: {
+          [
+            {
+              $set: {
 
-            'wallet.numberOfPendingOrdes': -1
-          }
-        })
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
+        // update this product stock 
+
+        let product = [
+          {
+            _id: otpData?.productId,
+            quantity: 1,
+          },
+        ];
+
+        await productService.increaseProductsStock(product)
 
         if (data.deliveryStatus === "CANCELED") {
           await activityLogService.createActivityLog({
@@ -2965,9 +3026,287 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
     return ({ flag: false })
   } catch (error: any) {
     // Reject with a specific error message
+    console.log("count err", error.message)
     throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
   }
 };
+
+
+
+export const deliveryTimeOtpverifyAdmin = async (data: { orderItemId: Types.ObjectId, code: string, deliveryStatus?: string, paymentMode?: string, remarks?: string, returnStatus?: string, returnRemark?: string, agentId: Types.ObjectId }): Promise<any> => {
+  try {
+    // Fetch OTP data from the orderProduct collection
+    const otpData = await orderProductModel.findOne({ _id: data.orderItemId, 'otp.code': data.code });
+    // Check if the OTP data exists
+    if (!otpData) {
+      throw new Error('Invalid OTP');
+    }
+    // Validate OTP expiration
+    const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
+    if (isExpired) {
+      throw new Error('Expired OTP');
+    }
+    const agent = await deliveryAgentModel.findOne({ _id: data.agentId })
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+    const result: any = {};
+    if (data.returnStatus) {
+
+
+      if (data.returnStatus === 'REJECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "RETURN PICKUP REJECTED",
+          performedBy: data.agentId,
+          performedByRole: "ADMINS",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} (Delivery Agent) rejected the return pickup for order ${otpData?.itemId} due to an issue . The admin has been notified to review the case `,
+        });
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
+
+        result.returnStatus = data.returnStatus;
+        result.returnRejectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnRejectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+        }
+        // Resolve with a success response
+        return { flag: true };
+      }
+      if (data.returnStatus === 'COLLECTED') {
+        await activityLogService.createActivityLog({
+          actionType: "RETURN",
+          action: "RETURN COLLECTED",
+          performedBy: data.agentId,
+          performedByRole: "ADMINS",
+          referenceId: data.orderItemId,
+          referenceType: "ORDER_PRODUCTS",
+          details: `${agent?.fullName} (Delivery Agent) successfully collected the returned item for order ${otpData?.itemId}. The package is now being sent back to the warehouse.`,
+        });
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+        result.returnStatus = data.returnStatus;
+        result.returnCollectedDate = new Date();
+        if (data.returnRemark) {
+          result.returnCollectedRemarks = data.returnRemark;  // Only set returnRemark if provided
+        }
+      }
+
+
+      const updateFields: any = {
+        'otp.code': '',
+        'otp.expiresAt': ''
+      };
+      // Add return status and remarks to the update fields if they are provided
+      if (result.returnStatus) {
+        updateFields['returnStatus'] = result.returnStatus;
+      }
+      if (result.returnRejectedDate) {
+        updateFields['returnRejectedDate'] = result.returnRejectedDate;
+      }
+      if (result.returnRejectedRemarks) {
+        updateFields['returnRejectedRemarks'] = result.returnRejectedRemarks;
+      }
+      if (result.returnCollectedDate) {
+        updateFields['returnCollectedDate'] = result.returnCollectedDate;
+      }
+      if (result.returnCollectedRemarks) {
+        updateFields['returnCollectedRemarks'] = result.returnCollectedRemarks;
+      }
+      // Reset OTP fields in the order product document
+      await orderProductModel.findByIdAndUpdate(data.orderItemId, { $set: updateFields });
+      // Resolve with a success response
+      return { flag: true };
+    }
+
+
+    if (data.deliveryStatus) {
+      if (data.deliveryStatus === "DELIVERED") {
+        // uppdate this order product delivery status , pymentmode,delivery remark
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            paymentMode: data.paymentMode,
+            deliveyremark: data.remarks,
+            deliveryDate: new Date()
+          }
+        })
+        // update delivery agent numberOfOrderDelivered count
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
+        if (data.deliveryStatus === "DELIVERED") {
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "ORDER DELIVERED",
+            performedBy: data.agentId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} (Delivery Agent) successfully delivered the order ${otpData?.itemId} to the customer. The status has been updated to "Delivered". `,
+          });
+        }
+
+
+
+        const result = await orderProductModel.findById(data.orderItemId)
+        if (result?.warranty?.duration) {
+          await orderProductModel.findByIdAndUpdate(data.orderItemId, { "warranty.warrantyRegister": true }, { new: true });
+        }
+
+        // check this order pyment type is COD
+        if (data.paymentMode === "COD") {
+          // update this order product pyment status
+          await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+            $set: {
+              paymentStatus: "COMPLETED"
+            }
+          })
+          // get this order product price
+          const orderProduct = await orderProductModel.findOne({ _id: data.orderItemId })
+          let productPrice: any = orderProduct?.sellingPrice
+          productPrice = parseFloat(productPrice)
+          // genarat transaction logs
+          const obj = {
+            agentId: data.agentId,
+            amount: productPrice,
+            orderId: data.orderItemId,
+            remarks: data.remarks
+          }
+          await transactionlogs.orderDeliverytimeTransactionLogs(obj)
+          // update delivery agent wallet
+          await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+            $inc: {
+              'wallet.cashInHand': productPrice,
+              'wallet.grandTotal': productPrice,
+            }
+          })
+          return ({ flag: true })
+        } else {
+          return ({ flag: true })
+        }
+      } else {
+
+        // delivery status  CANCELED
+
+        await orderProductModel.findByIdAndUpdate({ _id: data.orderItemId }, {
+          $set: {
+            shippingStatus: data.deliveryStatus,
+            cancelremark: data.remarks,
+            canceldate: new Date()
+          }
+        })
+
+        // update delivery agent wallet details
+
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
+
+        // update this product stock 
+
+        let product = [
+          {
+            _id: otpData?.productId,
+            quantity: 1,
+          },
+        ];
+
+        await productService.increaseProductsStock(product)
+
+        if (data.deliveryStatus === "CANCELED") {
+          await activityLogService.createActivityLog({
+            actionType: "ORDER",
+            action: "ORDER CANCELED",
+            performedBy: data.agentId,
+            performedByRole: "ADMINS",
+            referenceId: data.orderItemId,
+            referenceType: "ORDER_PRODUCTS",
+            details: `${agent?.fullName} (Delivery Agent) has canceled the order ${otpData?.itemId}. The admin has been notified to review the case.`,
+          });
+        }
+
+      }
+    };
+
+
+    await agent.save();
+    return ({ flag: false })
+  } catch (error: any) {
+    // Reject with a specific error message
+    throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+  }
+};
+
+
+
+
+
+
+
 
 
 export const getDeliveryAgentlistCustomizOrderAssigen = async (data: { deliveryAgentType: string, vendorID?: Types.ObjectId, villageID: string, governorateID: string }): Promise<any> => {
@@ -3047,48 +3386,241 @@ export const claimOtpVerification = async (data: {
       'otp.code': '',
       'otp.expiresAt': '',
     };
+    const warrantyCallData = await warrantyClaimModel.findById({ _id: data.claimRequestId })
+
 
     if (data.claimStatus) {
       if (data.claimStatus === 'REJECTED') {
-        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        if (agent.wallet.numberOfPendingWarrantyCall === 0) {
+          agent.wallet.numberOfPendingWarrantyCall = 0;
+        } else {
+
+          agent.wallet.numberOfPendingWarrantyCall -= 1;
+        }
+
         updateFields.claimStatus = 'REJECTED';
         updateFields.rejectedDate = new Date();
         if (data.remarks) {
           updateFields.rejectedReason = data.remarks;
         }
+
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: ` ${agent?.fullName} (Delivery Agent) rejected the warranty claim request ${warrantyCallData?.warrantyId} . The claim has been declined, and the customer has been notified.
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
+
       }
+
+
+
       else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
         agent.wallet.numberOfWarrantyCallDelivered += 1;
-        agent.wallet.numberOfPendingWarrantyCall -= 1;
+
         updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
         updateFields.replacementCompletedDate = new Date();
         if (data.remarks) {
           updateFields.replacementReason = data.remarks;
         }
+
+        // find product by update replaced product stock count
+
+        const orderProduct = await orderProductModel.findById({ _id: warrantyCallData?.product })
+        await productModel.findByIdAndUpdate({ _id: orderProduct?.productId }, {
+
+          $inc: {
+            stock: -1
+          }
+        })
+
+        // const orderData=await warrantyClaimModel.
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "DELIVERYAGENT",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: `${agent?.fullName} (Delivery Agent) successfully delivered the replacement product and collected the defective product from the customer for warranty ${warrantyCallData?.warrantyId} .
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
       }
       else {
         throw new Error('Invalid claim status');
       }
 
-      const warrantyCallData = await warrantyClaimModel.findById({ _id: data.claimRequestId })
       // Update warranty claim status in DB
       await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
 
       // Save agent updates
+      agent.markModified("wallet")
       await agent.save();
-      const activityData = {
-        actionType: "WARRANTY",
-        action: `Warranty claim call status update to ${data.claimStatus} `,
-        performedBy: agent?._id,
-        performedByRole: "DELIVERYAGENT",
-        referenceId: data?.claimRequestId,
-        referenceType: "WARRANTY_CLAIM",
-        details: `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+
+
+      return { flag: true, message: 'Claim status updated successfully' };
+    }
+
+    return { flag: false, message: 'No claim status provided' };
+  } catch (error: any) {
+
+    console.log("claim error", error.message)
+    throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
+  }
+};
+
+
+export const claimOtpVerificationAdmin = async (data: {
+  claimRequestId: Types.ObjectId,
+  code: string,
+  claimStatus?: string,
+  remarks?: string,
+  agentId: Types.ObjectId
+}): Promise<any> => {
+  try {
+    // Find OTP data for claim verification
+    const otpData = await warrantyClaimModel.findOne({
+      _id: data.claimRequestId,
+      'otp.code': data.code
+    });
+
+    if (!otpData) {
+      throw new Error('Invalid OTP');
+    }
+
+    // Validate OTP expiration
+    const isExpired = await otpService.isOtpExpired(otpData?.otp?.expiresAt);
+    if (isExpired) {
+      throw new Error('Expired OTP');
+    }
+
+    // Verify the delivery agent
+    const agent = await deliveryAgentModel.findOne({ _id: data.agentId });
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+
+    const updateFields: any = {
+      'otp.code': '',
+      'otp.expiresAt': '',
+    };
+    const warrantyCallData = await warrantyClaimModel.findById({ _id: data.claimRequestId })
+
+
+    if (data.claimStatus) {
+      if (data.claimStatus === 'REJECTED') {
+        if (agent.wallet.numberOfPendingWarrantyCall === 0) {
+          agent.wallet.numberOfPendingWarrantyCall = 0;
+        } else {
+
+          agent.wallet.numberOfPendingWarrantyCall -= 1;
+        }
+
+        updateFields.claimStatus = 'REJECTED';
+        updateFields.rejectedDate = new Date();
+        if (data.remarks) {
+          updateFields.rejectedReason = data.remarks;
+        }
+
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "ADMINS",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: ` ${agent?.fullName} (Delivery Agent) rejected the warranty claim request ${warrantyCallData?.warrantyId} . The claim has been declined, and the customer has been notified.
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
 
       }
 
-      const final = new activityLogModel(activityData)
-      final.save()
+
+
+      else if (data.claimStatus === 'REPLACEMENT_COMPLETED') {
+        agent.wallet.numberOfWarrantyCallDelivered += 1;
+
+        updateFields.claimStatus = 'REPLACEMENT_COMPLETED';
+        updateFields.replacementCompletedDate = new Date();
+        if (data.remarks) {
+          updateFields.replacementReason = data.remarks;
+        }
+
+        // find product by update replaced product stock count
+
+        const orderProduct = await orderProductModel.findById({ _id: warrantyCallData?.product })
+        await productModel.findByIdAndUpdate({ _id: orderProduct?.productId }, {
+
+          $inc: {
+            stock: -1
+          }
+        })
+
+        // const orderData=await warrantyClaimModel.
+        const activityData = {
+          actionType: "WARRANTY",
+          action: `Warranty claim call status update ${warrantyCallData?.claimStatus} to ${data.claimStatus} `,
+          performedBy: agent?._id,
+          performedByRole: "ADMINS",
+          referenceId: data?.claimRequestId,
+          referenceType: "WARRANTY_CLAIM",
+          details: `${agent?.fullName} (Delivery Agent) successfully delivered the replacement product and collected the defective product from the customer for warranty ${warrantyCallData?.warrantyId} .
+`
+          // `${agent?.fullName} update Warranty request status of an Warranty call ID: ${warrantyCallData?.warrantyId} from ${warrantyCallData?.claimStatus} to ${data.claimStatus}. `,
+
+        }
+
+        const final = new activityLogModel(activityData)
+
+
+        final.save()
+
+
+      }
+      else {
+        throw new Error('Invalid claim status');
+      }
+
+      // Update warranty claim status in DB
+      await warrantyClaimModel.findByIdAndUpdate(data.claimRequestId, { $set: updateFields });
+
+      // Save agent updates
+      agent.markModified("wallet")
+      await agent.save();
+
+
 
       return { flag: true, message: 'Claim status updated successfully' };
     }
@@ -3098,6 +3630,10 @@ export const claimOtpVerification = async (data: {
     throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
   }
 };
+
+
+
+
 
 export const getActivityLogOfAgent = async (agentId: Types.ObjectId, matchObj: any): Promise<any> => {
   return await activityLogModel.aggregate([

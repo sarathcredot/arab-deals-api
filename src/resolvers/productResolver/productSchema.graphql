@@ -88,6 +88,10 @@ input VariantInput {
     productCode: Int!
     stock: Int!
     attributes: [String!]!
+    warrantyPolicy:ObjectId,
+    returnPolicy:ObjectId
+
+
 }
 
 input ProductUpdateInput {

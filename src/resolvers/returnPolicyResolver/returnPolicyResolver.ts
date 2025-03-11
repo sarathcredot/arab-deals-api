@@ -19,7 +19,7 @@ export const returnPolicyResolver: Resolvers = {
 
     Upload: GraphQLUpload,
 
-        Mutation: {
+    Mutation: {
         //to create of return policies by admin
         createReturnPolicyBySuperAdmin: async (parent, { input }, { req }, info) => {
             //   await verifySuperAdmin(req);
@@ -71,7 +71,7 @@ export const returnPolicyResolver: Resolvers = {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 });
             }
-        } ,
+        },
         // to update return policy
         updateReturnPolicyByAdmin: async (parent, { input }, { req }, info) => {
             //   await verifySuperAdmin(req);
@@ -267,7 +267,7 @@ export const returnPolicyResolver: Resolvers = {
 
                 //   await verifyAdmin(req)
 
-             const result= await returnPolicyService.getDefaultReturnPolicyInCategory(input?.id)
+                const result = await returnPolicyService.getDefaultReturnPolicyInCategory(input?.id)
 
                 return result
 
@@ -288,7 +288,7 @@ export const returnPolicyResolver: Resolvers = {
 
             try {
 
-             const result= await  returnPolicyService.getDefaultReturnPolicyInProduct(input.brandId,input.categoryId)
+                const result = await returnPolicyService.getDefaultReturnPolicyInProduct(input.brandId, input.categoryId)
 
                 return result
 
@@ -307,23 +307,23 @@ export const returnPolicyResolver: Resolvers = {
 
         getReturnPolicyOfOrderProduct: async (parent, { input }, { req }, info) => {
             try {
-                const orderProductId=input.orderProductId
-                if(!orderProductId){
+                const orderProductId = input.orderProductId
+                if (!orderProductId) {
                     throw new GraphQLError("orderProductId is required", {
                         extensions: { code: "BAD_REQUEST", errors: ["orderProductId is required"] },
                     });
                 }
-               
-               const result=await returnPolicyService.getReturnPolicyOfOrderProduct(orderProductId)
-               if(!result){
-                throw new GraphQLError("unable to fetch return policy", {
-                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policy"] },
-                });
-               }
 
-               return result
-                
-            }catch (error: any) {
+                const result = await returnPolicyService.getReturnPolicyOfOrderProduct(orderProductId)
+                if (!result) {
+                    throw new GraphQLError("unable to fetch return policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policy"] },
+                    });
+                }
+
+                return result
+
+            } catch (error: any) {
                 throw new GraphQLError(error, {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
@@ -333,28 +333,50 @@ export const returnPolicyResolver: Resolvers = {
 
         getReturnPolicyOfOrderProductInMob: async (parent, { input }, { req }, info) => {
             try {
-                const orderProductId=input.orderProductId
-                if(!orderProductId){
+                const orderProductId = input.orderProductId
+                if (!orderProductId) {
                     throw new GraphQLError("orderProductId is required", {
                         extensions: { code: "BAD_REQUEST", errors: ["orderProductId is required"] },
                     });
                 }
-               
-               const result=await returnPolicyService.getReturnPolicyOfOrderProduct(orderProductId)
-               if(!result){
-                throw new GraphQLError("unable to fetch return policy", {
-                    extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policy"] },
-                });
-               }
 
-               return result
-                
-            }catch (error: any) {
+                const result = await returnPolicyService.getReturnPolicyOfOrderProduct(orderProductId)
+                if (!result) {
+                    throw new GraphQLError("unable to fetch return policy", {
+                        extensions: { code: "INTERNAL_SERVER_ERROR", errors: ["unable to fetch return policy"] },
+                    });
+                }
+
+                return result
+
+            } catch (error: any) {
                 throw new GraphQLError(error, {
                     extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
                 })
             }
+        },
+
+        getDefaultReturnPolicyVariantCreate: async (parent, { input }, { req }, info) => {
+
+            try {
+
+                const result = await returnPolicyService.getDefaultReturnPolicyVariantCreate(input.productCode)
+                return result
+
+            } catch (error: any) {
+
+                throw new GraphQLError(error, {
+                    extensions: {
+                        code: "INTERNAL_SERVER_ERROR",
+                        errors: []
+                    },
+                });
+            }
         }
+
+
+
+
 
     }
 }

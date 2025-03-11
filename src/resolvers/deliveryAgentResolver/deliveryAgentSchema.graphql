@@ -723,6 +723,8 @@ type DeliveryAgent{
     village:String,
     governorateID:String,
     villageID:String
+    countryCode:String
+
 }
 
 type DeliveryAgentResponse{
@@ -730,6 +732,8 @@ type DeliveryAgentResponse{
   totalItems:Float
   currentPage: Float
   totalPages: Float
+  countryCode:Int
+
 }
 
 type SettlementResponse{
@@ -836,6 +840,7 @@ type CreateDeliveryAgentResponse {
 input CreateDeliveryAgentInput {
   fullName: String!
   contactNumber: String!
+  countryCode:String!
   userID: String!
   password: String!
   governorate:String!

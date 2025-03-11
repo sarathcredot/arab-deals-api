@@ -2600,6 +2600,102 @@ export const getVendorRefundProducts = async (
   return response;
 };
 
+// export const getUserOrderProducts = async (
+//   options: IUserOrderProductsOptions
+// ): Promise<IUserOrderProducts> => {
+//   let pipeline: PipelineStage[] = [];
+
+//   pipeline.push(
+//     {
+//       $match: {
+//         userId: options.userId,
+//       },
+//     },
+//     {
+//       $sort: { _id: -1 },
+//     },
+//     {
+//       $facet: {
+//         metadata: [
+//           {
+//             $group: {
+//               _id: null,
+//               total: { $sum: 1 },
+//             },
+//           },
+//         ],
+//         data: [
+//           {
+//             $skip: options.page * options.size,
+//           },
+//           {
+//             $limit: options.size,
+//           },
+//           {
+//             $project: {
+//               _id: 1,
+//               orderId: 1,
+//               itemId: 1,
+//               vendorId: 1,
+//               productId: 1,
+//               productName: 1,
+//               shortDescription: 1,
+//               skuId: 1,
+//               image: 1,
+//               sellingPrice: 1,
+//               shippingCharge: 1,
+//               paymentMode: 1,
+//               paymentStatus: 1,
+//               orderDate: 1,
+//               shippingStatus: 1,
+//               shippedDate: 1,
+//               deliveryDate: 1,
+//               cancelledDate: 1,
+//               returnPeriod: 1,
+//               returnStatus: 1,
+//               returnUserReason: 1,
+//               returnRequestDate: 1,
+//               returnRejectedDate: 1,
+//               returnDate: 1,
+//               refundStatus: 1,
+//               refundAmount: 1,
+//               refundDate: 1,
+//               cancelUserReason: 1,
+//               invoice: 1,
+//               courierId: 1,
+//               invoiceNumber: 1,
+//               warranty:1
+//             },
+//           },
+//         ],
+//       },
+//     },
+//     {
+//       $project: {
+//         maxRecords: { $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0] },
+//         data: 1,
+//       },
+//     }
+//   );
+
+//   const result = await orderProductModel.aggregate(pipeline);
+//   let response = {
+//     records: [],
+//     maxRecords: 0,
+//   };
+//   if (result.length) {
+//     response.records = result[0].data || [];
+//     response.maxRecords = result[0].maxRecords || 0;
+//   }
+
+//   return response;
+// };
+
+
+
+
+
+
 export const getUserOrderProducts = async (
   options: IUserOrderProductsOptions
 ): Promise<IUserOrderProducts> => {
@@ -2613,6 +2709,21 @@ export const getUserOrderProducts = async (
     },
     {
       $sort: { _id: -1 },
+    },
+    {
+      $lookup: {
+        from: "warranty_claims",
+        localField: "_id",
+        foreignField: "product",
+        as: "warrantyClaimData",
+      },
+    },
+    {
+      $addFields: {
+        warrantyClaimStatus: {
+          $ifNull: [{ $arrayElemAt: ["$warrantyClaimData.claimStatus", -1] }, null],
+        },
+      },
     },
     {
       $facet: {
@@ -2664,7 +2775,8 @@ export const getUserOrderProducts = async (
               invoice: 1,
               courierId: 1,
               invoiceNumber: 1,
-              warranty:1
+              warranty: 1,
+              warrantyClaimStatus: 1,
             },
           },
         ],
@@ -2690,6 +2802,9 @@ export const getUserOrderProducts = async (
 
   return response;
 };
+
+
+
 
 export const getUserOrderProductsByAdmin = async (
   options: IUserOrderProductsByAdminOptions

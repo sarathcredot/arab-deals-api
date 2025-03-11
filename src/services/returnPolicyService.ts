@@ -2,6 +2,7 @@ import { returnPolicyModel } from "../models/returnPolicyModel";
 import { categoryModel } from "../models/categoryModel"
 import { brandModel } from "../models/brandModel"
 import { shippingConfigModel } from "../models/shippingConfigModel"
+import { productModel } from "../models"
 
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
 import { orderProductModel } from "../models/orderProductModel";
@@ -19,7 +20,7 @@ export const createReturnPolicyBySuperAdmin = async (newReturnPolicyData: IRetur
     try {
         console.log(":mag: Saving policy to DB:", newReturnPolicyData);
         let returnPolicy = new returnPolicyModel(newReturnPolicyData);
-        const savedPolicy = await returnPolicy.save();  
+        const savedPolicy = await returnPolicy.save();
         console.log(":white_check_mark: Saved policy:", savedPolicy);
         return savedPolicy;
     } catch (error) {
@@ -485,4 +486,351 @@ export const getDefaultReturnPolicyInProduct = async (brandId: Types.ObjectId, c
         }
     })
 
+}
+
+
+export const getDefaultReturnPolicyVariantCreate = (productCode: number): Promise<any> => {
+
+    return new Promise(async (resolve, reject) => {
+
+        try {
+
+            // check has parentProduct a return policy
+            const parentProduct: any = await productModel.findOne({ productCode: productCode })
+
+            if (parentProduct.returnPolicy) {
+
+                const obj = {
+
+                    ReturnPolicyData: parentProduct?.returnPolicy,
+                    policyGet: true
+                }
+
+                resolve(obj)
+            } else {
+
+                const brandData = await brandModel.findOne({ _id: parentProduct.brandId })
+
+                if (!brandData) {
+
+                    reject()
+                    return
+                } else {
+
+                    if (!brandData.returnPolicy) {
+
+                        // check Category returnPolicy
+
+                        const categoryData: any = await categoryModel.findOne({ _id: parentProduct.categoryId })
+
+                        if (!categoryData.returnPolicy) {
+
+                            const allCategories = categoryData.path.split("#")
+
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                if (allCategories[i]) {
+
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                    if (categorie.returnPolicy) {
+
+                                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                        if (!returnPolicy.delete) {
+
+
+                                            const obj = {
+
+                                                ReturnPolicyData: returnPolicy,
+                                                policyGet: false
+                                            }
+
+
+
+                                            resolve(obj)
+                                            return
+                                        }
+                                    }
+                                }
+                            }
+
+                            const defaultreturnPolicy = await shippingConfigModel.aggregate([
+
+                                {
+                                    "$lookup": {
+                                        "from": "return_policies",
+                                        "localField": "defaultReturnPolicy",
+                                        "foreignField": "_id",
+                                        "as": "result"
+                                    }
+                                }
+                            ])
+
+                            const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+
+                            const obj = {
+
+                                ReturnPolicyData: defaultreturnPolicyFinal,
+                                policyGet: false
+                            }
+
+
+                            resolve(obj)
+
+
+                        } else {
+
+                            const returnPolicy: any = await returnPolicyModel.findOne({ _id: categoryData.returnPolicy })
+
+
+                            if (!returnPolicy.delete) {
+
+                                const obj = {
+
+                                    ReturnPolicyData: returnPolicy,
+                                    policyGet: false
+                                }
+
+
+                                resolve(obj)
+                                return
+                            } else {
+
+
+                                const allCategories = categoryData.path.split("#")
+
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                    if (allCategories[i]) {
+
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                        if (categorie.returnPolicy) {
+
+                                            const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                            if (!returnPolicy.delete) {
+
+                                                const obj = {
+
+                                                    ReturnPolicyData: returnPolicy,
+                                                    policyGet: false
+                                                }
+
+
+
+                                                resolve(obj)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
+                                const defaultreturnPolicy = await shippingConfigModel.aggregate([
+
+                                    {
+                                        "$lookup": {
+                                            "from": "return_policies",
+                                            "localField": "defaultReturnPolicy",
+                                            "foreignField": "_id",
+                                            "as": "result"
+                                        }
+                                    }
+                                ])
+
+                                const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+
+                                const obj = {
+
+                                    ReturnPolicyData: defaultreturnPolicyFinal,
+                                    policyGet: false
+                                }
+
+
+
+                                resolve(obj)
+
+
+
+                            }
+
+
+                        }
+
+
+                    } else {
+
+
+                        const returnPolicy: any = await returnPolicyModel.findOne({ _id: brandData.returnPolicy })
+
+                        console.log("cat plo", returnPolicy)
+
+                        if (!returnPolicy.isDeleted) {
+
+                            const obj = {
+
+                                ReturnPolicyData: returnPolicy,
+                                policyGet: false
+                            }
+
+                            resolve(obj)
+                            return;
+
+                        } else {
+
+                            // check Category returnPolicy
+
+                            const categoryData: any = await categoryModel.findOne({ _id: parentProduct.categoryId })
+                            if (!categoryData.returnPolicy) {
+
+                                const allCategories = categoryData.path.split("#")
+
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                    if (allCategories[i]) {
+
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                        if (categorie.returnPolicy) {
+
+                                            const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                            if (!returnPolicy.delete) {
+
+                                                const obj = {
+
+                                                    ReturnPolicyData: returnPolicy,
+                                                    policyGet: false
+                                                }
+
+
+
+                                                resolve(obj)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
+                                const defaultreturnPolicy = await shippingConfigModel.aggregate([
+
+                                    {
+                                        "$lookup": {
+                                            "from": "return_policies",
+                                            "localField": "defaultReturnPolicy",
+                                            "foreignField": "_id",
+                                            "as": "result"
+                                        }
+                                    }
+                                ])
+
+                                const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+
+                                const obj = {
+
+                                    ReturnPolicyData: defaultreturnPolicyFinal,
+                                    policyGet: false
+                                }
+
+
+                                resolve(obj)
+                            } else {
+
+                                const returnPolicy: any = await returnPolicyModel.findOne({ _id: categoryData.returnPolicy })
+
+
+                                if (!returnPolicy.delete) {
+
+                                    const obj = {
+
+                                        ReturnPolicyData: returnPolicy,
+                                        policyGet: false
+                                    }
+
+                                    resolve(obj)
+                                    return
+                                } else {
+
+
+                                    const allCategories = categoryData.path.split("#")
+
+                                    for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                        if (allCategories[i]) {
+
+                                            const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                            if (categorie.returnPolicy) {
+
+                                                const returnPolicy: any = await returnPolicyModel.findOne({ _id: categorie.returnPolicy })
+
+                                                if (!returnPolicy.delete) {
+
+                                                    const obj = {
+
+                                                        ReturnPolicyData: returnPolicy,
+                                                        policyGet: false
+                                                    }
+
+                                                    resolve(obj)
+                                                    return
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    const defaultreturnPolicy = await shippingConfigModel.aggregate([
+
+                                        {
+                                            "$lookup": {
+                                                "from": "return_policies",
+                                                "localField": "defaultReturnPolicy",
+                                                "foreignField": "_id",
+                                                "as": "result"
+                                            }
+                                        }
+                                    ])
+
+                                    const defaultreturnPolicyFinal = defaultreturnPolicy[0]?.result[0]
+
+
+                                    const obj = {
+
+                                        ReturnPolicyData: defaultreturnPolicyFinal,
+                                        policyGet: false
+                                    }
+
+                                    resolve(obj)
+
+
+
+                                }
+
+
+                            }
+
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+
+
+
+            }
+
+
+
+
+        } catch (error) {
+
+            reject(error)
+        }
+    })
 }

@@ -33,7 +33,7 @@ import { userModel } from "../../models/userModel";
 export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
-    createUserOrder: async (parent, { input }, { req,io}, info) => {
+    createUserOrder: async (parent, { input }, { req, io }, info) => {
 
       console.log("create user order resolver called");
       // console.log("io",io)
@@ -79,7 +79,7 @@ export const orderResolver: Resolvers = {
 
       // console.log(shippingConfig)
       // console.log("shippingConfig.defaultReturnPolicy",shippingConfig.defaultReturnPolicy)
-      let defaultReturnPolicyId=shippingConfig.defaultReturnPolicy
+      let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy
 
 
       if (paymentMode == "COD") {
@@ -135,19 +135,19 @@ export const orderResolver: Resolvers = {
         calculatedSellingPrice += product.quantity * product.sellingPrice;
       }
 
-      const userCart=await cartModel.findOne({userId:userId})
+      const userCart = await cartModel.findOne({ userId: userId })
 
-      let appliedProducts:Types.ObjectId[] | null |undefined=userCart?.appliedProducts  
+      let appliedProducts: Types.ObjectId[] | null | undefined = userCart?.appliedProducts
 
       let totalDiscountPrice: number | undefined | null = 0;
 
       appliedProducts?.forEach((id) => {
         const product = cartItems.find((item) => item.productId.toString() === id.toString());
         if (product) {
-         totalDiscountPrice =(totalDiscountPrice || 0) + product.sellingPrice
+          totalDiscountPrice = (totalDiscountPrice || 0) + product.sellingPrice
         }
       });
-      
+
 
       const appliedProductCounts: Record<string, number> = {};
 
@@ -156,32 +156,32 @@ export const orderResolver: Resolvers = {
         appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
       });
 
-      
+
 
       const products: orderProductService.IOrderProduct[] = [];
 
       let itemCount = 0;
 
-      for (const product of cartItems)  {
+      for (const product of cartItems) {
         for (let i = 0; i < product.quantity; i++) {
           // console.log("This is product",product)
           let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
-          let warrantyPolicyId=await orderService.getWarrantyPolicyForProduct(product.productId);
-          console.log(warrantyPolicyId,"warrantyPolicyId")
+          let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(product.productId);
+          console.log(warrantyPolicyId, "warrantyPolicyId")
           // console.log(returnPolicyId,"returnPolicyId")
-          const returnPolicy= await orderService.getReturnPolicy(returnPolicyId)
-          const warrantyPolicy=await orderService.getWarrantyPolicy(warrantyPolicyId)
-          console.log(warrantyPolicy,"warrantyPolicy")
+          const returnPolicy = await orderService.getReturnPolicy(returnPolicyId)
+          const warrantyPolicy = await orderService.getWarrantyPolicy(warrantyPolicyId)
+          console.log(warrantyPolicy, "warrantyPolicy")
           // console.log(returnPolicy,"returnPolicy")
-          
+
           itemCount++;
           const productIdKey = product.productId.toString();
-          const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
-          let discountSellingPrice ;
+          const isDiscounted = appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+          let discountSellingPrice;
           if (isDiscounted) {
             // Decrease the count of the product ID in the appliedProductCounts map
-            let actualSellingPrice=product.sellingPrice
-            discountSellingPrice =  Math.round((actualSellingPrice/(totalDiscountPrice || 0))*(userCart?.discount || 0))
+            let actualSellingPrice = product.sellingPrice
+            discountSellingPrice = Math.round((actualSellingPrice / (totalDiscountPrice || 0)) * (userCart?.discount || 0))
             appliedProductCounts[productIdKey]--;
           }
 
@@ -201,7 +201,7 @@ export const orderResolver: Resolvers = {
               mimeType: product.image?.mimeType,
             },
             returnPeriod: returnPolicy?.duration || 0,
-            returnPolicyName:returnPolicy?.name,
+            returnPolicyName: returnPolicy?.name,
             returnPolicyDescription: returnPolicy?.description,
             returnCharge: returnPolicy?.returnCharge || 0,
             mrp: product.mrp,
@@ -212,11 +212,11 @@ export const orderResolver: Resolvers = {
             orderDate: orderDate.toDate(),
             shippingStatus: "PENDING",
             vendorId: product.vendorId,
-            warranty:{
-              name:warrantyPolicy?.name,
-              description:warrantyPolicy?.description,
+            warranty: {
+              name: warrantyPolicy?.name,
+              description: warrantyPolicy?.description,
               duration: warrantyPolicy?.duration,
-              warrantyType:warrantyPolicy?.warrantyType,
+              warrantyType: warrantyPolicy?.warrantyType,
               // warrantyRegister:true
             }
           });
@@ -261,9 +261,9 @@ export const orderResolver: Resolvers = {
       };
 
       await orderService.createOrder(order)
-      const orderProducts=await orderProductService.createOrderProducts(products)
+      const orderProducts = await orderProductService.createOrderProducts(products)
 
-      console.log("order result",orderProducts)
+      console.log("order result", orderProducts)
 
 
       if (orderProducts) {
@@ -279,15 +279,15 @@ export const orderResolver: Resolvers = {
           });
         }
       }
-      
-    
+
+
 
       // await Promise.all([
       //   orderService.createOrder(order),
       //   orderProductService.createOrderProducts(products),
       // ]);
 
-      
+
 
       try {
         let productStock = cartItems.map((product) => {
@@ -305,9 +305,9 @@ export const orderResolver: Resolvers = {
         console.log(error);
       }
 
-      if(userCart?.isCouponApplied){
-        const couponId=userCart?.appliedCoupon
-        if(!couponId) {
+      if (userCart?.isCouponApplied) {
+        const couponId = userCart?.appliedCoupon
+        if (!couponId) {
           throw new GraphQLError("Coupon not found", {
             extensions: {
               code: "BAD_REQUEST",
@@ -319,14 +319,14 @@ export const orderResolver: Resolvers = {
         await couponService.deleteCouponFromCart(userId, couponId)
       }
 
-       //create order placed notification
+      //create order placed notification
 
 
-      const order_placed_notification=await notificationService.createNotification({
+      const order_placed_notification = await notificationService.createNotification({
         title: "New order placed!!!!",
-        message:`Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
-        type: "new_order",   
-        permissions:["orders","shipping-orders"],
+        message: `Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
+        type: "new_order",
+        permissions: ["orders", "shipping-orders"],
         orderId: orderId
       })
 
@@ -341,11 +341,11 @@ export const orderResolver: Resolvers = {
       //   console.log("this is products Product:", product);
       // }
 
-       //check product stock(if low stock send notification to admin)
+      //check product stock(if low stock send notification to admin)
 
-       for (let product of cartItems) {
-        const previousStock = product.stock; 
-        const newStock = product.stock - product.quantity; 
+      for (let product of cartItems) {
+        const previousStock = product.stock;
+        const newStock = product.stock - product.quantity;
         if (previousStock > 10 && newStock <= 10) {
 
           console.log(product.stock)
@@ -360,7 +360,7 @@ export const orderResolver: Resolvers = {
           });
           io.emit("new_notification", low_stock_notification);
         }
-        
+
         if (previousStock > 0 && newStock <= 0) {
           // Out of stock notification
           const out_of_stock_notification = await notificationService.createNotification({
@@ -374,7 +374,7 @@ export const orderResolver: Resolvers = {
           io.emit("new_notification", out_of_stock_notification);
         }
       }
-      
+
       let response = {
         orderId: orderId,
       };
@@ -422,7 +422,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      let defaultReturnPolicyId=shippingConfig.defaultReturnPolicy
+      let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy
 
 
       if (paymentMode == "COD") {
@@ -478,19 +478,19 @@ export const orderResolver: Resolvers = {
         calculatedSellingPrice += product.quantity * product.sellingPrice;
       }
 
-      const userCart=await cartModel.findOne({userId:userId})
+      const userCart = await cartModel.findOne({ userId: userId })
 
-      let appliedProducts:Types.ObjectId[] | null |undefined=userCart?.appliedProducts  
+      let appliedProducts: Types.ObjectId[] | null | undefined = userCart?.appliedProducts
 
       let totalDiscountPrice: number | undefined | null = 0;
 
       appliedProducts?.forEach((id) => {
         const product = cartItems.find((item) => item.productId.toString() === id.toString());
         if (product) {
-         totalDiscountPrice =(totalDiscountPrice || 0) + product.sellingPrice
+          totalDiscountPrice = (totalDiscountPrice || 0) + product.sellingPrice
         }
       });
-      
+
 
       const appliedProductCounts: Record<string, number> = {};
 
@@ -499,30 +499,30 @@ export const orderResolver: Resolvers = {
         appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
       });
 
-      
+
 
       const products: orderProductService.IOrderProduct[] = [];
 
       let itemCount = 0;
 
-      for (const product of cartItems)  {
+      for (const product of cartItems) {
         for (let i = 0; i < product.quantity; i++) {
           // console.log("This is product",product)
           let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
-          let warrantyPolicyId=await orderService.getWarrantyPolicyForProduct(product.productId);
+          let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(product.productId);
           // console.log(returnPolicyId,"returnPolicyId")
-          const returnPolicy= await orderService.getReturnPolicy(returnPolicyId)
-          const warrantyPolicy=await orderService.getWarrantyPolicy(warrantyPolicyId)
+          const returnPolicy = await orderService.getReturnPolicy(returnPolicyId)
+          const warrantyPolicy = await orderService.getWarrantyPolicy(warrantyPolicyId)
           // console.log(returnPolicy,"returnPolicy")
-          
+
           itemCount++;
           const productIdKey = product.productId.toString();
-          const isDiscounted =appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
-          let discountSellingPrice ;
+          const isDiscounted = appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+          let discountSellingPrice;
           if (isDiscounted) {
             // Decrease the count of the product ID in the appliedProductCounts map
-            let actualSellingPrice=product.sellingPrice
-            discountSellingPrice =  Math.round((actualSellingPrice/(totalDiscountPrice || 0))*(userCart?.discount || 0))
+            let actualSellingPrice = product.sellingPrice
+            discountSellingPrice = Math.round((actualSellingPrice / (totalDiscountPrice || 0)) * (userCart?.discount || 0))
             appliedProductCounts[productIdKey]--;
           }
 
@@ -542,7 +542,7 @@ export const orderResolver: Resolvers = {
               mimeType: product.image?.mimeType,
             },
             returnPeriod: returnPolicy?.duration || 0,
-            returnPolicyName:returnPolicy?.name,
+            returnPolicyName: returnPolicy?.name,
             returnPolicyDescription: returnPolicy?.description,
             returnCharge: returnPolicy?.returnCharge || 0,
             mrp: product.mrp,
@@ -553,11 +553,11 @@ export const orderResolver: Resolvers = {
             orderDate: orderDate.toDate(),
             shippingStatus: "PENDING",
             vendorId: product.vendorId,
-            warranty:{
-              name:warrantyPolicy?.name,
-              description:warrantyPolicy?.description,
+            warranty: {
+              name: warrantyPolicy?.name,
+              description: warrantyPolicy?.description,
               duration: warrantyPolicy?.duration,
-              warrantyType:warrantyPolicy?.warrantyType,
+              warrantyType: warrantyPolicy?.warrantyType,
               // warrantyRegister:true
             }
           });
@@ -600,9 +600,9 @@ export const orderResolver: Resolvers = {
       };
 
       await orderService.createOrder(order)
-      const orderProducts=await orderProductService.createOrderProducts(products)
+      const orderProducts = await orderProductService.createOrderProducts(products)
 
-      console.log("order result",orderProducts)
+      console.log("order result", orderProducts)
 
 
       if (orderProducts) {
@@ -640,9 +640,9 @@ export const orderResolver: Resolvers = {
         console.log(error);
       }
 
-      if(userCart?.isCouponApplied){
-        const couponId=userCart?.appliedCoupon
-        if(!couponId) {
+      if (userCart?.isCouponApplied) {
+        const couponId = userCart?.appliedCoupon
+        if (!couponId) {
           throw new GraphQLError("Coupon not found", {
             extensions: {
               code: "BAD_REQUEST",
@@ -652,7 +652,7 @@ export const orderResolver: Resolvers = {
         }
         await couponService.updateUserUsage(userId, couponId)
       }
-      
+
       let response = {
         orderId: orderId,
       };
@@ -853,7 +853,7 @@ export const orderResolver: Resolvers = {
     //     }
     //     await couponService.updateUserUsage(userId, couponId)
     //   }
-      
+
 
     //   let response = {
     //     orderId: orderId,
@@ -872,7 +872,7 @@ export const orderResolver: Resolvers = {
       await validateInput(validators.updateAdminOrderProductValidator, req);
       const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
-      const admin=await adminModel.findById(adminId);
+      const admin = await adminModel.findById(adminId);
 
 
       console.log(input);
@@ -894,7 +894,7 @@ export const orderResolver: Resolvers = {
       // console.log("product.shippingStatus", product.shippingStatus);
       // console.log("input.shippingStatus", input.shippingStatus);
 
-      if(input.shippingStatus === "PACKAGE_IN_PROGRESS"){
+      if (input.shippingStatus === "PACKAGE_IN_PROGRESS") {
         await activityLogService.createActivityLog({
           actionType: "ORDER",
           action: "PACKAGING STARTED",
@@ -906,7 +906,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      if(input.shippingStatus === "SHIPPED"){
+      if (input.shippingStatus === "SHIPPED") {
         await activityLogService.createActivityLog({
           actionType: "ORDER",
           action: "ORDER SHIPPED",
@@ -918,7 +918,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      if(input.shippingStatus === "OUT_FOR_DELIVERY"){
+      if (input.shippingStatus === "OUT_FOR_DELIVERY") {
         await activityLogService.createActivityLog({
           actionType: "ORDER",
           action: "OUT FOR DELIVERY",
@@ -930,7 +930,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      if(input.shippingStatus === "DELIVERED"){
+      if (input.shippingStatus === "DELIVERED") {
         await activityLogService.createActivityLog({
           actionType: "ORDER",
           action: "ORDER DELIVERED",
@@ -942,7 +942,7 @@ export const orderResolver: Resolvers = {
         });
       }
 
-      if(input.shippingStatus === "CANCELED"){
+      if (input.shippingStatus === "CANCELED") {
         await activityLogService.createActivityLog({
           actionType: "ORDER",
           action: "ORDER CANCELED",
@@ -965,7 +965,7 @@ export const orderResolver: Resolvers = {
           details: `${admin?.fullName} (Admin) marked the refund status as PENDING for order ${product?.orderId}. The request is under review.`,
         });
       }
-      
+
       if (input.refundStatus === "PAID") {
         await activityLogService.createActivityLog({
           actionType: "ORDER",
@@ -977,7 +977,7 @@ export const orderResolver: Resolvers = {
           details: `${admin?.fullName} (Admin) marked the refund as PAID for order ${product?.orderId}. The amount has been successfully processed, and the refund has been issued to the customer.`,
         });
       }
-      
+
 
       if (input.paymentRemark) {
         product.paymentRemark = input.paymentRemark;
@@ -1006,10 +1006,10 @@ export const orderResolver: Resolvers = {
         product.cancelledDate = undefined;
       }
 
-      if(product.shippingStatus == "DELIVERED"){
-        const result=await orderProductModel.findById(_id)
-        if(result?.warranty?.duration){
-           await orderProductModel.findByIdAndUpdate(_id, { "warranty.warrantyRegister": true}, { new: true });
+      if (product.shippingStatus == "DELIVERED") {
+        const result = await orderProductModel.findById(_id)
+        if (result?.warranty?.duration) {
+          await orderProductModel.findByIdAndUpdate(_id, { "warranty.warrantyRegister": true }, { new: true });
         }
       }
 
@@ -1036,6 +1036,19 @@ export const orderResolver: Resolvers = {
         )
       ) {
         product.shippedDate = undefined;
+      }
+
+      if (input.shippingStatus === "CANCELED") {
+
+        const result = await orderProductModel.findById(_id)
+        let product = [
+          {
+            _id: result?.productId,
+            quantity: 1,
+          },
+        ];
+
+        await productService.increaseProductsStock(product)
       }
 
       if (input.returnStatus) {
@@ -1212,7 +1225,7 @@ export const orderResolver: Resolvers = {
         };
       }
 
-      
+
 
       await product.save();
 
@@ -1247,15 +1260,93 @@ export const orderResolver: Resolvers = {
       return response;
     },
 
+    updateAdminOrderProductOtpSent: async (parent, { input }, { req }, info) => {
+
+      await verifyAdmin(req)
+      try {
+
+        await deliveryAgentService.deliveryTimeOtpGenerate(input?.orderId)
+
+        return {
+
+          status: true,
+          otp: true,
+          msg: ""
+
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+      }
+    },
+
+
+    deliveryStatusOtpVerifyAdmin: async (parent, { input }, { req }, info) => {
+
+      await verifyAdmin(req)
+      try {
+
+        const options: {
+          agentId: Types.ObjectId;
+          orderItemId: any;
+          code: string;
+          deliveryStatus: string | undefined;
+          paymentMode: string | undefined;
+          remarks: string | undefined;
+          returnStatus: string | undefined;
+          returnRemark: string | undefined;
+        } = {
+          agentId: input?.agentId,
+          orderItemId: input?.orderItemId,
+          code: input?.code || " ",
+          returnStatus: input?.returnStatus || undefined,
+          returnRemark: input?.returnRemark || undefined,
+          deliveryStatus: input?.deliveryStatus || undefined,
+          paymentMode: input?.paymentMode || undefined,
+          remarks: input?.remarks || undefined
+        };
+
+        await deliveryAgentService.deliveryTimeOtpverifyAdmin(options)
+
+        return {
+          status: true,
+          msg: "OTP verified and status updated"
+        }
+
+      } catch (error: any) {
+
+        throw new GraphQLError(error, {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            errors: [],
+          },
+        });
+
+
+      }
+    },
+
+
+
+
+
+
+
     //API for return request from user
-    returnUserOrderProduct: async (parent, { input, image }, { req,io }, info) => {
+    returnUserOrderProduct: async (parent, { input, image }, { req, io }, info) => {
       //add product image and return address
       // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
       await verifyUser(req);
       await validateInput(validators.returnUserOrderValidator, req);
 
-      console.log("ret ",input)
+      console.log("ret ", input)
       let returnProductImage: orderProductService.FileData[] = [];
 
       if (image) {
@@ -1315,7 +1406,7 @@ export const orderResolver: Resolvers = {
           extensions: { code: "BAD_REQUEST", errors: [] },
         });
       }
- 
+
       // console.log(orderProduct);
 
       if (orderProduct.shippingStatus !== "DELIVERED") {
@@ -1413,15 +1504,15 @@ export const orderResolver: Resolvers = {
           village: returnAddress.village,
           governorateID: returnAddress.governorateID,
           villageID: returnAddress.villageID,
-          address:returnAddress.address || ""
+          address: returnAddress.address || ""
         }
         : null;
 
-      if(orderProduct.returnCharge && orderProduct.sellingPrice){
-        const returnAmount=(orderProduct.returnCharge/100)*orderProduct?.sellingPrice
-        orderProduct.refundAmount=returnAmount
+      if (orderProduct.returnCharge && orderProduct.sellingPrice) {
+        const returnAmount = (orderProduct.returnCharge / 100) * orderProduct?.sellingPrice
+        orderProduct.refundAmount = returnAmount
       }
-      
+
       orderProduct.returnUserReason = returnUserReason;
       orderProduct.returnRequestDate = moment().toDate();
       orderProduct.refundBankDetails = validatedBankDetails;
@@ -1449,27 +1540,27 @@ export const orderResolver: Resolvers = {
         referenceType: "ORDER_PRODUCTS",
         details: `${returnAddress?.firstname} (Customer) requested a return for order  ${orderProduct.itemId} through the website. The return request has been submitted and is now waiting for approval.`,
       });
-  
 
 
-      const return_order_placed_notification=await notificationService.createNotification({
+
+      const return_order_placed_notification = await notificationService.createNotification({
         title: "New return order placed !!!!",
         message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
-        type: "return_order",   
-        permissions:["orders","return-orders"],
+        type: "return_order",
+        permissions: ["orders", "return-orders"],
         orderId: orderProduct?.orderId,
-        productId:_id
-        
+        productId: _id
+
       })
 
       io.emit("new_notification", return_order_placed_notification);
 
-      console.log("return res",response)
+      console.log("return res", response)
 
       return response;
     },
 
-    returnUserOrderProductInMob:async (parent, { input, image }, { req ,io}, info) => {
+    returnUserOrderProductInMob: async (parent, { input, image }, { req, io }, info) => {
       //add product image and return address
       // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
@@ -1598,15 +1689,15 @@ export const orderResolver: Resolvers = {
           village: returnAddress.village,
           governorateID: returnAddress.governorateID,
           villageID: returnAddress.villageID,
-          address:returnAddress.address || ""
+          address: returnAddress.address || ""
         }
         : null;
 
-      if(orderProduct.returnCharge && orderProduct.sellingPrice){
-        const returnAmount=(orderProduct.returnCharge/100)*orderProduct?.sellingPrice
-        orderProduct.refundAmount=returnAmount
+      if (orderProduct.returnCharge && orderProduct.sellingPrice) {
+        const returnAmount = (orderProduct.returnCharge / 100) * orderProduct?.sellingPrice
+        orderProduct.refundAmount = returnAmount
       }
-      
+
       orderProduct.returnUserReason = returnUserReason;
       orderProduct.returnRequestDate = moment().toDate();
       orderProduct.refundBankDetails = validatedBankDetails;
@@ -1623,7 +1714,7 @@ export const orderResolver: Resolvers = {
       };
 
 
-      
+
       await activityLogService.createActivityLog({
         actionType: "RETURN",
         action: "RETURN REQUEST INITIATED",
@@ -1634,19 +1725,19 @@ export const orderResolver: Resolvers = {
         details: `${returnAddress?.firstname} (Customer) requested a return for order  ${orderProduct.itemId} through the website. The return request has been submitted and is now waiting for approval.`,
       });
 
-      const return_order_placed_notification=await notificationService.createNotification({
+      const return_order_placed_notification = await notificationService.createNotification({
         title: "New return order placed !!!!",
         message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
-        type: "return_order",   
-        permissions:["orders","return-orders"],
+        type: "return_order",
+        permissions: ["orders", "return-orders"],
         orderId: orderProduct?.orderId,
-        productId:_id
-        
+        productId: _id
+
       })
 
       io.emit("new_notification", return_order_placed_notification);
 
-      console.log("return res",response)
+      console.log("return res", response)
 
       return response;
     },
@@ -1707,7 +1798,7 @@ export const orderResolver: Resolvers = {
       const userId = req.authAccount._id;
       let { _id } = input;
 
-      const user=await userModel.findById(userId)
+      const user = await userModel.findById(userId)
 
       const orderProduct = await orderProductService.getOrderProductWithFilters(
         { userId: userId, _id: _id }
@@ -1736,6 +1827,7 @@ export const orderResolver: Resolvers = {
       }
 
       orderProduct.shippingStatus = "CANCELED";
+      orderProduct.cancelUserReason = input?.cancelUserReason
       orderProduct.cancelledDate = moment().toDate();
 
       await orderProduct.save();
@@ -1743,10 +1835,12 @@ export const orderResolver: Resolvers = {
       try {
         let product = [
           {
-            _id: _id,
+            _id: orderProduct?.productId,
             quantity: 1,
           },
         ];
+
+        console.log("update stock")
 
         await productService.increaseProductsStock(product);
       } catch (error) {
@@ -1783,7 +1877,7 @@ export const orderResolver: Resolvers = {
         _id: _id,
       };
 
-      
+
       await activityLogService.createActivityLog({
         actionType: "ORDER",
         action: "ORDER CANCELED",
@@ -1793,7 +1887,7 @@ export const orderResolver: Resolvers = {
         referenceType: "ORDER_PRODUCTS",
         details: `${user?.displayName}  (User) Cancelled  the order ${orderProduct?.itemId} . The status has been updated to "Cancelled" `,
       });
-  
+
 
       return response;
     },
@@ -1807,7 +1901,7 @@ export const orderResolver: Resolvers = {
       await validateInput(validators.cancelUserOrderValidator, req);
       const userId = req.authAccount._id;
       let { _id } = input;
-      const user=await userModel.findById(userId)
+      const user = await userModel.findById(userId)
 
       const orderProduct = await orderProductService.getOrderProductWithFilters(
         { userId: userId, _id: _id }
@@ -1836,6 +1930,7 @@ export const orderResolver: Resolvers = {
       }
 
       orderProduct.shippingStatus = "CANCELED";
+      orderProduct.cancelUserReason = input?.cancelUserReason
       orderProduct.cancelledDate = moment().toDate();
 
       await orderProduct.save();
@@ -1940,7 +2035,7 @@ export const orderResolver: Resolvers = {
     },
     getAdminOrderDetails: async (parent, { input }, { req }, info) => {
       // await verifyAdmin(req);
-      
+
       await validateInput(validators.getAdminOrderDetailsValidator, req);
 
       const response = await orderService.getAdminOrderDetails(input.orderId);
@@ -2824,7 +2919,7 @@ export const orderResolver: Resolvers = {
         );
 
         // find products delivery type and delivery agents
-        const options={
+        const options = {
           proid: input.productId,
           villageID: input.villageID || "",
           governorateID: input.governorateID || " "
@@ -2849,20 +2944,20 @@ export const orderResolver: Resolvers = {
     },
 
     getOrderActivityLogByAdmin: async (parent, { input }, { req }, info) => {
-       // await verifyAdmin(req);
-       try {
-        const orderProductId=input.orderProductId;
-        const result=await orderService.getOrderActivityLogByAdmin(orderProductId);
-        console.log("result",result)
+      // await verifyAdmin(req);
+      try {
+        const orderProductId = input.orderProductId;
+        const result = await orderService.getOrderActivityLogByAdmin(orderProductId);
+        console.log("result", result)
         return result
-       } catch (error) {
-           throw new GraphQLError("Unable find data", {
-               extensions: {
-                   code: "BAD_REQUEST",
-                   errors: [],
-               },
-           })
-       }
+      } catch (error) {
+        throw new GraphQLError("Unable find data", {
+          extensions: {
+            code: "BAD_REQUEST",
+            errors: [],
+          },
+        })
+      }
 
     },
   }

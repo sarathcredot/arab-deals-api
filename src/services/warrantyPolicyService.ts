@@ -1,5 +1,5 @@
 import { warrantyPolicyModel } from "../models/warrantyPolicyModel";
-import { categoryModel, brandModel, orderProductModel } from "../models"
+import { categoryModel, brandModel, orderProductModel, productModel } from "../models"
 import { PipelineStage, FilterQuery, ProjectionFields, QueryOptions, Document, Types, Model, UpdateQuery, BooleanExpressionOperator, Number, } from "mongoose";
 
 export interface IWarrantyPolicy {
@@ -337,7 +337,7 @@ export const getDefaultWarrantyPolicyInProduct = async (brandId: Types.ObjectId,
                         } else {
 
 
-                            const returnPolicy: any = await warrantyPolicyModel.findOne({ _id: categoryData.warrantyPolicy })
+                            const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categoryData.warrantyPolicy })
 
 
                             if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
@@ -357,7 +357,7 @@ export const getDefaultWarrantyPolicyInProduct = async (brandId: Types.ObjectId,
 
                                         if (categorie.returnPolicy) {
 
-                                            const returnPolicy: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+                                            const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
 
                                             if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
 
@@ -407,7 +407,7 @@ export const getWarrantyPolicyOfOrderProduct = async (orderProductId: Types.Obje
         },
         {
             $project: {
-                "warranty.name": 1 ,
+                "warranty.name": 1,
                 "warranty.duration": 1,
                 "warranty.warrantyType": 1,
                 "warranty.description": 1,
@@ -418,4 +418,261 @@ export const getWarrantyPolicyOfOrderProduct = async (orderProductId: Types.Obje
     console.log("result", result)
     return result.length > 0 ? result[0] : null;
 };
+
+
+export const getDefaultWarrantyPolicyVariantCreate = (productCode: number): Promise<any> => {
+
+
+    return new Promise(async (resolve, reject) => {
+
+        try {
+
+            const parentProduct: any = await productModel.findOne({ productCode: productCode })
+
+            // check has parentProduct a warranty policy
+
+            if (parentProduct.warrantyPolicy) {
+
+                const obj = {
+
+                    WarrantyPolicyData: parentProduct?.warrantyPolicy,
+                    policyGet: true
+                }
+
+                resolve(obj)
+            } else {
+
+                const brandData = await brandModel.findOne({ _id: parentProduct?.brandId })
+
+                if (!brandData) {
+
+                    reject()
+                    return
+                } else {
+
+                    if (!brandData.warrantyPolicy) {
+
+                        // check Category returnPolicy
+
+                        const categoryData: any = await categoryModel.findOne({ _id: parentProduct?.categoryId })
+
+                        if (!categoryData.warrantyPolicy) {
+
+                            const allCategories = categoryData.path.split("#")
+
+                            for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                if (allCategories[i]) {
+
+                                    const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                    if (categorie.warrantyPolicy) {
+
+                                        const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                        if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                            const obj = {
+
+                                                WarrantyPolicyData: warrantyPolicyData,
+                                                policyGet: false
+                                            }
+
+                                            resolve(obj)
+                                            return
+                                        }
+                                    }
+                                }
+                            }
+
+                            resolve(null)
+                            return;
+
+
+                        } else {
+
+                            const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categoryData.warrantyPolicy })
+
+
+                            if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                const obj = {
+
+                                    WarrantyPolicyData: warrantyPolicyData,
+                                    policyGet: false
+                                }
+
+                                resolve(obj)
+                                return;
+                            } else {
+
+
+                                const allCategories = categoryData.path.split("#")
+
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                    if (allCategories[i]) {
+
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                        if (categorie.returnPolicy) {
+
+                                            const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                            if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+                                                const obj = {
+
+                                                    WarrantyPolicyData: warrantyPolicyData,
+                                                    policyGet: false
+                                                }
+                                                resolve(obj)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
+                                reject(null)
+                                return;
+
+
+
+                            }
+
+
+                        }
+
+
+                    } else {
+
+
+                        const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: brandData.warrantyPolicy })
+
+                        console.log("cat plo", warrantyPolicyData)
+
+                        if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                            const obj = {
+
+                                WarrantyPolicyData: warrantyPolicyData,
+                                policyGet: false
+                            }
+
+                            resolve(obj)
+                            return;
+
+                        } else {
+
+
+
+                            const categoryData: any = await categoryModel.findOne({ _id: parentProduct.categoryId })
+                            if (!categoryData.warrantyPolicy) {
+
+                                const allCategories = categoryData.path.split("#")
+
+                                for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                    if (allCategories[i]) {
+
+                                        const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                        if (categorie.warrantyPolicy) {
+
+                                            const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                            if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                                const obj = {
+
+                                                    WarrantyPolicyData: warrantyPolicyData,
+                                                    policyGet: false
+                                                }
+                                                resolve(obj)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+
+                                resolve(null)
+                                return;
+
+                            } else {
+
+
+                                const warrantyPolicyData : any = await warrantyPolicyModel.findOne({ _id: categoryData.warrantyPolicy })
+
+
+                                if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                    const obj = {
+
+                                        WarrantyPolicyData: warrantyPolicyData,
+                                        policyGet: false
+                                    }
+
+                                    resolve(obj)
+                                    return;
+                                } else {
+
+
+                                    const allCategories = categoryData.path.split("#")
+
+                                    for (let i = allCategories.length - 1; i >= 0; i--) {
+
+                                        if (allCategories[i]) {
+
+                                            const categorie: any = await categoryModel.findOne({ _id: allCategories[i] })
+
+                                            if (categorie.returnPolicy) {
+
+                                                const warrantyPolicyData: any = await warrantyPolicyModel.findOne({ _id: categorie.warrantyPolicy })
+
+                                                if (warrantyPolicyData.isDeleted === false && warrantyPolicyData.isEnable === true) {
+
+                                                    const obj = {
+
+                                                        WarrantyPolicyData: warrantyPolicyData,
+                                                        policyGet: false
+                                                    }
+
+                                                    resolve(obj)
+                                                    return
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    resolve(null)
+                                    return;
+
+
+                                }
+
+
+                            }
+
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+
+
+
+            }
+
+
+
+        } catch (error) {
+
+            reject(error)
+        }
+    })
+}
 

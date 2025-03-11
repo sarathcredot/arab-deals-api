@@ -32,6 +32,46 @@ type Mutation {
   cancelUserOrderProductInMobile(
     input: CancelUserOrderProductInMobileInput!
   ): CancelUserOrderProductInMobileResponse!
+
+  updateAdminOrderProductOtpSent(input:updateAdminOrderProductOtpSentInput):updateAdminOrderProductOtpSentResponse
+  deliveryStatusOtpVerifyAdmin(input:deliveryStatusOtpVerifyAdminInput):deliveryStatusOtpVerifyAdminResponse
+}
+
+
+type deliveryStatusOtpVerifyAdminResponse{
+
+
+      status:Boolean
+      msg:String
+
+}
+
+input deliveryStatusOtpVerifyAdminInput{
+        
+        agentId:ObjectId!
+        orderItemId:ObjectId!
+        code:String
+        returnStatus:String
+        returnRemark:String
+        deliveryStatus:String
+        paymentMode:String
+        remarks:String
+}
+
+
+input updateAdminOrderProductOtpSentInput{
+
+      orderId:ObjectId!
+}
+
+type updateAdminOrderProductOtpSentResponse{
+ 
+    status:Boolean
+    otp:Boolean
+    msg:String
+
+
+      
 }
 
 # Create Order Input
@@ -142,10 +182,15 @@ input ReturnUserOrderProductInMobileInput {
 
 input CancelUserOrderProductInput {
   _id: ObjectId!
+  cancelUserReason:String!
+
 }
 
 input CancelUserOrderProductInMobileInput {
   _id: ObjectId!
+  cancelUserReason:String!
+
+
 }
 
 type CreateUserOrderResponse {
@@ -523,6 +568,7 @@ type UserOrderProduct {
   invoiceNumber: String
   invoice: FileData
   warranty:WarrantyTypeUserOrders
+  warrantyClaimStatus:String
   
 }
 

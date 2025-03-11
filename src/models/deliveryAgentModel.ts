@@ -41,6 +41,10 @@ const deliveryAgentSchema = new Schema(
       type: String,
       required: true,
     },
+    countryCode:{
+      type: String,
+      required: true,
+    },
     governorate: {
       type: String,
       //  required: true

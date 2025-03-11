@@ -13,13 +13,73 @@ type Mutation {
 
 
    updateClaimStatusByAdmin(input:updateClaimStatusByAdminInput!):updateClaimStatusByAdminResponse
+   updateClaimStatusByAdminAgentStatus(input:updateClaimStatusByAdminAgentStatusInput!):updateClaimStatusByAdminAgentStatusResponse
+   claimOtpVerificationByAdminAGentStatus(input:claimOtpVerificationByAdminAGentStatusInput):claimOtpVerificationByAdminAGentStatusResponse
 }
 
 type Query {
     getAllClaimRequestsByAdmin(input:getAllClaimRequestsByAdminInput):getAllClaimRequestsByAdminResponse
     getClaimRequestDetailsByAdmin(input:getClaimRequestDetailsByAdminInput!):getClaimRequestDetailsByAdminResponse
     getWarrantyActivityLogByAdmin(input:getWarrantyActivityLogByAdminInput!):[getWarrantyActivityLogByAdminResponse]
+    getOrderProductWarrantyClaim(input:getOrderProductWarrantyClaimInput):getOrderProductWarrantyClaimResponse
 }
+
+
+
+input claimOtpVerificationByAdminAGentStatusInput{
+
+      claimRequestId: ObjectId!
+    code: String!
+    claimStatus: String
+    remarks: String
+    agentId:ObjectId
+    
+}
+
+type claimOtpVerificationByAdminAGentStatusResponse{
+
+       status: Boolean
+   msg: String
+}
+
+
+type updateClaimStatusByAdminAgentStatusResponse{
+
+       status: Boolean
+    otp: Boolean
+    msg: String
+}
+
+
+
+
+input updateClaimStatusByAdminAgentStatusInput{
+
+     claimRequestId:ObjectId!
+   claimStatus:String!
+   remarks:String
+   agentId:ObjectId
+}
+
+type getOrderProductWarrantyClaimResponse{
+
+      _id: ObjectId
+  claimStatus: String
+}
+
+
+input getOrderProductWarrantyClaimInput{
+
+     orderProductId:ObjectId
+}
+
+type getOrderProductWarrantyClaimResponse{
+
+    _id:ObjectId,
+    claimStatus:String
+}
+
+
 
 
  input getWarrantyActivityLogByAdminInput{
@@ -94,6 +154,7 @@ input getClaimRequestDetailsByAdminInput{
 input updateClaimStatusByAdminInput{
      claimRequestId:ObjectId!
      claimStatus:String!
+     agentStatus:Boolean
      Reason:String
      Date:Date
 }
@@ -202,6 +263,7 @@ type createWarrantyClaimRequestByUSerResponse{
 type updateClaimStatusByAdminResponse{
    success: Boolean
    message: String
+   otp:Boolean
 }
 
 

@@ -19,8 +19,22 @@ type Query {
   getDefaultWarrantyPolicyInProduct(input:getDefaultWarrantyPolicyInProductInput):WarrantyPolicy!
   getWarrantyPolicyOfOrderProduct(input:getWarrantyPolicyOfOrderProductInput!):getWarrantyPolicyOfOrderProductResponse
   getWarrantyPolicyOfOrderProductInMobile(input:getWarrantyPolicyOfOrderProductInput!):getWarrantyPolicyOfOrderProductResponse
- 
+  getDefaultWarrantyPolicyVariantCreate(input:getDefaultWarrantyPolicyVariantCreateInput!):getDefaultWarrantyPolicyVariantCreateResponse
 }
+
+
+input getDefaultWarrantyPolicyVariantCreateInput{
+
+       productCode:Int!
+}
+
+type getDefaultWarrantyPolicyVariantCreateResponse{
+
+
+       WarrantyPolicyData:WarrantyPolicy
+       policyGet:Boolean
+}
+
 
 
 input getDefaultWarrantyPolicyInProductInput{

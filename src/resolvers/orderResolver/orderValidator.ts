@@ -39,7 +39,7 @@ export const getUserOrderDetailsValidator = [
     body('variables.input.orderId').trim().isString().notEmpty(),
 ];
 
-export const getProductDeliveryTypeDeliveryAgentsValidator=[
+export const getProductDeliveryTypeDeliveryAgentsValidator = [
 
     body('variables.input.productId').trim().optional({ checkFalsy: true }).isMongoId()
 ]
@@ -212,11 +212,11 @@ export const getUserOrderProductValidator = [
 export const updateAdminOrderProductValidator = [
     body('variables.input._id').trim().isMongoId(),
     body('variables.input.paymentRemark').trim().optional({ checkFalsy: true }).isString(),
-    body('variables.input.shippingStatus').trim().optional({ checkFalsy: true }).isIn(["PENDING", "PACKAGE_IN_PROGRESS", "SHIPPED", "DELIVERED", "CANCELED"]),
+    body('variables.input.shippingStatus').trim().optional({ checkFalsy: true }).isIn(["NA", "PENDING", "PACKAGE_IN_PROGRESS", "OUT_FOR_DELIVERY", "SHIPPED", "DELIVERED", "CANCELED", "POSTPONED"]),
     body('variables.input.paymentStatus').trim().optional({ checkFalsy: true }).isIn(["PENDING", "COMPLETED"]),
     body('variables.input.shippedDate').trim().optional({ checkFalsy: true }).isDate(),
     body('variables.input.deliveryDate').trim().optional({ checkFalsy: true }).isDate(),
-    body('variables.input.returnStatus').trim().optional({ checkFalsy: true }).isIn(["NA", "PENDING", "APPROVED", "REJECTED"]),
+    body('variables.input.returnStatus').trim().optional({ checkFalsy: true }).isIn(["NA", "PENDING", "APPROVED", "REJECTED", "COLLECTED", "RETURNED TO WAREHOUSE", "POSTPONED"]),
     body('variables.input.returnUserReason').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.returnAdminComment').trim().optional({ checkFalsy: true }).isString(),
     body('variables.input.returnRequestDate').trim().optional({ checkFalsy: true }).isDate(),
