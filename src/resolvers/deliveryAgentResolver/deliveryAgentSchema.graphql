@@ -723,6 +723,8 @@ type DeliveryAgent{
     village:String,
     governorateID:String,
     villageID:String
+    countryCode:String
+
 }
 
 type DeliveryAgentResponse{

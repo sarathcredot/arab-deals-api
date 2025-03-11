@@ -150,6 +150,8 @@ type user{
   mobileNumber: String
   isBlocked: Boolean
   isDeleted:Boolean
+  countryCode:String
+
 }
 
 type usersResponse {

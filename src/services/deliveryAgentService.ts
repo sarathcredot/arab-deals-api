@@ -2796,13 +2796,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
 
           $inc: {
-            'wallet.numberOfPendingReturns': {
-              $cond: {
-                if: { $gt: ["$wallet.numberOfPendingReturns", 0] },
-                then: -1,
-                else: 0
-              }
-            }
+            'wallet.numberOfPendingReturns':-1
 
           },
         })
@@ -2829,13 +2823,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
           $inc: {
             'wallet.numberOfReturnOrderDelivered': 1,
-            'wallet.numberOfPendingReturns': {
-              $cond: {
-                if: { $gt: ["$wallet.numberOfPendingReturns", 0] },
-                then: -1,
-                else: 0
-              }
-            }
+            'wallet.numberOfPendingReturns':-1
           }
         })
         result.returnStatus = data.returnStatus;
@@ -2889,13 +2877,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           $inc: {
             'wallet.numberOfOrderDelivered': 1,
 
-            'wallet.numberOfPendingOrdes': {
-              $cond: {
-                if: { $gt: ["$wallet.numberOfPendingOrdes", 0] },
-                then: -1,
-                else: 0
-              }
-            }
+            'wallet.numberOfPendingOrdes':-1
           }
         })
 
@@ -2969,13 +2951,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
           $inc: {
 
-            'wallet.numberOfPendingOrdes': {
-              $cond: {
-                if: { $gt: ["$wallet.numberOfPendingOrdes", 0] },
-                then: -1,
-                else: 0
-              }
-            }
+            'wallet.numberOfPendingOrdes':-1
 
 
           }
@@ -3012,6 +2988,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
     return ({ flag: false })
   } catch (error: any) {
     // Reject with a specific error message
+    console.log("count err",error.message)
     throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
   }
 };

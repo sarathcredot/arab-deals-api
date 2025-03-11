@@ -956,13 +956,7 @@ export const deliveryAgentResolver: Resolvers = {
         await deliveryAgentModel.findByIdAndUpdate({_id:req?.authAccount?._id},{
 
           $inc: {
-            'wallet.numberOfPendingWarrantyCall': {
-              $cond: {
-                if: { $gt: ["$wallet.numberOfPendingWarrantyCall", 0] },
-                then: -1,
-                else: 0
-              }
-            }
+            'wallet.numberOfPendingWarrantyCall':-1
 
           }
 
@@ -1901,7 +1895,9 @@ export const deliveryAgentResolver: Resolvers = {
             governorate: 1,
             village: 1,
             governorateID: 1,
-            villageID: 1
+            villageID: 1,
+            countryCode:1
+            
           },
           { lean: true, page, limit },
           settlementHistoryFilter
