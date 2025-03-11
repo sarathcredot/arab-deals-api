@@ -2793,13 +2793,24 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
         });
 
 
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
 
-          $inc: {
-            'wallet.numberOfPendingReturns':-1
+          [
+            {
+              $set: {
 
-          },
-        })
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
 
 
         result.returnStatus = data.returnStatus;
@@ -2820,12 +2831,23 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} (Delivery Agent) successfully collected the returned item for order ${otpData?.itemId}. The package is now being sent back to the warehouse.`,
         });
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfReturnOrderDelivered': 1,
-            'wallet.numberOfPendingReturns':-1
-          }
-        })
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
         result.returnStatus = data.returnStatus;
         result.returnCollectedDate = new Date();
         if (data.returnRemark) {
@@ -2873,13 +2895,23 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
           }
         })
         // update delivery agent numberOfOrderDelivered count
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfOrderDelivered': 1,
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
 
-            'wallet.numberOfPendingOrdes':-1
-          }
-        })
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
 
         if (data.deliveryStatus === "DELIVERED") {
           await activityLogService.createActivityLog({
@@ -2945,17 +2977,23 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
 
         // update delivery agent wallet details
 
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
 
+          [
+            {
+              $set: {
 
-
-          $inc: {
-
-            'wallet.numberOfPendingOrdes':-1
-
-
-          }
-        })
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
 
         // update this product stock 
 
@@ -2988,7 +3026,7 @@ export const deliveryTimeOtpverify = async (data: { orderItemId: Types.ObjectId,
     return ({ flag: false })
   } catch (error: any) {
     // Reject with a specific error message
-    console.log("count err",error.message)
+    console.log("count err", error.message)
     throw new Error(error.message || 'INTERNAL_SERVER_ERROR');
   }
 };
@@ -3026,11 +3064,25 @@ export const deliveryTimeOtpverifyAdmin = async (data: { orderItemId: Types.Obje
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} (Delivery Agent) rejected the return pickup for order ${otpData?.itemId} due to an issue . The admin has been notified to review the case `,
         });
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfPendingReturns': -1
-          }
-        })
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
+
         result.returnStatus = data.returnStatus;
         result.returnRejectedDate = new Date();
         if (data.returnRemark) {
@@ -3049,12 +3101,23 @@ export const deliveryTimeOtpverifyAdmin = async (data: { orderItemId: Types.Obje
           referenceType: "ORDER_PRODUCTS",
           details: `${agent?.fullName} (Delivery Agent) successfully collected the returned item for order ${otpData?.itemId}. The package is now being sent back to the warehouse.`,
         });
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfReturnOrderDelivered': 1,
-            'wallet.numberOfPendingReturns': -1
-          }
-        })
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
         result.returnStatus = data.returnStatus;
         result.returnCollectedDate = new Date();
         if (data.returnRemark) {
@@ -3102,12 +3165,23 @@ export const deliveryTimeOtpverifyAdmin = async (data: { orderItemId: Types.Obje
           }
         })
         // update delivery agent numberOfOrderDelivered count
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
-          $inc: {
-            'wallet.numberOfOrderDelivered': 1,
-            'wallet.numberOfPendingOrdes': -1
-          }
-        })
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
+
+          [
+            {
+              $set: {
+                'wallet.numberOfOrderDelivered': { $add: ['$wallet.numberOfOrderDelivered', 1] },
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
 
         if (data.deliveryStatus === "DELIVERED") {
           await activityLogService.createActivityLog({
@@ -3173,13 +3247,24 @@ export const deliveryTimeOtpverifyAdmin = async (data: { orderItemId: Types.Obje
 
         // update delivery agent wallet details
 
-        await deliveryAgentModel.findByIdAndUpdate({ _id: data.agentId }, {
+        await deliveryAgentModel.findOneAndUpdate({ _id: data.agentId },
 
-          $inc: {
+          [
+            {
+              $set: {
 
-            'wallet.numberOfPendingOrdes': -1
-          }
-        })
+                'wallet.numberOfPendingOrdes': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingOrdes', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingOrdes', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
 
         // update this product stock 
 
@@ -3306,7 +3391,13 @@ export const claimOtpVerification = async (data: {
 
     if (data.claimStatus) {
       if (data.claimStatus === 'REJECTED') {
-        agent.wallet.numberOfPendingWarrantyCall -= 1;
+        if (agent.wallet.numberOfPendingWarrantyCall === 0) {
+          agent.wallet.numberOfPendingWarrantyCall = 0;
+        } else {
+
+          agent.wallet.numberOfPendingWarrantyCall -= 1;
+        }
+
         updateFields.claimStatus = 'REJECTED';
         updateFields.rejectedDate = new Date();
         if (data.remarks) {

@@ -71,7 +71,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       let fullName: string = input.fullName;
       let contactNumber: string = input.contactNumber;
-      let countryCode:string=input.countryCode;
+      let countryCode: string = input.countryCode;
       let userID: string = input.userID;
       let password: string = input.password;
       let agentType: string = input.agentType;
@@ -813,7 +813,7 @@ export const deliveryAgentResolver: Resolvers = {
         })
       }
 
- 
+
 
 
       if (returnStatus === "RETURNED TO WAREHOUSE") {
@@ -848,7 +848,7 @@ export const deliveryAgentResolver: Resolvers = {
           details: `${agent?.fullName} (Delivery Agent) postponed the return process for Order Product ID: ${result?.itemId}. The return will be rescheduled for a later date.`,
         });
 
-        await deliveryAgentModel.findByIdAndUpdate({ _id:agentId }, {
+        await deliveryAgentModel.findByIdAndUpdate({ _id: agentId }, {
           $inc: {
             'wallet.numberOfPendingReturns': -1
           }
@@ -910,8 +910,8 @@ export const deliveryAgentResolver: Resolvers = {
       console.log(claimStatus)
 
       const result = await warrantyClaimModel.findOne({ _id: claimRequestId });
-      const existingStatus=result?.claimStatus
-      const agentData=await deliveryAgentModel.findById({_id:req?.authAccount?._id})
+      const existingStatus = result?.claimStatus
+      const agentData = await deliveryAgentModel.findById({ _id: req?.authAccount?._id })
 
 
       if (!result) {
@@ -932,7 +932,7 @@ export const deliveryAgentResolver: Resolvers = {
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           referenceType: "WARRANTY_CLAIM",
-          details:`${agentData?.fullName}(Delivery Agent) has picked up the replacement product for warranty ${result?.warrantyId} and is now "Out for Delivery". The customer will receive the product shortly.
+          details: `${agentData?.fullName}(Delivery Agent) has picked up the replacement product for warranty ${result?.warrantyId} and is now "Out for Delivery". The customer will receive the product shortly.
 `
           // `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus} to ${claimStatus}. `,
 
@@ -948,20 +948,30 @@ export const deliveryAgentResolver: Resolvers = {
         }
       }
 
-      if (claimStatus === "RETURNED_TO_WAREHOUSE") { 
+      if (claimStatus === "RETURNED_TO_WAREHOUSE") {
         result.claimStatus = claimStatus
         result.returnedWarehouseDate = new Date();
         await result.save()
 
-        await deliveryAgentModel.findByIdAndUpdate({_id:req?.authAccount?._id},{
 
-          $inc: {
-            'wallet.numberOfPendingWarrantyCall':-1
+        await deliveryAgentModel.findOneAndUpdate({ _id: req?.authAccount?._id },
 
-          }
+          [
+            {
+              $set: {
 
-          
-        })
+                'wallet.numberOfPendingWarrantyCall': {
+                  $cond: {
+                    if: { $gt: ['$wallet.numberOfPendingWarrantyCall', 0] },
+                    then: { $subtract: ['$wallet.numberOfPendingWarrantyCall', 1] },
+                    else: 0
+                  }
+                }
+              }
+            }
+          ],
+        )
+
 
         const data = {
           actionType: "WARRANTY",
@@ -970,7 +980,7 @@ export const deliveryAgentResolver: Resolvers = {
           performedByRole: "DELIVERYAGENT",
           referenceId: claimRequestId,
           referenceType: "WARRANTY_CLAIM",
-          details:` ${agentData?.fullName}(Delivery Agent) successfully returned the defective product for warranty ${result?.warrantyId} to the warehouse for further inspection or disposal.
+          details: ` ${agentData?.fullName}(Delivery Agent) successfully returned the defective product for warranty ${result?.warrantyId} to the warehouse for further inspection or disposal.
 
 `
           //  `${agentData?.fullName} update Warranty request status of an Warranty cal ID: ${result?.warrantyId} from ${existingStatus}} to ${claimStatus}. `,
@@ -1093,7 +1103,7 @@ export const deliveryAgentResolver: Resolvers = {
 
       } catch (error: any) {
 
-     
+
 
         throw new GraphQLError(error, {
           extensions: {
@@ -1184,29 +1194,6 @@ export const deliveryAgentResolver: Resolvers = {
         // check this delivery status POSTPONED
 
         if (input.deliveryStatus === "POSTPONED" || input.deliveryStatus === "OUT_FOR_DELIVERY") {
-            if(input.deliveryStatus === "POSTPONED"){
-                  await activityLogService.createActivityLog({
-                    actionType: "ORDER",
-                    action: "DELIVERY POSTPONED",
-                    performedBy: agentId,
-                    performedByRole: "DELIVERYAGENT",
-                    referenceId: input.orderItemId,
-                    referenceType: "ORDER_PRODUCTS",
-                    details: `${agent?.fullName} postponed order ${order_product?.itemId} . `,
-                  });
-                }
-          
-                if(input.deliveryStatus === "OUT_FOR_DELIVERY"){
-                  await activityLogService.createActivityLog({
-                    actionType: "ORDER",
-                    action: "OUT FOR DELIVERY",
-                    performedBy: agentId,
-                    performedByRole: "DELIVERYAGENT",
-                    referenceId: input.orderItemId,
-                    referenceType: "ORDER_PRODUCTS",
-                    details: `${agent?.fullName} (Delivery Agent) has picked up the package for order ${order_product?.itemId} and is now "Out for Delivery". The customer will receive the package shortly. `,
-                  });
-                }
 
           console.log(input.deliveryStatus)
           const obj = {
@@ -1218,6 +1205,31 @@ export const deliveryAgentResolver: Resolvers = {
           }
 
           const result = await deliveryAgentService.orderDelivedbyAgent(obj)
+
+          if (input.deliveryStatus === "POSTPONED") {
+            await activityLogService.createActivityLog({
+              actionType: "ORDER",
+              action: "DELIVERY POSTPONED",
+              performedBy: agentId,
+              performedByRole: "DELIVERYAGENT",
+              referenceId: input.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${agent?.fullName} postponed order ${order_product?.itemId} . `,
+            });
+          }
+
+          if (input.deliveryStatus === "OUT_FOR_DELIVERY") {
+            await activityLogService.createActivityLog({
+              actionType: "ORDER",
+              action: "OUT FOR DELIVERY",
+              performedBy: agentId,
+              performedByRole: "DELIVERYAGENT",
+              referenceId: input.orderItemId,
+              referenceType: "ORDER_PRODUCTS",
+              details: `${agent?.fullName} (Delivery Agent) has picked up the package for order ${order_product?.itemId} and is now "Out for Delivery". The customer will receive the package shortly. `,
+            });
+          }
+
 
           return {
             status: true,
@@ -1896,8 +1908,8 @@ export const deliveryAgentResolver: Resolvers = {
             village: 1,
             governorateID: 1,
             villageID: 1,
-            countryCode:1
-            
+            countryCode: 1
+
           },
           { lean: true, page, limit },
           settlementHistoryFilter
