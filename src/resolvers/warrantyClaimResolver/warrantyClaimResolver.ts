@@ -78,7 +78,7 @@ export const warrantyClaimResolver: Resolvers = {
                 }
 
                 const existingClaimRequest = await warrantyClaimModel.findOne({ product: productId })
-                if (existingClaimRequest && existingClaimRequest.claimStatus != "REJECTED" || existingClaimRequest && existingClaimRequest.claimStatus != "REPLACEMENT_COMPLETED" || existingClaimRequest && existingClaimRequest.claimStatus != "RETURNED_TO_WAREHOUSE"  ) {
+                if (existingClaimRequest && existingClaimRequest.claimStatus != "REJECTED" || existingClaimRequest && existingClaimRequest.claimStatus != "REPLACEMENT_COMPLETED" || existingClaimRequest && existingClaimRequest.claimStatus != "RETURNED_TO_WAREHOUSE") {
                     throw new GraphQLError("Claim request already exist for this product", {
                         extensions: {
                             code: "BAD_REQUEST",
@@ -372,7 +372,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
-                        otp:false,
+                        otp: false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -412,7 +412,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
-                        otp:false,
+                        otp: false,
                         message: "Warranty Claim status updated succesfully",
                     }
                 }
@@ -439,7 +439,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
-                        otp:false,
+                        otp: false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -472,7 +472,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                         return {
                             success: true,
-                            otp:false,
+                            otp: false,
                             message: "Warranty Claim status updated succesfully",
                         }
 
@@ -503,7 +503,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
-                        otp:false,
+                        otp: false,
                         message: "Warranty Claim status updated succesfully",
                     }
                 }
@@ -527,16 +527,16 @@ export const warrantyClaimResolver: Resolvers = {
 
                     }
 
-                    await deliveryAgentModel.findByIdAndUpdate({_id:agentData?._id},{
+                    await deliveryAgentModel.findByIdAndUpdate({ _id: agentData?._id }, {
 
                         $inc: {
-              
-                        
-                          'wallet.numberOfPendingWarrantyCall': -1
-              
+
+
+                            'wallet.numberOfPendingWarrantyCall': -1
+
                         }
-                      })
-              
+                    })
+
 
                     await warrantyClaimService.createActivityLogByWarranty(data)
 
@@ -544,7 +544,7 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
-                        otp:false,
+                        otp: false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -573,7 +573,7 @@ export const warrantyClaimResolver: Resolvers = {
                     await existingClaimRequest.save();
                     return {
                         success: true,
-                        otp:false,
+                        otp: false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -603,7 +603,7 @@ export const warrantyClaimResolver: Resolvers = {
                     await existingClaimRequest.save();
                     return {
                         success: true,
-                        otp:false,
+                        otp: false,
                         message: "Warranty Claim status updated succesfully",
                     }
 
@@ -628,19 +628,19 @@ export const warrantyClaimResolver: Resolvers = {
 
                     return {
                         success: true,
-                        otp:true,
+                        otp: true,
                         message: "Warranty Claim status updated succesfully",
                     }
-                   
+
                 }
 
 
                 return {
                     success: false,
-                    otp:false,
+                    otp: false,
                     message: "Warranty Claim status updated failed",
                 }
-                
+
 
             } catch (error: any) {
                 throw new GraphQLError(error, {
@@ -704,6 +704,26 @@ export const warrantyClaimResolver: Resolvers = {
                 result.claimStatus = claimStatus
                 result.returnedWarehouseDate = new Date();
                 await result.save()
+
+
+                await deliveryAgentModel.findOneAndUpdate({ _id: agentData?._id },
+
+                    [
+                        {
+                            $set: {
+
+                                'wallet.numberOfPendingWarrantyCall': {
+                                    $cond: {
+                                        if: { $gt: ['$wallet.numberOfPendingWarrantyCall', 0] },
+                                        then: { $subtract: ['$wallet.numberOfPendingWarrantyCall', 1] },
+                                        else: 0
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                )
+
 
                 const data = {
                     actionType: "WARRANTY",
