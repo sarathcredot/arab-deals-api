@@ -3268,14 +3268,14 @@ export const deliveryTimeOtpverifyAdmin = async (data: { orderItemId: Types.Obje
 
         // update this product stock 
 
-        let product = [
-          {
-            _id: otpData?.productId,
-            quantity: 1,
-          },
-        ];
+        // let product = [
+        //   {
+        //     _id: otpData?.productId,
+        //     quantity: 1,
+        //   },
+        // ];
 
-        await productService.increaseProductsStock(product)
+        // await productService.increaseProductsStock(product)
 
         if (data.deliveryStatus === "CANCELED") {
           await activityLogService.createActivityLog({
