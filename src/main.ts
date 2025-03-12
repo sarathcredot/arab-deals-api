@@ -22,7 +22,7 @@ const app = express();
 const corsOptions = {
     origin: [
         process.env.USER_APP_URL || "",
-        process.env.ADMIN_APP_URL || "",
+        process.env.ADMIN_PORTAL_URL || "",
         process.env.USER_APP_URL_WWW || ""
     ]
 }
