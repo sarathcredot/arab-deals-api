@@ -382,8 +382,9 @@ export const orderResolver: Resolvers = {
       return response;
     },
 
-    createUserOrderInMobile: async (parent, { input }, { req }, info) => {
+    createUserOrderInMobile: async (parent, { input }, { req, io }, info) => {
       console.log("create user order resolver called");
+      // console.log("io",io)
       await verifyUser(req);
       await validateInput(validators.createOrderValidator, req);
 
@@ -413,6 +414,8 @@ export const orderResolver: Resolvers = {
         settingsService.getShippingConfig({}, { sort: { _id: 1 } }),
       ]);
 
+
+
       if (!paymentConfig || !shippingConfig) {
         throw new GraphQLError("Settings not found", {
           extensions: {
@@ -422,6 +425,8 @@ export const orderResolver: Resolvers = {
         });
       }
 
+      // console.log(shippingConfig)
+      // console.log("shippingConfig.defaultReturnPolicy",shippingConfig.defaultReturnPolicy)
       let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy
 
 
@@ -510,9 +515,11 @@ export const orderResolver: Resolvers = {
           // console.log("This is product",product)
           let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
           let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(product.productId);
+          console.log(warrantyPolicyId, "warrantyPolicyId")
           // console.log(returnPolicyId,"returnPolicyId")
           const returnPolicy = await orderService.getReturnPolicy(returnPolicyId)
           const warrantyPolicy = await orderService.getWarrantyPolicy(warrantyPolicyId)
+          console.log(warrantyPolicy, "warrantyPolicy")
           // console.log(returnPolicy,"returnPolicy")
 
           itemCount++;
@@ -564,6 +571,8 @@ export const orderResolver: Resolvers = {
         }
       };
 
+
+      console.log(products, "products");
 
       if (calculatedSellingPrice < shippingConfig.freeShippingThreshold!) {
         products[0].shippingCharge = calculatedShippingCharge;
@@ -619,10 +628,14 @@ export const orderResolver: Resolvers = {
         }
       }
 
+
+
       // await Promise.all([
       //   orderService.createOrder(order),
       //   orderProductService.createOrderProducts(products),
       // ]);
+
+
 
       try {
         let productStock = cartItems.map((product) => {
@@ -651,6 +664,63 @@ export const orderResolver: Resolvers = {
           });
         }
         await couponService.updateUserUsage(userId, couponId)
+        await couponService.deleteCouponFromCart(userId, couponId)
+      }
+
+      //create order placed notification
+
+
+      const order_placed_notification = await notificationService.createNotification({
+        title: "New order placed!!!!",
+        message: `Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
+        type: "new_order",
+        permissions: ["orders", "shipping-orders"],
+        orderId: orderId
+      })
+
+
+      io.emit("new_notification", order_placed_notification);
+      // console.log("🔔 Notification sent to admin dashboard:", order_placed_notification);
+
+      // console.log("emitted")
+
+
+      // for (let product of cartItems) {
+      //   console.log("this is products Product:", product);
+      // }
+
+      //check product stock(if low stock send notification to admin)
+
+      for (let product of cartItems) {
+        const previousStock = product.stock;
+        const newStock = product.stock - product.quantity;
+        if (previousStock > 10 && newStock <= 10) {
+
+          console.log(product.stock)
+          // Low stock notification
+          const low_stock_notification = await notificationService.createNotification({
+            title: "Low Stock Alert!!!",
+            message: `Product ${product.name} (ID: ${product.productId}) is running low on stock.`,
+            type: "low_stock",
+            permissions: ["product"],
+            orderId: orderId,
+            productId: product.productId,
+          });
+          io.emit("new_notification", low_stock_notification);
+        }
+
+        if (previousStock > 0 && newStock <= 0) {
+          // Out of stock notification
+          const out_of_stock_notification = await notificationService.createNotification({
+            title: "Out of Stock Alert!!!",
+            message: `Product ${product.name} (ID: ${product.productId}) is out of stock and needs restocking.`,
+            type: "out_of_stock",
+            permissions: ["product"],
+            orderId: orderId,
+            productId: product.productId,
+          });
+          io.emit("new_notification", out_of_stock_notification);
+        }
       }
 
       let response = {
@@ -659,6 +729,286 @@ export const orderResolver: Resolvers = {
 
       return response;
     },
+
+   
+
+    // createUserOrderInMobile: async (parent, { input }, { req }, info) => {
+    //   console.log("create user order resolver called");
+    //   await verifyUser(req);
+    //   await validateInput(validators.createOrderValidator, req);
+
+    //   const userId = req.authAccount._id;
+    //   let { shippingAddressId, paymentMode, grandTotal } = input;
+
+    //   const orderDate = moment();
+    //   const orderId = `ORD-${orderDate.valueOf()}`;
+
+    //   const shippingAddress =
+    //     await userShippingAddressService.getShippingAddressWithFilters(
+    //       { _id: shippingAddressId },
+    //       {},
+    //       { lean: true }
+    //     );
+    //   if (!shippingAddress) {
+    //     throw new GraphQLError("Shipping Address not found", {
+    //       extensions: {
+    //         code: "BAD_REQUEST",
+    //         errors: [],
+    //       },
+    //     });
+    //   }
+
+    //   const [paymentConfig, shippingConfig] = await Promise.all([
+    //     settingsService.getPaymentConfig({}, { sort: { _id: 1 } }),
+    //     settingsService.getShippingConfig({}, { sort: { _id: 1 } }),
+    //   ]);
+
+    //   if (!paymentConfig || !shippingConfig) {
+    //     throw new GraphQLError("Settings not found", {
+    //       extensions: {
+    //         code: "INTERNAL_SERVER_ERROR",
+    //         errors: [],
+    //       },
+    //     });
+    //   }
+
+    //   let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy
+
+
+    //   if (paymentMode == "COD") {
+    //     if (!paymentConfig.cod) {
+    //       throw new GraphQLError("COD is disabled", {
+    //         extensions: {
+    //           code: "BAD_REQUEST",
+    //           errors: [],
+    //         },
+    //       });
+    //     }
+    //   }
+
+    //   const cartItems = await cartService.getOrderCart(userId);
+
+    //   const uniqueVendorIds: Set<Types.ObjectId> = new Set();
+    //   cartItems.forEach((item: any) => {
+    //     if (item.vendorId) {
+    //       uniqueVendorIds.add(item.vendorId);
+    //     }
+    //   });
+
+    //   const vendorIds: Types.ObjectId[] = [...uniqueVendorIds];
+
+    //   if (cartItems.length === 0) {
+    //     throw new GraphQLError("Cart is empty", {
+    //       extensions: {
+    //         code: "BAD_REQUEST",
+    //         errors: [],
+    //       },
+    //     });
+    //   }
+
+    //   let calculatedSellingPrice = 0,
+    //     calculatedShippingCharge = shippingConfig.shippingCharge || 0,
+    //     calculatedGrandTotal = 0;
+
+    //   for (let product of cartItems) {
+    //     if (
+    //       !product.name ||
+    //       product.isBlocked ||
+    //       product.sellingPrice <= 0 ||
+    //       product.stock <= 0 ||
+    //       product.quantity > product.stock
+    //     ) {
+    //       throw new GraphQLError("Cart changed, order failed", {
+    //         extensions: {
+    //           code: "BAD_REQUEST",
+    //           errors: [],
+    //         },
+    //       });
+    //     }
+    //     calculatedSellingPrice += product.quantity * product.sellingPrice;
+    //   }
+
+    //   const userCart = await cartModel.findOne({ userId: userId })
+
+    //   let appliedProducts: Types.ObjectId[] | null | undefined = userCart?.appliedProducts
+
+    //   let totalDiscountPrice: number | undefined | null = 0;
+
+    //   appliedProducts?.forEach((id) => {
+    //     const product = cartItems.find((item) => item.productId.toString() === id.toString());
+    //     if (product) {
+    //       totalDiscountPrice = (totalDiscountPrice || 0) + product.sellingPrice
+    //     }
+    //   });
+
+
+    //   const appliedProductCounts: Record<string, number> = {};
+
+    //   appliedProducts?.forEach((id) => {
+    //     const key = id.toString(); // Ensure consistent key format
+    //     appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
+    //   });
+
+
+
+    //   const products: orderProductService.IOrderProduct[] = [];
+
+    //   let itemCount = 0;
+
+    //   for (const product of cartItems) {
+    //     for (let i = 0; i < product.quantity; i++) {
+    //       // console.log("This is product",product)
+    //       let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
+    //       let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(product.productId);
+    //       // console.log(returnPolicyId,"returnPolicyId")
+    //       const returnPolicy = await orderService.getReturnPolicy(returnPolicyId)
+    //       const warrantyPolicy = await orderService.getWarrantyPolicy(warrantyPolicyId)
+    //       // console.log(returnPolicy,"returnPolicy")
+
+    //       itemCount++;
+    //       const productIdKey = product.productId.toString();
+    //       const isDiscounted = appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+    //       let discountSellingPrice;
+    //       if (isDiscounted) {
+    //         // Decrease the count of the product ID in the appliedProductCounts map
+    //         let actualSellingPrice = product.sellingPrice
+    //         discountSellingPrice = Math.round((actualSellingPrice / (totalDiscountPrice || 0)) * (userCart?.discount || 0))
+    //         appliedProductCounts[productIdKey]--;
+    //       }
+
+    //       products.push({
+    //         userId: userId,
+    //         productId: product.productId,
+    //         orderId: orderId,
+    //         itemId: `${orderId}-${itemCount}`,
+    //         productName: product.name,
+    //         shortDescription: product.shortDescription,
+    //         skuId: product.skuId,
+    //         warehouseSkuId: product.warehouseSkuId,
+    //         image: {
+    //           fileType: product.image?.fileType,
+    //           fileURL: product.image?.fileURL,
+    //           originalName: product.image?.originalName,
+    //           mimeType: product.image?.mimeType,
+    //         },
+    //         returnPeriod: returnPolicy?.duration || 0,
+    //         returnPolicyName: returnPolicy?.name,
+    //         returnPolicyDescription: returnPolicy?.description,
+    //         returnCharge: returnPolicy?.returnCharge || 0,
+    //         mrp: product.mrp,
+    //         sellingPrice: isDiscounted ? product.sellingPrice - (discountSellingPrice ?? 0) : product.sellingPrice,
+    //         shippingCharge: 0,
+    //         paymentMode: paymentMode,
+    //         paymentStatus: "PENDING",
+    //         orderDate: orderDate.toDate(),
+    //         shippingStatus: "PENDING",
+    //         vendorId: product.vendorId,
+    //         warranty: {
+    //           name: warrantyPolicy?.name,
+    //           description: warrantyPolicy?.description,
+    //           duration: warrantyPolicy?.duration,
+    //           warrantyType: warrantyPolicy?.warrantyType,
+    //           // warrantyRegister:true
+    //         }
+    //       });
+    //     }
+    //   };
+
+
+    //   if (calculatedSellingPrice < shippingConfig.freeShippingThreshold!) {
+    //     products[0].shippingCharge = calculatedShippingCharge;
+    //   } else {
+    //     calculatedShippingCharge = 0;
+    //   }
+
+    //   calculatedGrandTotal = parseFloat(
+    //     (calculatedSellingPrice + calculatedShippingCharge).toFixed(2)
+    //   );
+
+    //   // if (calculatedGrandTotal !== parseFloat(grandTotal.toFixed(2))) {
+    //   //   throw new GraphQLError("Cart changed, order failed", {
+    //   //     extensions: {
+    //   //       code: "BAD_REQUEST",
+    //   //       errors: [],
+    //   //     },
+    //   //   });
+    //   // }
+
+
+    //   const order: orderService.IOrder = {
+    //     userId: userId,
+    //     orderId: orderId,
+    //     paymentMode: paymentMode,
+    //     orderDate: orderDate.toDate(),
+    //     shippingAddress: shippingAddress,
+    //     orderStatus: "PENDING",
+    //     vendorIds: vendorIds,
+    //     grandTotal: userCart?.grandTotal,
+    //     shippingCharge: userCart?.shippingCharge,
+    //     subTotal: userCart?.subTotal,
+    //     discount: userCart?.discount
+    //   };
+
+    //   await orderService.createOrder(order)
+    //   const orderProducts = await orderProductService.createOrderProducts(products)
+
+    //   console.log("order result", orderProducts)
+
+
+    //   if (orderProducts) {
+    //     for (const orderProduct of orderProducts) {
+    //       await activityLogService.createActivityLog({
+    //         actionType: "ORDER",
+    //         action: "ORDER HAS BEEN PLACED",
+    //         performedBy: userId,
+    //         performedByRole: "USERS",
+    //         referenceId: orderProduct?._id,
+    //         referenceType: "ORDER_PRODUCTS",
+    //         details: `${shippingAddress.firstname} placed an order ${orderProduct.orderId} through the website.  The order has been successfully registered in the system and is now waiting for processing.`,
+    //       });
+    //     }
+    //   }
+
+    //   // await Promise.all([
+    //   //   orderService.createOrder(order),
+    //   //   orderProductService.createOrderProducts(products),
+    //   // ]);
+
+    //   try {
+    //     let productStock = cartItems.map((product) => {
+    //       return { _id: product.productId, quantity: product.quantity };
+    //     });
+    //     await Promise.all([
+    //       cartService.emptyUserCart(userId),
+    //       productService.decreaseProductsStock(productStock),
+    //       userShippingAddressService.updateDefaultShipingAddress(
+    //         userId,
+    //         shippingAddressId
+    //       ),
+    //     ]);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+
+    //   if (userCart?.isCouponApplied) {
+    //     const couponId = userCart?.appliedCoupon
+    //     if (!couponId) {
+    //       throw new GraphQLError("Coupon not found", {
+    //         extensions: {
+    //           code: "BAD_REQUEST",
+    //           errors: [],
+    //         },
+    //       });
+    //     }
+    //     await couponService.updateUserUsage(userId, couponId)
+    //   }
+
+    //   let response = {
+    //     orderId: orderId,
+    //   };
+
+    //   return response;
+    // },
     // createUserOrderInMobile: async (parent, { input }, { req }, info) => {
     //   await verifyMobileUser(req);
     //   await validateInput(validators.createOrderValidator, req);

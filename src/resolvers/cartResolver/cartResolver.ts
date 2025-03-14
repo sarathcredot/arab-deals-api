@@ -7,6 +7,7 @@ import { validateInput, verifyMobileUser, verifyUser } from "../../middlewares";
 import { Types } from "mongoose";
 import { cartModel } from "../../models/cartModel";
 import { couponsModel } from "../../models/couponsModel";
+import { productModel } from "../../models/proudctModel";
 
 export const cartResolver: Resolvers = {
     Upload: GraphQLUpload,
@@ -200,8 +201,14 @@ export const cartResolver: Resolvers = {
 
                 const products: cartService.IUserCartProduct[] = input.products || [];
                 const userId: Types.ObjectId = req.authAccount._id;
+                
+                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+
+                console.log("cart products", products);
 
                 const cart = await cartService.checkCartExist(userId)
+
+                console.log("user cart",cart)
                 if (cart) {
                     let temp = [];
                     for (let product of products) {
@@ -226,7 +233,33 @@ export const cartResolver: Resolvers = {
 
                 } else {
                     try {
-                        await cartService.createBulkCart(userId, products);
+                        let subTotal = 0; 
+                        let shippingCharge = 0
+                        let grandTotal = 0
+
+                       
+                        const productDetails = await Promise.all(
+                            products.map(async (product) => {
+                                const productExist = await productModel.findById(product.productId);
+                                return productExist ? productExist.sellingPrice * product.quantity : 0;
+                            })
+                        );
+                
+                        // Calculate total
+                        subTotal = productDetails.reduce((acc, price) => acc + price, 0);
+
+                        const shippingChargeconfig = shippingConfig?.shippingCharge || 0;
+                        const freeShippingThreshold=shippingConfig?.freeShippingThreshold || 0;
+                        
+                        if (subTotal <= freeShippingThreshold) {
+                            grandTotal = subTotal + shippingChargeconfig
+                            shippingCharge = shippingChargeconfig
+                        } else {
+                            grandTotal = subTotal
+                        }
+
+
+                        await cartService.createBulkCart(userId, products,shippingCharge,grandTotal,subTotal);
                     } catch (error) {
                         console.log(error);
                     }
