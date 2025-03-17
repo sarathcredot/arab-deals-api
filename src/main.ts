@@ -22,7 +22,7 @@ const app = express();
 const corsOptions = {
     origin: [
         process.env.USER_APP_URL || "",
-        process.env.ADMIN_APP_URL || "",
+        process.env.ADMIN_PORTAL_URL || "",
         process.env.USER_APP_URL_WWW || ""
     ]
 }
@@ -49,7 +49,7 @@ const io = new Server(httpServer, {
     cors: {
         origin: [
             process.env.USER_APP_URL || "",
-            process.env.ADMIN_APP_URL || "",
+            process.env.ADMIN_PORTAL_URL || "",
             process.env.USER_APP_URL_WWW || ""
         ], methods: ["GET", "POST"]
         // origin: "*"

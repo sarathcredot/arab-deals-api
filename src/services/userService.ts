@@ -22,6 +22,7 @@ export interface IUserDocument extends Document {
   firstName?: string;
   lastName?: string;
   displayName?: string;
+  countryCode?: string;
   mobileNumber?: string;
   isBlocked?: boolean;
   isDeleted?: boolean;

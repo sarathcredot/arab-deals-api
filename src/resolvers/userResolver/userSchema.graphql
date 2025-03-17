@@ -90,6 +90,7 @@ input UpdateUserProfileByAdminInput {
   firstName: String
   lastName: String
   displayName: String
+  countryCode:String
   mobileNumber: String
   isBlocked: Boolean
 }

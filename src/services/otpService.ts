@@ -41,7 +41,7 @@ export const generateOtp = async function (): Promise<IOtpFile> {
 
   const otp=12345
 
-  const expiresAt = moment().add(5, "minutes");
+  const expiresAt = moment().add(1, "minutes");
 
   let response = {
     code: otp.toString(),
