@@ -34,7 +34,6 @@ export const orderResolver: Resolvers = {
   Upload: GraphQLUpload,
   Mutation: {
     createUserOrder: async (parent, { input }, { req, io }, info) => {
-
       console.log("create user order resolver called");
       // console.log("io",io)
       await verifyUser(req);
@@ -46,12 +45,17 @@ export const orderResolver: Resolvers = {
       const orderDate = moment();
       const orderId = `ORD-${orderDate.valueOf()}`;
 
-      const shippingAddress =
-        await userShippingAddressService.getShippingAddressWithFilters(
-          { _id: shippingAddressId },
-          {},
-          { lean: true }
-        );
+      let shippingAddress = null;
+
+      if (shippingAddressId) {
+        shippingAddress =
+          await userShippingAddressService.getShippingAddressWithFilters(
+            { _id: shippingAddressId },
+            {},
+            { lean: true }
+          );
+      }
+
       if (!shippingAddress) {
         throw new GraphQLError("Shipping Address not found", {
           extensions: {
@@ -66,8 +70,6 @@ export const orderResolver: Resolvers = {
         settingsService.getShippingConfig({}, { sort: { _id: 1 } }),
       ]);
 
-
-
       if (!paymentConfig || !shippingConfig) {
         throw new GraphQLError("Settings not found", {
           extensions: {
@@ -79,8 +81,7 @@ export const orderResolver: Resolvers = {
 
       // console.log(shippingConfig)
       // console.log("shippingConfig.defaultReturnPolicy",shippingConfig.defaultReturnPolicy)
-      let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy
-
+      let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy;
 
       if (paymentMode == "COD") {
         if (!paymentConfig.cod) {
@@ -135,19 +136,21 @@ export const orderResolver: Resolvers = {
         calculatedSellingPrice += product.quantity * product.sellingPrice;
       }
 
-      const userCart = await cartModel.findOne({ userId: userId })
+      const userCart = await cartModel.findOne({ userId: userId });
 
-      let appliedProducts: Types.ObjectId[] | null | undefined = userCart?.appliedProducts
+      let appliedProducts: Types.ObjectId[] | null | undefined =
+        userCart?.appliedProducts;
 
       let totalDiscountPrice: number | undefined | null = 0;
 
       appliedProducts?.forEach((id) => {
-        const product = cartItems.find((item) => item.productId.toString() === id.toString());
+        const product = cartItems.find(
+          (item) => item.productId.toString() === id.toString()
+        );
         if (product) {
-          totalDiscountPrice = (totalDiscountPrice || 0) + product.sellingPrice
+          totalDiscountPrice = (totalDiscountPrice || 0) + product.sellingPrice;
         }
       });
-
 
       const appliedProductCounts: Record<string, number> = {};
 
@@ -156,8 +159,6 @@ export const orderResolver: Resolvers = {
         appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
       });
 
-
-
       const products: orderProductService.IOrderProduct[] = [];
 
       let itemCount = 0;
@@ -165,23 +166,37 @@ export const orderResolver: Resolvers = {
       for (const product of cartItems) {
         for (let i = 0; i < product.quantity; i++) {
           // console.log("This is product",product)
-          let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
-          let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(product.productId);
-          console.log(warrantyPolicyId, "warrantyPolicyId")
+          let returnPolicyId = await orderService.getReturnPolicyForProduct(
+            product.productId,
+            defaultReturnPolicyId
+          );
+          let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(
+            product.productId
+          );
+          console.log(warrantyPolicyId, "warrantyPolicyId");
           // console.log(returnPolicyId,"returnPolicyId")
-          const returnPolicy = await orderService.getReturnPolicy(returnPolicyId)
-          const warrantyPolicy = await orderService.getWarrantyPolicy(warrantyPolicyId)
-          console.log(warrantyPolicy, "warrantyPolicy")
+          const returnPolicy = await orderService.getReturnPolicy(
+            returnPolicyId
+          );
+          const warrantyPolicy = await orderService.getWarrantyPolicy(
+            warrantyPolicyId
+          );
+          console.log(warrantyPolicy, "warrantyPolicy");
           // console.log(returnPolicy,"returnPolicy")
 
           itemCount++;
           const productIdKey = product.productId.toString();
-          const isDiscounted = appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+          const isDiscounted =
+            appliedProductCounts[productIdKey] &&
+            appliedProductCounts[productIdKey] > 0;
           let discountSellingPrice;
           if (isDiscounted) {
             // Decrease the count of the product ID in the appliedProductCounts map
-            let actualSellingPrice = product.sellingPrice
-            discountSellingPrice = Math.round((actualSellingPrice / (totalDiscountPrice || 0)) * (userCart?.discount || 0))
+            let actualSellingPrice = product.sellingPrice;
+            discountSellingPrice = Math.round(
+              (actualSellingPrice / (totalDiscountPrice || 0)) *
+                (userCart?.discount || 0)
+            );
             appliedProductCounts[productIdKey]--;
           }
 
@@ -205,7 +220,9 @@ export const orderResolver: Resolvers = {
             returnPolicyDescription: returnPolicy?.description,
             returnCharge: returnPolicy?.returnCharge || 0,
             mrp: product.mrp,
-            sellingPrice: isDiscounted ? product.sellingPrice - (discountSellingPrice ?? 0) : product.sellingPrice,
+            sellingPrice: isDiscounted
+              ? product.sellingPrice - (discountSellingPrice ?? 0)
+              : product.sellingPrice,
             shippingCharge: 0,
             paymentMode: paymentMode,
             paymentStatus: "PENDING",
@@ -218,11 +235,10 @@ export const orderResolver: Resolvers = {
               duration: warrantyPolicy?.duration,
               warrantyType: warrantyPolicy?.warrantyType,
               // warrantyRegister:true
-            }
+            },
           });
         }
-      };
-
+      }
 
       console.log(products, "products");
 
@@ -245,7 +261,6 @@ export const orderResolver: Resolvers = {
       //   });
       // }
 
-
       const order: orderService.IOrder = {
         userId: userId,
         orderId: orderId,
@@ -257,14 +272,15 @@ export const orderResolver: Resolvers = {
         grandTotal: userCart?.grandTotal,
         shippingCharge: userCart?.shippingCharge,
         subTotal: userCart?.subTotal,
-        discount: userCart?.discount
+        discount: userCart?.discount,
       };
 
-      await orderService.createOrder(order)
-      const orderProducts = await orderProductService.createOrderProducts(products)
+      await orderService.createOrder(order);
+      const orderProducts = await orderProductService.createOrderProducts(
+        products
+      );
 
-      console.log("order result", orderProducts)
-
+      console.log("order result", orderProducts);
 
       if (orderProducts) {
         for (const orderProduct of orderProducts) {
@@ -280,14 +296,10 @@ export const orderResolver: Resolvers = {
         }
       }
 
-
-
       // await Promise.all([
       //   orderService.createOrder(order),
       //   orderProductService.createOrderProducts(products),
       // ]);
-
-
 
       try {
         let productStock = cartItems.map((product) => {
@@ -306,7 +318,7 @@ export const orderResolver: Resolvers = {
       }
 
       if (userCart?.isCouponApplied) {
-        const couponId = userCart?.appliedCoupon
+        const couponId = userCart?.appliedCoupon;
         if (!couponId) {
           throw new GraphQLError("Coupon not found", {
             extensions: {
@@ -315,27 +327,25 @@ export const orderResolver: Resolvers = {
             },
           });
         }
-        await couponService.updateUserUsage(userId, couponId)
-        await couponService.deleteCouponFromCart(userId, couponId)
+        await couponService.updateUserUsage(userId, couponId);
+        await couponService.deleteCouponFromCart(userId, couponId);
       }
 
       //create order placed notification
 
-
-      const order_placed_notification = await notificationService.createNotification({
-        title: "New order placed!!!!",
-        message: `Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
-        type: "new_order",
-        permissions: ["orders", "shipping-orders"],
-        orderId: orderId
-      })
-
+      const order_placed_notification =
+        await notificationService.createNotification({
+          title: "New order placed!!!!",
+          message: `Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
+          type: "new_order",
+          permissions: ["orders", "shipping-orders"],
+          orderId: orderId,
+        });
 
       io.emit("new_notification", order_placed_notification);
       // console.log("🔔 Notification sent to admin dashboard:", order_placed_notification);
 
       // console.log("emitted")
-
 
       // for (let product of cartItems) {
       //   console.log("this is products Product:", product);
@@ -347,30 +357,31 @@ export const orderResolver: Resolvers = {
         const previousStock = product.stock;
         const newStock = product.stock - product.quantity;
         if (previousStock > 10 && newStock <= 10) {
-
-          console.log(product.stock)
+          console.log(product.stock);
           // Low stock notification
-          const low_stock_notification = await notificationService.createNotification({
-            title: "Low Stock Alert!!!",
-            message: `Product ${product.name} (ID: ${product.productId}) is running low on stock.`,
-            type: "low_stock",
-            permissions: ["product"],
-            orderId: orderId,
-            productId: product.productId,
-          });
+          const low_stock_notification =
+            await notificationService.createNotification({
+              title: "Low Stock Alert!!!",
+              message: `Product ${product.name} (ID: ${product.productId}) is running low on stock.`,
+              type: "low_stock",
+              permissions: ["product"],
+              orderId: orderId,
+              productId: product.productId,
+            });
           io.emit("new_notification", low_stock_notification);
         }
 
         if (previousStock > 0 && newStock <= 0) {
           // Out of stock notification
-          const out_of_stock_notification = await notificationService.createNotification({
-            title: "Out of Stock Alert!!!",
-            message: `Product ${product.name} (ID: ${product.productId}) is out of stock and needs restocking.`,
-            type: "out_of_stock",
-            permissions: ["product"],
-            orderId: orderId,
-            productId: product.productId,
-          });
+          const out_of_stock_notification =
+            await notificationService.createNotification({
+              title: "Out of Stock Alert!!!",
+              message: `Product ${product.name} (ID: ${product.productId}) is out of stock and needs restocking.`,
+              type: "out_of_stock",
+              permissions: ["product"],
+              orderId: orderId,
+              productId: product.productId,
+            });
           io.emit("new_notification", out_of_stock_notification);
         }
       }
@@ -394,12 +405,17 @@ export const orderResolver: Resolvers = {
       const orderDate = moment();
       const orderId = `ORD-${orderDate.valueOf()}`;
 
-      const shippingAddress =
-        await userShippingAddressService.getShippingAddressWithFilters(
-          { _id: shippingAddressId },
-          {},
-          { lean: true }
-        );
+      let shippingAddress = null;
+
+      if (shippingAddressId) {
+        shippingAddress =
+          await userShippingAddressService.getShippingAddressWithFilters(
+            { _id: shippingAddressId },
+            {},
+            { lean: true }
+          );
+      }
+      
       if (!shippingAddress) {
         throw new GraphQLError("Shipping Address not found", {
           extensions: {
@@ -414,8 +430,6 @@ export const orderResolver: Resolvers = {
         settingsService.getShippingConfig({}, { sort: { _id: 1 } }),
       ]);
 
-
-
       if (!paymentConfig || !shippingConfig) {
         throw new GraphQLError("Settings not found", {
           extensions: {
@@ -427,8 +441,7 @@ export const orderResolver: Resolvers = {
 
       // console.log(shippingConfig)
       // console.log("shippingConfig.defaultReturnPolicy",shippingConfig.defaultReturnPolicy)
-      let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy
-
+      let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy;
 
       if (paymentMode == "COD") {
         if (!paymentConfig.cod) {
@@ -483,19 +496,21 @@ export const orderResolver: Resolvers = {
         calculatedSellingPrice += product.quantity * product.sellingPrice;
       }
 
-      const userCart = await cartModel.findOne({ userId: userId })
+      const userCart = await cartModel.findOne({ userId: userId });
 
-      let appliedProducts: Types.ObjectId[] | null | undefined = userCart?.appliedProducts
+      let appliedProducts: Types.ObjectId[] | null | undefined =
+        userCart?.appliedProducts;
 
       let totalDiscountPrice: number | undefined | null = 0;
 
       appliedProducts?.forEach((id) => {
-        const product = cartItems.find((item) => item.productId.toString() === id.toString());
+        const product = cartItems.find(
+          (item) => item.productId.toString() === id.toString()
+        );
         if (product) {
-          totalDiscountPrice = (totalDiscountPrice || 0) + product.sellingPrice
+          totalDiscountPrice = (totalDiscountPrice || 0) + product.sellingPrice;
         }
       });
-
 
       const appliedProductCounts: Record<string, number> = {};
 
@@ -504,8 +519,6 @@ export const orderResolver: Resolvers = {
         appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
       });
 
-
-
       const products: orderProductService.IOrderProduct[] = [];
 
       let itemCount = 0;
@@ -513,23 +526,37 @@ export const orderResolver: Resolvers = {
       for (const product of cartItems) {
         for (let i = 0; i < product.quantity; i++) {
           // console.log("This is product",product)
-          let returnPolicyId = await orderService.getReturnPolicyForProduct(product.productId, defaultReturnPolicyId);
-          let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(product.productId);
-          console.log(warrantyPolicyId, "warrantyPolicyId")
+          let returnPolicyId = await orderService.getReturnPolicyForProduct(
+            product.productId,
+            defaultReturnPolicyId
+          );
+          let warrantyPolicyId = await orderService.getWarrantyPolicyForProduct(
+            product.productId
+          );
+          console.log(warrantyPolicyId, "warrantyPolicyId");
           // console.log(returnPolicyId,"returnPolicyId")
-          const returnPolicy = await orderService.getReturnPolicy(returnPolicyId)
-          const warrantyPolicy = await orderService.getWarrantyPolicy(warrantyPolicyId)
-          console.log(warrantyPolicy, "warrantyPolicy")
+          const returnPolicy = await orderService.getReturnPolicy(
+            returnPolicyId
+          );
+          const warrantyPolicy = await orderService.getWarrantyPolicy(
+            warrantyPolicyId
+          );
+          console.log(warrantyPolicy, "warrantyPolicy");
           // console.log(returnPolicy,"returnPolicy")
 
           itemCount++;
           const productIdKey = product.productId.toString();
-          const isDiscounted = appliedProductCounts[productIdKey] && appliedProductCounts[productIdKey] > 0;
+          const isDiscounted =
+            appliedProductCounts[productIdKey] &&
+            appliedProductCounts[productIdKey] > 0;
           let discountSellingPrice;
           if (isDiscounted) {
             // Decrease the count of the product ID in the appliedProductCounts map
-            let actualSellingPrice = product.sellingPrice
-            discountSellingPrice = Math.round((actualSellingPrice / (totalDiscountPrice || 0)) * (userCart?.discount || 0))
+            let actualSellingPrice = product.sellingPrice;
+            discountSellingPrice = Math.round(
+              (actualSellingPrice / (totalDiscountPrice || 0)) *
+                (userCart?.discount || 0)
+            );
             appliedProductCounts[productIdKey]--;
           }
 
@@ -553,7 +580,9 @@ export const orderResolver: Resolvers = {
             returnPolicyDescription: returnPolicy?.description,
             returnCharge: returnPolicy?.returnCharge || 0,
             mrp: product.mrp,
-            sellingPrice: isDiscounted ? product.sellingPrice - (discountSellingPrice ?? 0) : product.sellingPrice,
+            sellingPrice: isDiscounted
+              ? product.sellingPrice - (discountSellingPrice ?? 0)
+              : product.sellingPrice,
             shippingCharge: 0,
             paymentMode: paymentMode,
             paymentStatus: "PENDING",
@@ -566,11 +595,10 @@ export const orderResolver: Resolvers = {
               duration: warrantyPolicy?.duration,
               warrantyType: warrantyPolicy?.warrantyType,
               // warrantyRegister:true
-            }
+            },
           });
         }
-      };
-
+      }
 
       console.log(products, "products");
 
@@ -593,7 +621,6 @@ export const orderResolver: Resolvers = {
       //   });
       // }
 
-
       const order: orderService.IOrder = {
         userId: userId,
         orderId: orderId,
@@ -605,14 +632,15 @@ export const orderResolver: Resolvers = {
         grandTotal: userCart?.grandTotal,
         shippingCharge: userCart?.shippingCharge,
         subTotal: userCart?.subTotal,
-        discount: userCart?.discount
+        discount: userCart?.discount,
       };
 
-      await orderService.createOrder(order)
-      const orderProducts = await orderProductService.createOrderProducts(products)
+      await orderService.createOrder(order);
+      const orderProducts = await orderProductService.createOrderProducts(
+        products
+      );
 
-      console.log("order result", orderProducts)
-
+      console.log("order result", orderProducts);
 
       if (orderProducts) {
         for (const orderProduct of orderProducts) {
@@ -628,14 +656,10 @@ export const orderResolver: Resolvers = {
         }
       }
 
-
-
       // await Promise.all([
       //   orderService.createOrder(order),
       //   orderProductService.createOrderProducts(products),
       // ]);
-
-
 
       try {
         let productStock = cartItems.map((product) => {
@@ -654,7 +678,7 @@ export const orderResolver: Resolvers = {
       }
 
       if (userCart?.isCouponApplied) {
-        const couponId = userCart?.appliedCoupon
+        const couponId = userCart?.appliedCoupon;
         if (!couponId) {
           throw new GraphQLError("Coupon not found", {
             extensions: {
@@ -663,27 +687,25 @@ export const orderResolver: Resolvers = {
             },
           });
         }
-        await couponService.updateUserUsage(userId, couponId)
-        await couponService.deleteCouponFromCart(userId, couponId)
+        await couponService.updateUserUsage(userId, couponId);
+        await couponService.deleteCouponFromCart(userId, couponId);
       }
 
       //create order placed notification
 
-
-      const order_placed_notification = await notificationService.createNotification({
-        title: "New order placed!!!!",
-        message: `Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
-        type: "new_order",
-        permissions: ["orders", "shipping-orders"],
-        orderId: orderId
-      })
-
+      const order_placed_notification =
+        await notificationService.createNotification({
+          title: "New order placed!!!!",
+          message: `Order ${orderId} has been placed  by ${shippingAddress.firstname}.`,
+          type: "new_order",
+          permissions: ["orders", "shipping-orders"],
+          orderId: orderId,
+        });
 
       io.emit("new_notification", order_placed_notification);
       // console.log("🔔 Notification sent to admin dashboard:", order_placed_notification);
 
       // console.log("emitted")
-
 
       // for (let product of cartItems) {
       //   console.log("this is products Product:", product);
@@ -695,30 +717,31 @@ export const orderResolver: Resolvers = {
         const previousStock = product.stock;
         const newStock = product.stock - product.quantity;
         if (previousStock > 10 && newStock <= 10) {
-
-          console.log(product.stock)
+          console.log(product.stock);
           // Low stock notification
-          const low_stock_notification = await notificationService.createNotification({
-            title: "Low Stock Alert!!!",
-            message: `Product ${product.name} (ID: ${product.productId}) is running low on stock.`,
-            type: "low_stock",
-            permissions: ["product"],
-            orderId: orderId,
-            productId: product.productId,
-          });
+          const low_stock_notification =
+            await notificationService.createNotification({
+              title: "Low Stock Alert!!!",
+              message: `Product ${product.name} (ID: ${product.productId}) is running low on stock.`,
+              type: "low_stock",
+              permissions: ["product"],
+              orderId: orderId,
+              productId: product.productId,
+            });
           io.emit("new_notification", low_stock_notification);
         }
 
         if (previousStock > 0 && newStock <= 0) {
           // Out of stock notification
-          const out_of_stock_notification = await notificationService.createNotification({
-            title: "Out of Stock Alert!!!",
-            message: `Product ${product.name} (ID: ${product.productId}) is out of stock and needs restocking.`,
-            type: "out_of_stock",
-            permissions: ["product"],
-            orderId: orderId,
-            productId: product.productId,
-          });
+          const out_of_stock_notification =
+            await notificationService.createNotification({
+              title: "Out of Stock Alert!!!",
+              message: `Product ${product.name} (ID: ${product.productId}) is out of stock and needs restocking.`,
+              type: "out_of_stock",
+              permissions: ["product"],
+              orderId: orderId,
+              productId: product.productId,
+            });
           io.emit("new_notification", out_of_stock_notification);
         }
       }
@@ -729,8 +752,6 @@ export const orderResolver: Resolvers = {
 
       return response;
     },
-
-   
 
     // createUserOrderInMobile: async (parent, { input }, { req }, info) => {
     //   console.log("create user order resolver called");
@@ -773,7 +794,6 @@ export const orderResolver: Resolvers = {
     //   }
 
     //   let defaultReturnPolicyId = shippingConfig.defaultReturnPolicy
-
 
     //   if (paymentMode == "COD") {
     //     if (!paymentConfig.cod) {
@@ -841,15 +861,12 @@ export const orderResolver: Resolvers = {
     //     }
     //   });
 
-
     //   const appliedProductCounts: Record<string, number> = {};
 
     //   appliedProducts?.forEach((id) => {
     //     const key = id.toString(); // Ensure consistent key format
     //     appliedProductCounts[key] = (appliedProductCounts[key] || 0) + 1;
     //   });
-
-
 
     //   const products: orderProductService.IOrderProduct[] = [];
 
@@ -914,7 +931,6 @@ export const orderResolver: Resolvers = {
     //     }
     //   };
 
-
     //   if (calculatedSellingPrice < shippingConfig.freeShippingThreshold!) {
     //     products[0].shippingCharge = calculatedShippingCharge;
     //   } else {
@@ -934,7 +950,6 @@ export const orderResolver: Resolvers = {
     //   //   });
     //   // }
 
-
     //   const order: orderService.IOrder = {
     //     userId: userId,
     //     orderId: orderId,
@@ -953,7 +968,6 @@ export const orderResolver: Resolvers = {
     //   const orderProducts = await orderProductService.createOrderProducts(products)
 
     //   console.log("order result", orderProducts)
-
 
     //   if (orderProducts) {
     //     for (const orderProduct of orderProducts) {
@@ -1204,7 +1218,6 @@ export const orderResolver: Resolvers = {
     //     await couponService.updateUserUsage(userId, couponId)
     //   }
 
-
     //   let response = {
     //     orderId: orderId,
     //   };
@@ -1223,7 +1236,6 @@ export const orderResolver: Resolvers = {
       const adminId: Types.ObjectId = new Types.ObjectId(req.authAccount._id);
 
       const admin = await adminModel.findById(adminId);
-
 
       console.log(input);
       const _id = input._id;
@@ -1328,7 +1340,6 @@ export const orderResolver: Resolvers = {
         });
       }
 
-
       if (input.paymentRemark) {
         product.paymentRemark = input.paymentRemark;
       }
@@ -1357,12 +1368,15 @@ export const orderResolver: Resolvers = {
       }
 
       if (product.shippingStatus == "DELIVERED") {
-        const result = await orderProductModel.findById(_id)
+        const result = await orderProductModel.findById(_id);
         if (result?.warranty?.duration) {
-          await orderProductModel.findByIdAndUpdate(_id, { "warranty.warrantyRegister": true }, { new: true });
+          await orderProductModel.findByIdAndUpdate(
+            _id,
+            { "warranty.warrantyRegister": true },
+            { new: true }
+          );
         }
       }
-
 
       if (product.shippingStatus == "DELIVERED") {
         if (input.deliveryDate) {
@@ -1389,8 +1403,7 @@ export const orderResolver: Resolvers = {
       }
 
       if (input.shippingStatus === "CANCELED") {
-
-        const result = await orderProductModel.findById(_id)
+        const result = await orderProductModel.findById(_id);
         let product = [
           {
             _id: result?.productId,
@@ -1398,7 +1411,7 @@ export const orderResolver: Resolvers = {
           },
         ];
 
-        await productService.increaseProductsStock(product)
+        await productService.increaseProductsStock(product);
       }
 
       if (input.returnStatus) {
@@ -1416,7 +1429,6 @@ export const orderResolver: Resolvers = {
               details: `${admin?.fullName} (Admin) rejected the return request for order ${product?.itemId}. The return process has been declined, and the customer has been notified. `,
             });
           }
-
 
           if (input.returnStatus === "APPROVED") {
             await activityLogService.createActivityLog({
@@ -1575,8 +1587,6 @@ export const orderResolver: Resolvers = {
         };
       }
 
-
-
       await product.save();
 
       try {
@@ -1610,23 +1620,22 @@ export const orderResolver: Resolvers = {
       return response;
     },
 
-    updateAdminOrderProductOtpSent: async (parent, { input }, { req }, info) => {
-
-      await verifyAdmin(req)
+    updateAdminOrderProductOtpSent: async (
+      parent,
+      { input },
+      { req },
+      info
+    ) => {
+      await verifyAdmin(req);
       try {
-
-        await deliveryAgentService.deliveryTimeOtpGenerate(input?.orderId)
+        await deliveryAgentService.deliveryTimeOtpGenerate(input?.orderId);
 
         return {
-
           status: true,
           otp: true,
-          msg: ""
-
-        }
-
+          msg: "",
+        };
       } catch (error: any) {
-
         throw new GraphQLError(error, {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
@@ -1636,12 +1645,9 @@ export const orderResolver: Resolvers = {
       }
     },
 
-
     deliveryStatusOtpVerifyAdmin: async (parent, { input }, { req }, info) => {
-
-      await verifyAdmin(req)
+      await verifyAdmin(req);
       try {
-
         const options: {
           agentId: Types.ObjectId;
           orderItemId: any;
@@ -1659,44 +1665,39 @@ export const orderResolver: Resolvers = {
           returnRemark: input?.returnRemark || undefined,
           deliveryStatus: input?.deliveryStatus || undefined,
           paymentMode: input?.paymentMode || undefined,
-          remarks: input?.remarks || undefined
+          remarks: input?.remarks || undefined,
         };
 
-        await deliveryAgentService.deliveryTimeOtpverifyAdmin(options)
+        await deliveryAgentService.deliveryTimeOtpverifyAdmin(options);
 
         return {
           status: true,
-          msg: "OTP verified and status updated"
-        }
-
+          msg: "OTP verified and status updated",
+        };
       } catch (error: any) {
-
         throw new GraphQLError(error, {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             errors: [],
           },
         });
-
-
       }
     },
 
-
-
-
-
-
-
     //API for return request from user
-    returnUserOrderProduct: async (parent, { input, image }, { req, io }, info) => {
+    returnUserOrderProduct: async (
+      parent,
+      { input, image },
+      { req, io },
+      info
+    ) => {
       //add product image and return address
       // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
       await verifyUser(req);
       await validateInput(validators.returnUserOrderValidator, req);
 
-      console.log("ret ", input)
+      console.log("ret ", input);
       let returnProductImage: orderProductService.FileData[] = [];
 
       if (image) {
@@ -1730,7 +1731,6 @@ export const orderResolver: Resolvers = {
           });
         }
       }
-
 
       // Extract user ID and input
       const userId = req.authAccount?._id;
@@ -1781,7 +1781,7 @@ export const orderResolver: Resolvers = {
       // console.log(isReturnable);
 
       if (!isReturnable) {
-        console.log("cant")
+        console.log("cant");
         throw new GraphQLError("Order can't be returned", {
           extensions: { code: "BAD_REQUEST", errors: [] },
         });
@@ -1839,28 +1839,29 @@ export const orderResolver: Resolvers = {
 
       const validatedReturnAddress = returnAddress
         ? {
-          firstname: returnAddress.firstname || "",
-          email: returnAddress.email || "",
-          mobile: returnAddress.mobile || "",
-          country: returnAddress.country || "India", // Default to "India"
-          houseNumber: returnAddress.houseNumber || "",
-          streetName: returnAddress.streetName || "",
-          apartment: returnAddress.apartment || "",
-          suite: returnAddress.suite || "",
-          unit: returnAddress.unit || "",
-          city: returnAddress.city || "",
-          postCode: returnAddress.postCode || "",
-          governorate: returnAddress.governorate,
-          village: returnAddress.village,
-          governorateID: returnAddress.governorateID,
-          villageID: returnAddress.villageID,
-          address: returnAddress.address || ""
-        }
+            firstname: returnAddress.firstname || "",
+            email: returnAddress.email || "",
+            mobile: returnAddress.mobile || "",
+            country: returnAddress.country || "India", // Default to "India"
+            houseNumber: returnAddress.houseNumber || "",
+            streetName: returnAddress.streetName || "",
+            apartment: returnAddress.apartment || "",
+            suite: returnAddress.suite || "",
+            unit: returnAddress.unit || "",
+            city: returnAddress.city || "",
+            postCode: returnAddress.postCode || "",
+            governorate: returnAddress.governorate,
+            village: returnAddress.village,
+            governorateID: returnAddress.governorateID,
+            villageID: returnAddress.villageID,
+            address: returnAddress.address || "",
+          }
         : null;
 
       if (orderProduct.returnCharge && orderProduct.sellingPrice) {
-        const returnAmount = (orderProduct.returnCharge / 100) * orderProduct?.sellingPrice
-        orderProduct.refundAmount = returnAmount
+        const returnAmount =
+          (orderProduct.returnCharge / 100) * orderProduct?.sellingPrice;
+        orderProduct.refundAmount = returnAmount;
       }
 
       orderProduct.returnUserReason = returnUserReason;
@@ -1878,9 +1879,6 @@ export const orderResolver: Resolvers = {
         _id: _id,
       };
 
-
-
-
       await activityLogService.createActivityLog({
         actionType: "RETURN",
         action: "RETURN REQUEST INITIATED",
@@ -1891,26 +1889,29 @@ export const orderResolver: Resolvers = {
         details: `${returnAddress?.firstname} (Customer) requested a return for order  ${orderProduct.itemId} through the website. The return request has been submitted and is now waiting for approval.`,
       });
 
-
-
-      const return_order_placed_notification = await notificationService.createNotification({
-        title: "New return order placed !!!!",
-        message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
-        type: "return_order",
-        permissions: ["orders", "return-orders"],
-        orderId: orderProduct?.orderId,
-        productId: _id
-
-      })
+      const return_order_placed_notification =
+        await notificationService.createNotification({
+          title: "New return order placed !!!!",
+          message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
+          type: "return_order",
+          permissions: ["orders", "return-orders"],
+          orderId: orderProduct?.orderId,
+          productId: _id,
+        });
 
       io.emit("new_notification", return_order_placed_notification);
 
-      console.log("return res", response)
+      console.log("return res", response);
 
       return response;
     },
 
-    returnUserOrderProductInMob: async (parent, { input, image }, { req, io }, info) => {
+    returnUserOrderProductInMob: async (
+      parent,
+      { input, image },
+      { req, io },
+      info
+    ) => {
       //add product image and return address
       // console.log(image, "IMAGE FOR RETURN ORDER!!!!!!!!");
       // Verify user and validate input
@@ -1966,7 +1967,7 @@ export const orderResolver: Resolvers = {
       // console.log(isReturnable);
 
       if (!isReturnable) {
-        console.log("cant")
+        console.log("cant");
         throw new GraphQLError("Order can't be returned", {
           extensions: { code: "BAD_REQUEST", errors: [] },
         });
@@ -2024,28 +2025,29 @@ export const orderResolver: Resolvers = {
 
       const validatedReturnAddress = returnAddress
         ? {
-          firstname: returnAddress.firstname || "",
-          email: returnAddress.email || "",
-          mobile: returnAddress.mobile || "",
-          country: returnAddress.country || "India", // Default to "India"
-          houseNumber: returnAddress.houseNumber || "",
-          streetName: returnAddress.streetName || "",
-          apartment: returnAddress.apartment || "",
-          suite: returnAddress.suite || "",
-          unit: returnAddress.unit || "",
-          city: returnAddress.city || "",
-          postCode: returnAddress.postCode || "",
-          governorate: returnAddress.governorate,
-          village: returnAddress.village,
-          governorateID: returnAddress.governorateID,
-          villageID: returnAddress.villageID,
-          address: returnAddress.address || ""
-        }
+            firstname: returnAddress.firstname || "",
+            email: returnAddress.email || "",
+            mobile: returnAddress.mobile || "",
+            country: returnAddress.country || "India", // Default to "India"
+            houseNumber: returnAddress.houseNumber || "",
+            streetName: returnAddress.streetName || "",
+            apartment: returnAddress.apartment || "",
+            suite: returnAddress.suite || "",
+            unit: returnAddress.unit || "",
+            city: returnAddress.city || "",
+            postCode: returnAddress.postCode || "",
+            governorate: returnAddress.governorate,
+            village: returnAddress.village,
+            governorateID: returnAddress.governorateID,
+            villageID: returnAddress.villageID,
+            address: returnAddress.address || "",
+          }
         : null;
 
       if (orderProduct.returnCharge && orderProduct.sellingPrice) {
-        const returnAmount = (orderProduct.returnCharge / 100) * orderProduct?.sellingPrice
-        orderProduct.refundAmount = returnAmount
+        const returnAmount =
+          (orderProduct.returnCharge / 100) * orderProduct?.sellingPrice;
+        orderProduct.refundAmount = returnAmount;
       }
 
       orderProduct.returnUserReason = returnUserReason;
@@ -2063,8 +2065,6 @@ export const orderResolver: Resolvers = {
         _id: _id,
       };
 
-
-
       await activityLogService.createActivityLog({
         actionType: "RETURN",
         action: "RETURN REQUEST INITIATED",
@@ -2075,19 +2075,19 @@ export const orderResolver: Resolvers = {
         details: `${returnAddress?.firstname} (Customer) requested a return for order  ${orderProduct.itemId} through the website. The return request has been submitted and is now waiting for approval.`,
       });
 
-      const return_order_placed_notification = await notificationService.createNotification({
-        title: "New return order placed !!!!",
-        message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
-        type: "return_order",
-        permissions: ["orders", "return-orders"],
-        orderId: orderProduct?.orderId,
-        productId: _id
-
-      })
+      const return_order_placed_notification =
+        await notificationService.createNotification({
+          title: "New return order placed !!!!",
+          message: `A return order (ID: ${orderProduct?.orderId}) has been placed. Please review and process the request.`,
+          type: "return_order",
+          permissions: ["orders", "return-orders"],
+          orderId: orderProduct?.orderId,
+          productId: _id,
+        });
 
       io.emit("new_notification", return_order_placed_notification);
 
-      console.log("return res", response)
+      console.log("return res", response);
 
       return response;
     },
@@ -2148,7 +2148,7 @@ export const orderResolver: Resolvers = {
       const userId = req.authAccount._id;
       let { _id } = input;
 
-      const user = await userModel.findById(userId)
+      const user = await userModel.findById(userId);
 
       const orderProduct = await orderProductService.getOrderProductWithFilters(
         { userId: userId, _id: _id }
@@ -2177,7 +2177,7 @@ export const orderResolver: Resolvers = {
       }
 
       orderProduct.shippingStatus = "CANCELED";
-      orderProduct.cancelUserReason = input?.cancelUserReason
+      orderProduct.cancelUserReason = input?.cancelUserReason;
       orderProduct.cancelledDate = moment().toDate();
 
       await orderProduct.save();
@@ -2190,7 +2190,7 @@ export const orderResolver: Resolvers = {
           },
         ];
 
-        console.log("update stock")
+        console.log("update stock");
 
         await productService.increaseProductsStock(product);
       } catch (error) {
@@ -2227,7 +2227,6 @@ export const orderResolver: Resolvers = {
         _id: _id,
       };
 
-
       await activityLogService.createActivityLog({
         actionType: "ORDER",
         action: "ORDER CANCELED",
@@ -2237,7 +2236,6 @@ export const orderResolver: Resolvers = {
         referenceType: "ORDER_PRODUCTS",
         details: `${user?.displayName}  (User) Cancelled  the order ${orderProduct?.itemId} . The status has been updated to "Cancelled" `,
       });
-
 
       return response;
     },
@@ -2251,7 +2249,7 @@ export const orderResolver: Resolvers = {
       await validateInput(validators.cancelUserOrderValidator, req);
       const userId = req.authAccount._id;
       let { _id } = input;
-      const user = await userModel.findById(userId)
+      const user = await userModel.findById(userId);
 
       const orderProduct = await orderProductService.getOrderProductWithFilters(
         { userId: userId, _id: _id }
@@ -2280,7 +2278,7 @@ export const orderResolver: Resolvers = {
       }
 
       orderProduct.shippingStatus = "CANCELED";
-      orderProduct.cancelUserReason = input?.cancelUserReason
+      orderProduct.cancelUserReason = input?.cancelUserReason;
       orderProduct.cancelledDate = moment().toDate();
 
       await orderProduct.save();
@@ -3248,7 +3246,7 @@ export const orderResolver: Resolvers = {
         //     vendorName: item.vendorId.fullName,
         //   };
         // }),
-        products: result
+        products: result,
       };
 
       return response;
@@ -3272,9 +3270,8 @@ export const orderResolver: Resolvers = {
         const options = {
           proid: input.productId,
           villageID: input.villageID || "",
-          governorateID: input.governorateID || " "
-
-        }
+          governorateID: input.governorateID || " ",
+        };
 
         const result: any =
           await orderService.getProductDeliveryTypeDeliveryAgents(options);
@@ -3297,18 +3294,19 @@ export const orderResolver: Resolvers = {
       // await verifyAdmin(req);
       try {
         const orderProductId = input.orderProductId;
-        const result = await orderService.getOrderActivityLogByAdmin(orderProductId);
-        console.log("result", result)
-        return result
+        const result = await orderService.getOrderActivityLogByAdmin(
+          orderProductId
+        );
+        console.log("result", result);
+        return result;
       } catch (error) {
         throw new GraphQLError("Unable find data", {
           extensions: {
             code: "BAD_REQUEST",
             errors: [],
           },
-        })
+        });
       }
-
     },
-  }
+  },
 };
