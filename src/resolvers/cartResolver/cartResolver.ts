@@ -194,6 +194,7 @@ export const cartResolver: Resolvers = {
 
 
         bulkAddToCart: async (parent, { input }, { req }, info) => {
+            console.log("called")
 
             try {
                 await verifyUser(req);
@@ -210,6 +211,7 @@ export const cartResolver: Resolvers = {
 
                 console.log("user cart",cart)
                 if (cart) {
+                    console.log("called1")
                     let temp = [];
                     for (let product of products) {
                         let itemExist = false;
@@ -226,12 +228,34 @@ export const cartResolver: Resolvers = {
                     }
                     if (temp.length) {
                         cart.products = cart.products.concat(temp);
-                        await cart.save();
+                        // await cart.save();
                     }
-                    cart.products = temp;
+
+                    // cart.products = temp;
+                    const productIds = cart.products.map(p => p.productId);
+                    const productData = await productModel.find({ _id: { $in: productIds } });
+            
+                    // Calculate subTotal
+                    let subTotal = cart.products.reduce((total, product) => {
+                        const foundProduct = productData.find(p => String(p._id) === String(product.productId));
+                        return total + (foundProduct ? foundProduct.sellingPrice * product.quantity : 0);
+                    }, 0);
+            
+                    // Calculate shipping and grand total
+                    const shippingChargeconfig = shippingConfig?.shippingCharge || 0;
+                    const freeShippingThreshold = shippingConfig?.freeShippingThreshold || 0;
+            
+                    let shippingCharge = subTotal <= freeShippingThreshold ? shippingChargeconfig : 0;
+                    let grandTotal = subTotal + shippingCharge;
+            
+                    // Save updated cart
+                    cart.subTotal = subTotal;
+                    cart.shippingCharge = shippingCharge;
+                    cart.grandTotal = grandTotal;
                     await cart.save();
 
                 } else {
+                    console.log("called2")
                     try {
                         let subTotal = 0; 
                         let shippingCharge = 0
@@ -279,15 +303,22 @@ export const cartResolver: Resolvers = {
 
 
         bulkAddToCartInMobile: async (parent, { input }, { req }, info) => {
-            try {
+           try {
                 await verifyMobileUser(req);
                 await validateInput(validators.bulkAddToCartValidator, req);
 
                 const products: cartService.IUserCartProduct[] = input.products || [];
                 const userId: Types.ObjectId = req.authAccount._id;
+                
+                const shippingConfig = await settingsService.getShippingConfig({}, { sort: { _id: 1 } })
+
+                console.log("cart products", products);
 
                 const cart = await cartService.checkCartExist(userId)
+
+                console.log("user cart",cart)
                 if (cart) {
+                    console.log("called1")
                     let temp = [];
                     for (let product of products) {
                         let itemExist = false;
@@ -304,14 +335,62 @@ export const cartResolver: Resolvers = {
                     }
                     if (temp.length) {
                         cart.products = cart.products.concat(temp);
-                        await cart.save();
+                        // await cart.save();
                     }
-                    cart.products = temp;
+
+                    // cart.products = temp;
+                    const productIds = cart.products.map(p => p.productId);
+                    const productData = await productModel.find({ _id: { $in: productIds } });
+            
+                    // Calculate subTotal
+                    let subTotal = cart.products.reduce((total, product) => {
+                        const foundProduct = productData.find(p => String(p._id) === String(product.productId));
+                        return total + (foundProduct ? foundProduct.sellingPrice * product.quantity : 0);
+                    }, 0);
+            
+                    // Calculate shipping and grand total
+                    const shippingChargeconfig = shippingConfig?.shippingCharge || 0;
+                    const freeShippingThreshold = shippingConfig?.freeShippingThreshold || 0;
+            
+                    let shippingCharge = subTotal <= freeShippingThreshold ? shippingChargeconfig : 0;
+                    let grandTotal = subTotal + shippingCharge;
+            
+                    // Save updated cart
+                    cart.subTotal = subTotal;
+                    cart.shippingCharge = shippingCharge;
+                    cart.grandTotal = grandTotal;
                     await cart.save();
 
                 } else {
+                    console.log("called2")
                     try {
-                        await cartService.createBulkCart(userId, products);
+                        let subTotal = 0; 
+                        let shippingCharge = 0
+                        let grandTotal = 0
+
+                       
+                        const productDetails = await Promise.all(
+                            products.map(async (product) => {
+                                const productExist = await productModel.findById(product.productId);
+                                return productExist ? productExist.sellingPrice * product.quantity : 0;
+                            })
+                        );
+                
+                        // Calculate total
+                        subTotal = productDetails.reduce((acc, price) => acc + price, 0);
+
+                        const shippingChargeconfig = shippingConfig?.shippingCharge || 0;
+                        const freeShippingThreshold=shippingConfig?.freeShippingThreshold || 0;
+                        
+                        if (subTotal <= freeShippingThreshold) {
+                            grandTotal = subTotal + shippingChargeconfig
+                            shippingCharge = shippingChargeconfig
+                        } else {
+                            grandTotal = subTotal
+                        }
+
+
+                        await cartService.createBulkCart(userId, products,shippingCharge,grandTotal,subTotal);
                     } catch (error) {
                         console.log(error);
                     }

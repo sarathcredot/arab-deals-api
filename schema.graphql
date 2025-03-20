@@ -78,13 +78,6 @@ type Mutation {
   deliveryStatusOtpVerifyAdmin(input: deliveryStatusOtpVerifyAdminInput): deliveryStatusOtpVerifyAdminResponse
   addNotificationViewPersonId(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
   addRemoveMarkNotification(input: addNotificationViewPersonIdInput!): addNotificationViewPersonIdResponse!
-  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
-  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
-  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
-  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
-  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
   getAdminSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getVendorSignedFileUrl(input: GetAdminSignedFileUrlInput!): GetAdminSignedFileUrlResponse!
   getUserIvoiceSignedUrl(input: GetUserIvoiceUrlInput!): GetUserIvoiceUrlResponse!
@@ -154,6 +147,13 @@ type Mutation {
   suspendAdmin(input: suspendAdminInput!): suspendAdminResponse!
   deleteAdminAccount(input: deleteAdminAccountInput!): suspendAdminResponse!
   editAdminAccount(input: editAdminAccountInput!, image: Upload): editAdminAccountResponse!
+  exportAdminOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportVendorOrders(input: ExportAdminOrdersInput!): ExportAdminOrdersResponse!
+  exportAdminShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportVendorShippingProducts(input: ExportAdminShippingProductsInput!): ExportAdminShippingProductsResponse!
+  exportAdminSettlementHistory(input: ExportAdminSettlementHistoryInput!): ExportAdminShippingProductsResponse!
+  exportAssignOrders(input: AssignOrderInput!): ExportAdminShippingProductsResponse!
+  exportAllSettlementHistory(input: ExportAllSettlementHistoryInput!): ExportAdminShippingProductsResponse!
 }
 
 type Query {
@@ -251,11 +251,6 @@ type Query {
   getProductDeliveryTypeDeliveryAgents(input: GetProductDeliveryTypeDeliveryAgentsInput!): GetProductDeliveryTypeDeliveryAgentsResponse!
   getOrderActivityLogByAdmin(input: getOrderActivityLogByAdminInput!): [getOrderActivityLogByAdminResponse]
   getAllNotification(input: getAllNotificationInput): getAllNotificationResponse!
-  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
-  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
-  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
-  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
   getAllAgentData(input: getAllAgentDataInput): getAllAgentDataResponse!
   getDeliveryAgent(input: GetDeliveryAgentInput!): DeliveryAgentResponse
   getAgentSettlementHistory(input: getAgentSettlementHistoryInput!): SettlementResponse!
@@ -350,6 +345,11 @@ type Query {
   getAllAdminData(input: getAllAdminDataInput): getAllAdminDataResponse!
   getOneAdminDetails(input: getOneAdminDetailsInput): getOneAdminDetailsResponse!
   getActivityLogOfAdmin(input: getActivityLogOfAdminInput!): [getActivityLogOfAdminResponse]
+  getJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAgentJobsQueue(input: GetAgentJobQueueInput!): GetJobQueueResponse!
+  getVendorJobsQueue(input: GetJobQueueInput!): GetJobQueueResponse!
+  getAdminDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
+  getVendorDownloadToken(input: GetAdminDownloadTokenInput!): GetAdminDownloadTokenResponse!
 }
 
 input AddToWishListInput {
@@ -3248,108 +3248,6 @@ type addNotificationViewPersonIdResponse {
   msg: String
 }
 
-input ExportAdminOrdersInput {
-  _id: ObjectId
-  userId: ObjectId
-  orderId: String
-  paymentMode: String
-  orderStatus: String
-  startDate: Date
-  endDate: Date
-  postCode: String
-  page: Int
-  size: Int
-}
-
-input GetJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-}
-
-input GetAgentJobQueueInput {
-  page: Int
-  size: Int
-  name: String
-  agentId: ObjectId
-}
-
-input GetAdminDownloadTokenInput {
-  _id: ObjectId!
-}
-
-input ExportAdminShippingProductsInput {
-  _id: ObjectId
-  userId: ObjectId
-  vendorId: ObjectId
-  orderId: String
-  productId: ObjectId
-  itemId: String
-  skuId: String
-  paymentMode: String
-  paymentStatus: String
-  shippingStatus: String
-  orderStartDate: Date
-  orderEndDate: Date
-  shippingStartDate: Date
-  shippingEndDate: Date
-  deliveryStartDate: Date
-  deliveryEndDate: Date
-  cancelledStartDate: Date
-  cancelledEndDate: Date
-  courierId: String
-  invoiceNumber: String
-  page: Int
-  size: Int
-  sort: String
-}
-
-input ExportAdminSettlementHistoryInput {
-  type: String
-  agentId: ObjectId
-  startDate: Date
-  endDate: Date
-  page: Int
-  size: Int
-}
-
-input AssignOrderInput {
-  shippingStatus: String
-  agentId: ObjectId
-  page: Int
-  size: Int
-}
-
-input ExportAllSettlementHistoryInput {
-  page: Int
-  size: Int
-}
-
-type ExportAdminOrdersResponse {
-  message: String
-}
-
-type ExportAdminShippingProductsResponse {
-  message: String
-}
-
-type JobRecord {
-  _id: ObjectId
-  name: String
-  status: String
-  isExpired: Boolean
-  createdAt: Date
-}
-
-type GetJobQueueResponse {
-  maxRecords: Int
-  records: [JobRecord]
-}
-
-type GetAdminDownloadTokenResponse {
-  url: String!
-}
-
 input GetAdminSignedFileUrlInput {
   fileURL: String!
   mimeType: String!
@@ -5480,4 +5378,106 @@ type getAdminRecordResponse {
 type adminApprovalForVendorResponse {
   _id: String
   message: String
+}
+
+input ExportAdminOrdersInput {
+  _id: ObjectId
+  userId: ObjectId
+  orderId: String
+  paymentMode: String
+  orderStatus: String
+  startDate: Date
+  endDate: Date
+  postCode: String
+  page: Int
+  size: Int
+}
+
+input GetJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+}
+
+input GetAgentJobQueueInput {
+  page: Int
+  size: Int
+  name: String
+  agentId: ObjectId
+}
+
+input GetAdminDownloadTokenInput {
+  _id: ObjectId!
+}
+
+input ExportAdminShippingProductsInput {
+  _id: ObjectId
+  userId: ObjectId
+  vendorId: ObjectId
+  orderId: String
+  productId: ObjectId
+  itemId: String
+  skuId: String
+  paymentMode: String
+  paymentStatus: String
+  shippingStatus: String
+  orderStartDate: Date
+  orderEndDate: Date
+  shippingStartDate: Date
+  shippingEndDate: Date
+  deliveryStartDate: Date
+  deliveryEndDate: Date
+  cancelledStartDate: Date
+  cancelledEndDate: Date
+  courierId: String
+  invoiceNumber: String
+  page: Int
+  size: Int
+  sort: String
+}
+
+input ExportAdminSettlementHistoryInput {
+  type: String
+  agentId: ObjectId
+  startDate: Date
+  endDate: Date
+  page: Int
+  size: Int
+}
+
+input AssignOrderInput {
+  shippingStatus: String
+  agentId: ObjectId
+  page: Int
+  size: Int
+}
+
+input ExportAllSettlementHistoryInput {
+  page: Int
+  size: Int
+}
+
+type ExportAdminOrdersResponse {
+  message: String
+}
+
+type ExportAdminShippingProductsResponse {
+  message: String
+}
+
+type JobRecord {
+  _id: ObjectId
+  name: String
+  status: String
+  isExpired: Boolean
+  createdAt: Date
+}
+
+type GetJobQueueResponse {
+  maxRecords: Int
+  records: [JobRecord]
+}
+
+type GetAdminDownloadTokenResponse {
+  url: String!
 }
