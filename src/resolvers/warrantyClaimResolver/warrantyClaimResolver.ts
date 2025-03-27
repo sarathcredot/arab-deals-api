@@ -158,47 +158,46 @@ export const warrantyClaimResolver: Resolvers = {
             }
         },
 
-        createWarrantyClaimRequestByUSerInMobile: async (parent, { input, image }, { req }, info) => {
+        createWarrantyClaimRequestByUSerInMobile: async (parent, { input }, { req }, info) => {
             console.log("createWarrantyClaimRequestByUSer");
             await verifyUser(req);
             try {
                 const userId = req.authAccount?._id;
                 const productId: Types.ObjectId = input.productId;
-                const { claimType, issueDescription, warrantyAddress } = input;
+                const { claimType, issueDescription, warrantyAddress, productImage = []  } = input;
                 console.log("input", input);
-                let productImage: any = [];
 
-                if (image) {
-                    try {
-                        for (let images of image) {
-                            const { createReadStream, filename, mimetype, encoding } =
-                                await images;
-                            const key = spaceService.getFileKey(
-                                filePaths.warrantyProduct,
-                                filename,
-                                []
-                            );
-                            const stream = createReadStream();
-                            const file = await spaceService.publicFileUpload(
-                                key,
-                                mimetype,
-                                { mimetype: mimetype },
-                                stream
-                            );
+                // if (image) {
+                //     try {
+                //         for (let images of image) {
+                //             const { createReadStream, filename, mimetype, encoding } =
+                //                 await images;
+                //             const key = spaceService.getFileKey(
+                //                 filePaths.warrantyProduct,
+                //                 filename,
+                //                 []
+                //             );
+                //             const stream = createReadStream();
+                //             const file = await spaceService.publicFileUpload(
+                //                 key,
+                //                 mimetype,
+                //                 { mimetype: mimetype },
+                //                 stream
+                //             );
 
-                            productImage.push({
-                                fileType: "PUBLIC",
-                                fileURL: file.location,
-                                mimeType: mimetype,
-                                originalName: filename,
-                            });
-                        }
-                    } catch (error) {
-                        throw new GraphQLError("image upload failed", {
-                            extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
-                        });
-                    }
-                }
+                //             productImage.push({
+                //                 fileType: "PUBLIC",
+                //                 fileURL: file.location,
+                //                 mimeType: mimetype,
+                //                 originalName: filename,
+                //             });
+                //         }
+                //     } catch (error) {
+                //         throw new GraphQLError("image upload failed", {
+                //             extensions: { code: "INTERNAL_SERVER_ERROR", errors: [error] },
+                //         });
+                //     }
+                // }
 
                 const existingOrderProduct = await warrantyClaimService.findOrderProductWithFilters(productId, userId);
                 console.log("existingOrderProduct", existingOrderProduct);

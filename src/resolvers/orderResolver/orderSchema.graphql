@@ -18,9 +18,8 @@ type Mutation {
     image: [Upload]
   ): ReturnUserOrderProductResponse!
 
-   returnUserOrderProductInMob(
-    input: ReturnUserOrderProductInput!
-    image: [Upload]
+  returnUserOrderProductInMob(
+    input: ReturnUserOrderProductInputInMob!
   ): ReturnUserOrderProductResponse!
 
   returnUserOrderProductInMobile(
@@ -33,45 +32,38 @@ type Mutation {
     input: CancelUserOrderProductInMobileInput!
   ): CancelUserOrderProductInMobileResponse!
 
-  updateAdminOrderProductOtpSent(input:updateAdminOrderProductOtpSentInput):updateAdminOrderProductOtpSentResponse
-  deliveryStatusOtpVerifyAdmin(input:deliveryStatusOtpVerifyAdminInput):deliveryStatusOtpVerifyAdminResponse
+  updateAdminOrderProductOtpSent(
+    input: updateAdminOrderProductOtpSentInput
+  ): updateAdminOrderProductOtpSentResponse
+  deliveryStatusOtpVerifyAdmin(
+    input: deliveryStatusOtpVerifyAdminInput
+  ): deliveryStatusOtpVerifyAdminResponse
 }
 
-
-type deliveryStatusOtpVerifyAdminResponse{
-
-
-      status:Boolean
-      msg:String
-
+type deliveryStatusOtpVerifyAdminResponse {
+  status: Boolean
+  msg: String
 }
 
-input deliveryStatusOtpVerifyAdminInput{
-        
-        agentId:ObjectId!
-        orderItemId:ObjectId!
-        code:String
-        returnStatus:String
-        returnRemark:String
-        deliveryStatus:String
-        paymentMode:String
-        remarks:String
+input deliveryStatusOtpVerifyAdminInput {
+  agentId: ObjectId!
+  orderItemId: ObjectId!
+  code: String
+  returnStatus: String
+  returnRemark: String
+  deliveryStatus: String
+  paymentMode: String
+  remarks: String
 }
 
-
-input updateAdminOrderProductOtpSentInput{
-
-      orderId:ObjectId!
+input updateAdminOrderProductOtpSentInput {
+  orderId: ObjectId!
 }
 
-type updateAdminOrderProductOtpSentResponse{
- 
-    status:Boolean
-    otp:Boolean
-    msg:String
-
-
-      
+type updateAdminOrderProductOtpSentResponse {
+  status: Boolean
+  otp: Boolean
+  msg: String
 }
 
 # Create Order Input
@@ -146,7 +138,7 @@ type returnAddress {
   village: String
   governorateID: String
   villageID: String
-  address:String
+  address: String
 }
 
 input ReturnAddressInput {
@@ -165,7 +157,7 @@ input ReturnAddressInput {
   village: String!
   governorateID: String!
   villageID: String!
-  address:String
+  address: String
 }
 
 input ReturnUserOrderProductInput {
@@ -175,6 +167,21 @@ input ReturnUserOrderProductInput {
   returnAddress: ReturnAddressInput
 }
 
+input ReturnUserOrderProductInputInMob {
+  _id: ObjectId!
+  returnUserReason: String!
+  bankDetails: BankDetailsInput
+  returnAddress: ReturnAddressInput
+  returnProductImage: [ReturnProductImage]
+}
+
+input ReturnProductImage {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
+}
+
 input ReturnUserOrderProductInMobileInput {
   _id: ObjectId!
   returnUserReason: String!
@@ -182,15 +189,12 @@ input ReturnUserOrderProductInMobileInput {
 
 input CancelUserOrderProductInput {
   _id: ObjectId!
-  cancelUserReason:String!
-
+  cancelUserReason: String!
 }
 
 input CancelUserOrderProductInMobileInput {
   _id: ObjectId!
-  cancelUserReason:String!
-
-
+  cancelUserReason: String!
 }
 
 type CreateUserOrderResponse {
@@ -288,31 +292,32 @@ type Query {
   getProductDeliveryTypeDeliveryAgents(
     input: GetProductDeliveryTypeDeliveryAgentsInput!
   ): GetProductDeliveryTypeDeliveryAgentsResponse!
-  getOrderActivityLogByAdmin(input:getOrderActivityLogByAdminInput!):[getOrderActivityLogByAdminResponse]
+  getOrderActivityLogByAdmin(
+    input: getOrderActivityLogByAdminInput!
+  ): [getOrderActivityLogByAdminResponse]
 }
 
-
-input getOrderActivityLogByAdminInput{
-  orderProductId:ObjectId!
+input getOrderActivityLogByAdminInput {
+  orderProductId: ObjectId!
 }
 
-type performedBy{
-  _id:ObjectId
-  name:String
+type performedBy {
+  _id: ObjectId
+  name: String
 }
 
-type getOrderActivityLogByAdminResponse{
-  _id:ObjectId
+type getOrderActivityLogByAdminResponse {
+  _id: ObjectId
   actionType: String
   action: String
   performedBy: ObjectId
   performedByRole: String
   referenceId: ObjectId
   referenceType: String
-  details:String
-  createdAt:Date
-  timeDifference:Int
-  performedByDetails:[performedBy]
+  details: String
+  createdAt: Date
+  timeDifference: Int
+  performedByDetails: [performedBy]
 }
 
 # delivery agent type
@@ -502,9 +507,8 @@ type OrderShippingAddress {
   governorate: String
   village: String
   villageID: String
-  address:String
-  label:String
-
+  address: String
+  label: String
 }
 
 type OrderPriceInfo {
@@ -567,21 +571,17 @@ type UserOrderProduct {
   courierId: String
   invoiceNumber: String
   invoice: FileData
-  warranty:WarrantyTypeUserOrders
-  warrantyClaimStatus:String
-  
+  warranty: WarrantyTypeUserOrders
+  warrantyClaimStatus: String
 }
 
- type WarrantyTypeUserOrders{
-
-    name:String
-    description:String
-    duration:Int
-    warrantyType:[String]
-    warrantyRegister:Boolean
- }
-
-
+type WarrantyTypeUserOrders {
+  name: String
+  description: String
+  duration: Int
+  warrantyType: [String]
+  warrantyRegister: Boolean
+}
 
 type DeliveryAgentForOrderProduct {
   _id: ObjectId
@@ -724,7 +724,6 @@ type GetAdminOrderDetailsResponse {
   username: String
   shippingAddress: OrderShippingAddress
   orderPriceInfo: OrderPriceInfo
-   
 }
 
 type GetAdminShippingProductsResponse {
