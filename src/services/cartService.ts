@@ -28,6 +28,9 @@ export interface IUserCartDocument extends Document {
     _id?: Types.ObjectId;
     products: IUserCartProduct[];
     userId: Types.ObjectId;
+    grandTotal:number;
+    subTotal:number;
+    shippingCharge: number;
 }
 
 
@@ -134,10 +137,13 @@ export const createCart = async (productId: Types.ObjectId, userId: Types.Object
     });
 }
 
-export const createBulkCart = async (userId: Types.ObjectId, products: IUserCartProduct[]): Promise<any> => {
+export const createBulkCart = async (userId: Types.ObjectId, products: IUserCartProduct[],shippingCharge?: number, grandTotal?: number, subTotal?: number): Promise<any> => {
     return await cartModel.create({
         userId: userId,
-        products: products
+        products: products,
+        shippingCharge: shippingCharge,
+        grandTotal: grandTotal,
+        subTotal: subTotal
     });
 }
 export const checkCartExist = async (userId: Types.ObjectId): Promise<IUserCartDocument | null> => {

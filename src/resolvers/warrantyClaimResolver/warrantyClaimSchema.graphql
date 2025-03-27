@@ -7,8 +7,7 @@ type Mutation {
    createWarrantyClaimRequestByUSer(input:createWarrantyClaimRequestByUSerInput! 
    image: [Upload]):createWarrantyClaimRequestByUSerResponse
 
-   createWarrantyClaimRequestByUSerInMobile(input:createWarrantyClaimRequestByUSerInput! 
-   image: [Upload]):createWarrantyClaimRequestByUSerResponse
+   createWarrantyClaimRequestByUSerInMobile(input:createWarrantyClaimRequestByUSerInputInMobile!):createWarrantyClaimRequestByUSerResponse
 
 
 
@@ -138,6 +137,21 @@ input createWarrantyClaimRequestByUSerInput{
     claimType:String!
     issueDescription:String
     warrantyAddress:warrantyAddressInput!
+}
+
+input createWarrantyClaimRequestByUSerInputInMobile{
+    productId:ObjectId!
+    claimType:String!
+    issueDescription:String
+    warrantyAddress:warrantyAddressInput!
+    productImage: [WarrantyProductImage] 
+}
+
+input WarrantyProductImage {
+  fileType: String
+  fileURL: String
+  mimeType: String
+  originalName: String
 }
 
 input getAllClaimRequestsByAdminInput{

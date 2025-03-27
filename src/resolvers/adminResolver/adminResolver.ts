@@ -405,14 +405,14 @@ export const adminResolver: Resolvers = {
         }
 
         if (input.password) {
-          if (await admin.verifyHash?.(input.password)) {
-            throw new GraphQLError("You entered same password", {
-              extensions: {
-                code: "BAD_REQUEST",
-                errors: []
-              }
-            });
-          }
+          // if (await admin.verifyHash?.(input.password)) {
+          //   throw new GraphQLError("You entered same password", {
+          //     extensions: {
+          //       code: "BAD_REQUEST",
+          //       errors: []
+          //     }
+          //   });
+          // }
           await admin.setHash!(input.password);
         }
 

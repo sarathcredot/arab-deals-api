@@ -1834,8 +1834,6 @@ export const deliveryAgentResolver: Resolvers = {
     //to get all governorates and villages
 
     getLocationsData: async (parent, { }, { req }, info) => {
-      console.log("called")
-      console.log("locations", locations)
       return locations.governorates;
     },
 

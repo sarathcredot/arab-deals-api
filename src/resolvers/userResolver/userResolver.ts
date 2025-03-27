@@ -983,7 +983,7 @@ export const userResolver: Resolvers = {
         await verifyAdmin(req);
         await validateInput(validators.userUpdateProfileByAdminValidator, req);
 
-        let { _id, firstName, lastName, displayName, mobileNumber, isBlocked, email } = input;
+        let { _id, firstName, lastName, displayName,countryCode, mobileNumber, isBlocked, email } = input;
 
         const user = await userService.findUserWithFilters({ _id: _id }, {}, {});
         if (!user) {
@@ -1043,6 +1043,9 @@ export const userResolver: Resolvers = {
 
         if (firstName) {
           user.firstName = firstName;
+        }
+        if (countryCode) {
+          user.countryCode = countryCode;
         }
 
         if (lastName) {
